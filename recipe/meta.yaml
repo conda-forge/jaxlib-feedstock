@@ -1,4 +1,4 @@
-{% set version = "0.1.21" %}
+{% set version = "0.1.22" %}
 {% set name = "jaxlib" %}
 
 {% set wheel_tag = "cp37-none-manylinux1_x86_64" %}  # [linux]
@@ -13,8 +13,8 @@ package:
 source:
   fn: {{ fn }}
   url: https://pypi.io/packages/cp37/{{ name[0] }}/{{ name }}/{{ fn }}
-  sha256: 18905d2e0ce75d3a5790f6056450deb66de81502723906ace07c478de363fd4e  # [linux]
-  sha256: d42834f30774854e93b328a021d43e555543770d8459238e7f323816e17746a6  # [osx]
+  sha256: 99a5a608f9c7c85737e4b97ed38744785a6841df97686479c577e8ace5825545  # [linux]
+  sha256: af0c137891f426bead33bfddf193d38ba951b86c6e76a1f739b1ebc2b9ae10aa  # [osx]
 
 build:
   number: 0
