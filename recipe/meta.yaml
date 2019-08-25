@@ -13,8 +13,8 @@ package:
 source:
   fn: {{ fn }}
   url: https://pypi.io/packages/cp37/{{ name[0] }}/{{ name }}/{{ fn }}
-  sha256: 99a5a608f9c7c85737e4b97ed38744785a6841df97686479c577e8ace5825545  # [linux]
-  sha256: af0c137891f426bead33bfddf193d38ba951b86c6e76a1f739b1ebc2b9ae10aa  # [osx]
+  sha256: 8310c498f1e7161e986ec909b07c98a641ee7bcaa60390ad8f9896aa1f9c6bee  # [linux]
+  sha256: e172c24559269b6cee8779eb8de96f1a2e6fc8350f09986b8214712f2b02681b  # [osx]
 
 build:
   number: 0
