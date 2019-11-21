@@ -1,4 +1,4 @@
-{% set version = "0.1.33" %}
+{% set version = "0.1.35" %}
 {% set name = "jaxlib" %}
 
 {% set wheel_tag = "cp37-none-manylinux2010_x86_64" %}  # [linux]
