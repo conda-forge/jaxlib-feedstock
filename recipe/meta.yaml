@@ -1,10 +1,12 @@
 {% set version = "0.1.39" %}
 {% set name = "jaxlib" %}
 
-{% set wheel_tag = "cp37-none-manylinux2010_x86_64" %}  # [linux]
-{% set wheel_tag = "cp37-none-macosx_10_9_x86_64" %}  # [osx]
+{% set pyver = "cp{}{}".format(PY_VER[0], PY_VER[2]) %}
+{% set platform = "manylinux2010_x86_64" %}  # [linux]
+{% set platform = "macosx_10_9_x86_64" %}  # [osx]
 
-{% set fn = "{}-{}-{}.whl".format(name, version, wheel_tag) %}
+# {distribution}-{version}(-{build tag})?-{python tag}-{abi tag}-{platform tag}.whl.
+{% set fn = "{}-{}-{}-none-{}.whl".format(name, version, pyver, platform) %}
 
 package:
   name: jaxlib
@@ -12,13 +14,19 @@ package:
 
 source:
   fn: {{ fn }}
-  url: https://pypi.io/packages/cp37/{{ name[0] }}/{{ name }}/{{ fn }}
-  sha256: 0c2760ce6ba1dbe768d60b1ece910b3e592edad11a16e8a4cb89435b08a516d5  # [linux]
-  sha256: 3aa144b39f8c4292b72687d5b18eb14c66938cc8e5bb5ce5a9270f95958a209b  # [osx]
+  url: https://pypi.io/packages/{{ pyver }}/{{ name[0] }}/{{ name }}/{{ fn }}
+  sha256: 317cda76c434f67cc8c6fb98e856642a5afe7b84f6d744d80de79d7d3913fd58  # [linux and py==36]
+  sha256: 3d94959de4a4cdcbb876204db77bf4d6ee8df09d128056f9a1fe2bc2bab7adf5  # [osx and py==36]
+
+  sha256: 0c2760ce6ba1dbe768d60b1ece910b3e592edad11a16e8a4cb89435b08a516d5  # [linux and py==37]
+  sha256: 3aa144b39f8c4292b72687d5b18eb14c66938cc8e5bb5ce5a9270f95958a209b  # [osx and py==37]
+
+  sha256: cd3aa141c7548060070787defceca332fdc31f16a4d6f3bb803cbeb3922a2bd8  # [linux and py==38]
+  sha256: 9725e17494ee90d0d56d6c09c1b83224ddb0ae27a28f5d1fd69dae99e88dca72  # [osx and py==38]
 
 build:
   number: 0
-  skip: True  # [win or not py==37]
+  skip: True  # [win or py2k]
   script: "{{ PYTHON }} -m pip install --no-deps -vv {{ fn }}"
 
 requirements:
@@ -34,11 +42,14 @@ requirements:
     - six
 
 test:
-  imports:
+  requires:
+    - pip
+  commands:
+    - pip check
+  # imports:
     # cannot run the test b/c this is not really manylinux1 GLIBC_2.14
     # Google :-/
     # - jaxlib
-    - numpy
 
 about:
   home: http://github.com/google/jax
