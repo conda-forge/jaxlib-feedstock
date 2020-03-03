@@ -1,13 +1,12 @@
 {% set version = "0.1.39" %}
 {% set name = "jaxlib" %}
 
-{% set pyver = "{}{}".format(PY_VER[0], PY_VER[2]) %}
+{% set pyver = "cp{}{}".format(PY_VER[0], PY_VER[2]) %}
 {% set platform = "manylinux2010_x86_64" %}  # [linux]
 {% set platform = "macosx_10_9_x86_64" %}  # [osx]
 
-# CONDA_PY
 # {distribution}-{version}(-{build tag})?-{python tag}-{abi tag}-{platform tag}.whl.
-{% set fn = "{}-{}-cp{}-none-{}.whl".format(name, version, pyver, platform) %}
+{% set fn = "{}-{}-{}-none-{}.whl".format(name, version, pyver, platform) %}
 
 package:
   name: jaxlib
@@ -15,7 +14,7 @@ package:
 
 source:
   fn: {{ fn }}
-  url: https://pypi.io/packages/cp37/{{ name[0] }}/{{ name }}/{{ fn }}
+  url: https://pypi.io/packages/{{ pyver }}/{{ name[0] }}/{{ name }}/{{ fn }}
   sha256: 317cda76c434f67cc8c6fb98e856642a5afe7b84f6d744d80de79d7d3913fd58  # [linux and py==36]
   sha256: 3d94959de4a4cdcbb876204db77bf4d6ee8df09d128056f9a1fe2bc2bab7adf5  # [osx and py==36]
 
@@ -27,7 +26,7 @@ source:
 
 build:
   number: 0
-  skip: True  # [win or not py==37]
+  skip: True  # [win or py2k]
   script: "{{ PYTHON }} -m pip install --no-deps -vv {{ fn }}"
 
 requirements:
