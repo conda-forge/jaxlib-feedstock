@@ -1,4 +1,4 @@
-{% set version = "0.1.39" %}
+{% set version = "0.1.42" %}
 {% set name = "jaxlib" %}
 
 {% set pyver = "cp{}{}".format(PY_VER[0], PY_VER[2]) %}
