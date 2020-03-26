@@ -1,4 +1,4 @@
-{% set version = "0.1.39" %}
+{% set version = "0.1.42" %}
 {% set name = "jaxlib" %}
 
 {% set pyver = "cp{}{}".format(PY_VER[0], PY_VER[2]) %}
@@ -15,14 +15,14 @@ package:
 source:
   fn: {{ fn }}
   url: https://pypi.io/packages/{{ pyver }}/{{ name[0] }}/{{ name }}/{{ fn }}
-  sha256: 317cda76c434f67cc8c6fb98e856642a5afe7b84f6d744d80de79d7d3913fd58  # [linux and py==36]
-  sha256: 3d94959de4a4cdcbb876204db77bf4d6ee8df09d128056f9a1fe2bc2bab7adf5  # [osx and py==36]
+  sha256: 0ca99b7ecee52e7f0d5287e7917a8faebe55205c68694ff0076ac781478dede8  # [linux and py==36]
+  sha256: 2bdc0651c272f69c4e54c36352ceda23bf6cb2e7c11d77f71e61e152ab95cee0  # [osx and py==36]
 
-  sha256: 0c2760ce6ba1dbe768d60b1ece910b3e592edad11a16e8a4cb89435b08a516d5  # [linux and py==37]
-  sha256: 3aa144b39f8c4292b72687d5b18eb14c66938cc8e5bb5ce5a9270f95958a209b  # [osx and py==37]
+  sha256: 8027e741872eebd587d621d0a6ceaf07c6dea77a92b75602b904c0f01c9d5db4  # [linux and py==37]
+  sha256: 476da8512706f46b1ec118579530d81d743e9752f846555e5d649365e76607f5  # [osx and py==37]
 
-  sha256: cd3aa141c7548060070787defceca332fdc31f16a4d6f3bb803cbeb3922a2bd8  # [linux and py==38]
-  sha256: 9725e17494ee90d0d56d6c09c1b83224ddb0ae27a28f5d1fd69dae99e88dca72  # [osx and py==38]
+  sha256: 31908dfc68e48d4fa38a80a455bc87afa74c54b44cff547568d73438ddfa21fc  # [linux and py==38]
+  sha256: 24a061a24b638e953a4e466f15313f4b7f74b22e304fd28679c94dc5ad9c1ade  # [osx and py==38]
 
 build:
   number: 0
