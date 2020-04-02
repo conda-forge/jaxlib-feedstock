@@ -10,6 +10,10 @@ jobs:
   strategy:
     maxParallel: 8
     matrix:
+      linux_python3.6.____73_pypy:
+        CONFIG: linux_python3.6.____73_pypy
+        UPLOAD_PACKAGES: True
+        DOCKER_IMAGE: condaforge/linux-anvil-comp7
       linux_python3.6.____cpython:
         CONFIG: linux_python3.6.____cpython
         UPLOAD_PACKAGES: True
