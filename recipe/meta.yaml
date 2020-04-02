@@ -24,7 +24,7 @@ source:
   sha256: 31908dfc68e48d4fa38a80a455bc87afa74c54b44cff547568d73438ddfa21fc  # [linux and py==38]
   sha256: 24a061a24b638e953a4e466f15313f4b7f74b22e304fd28679c94dc5ad9c1ade  # [osx and py==38]
 build:
-  number: 0
+  number: 1
   skip: True  # [win or py2k]
   script: "{{ PYTHON }} -m pip install --no-deps -vv {{ fn }}"
 
