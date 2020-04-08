@@ -9,10 +9,10 @@ package:
   version: {{ version }}
 
 source:
-  fn: wheel.why
+  fn: wheel.whl
 
   url: https://pypi.io/packages/cp36/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp36-none-{{ linux }}.whl  # [linux and py==36]  
-  sha256: 0ca99b7ecee52e7f0d5287e7917a8faebe55205c68694ff0076ac781478dede8      # [linux and py==36]  
+  sha256: 0ca99b7ecee52e7f0d5287e7917a8faebe55205c68694ff0076ac781478dede8  # [linux and py==36]  
   url: https://pypi.io/packages/cp36/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp36-none-{{ osx }}.whl  # [osx and py==36]  
   sha256: 2bdc0651c272f69c4e54c36352ceda23bf6cb2e7c11d77f71e61e152ab95cee0  # [osx and py==36]
 
