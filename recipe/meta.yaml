@@ -9,31 +9,27 @@ package:
   version: {{ version }}
 
 source:
-  fn: {{ name }}-{{ version }}-cp36-none-{{ linux }}.whl  # [linux and py==36]  
+  fn: wheel.why
+
   url: https://pypi.io/packages/cp36/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp36-none-{{ linux }}.whl  # [linux and py==36]  
   sha256: 0ca99b7ecee52e7f0d5287e7917a8faebe55205c68694ff0076ac781478dede8      # [linux and py==36]  
-  fn: {{ name }}-{{ version }}-cp36-none-{{ osx }}.whl  # [osx and py==36]  
   url: https://pypi.io/packages/cp36/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp36-none-{{ osx }}.whl  # [osx and py==36]  
   sha256: 2bdc0651c272f69c4e54c36352ceda23bf6cb2e7c11d77f71e61e152ab95cee0  # [osx and py==36]
 
-  fn: {{ name }}-{{ version }}-cp37-none-{{ linux }}.whl  # [linux and py==37]
   url: https://pypi.io/packages/cp37/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp37-none-{{ linux }}.whl  # [linux and py==37]
   sha256: 8027e741872eebd587d621d0a6ceaf07c6dea77a92b75602b904c0f01c9d5db4  # [linux and py==37]
-  fn: {{ name }}-{{ version }}-cp37-none-{{ osx }}.whl  # [osx and py==37]
   url: https://pypi.io/packages/cp37/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp37-none-{{ osx }}.whl  # [osx and py==37]
   sha256: 476da8512706f46b1ec118579530d81d743e9752f846555e5d649365e76607f5  # [osx and py==37]
 
-  fn: {{ name }}-{{ version }}-cp38-none-{{ linux }}.whl  # [linux and py==38]
   url: https://pypi.io/packages/cp38/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp38-none-{{ linux }}.whl  # [linux and py==38]
   sha256: 31908dfc68e48d4fa38a80a455bc87afa74c54b44cff547568d73438ddfa21fc  # [linux and py==38]
-  fn: {{ name }}-{{ version }}-cp38-none-{{ osx }}.whl  # [osx and py==38]
   url: https://pypi.io/packages/cp38/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp38-none-{{ osx }}.whl  # [osx and py==38]
   sha256: 24a061a24b638e953a4e466f15313f4b7f74b22e304fd28679c94dc5ad9c1ade  # [osx and py==38]
 
 build:
   number: 1
   skip: True  # [win or py2k]
-  script: "{{ PYTHON }} -m pip install --no-deps -vv {{ fn }}"
+  script: "{{ PYTHON }} -m pip install --no-deps -vv wheel.whl"
 
 requirements:
   host:
