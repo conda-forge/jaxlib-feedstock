@@ -5,7 +5,7 @@
 {% set platform = "macosx_10_9_x86_64" %}  # [osx]
 
 # {distribution}-{version}(-{build tag})?-{python tag}-{abi tag}-{platform tag}.whl.
-{% set fn = "{}-{}-{}-none-{}.whl".format(name, version, pyver, platform) %}
+{% set fn = "{}-{}-{}-none-{}.whl".format(name, version, py, platform) %}
 
 package:
   name: jaxlib
