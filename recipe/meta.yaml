@@ -16,7 +16,7 @@ source:
 
   url: https://pypi.io/packages/cp37/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp37-none-{{ linux }}.whl  # [linux and py==37]
   sha256: 8027e741872eebd587d621d0a6ceaf07c6dea77a92b75602b904c0f01c9d5db4  # [linux and py==37]
-  url: https://pypi.io/packages/cp37/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp37-none-{{ osx }}.whl  # [psx and py==37]
+  url: https://pypi.io/packages/cp37/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp37-none-{{ osx }}.whl  # [osx and py==37]
   sha256: 476da8512706f46b1ec118579530d81d743e9752f846555e5d649365e76607f5  # [osx and py==37]
 
   url: https://pypi.io/packages/cp38/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp38-none-{{ linux }}.whl  # [linux and py==38]
