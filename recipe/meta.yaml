@@ -3,7 +3,6 @@
 
 # compute right wheel filename for later
 {% set pyver = "cp{}{}".format(PY_VER[0], PY_VER[2]) %}
-
 {% set platform = "manylinux2010_x86_64" %}  # [linux]
 {% set platform = "macosx_10_9_x86_64" %}  # [osx]
 # {distribution}-{version}(-{build tag})?-{python tag}-{abi tag}-{platform tag}.whl.
