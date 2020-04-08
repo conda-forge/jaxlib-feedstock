@@ -1,12 +1,8 @@
 {% set version = "0.1.42" %}
 {% set name = "jaxlib" %}
 
-{% set pyver = "cp{}{}".format(PY_VER[0], PY_VER[2]) %}
 {% set linux = "manylinux2010_x86_64" %}
 {% set osx = "macosx_10_9_x86_64" %}
-
-# {distribution}-{version}(-{build tag})?-{python tag}-{abi tag}-{platform tag}.whl.
-{% set fn = "{}-{}-{}-none-{}.whl".format(name, version, pyver, platform) %}
 
 package:
   name: jaxlib
@@ -29,7 +25,7 @@ source:
   sha256: 24a061a24b638e953a4e466f15313f4b7f74b22e304fd28679c94dc5ad9c1ade  # [osx and py==38]
 
 build:
-  number: 0
+  number: 1
   skip: True  # [win or py2k]
   script: "{{ PYTHON }} -m pip install --no-deps -vv {{ fn }}"
 
