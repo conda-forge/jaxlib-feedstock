@@ -20,9 +20,9 @@ package:
 source:
   fn: wheel.whl
 
-  url: https://pypi.io/packages/cp36/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp36-none-{{ linux_whl }}.whl  # [linux and py==36]  
-  sha256: 74490dd3c2e37492dbefc040a059bdedf0ba62d5d68c51d43181ac6c1aa14518  # [linux and py==36]  
-  url: https://pypi.io/packages/cp36/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp36-none-{{ osx_whl }}.whl  # [osx and py==36]  
+  url: https://pypi.io/packages/cp36/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp36-none-{{ linux_whl }}.whl  # [linux and py==36]
+  sha256: 74490dd3c2e37492dbefc040a059bdedf0ba62d5d68c51d43181ac6c1aa14518  # [linux and py==36]
+  url: https://pypi.io/packages/cp36/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp36-none-{{ osx_whl }}.whl  # [osx and py==36]
   sha256: 1b9fd8a29755c213e950a8eae128a1fed15e1055bea872e3b00e07ab9b00c05e  # [osx and py==36]
 
   url: https://pypi.io/packages/cp37/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp37-none-{{ linux_whl }}.whl  # [linux and py==37]
@@ -36,11 +36,11 @@ source:
   sha256: 31a3c55e28eaa9182e084e6233400d6e7d24f8eb9102f27e46bf52e8c8db2e02  # [osx and py==38]
 
 build:
-  number: 1
-  skip: True  # [win or py2k]
-  script: 
-    - "mv wheel.whl {{ fn }}"
-    - "{{ PYTHON }} -m pip install --no-deps -vv {{ fn }}"
+  number: 0
+  skip: true  # [win or py2k]
+  script:
+    - mv wheel.whl {{ fn }}
+    - {{ PYTHON }} -m pip install --no-deps -vv {{ fn }}
 
 requirements:
   host:
@@ -68,7 +68,7 @@ about:
   home: http://github.com/google/jax
   license: Apache-2.0
   license_file: LICENSE
-  summary: "Composable transformations of Python+NumPy programs: differentiate, vectorize, JIT to GPU/TPU, and more"
+  summary: 'Composable transformations of Python+NumPy programs: differentiate, vectorize, JIT to GPU/TPU, and more'
 
   dev_url: http://github.com/google/jax
 
