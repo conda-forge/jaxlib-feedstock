@@ -5,7 +5,7 @@ Home: http://github.com/google/jax
 
 Package license: Apache-2.0
 
-Feedstock license: BSD 3-Clause
+Feedstock license: BSD-3-Clause
 
 Summary: Composable transformations of Python+NumPy programs: differentiate, vectorize, JIT to GPU/TPU, and more
 
