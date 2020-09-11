@@ -1,4 +1,4 @@
-{% set version = "0.1.52" %}
+{% set version = "0.1.55" %}
 {% set name = "jaxlib" %}
 
 # compute right wheel filename for later
@@ -21,19 +21,19 @@ source:
   fn: wheel.whl
 
   url: https://pypi.io/packages/cp36/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp36-none-{{ linux_whl }}.whl  # [linux and py==36]
-  sha256: b98b96e2b583796df94e20d9f3f56b1f86523a31c6388abc8d5e351d35bc4e9c  # [linux and py==36]
+  sha256: f572f78501e95c6210af44a80289f30a53200e80f200cab625b2b065493750a3  # [linux and py==36]
   url: https://pypi.io/packages/cp36/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp36-none-{{ osx_whl }}.whl  # [osx and py==36]
-  sha256: 7f089df0a9cd76164a125e6fc6660f32c9708fedd2dc80d1ac9816a0d0ef2526  # [osx and py==36]
+  sha256: 725bf7912fd2789fd5b89fd0caa96fbf1504bdc144e7e3ce799bdb19bd2afdbb  # [osx and py==36]
 
   url: https://pypi.io/packages/cp37/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp37-none-{{ linux_whl }}.whl  # [linux and py==37]
-  sha256: 03e698911477dee615af88a339288e3cd970678b20adfdb3d5d07f80282d87af  # [linux and py==37]
+  sha256: 0aefe4dfed5c4a1d9482d845780567a53c555e6e7ad618ec87999e36e28d390f  # [linux and py==37]
   url: https://pypi.io/packages/cp37/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp37-none-{{ osx_whl }}.whl  # [osx and py==37]
-  sha256: 0752a8980ac2b1b320b3c025aabd62c81da0f89eafcd5b3cde32349e963c76d6  # [osx and py==37]
+  sha256: 75382b616f47a825f60969bf3594750ce22dbb9b98ac064bed938977a7c0f217  # [osx and py==37]
 
   url: https://pypi.io/packages/cp38/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp38-none-{{ linux_whl }}.whl  # [linux and py==38]
-  sha256: 0d29164227c260cf26896ad433f95b12bd47c5102dd341345cc11fad1b436f2e  # [linux and py==38]
+  sha256: 2fb35969be8cba8aa4772ba682006ab3452b481d771ed4e9257bd78d4046f7fa  # [linux and py==38]
   url: https://pypi.io/packages/cp38/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp38-none-{{ osx_whl }}.whl  # [osx and py==38]
-  sha256: 000aa3b3b2b7e6d7ec292fa65ea87bc7a3dfda156a105100c4be8730ed069aaf  # [osx and py==38]
+  sha256: 319fe83080be379477bda491d04d44b19099531d0a914916c2359e0d5806f845  # [osx and py==38]
 
 build:
   number: 0
