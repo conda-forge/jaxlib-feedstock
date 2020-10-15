@@ -36,7 +36,7 @@ source:
   sha256: 656a19605be6ac849e35b7c3768066b0cfc0788a6f3143ab4999428f6651babc  # [osx and py==38]
 
 build:
-  number: 0
+  number: 1
   skip: true  # [win or py2k]
   script:
     - mv wheel.whl {{ fn }}
