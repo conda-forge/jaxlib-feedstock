@@ -50,7 +50,6 @@ requirements:
     - python
     - absl-py
     - numpy >=1.12
-    - protobuf >=3.6.0
     - scipy
     - six
     - python-flatbuffers
