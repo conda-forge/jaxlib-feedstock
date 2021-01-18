@@ -53,6 +53,7 @@ requirements:
     - protobuf >=3.6.0
     - scipy
     - six
+    - flatbuffers
 
 test:
   requires:
