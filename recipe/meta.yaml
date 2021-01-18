@@ -35,6 +35,11 @@ source:
   url: https://pypi.io/packages/cp38/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp38-none-{{ osx_whl }}.whl  # [osx and py==38]
   sha256: c53514d418782e6e04e3c05d4da27302ff2b8684b324e6e3af368d353a7ee130  # [osx and py==38]
 
+  url: https://pypi.io/packages/cp39/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp39-none-{{ linux_whl }}.whl  # [linux and py==39]
+  sha256: 275a126853857c8c9ede569772721c3f552e16502128be3b0b2d2f44b75e5f2f  # [linux and py==39]
+  url: https://pypi.io/packages/cp39/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp39-none-{{ osx_whl }}.whl  # [osx and py==39]
+  sha256: e658319c5d5d0545a8a9363331d48c007c285213ea95c5c4d564c7c99a1216c4  # [osx and py==39]
+
 build:
   number: 0
   skip: true  # [win or py2k]
