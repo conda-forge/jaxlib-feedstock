@@ -42,6 +42,10 @@ startgroup "Running conda $BUILD_CMD"
 echo -e "\n\nMaking the build clobber file"
 make_build_number ./ ./recipe ./.ci_support/${CONFIG}.yaml
 
+if [[ "${HOST_PLATFORM}" != "${BUILD_PLATFORM}" ]]; then
+    EXTRA_CB_OPTIONS="${EXTRA_CB_OPTIONS:-} --no-test"
+fi
+
 conda $BUILD_CMD ./recipe -m ./.ci_support/${CONFIG}.yaml --suppress-variables --clobber-file ./.ci_support/clobber_${CONFIG}.yaml ${EXTRA_CB_OPTIONS:-}
 endgroup "Running conda build"
 startgroup "Validating outputs"
