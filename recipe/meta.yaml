@@ -7,13 +7,11 @@ package:
 
 source:
   url: https://github.com/google/jax/archive/{{ name }}-v{{ version }}.tar.gz
-  sha256: 9df4466180187286966b689246b7817d51504d2af593c91e3632fb39722b0fee
+  sha256: e70d6da2ee6f065f2e5f6fb0bb1d541f362d68a4ca27398827f3a34b13f3896d
 
 build:
   number: 0
   skip: true  # [win]
-  script:
-    - exit 1
 
 requirements:
   build:
