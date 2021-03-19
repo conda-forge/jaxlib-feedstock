@@ -1,4 +1,4 @@
-{% set version = "0.1.63" %}
+{% set version = "0.1.64" %}
 {% set name = "jaxlib" %}
 
 # compute right wheel filename for later
@@ -21,24 +21,24 @@ source:
   fn: wheel.whl
 
   url: https://pypi.io/packages/cp36/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp36-none-{{ linux_whl }}.whl  # [linux and py==36]
-  sha256: 71befb418612d4862591f0ece7b019d20585182a50df51c49d48eda9347006a9  # [linux and py==36]
+  sha256: 4f60212d926d721b44898599dba88290f21a2bfb5512d14df4a7a81bf0ec06c9  # [linux and py==36]
   url: https://pypi.io/packages/cp36/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp36-none-{{ osx_whl }}.whl  # [osx and py==36]
-  sha256: 66c486e1e3936a016d5631b2e413961cf7c9f22b5ebfacca50b25e982d4fc241  # [osx and py==36]
+  sha256: b2a7cd42032c3eefd6b03bbfb026f7f76ac290c520bc6d7e040ae83f0f84e4f6  # [osx and py==36]
 
   url: https://pypi.io/packages/cp37/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp37-none-{{ linux_whl }}.whl  # [linux and py==37]
-  sha256: 64b113e5692b747a4aab930bce10cd4cf06d2b49ac422a5de7c3b0d830d7ec95  # [linux and py==37]
+  sha256: 362f05b82934669f817eb2dff0b5a807ab513dc0b2387cb58280664839118b81  # [linux and py==37]
   url: https://pypi.io/packages/cp37/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp37-none-{{ osx_whl }}.whl  # [osx and py==37]
-  sha256: c150b6a241f55d6c132f6a164c35940ab905ebb52e7cc7c739be32405e1aab5d  # [osx and py==37]
+  sha256: 72099ac6940728b9e9f76cc81bb547454d8bcbeba1a082a2abb6f0dc201ead70  # [osx and py==37]
 
   url: https://pypi.io/packages/cp38/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp38-none-{{ linux_whl }}.whl  # [linux and py==38]
-  sha256: 692081a31be3eb1329b59029982a7fd6bb94271ece0bdede0e7c19d075f0f40b  # [linux and py==38]
+  sha256: 6993ac9b0a985f473b75e142651dafad7186a98dd39e5ad3663addb74c6b9317  # [linux and py==38]
   url: https://pypi.io/packages/cp38/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp38-none-{{ osx_whl }}.whl  # [osx and py==38]
-  sha256: e6b956e0aed05f586be619275214e0c401f6a5e11bdda3b2de3973fccab2d9bd  # [osx and py==38]
+  sha256: 824a784a770e0a2d1f71322f52a560b4da8dad8009950df1438e3b6f070eb343  # [osx and py==38]
 
   url: https://pypi.io/packages/cp39/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp39-none-{{ linux_whl }}.whl  # [linux and py==39]
-  sha256: b059c6343959e31a3c58ee9970df112b0c9c014a986ba4cb24ed52f5e76fbf7a  # [linux and py==39]
+  sha256: d7674c89980230299caafbccaf8b29c122a4d2f9240eee39d2f4a3e3fadc1e83  # [linux and py==39]
   url: https://pypi.io/packages/cp39/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp39-none-{{ osx_whl }}.whl  # [osx and py==39]
-  sha256: b085d30a29e9a8a9669dbcc3886059665055da488e21e2dfeb2e4c49ce16b150  # [osx and py==39]
+  sha256: d960b06d1865073228a1e9c11968be4bcd5e383b6d25c02aea014507b2426a73  # [osx and py==39]
 
 build:
   number: 0
