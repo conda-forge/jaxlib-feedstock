@@ -1,4 +1,4 @@
-{% set version = "0.1.63" %}
+{% set version = "0.1.64" %}
 {% set name = "jaxlib" %}
 
 package:
@@ -7,12 +7,12 @@ package:
 
 source:
   url: https://github.com/google/jax/archive/{{ name }}-v{{ version }}.tar.gz
-  sha256: e70d6da2ee6f065f2e5f6fb0bb1d541f362d68a4ca27398827f3a34b13f3896d
+  sha256: 13768483195f878d1966e39b737fd3db5ad0d960f45ade24ba8a64bfd28725b0
   patches:
     - osx-arm64.patch
 
 build:
-  number: 0
+  number: 1
   skip: true  # [win]
 
 requirements:
