@@ -8,6 +8,8 @@ package:
 source:
   url: https://github.com/google/jax/archive/{{ name }}-v{{ version }}.tar.gz
   sha256: e70d6da2ee6f065f2e5f6fb0bb1d541f362d68a4ca27398827f3a34b13f3896d
+  patches:
+    - osx-arm64.patch
 
 build:
   number: 0
@@ -17,6 +19,7 @@ requirements:
   build:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
+    - bazel
     - python                                 # [build_platform != target_platform]
     - cross-python_{{ target_platform }}     # [build_platform != target_platform]
     - numpy                                  # [build_platform != target_platform]

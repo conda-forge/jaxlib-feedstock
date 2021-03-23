@@ -3,7 +3,6 @@
 set -euxo pipefail
 
 # TODO(features):
-# * --enable_mkl_dnn
 # * --enable_cuda
 # * --enable_rocm
 # * --target_cpu_features (different settings depending on archspec)
@@ -13,5 +12,5 @@ set -euxo pipefail
 # * MLIR
 # * protobuf
 # * mkl_dnn_v1 (nowadays called oneDNN)
-${PYTHON} build/build.py --target_cpu_features default
+${PYTHON} build/build.py --target_cpu_features default --enable_mkl_dnn
 ${PYTHON} -m pip install dist/jaxlib-*.whl

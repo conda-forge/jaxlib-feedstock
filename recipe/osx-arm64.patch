@@ -1,0 +1,40 @@
+--- build/build.py.orig	2021-03-23 13:57:54.000000000 +0100
++++ build/build.py	2021-03-23 13:59:39.000000000 +0100
+@@ -271,6 +271,13 @@
+ # Workaround for gcc 10+ warnings related to upb.
+ # See https://github.com/tensorflow/tensorflow/issues/39467
+ build:linux --copt=-Wno-stringop-truncation
++
++# Apple silicon config
++build:macos_arm64 --config=posix
++build:macos_arm64 --config=macos
++build:macos_arm64 --apple_platform_type=macos
++build:macos_arm64 --cpu=darwin_arm64
++build --copt=-Wno-implicit-function-declaration
+ """
+ 
+ 
+--- build/build_wheel.py.orig	2021-03-23 13:58:02.000000000 +0100
++++ build/build_wheel.py	2021-03-23 14:00:17.000000000 +0100
+@@ -169,12 +169,18 @@
+ 
+ def build_wheel(sources_path, output_path):
+   """Builds a wheel in `output_path` using the source tree in `sources_path`."""
++  system = platform.system()
+   platform_name = {
+     "Linux": "manylinux2010",
+-    "Darwin": "macosx_10_9",
++    "Darwin": "macosx_11_0" if int(platform.mac_ver()[0].split(".")[0]) > 10 else "macosx_10_9",
+     "Windows": "win",
+-  }[platform.system()]
+-  cpu_name = "amd64" if platform.system() == "Windows" else "x86_64"
++  }[system]
++  if system == "Darwin":
++      cpu_name = platform.mac_ver()[2]
++  elif system == "Windows":
++      cpu_name = "amd64"
++  else:
++      cpu_name = "x86_64"
+   python_tag_arg = (f"--python-tag=cp{sys.version_info.major}"
+                     f"{sys.version_info.minor}")
+   platform_tag_arg = f"--plat-name={platform_name}_{cpu_name}"
