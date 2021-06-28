@@ -41,7 +41,7 @@ source:
   sha256: fa38b0a5824c230b77f7cd5322e85a59f7822d80b76d751b5c8df4e179e5a701  # [osx and py==39]
 
 build:
-  number: 0
+  number: 1
   skip: true  # [win or py2k]
   script:
     - mv wheel.whl {{ fn }}
@@ -54,7 +54,7 @@ requirements:
   run:
     - python
     - absl-py
-    - numpy >=1.12
+    - numpy >=1.16
     - scipy
     - six
     - python-flatbuffers
