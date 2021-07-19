@@ -8,6 +8,8 @@ package:
 source:
   url: https://github.com/google/jax/archive/{{ name }}-v{{ version }}.tar.gz
   sha256: ace829269b7aa80aba132d888a0db65905ee88a3ebc8c950b104b5f846cc807c
+  patches:
+    - 7254.patch
 
 build:
   number: 0
@@ -19,6 +21,8 @@ requirements:
     - {{ compiler('cxx') }}
     - python                                 # [build_platform != target_platform]
     - cross-python_{{ target_platform }}     # [build_platform != target_platform]
+    - numpy                                  # [build_platform != target_platform]
+    - scipy                                  # [build_platform != target_platform]
     - bazel
   host:
     - python
