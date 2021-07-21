@@ -35,11 +35,15 @@ pushd custom_toolchain
     sed -e "s:\${CLANG}:${CLANG}:" \
         -e "s:\${INSTALL_NAME_TOOL}:${INSTALL_NAME_TOOL}:" \
         -e "s:\${CONDA_BUILD_SYSROOT}:${CONDA_BUILD_SYSROOT}:" \
+        -e "s:\${MACOSX_SDK_VERSION}:${MACOSX_SDK_VERSION}:" \
+        -e "s:\${MACOSX_DEPLOYMENT_TARGET}:${MACOSX_DEPLOYMENT_TARGET}:" \
         cc_wrapper.sh.template > cc_wrapper.sh
     chmod +x cc_wrapper.sh
     sed -e "s:\${CLANG}:${CC_FOR_BUILD}:" \
         -e "s:\${INSTALL_NAME_TOOL}:${INSTALL_NAME_TOOL//${HOST}/${BUILD}}:" \
         -e "s:\${CONDA_BUILD_SYSROOT}:${CONDA_BUILD_SYSROOT}:" \
+        -e "s:\${MACOSX_SDK_VERSION}:${MACOSX_SDK_VERSION}:" \
+        -e "s:\${MACOSX_DEPLOYMENT_TARGET}:${MACOSX_DEPLOYMENT_TARGET}:" \
         cc_wrapper.sh.template > cc_wrapper_build.sh
     chmod +x cc_wrapper_build.sh
     export BAZEL_TOOLCHAIN_GCC="cc_wrapper.sh"
