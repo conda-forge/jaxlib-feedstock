@@ -300,6 +300,7 @@ def _impl(ctx):
             "${BUILD_PREFIX}/lib/clang/${COMPILER_VERSION}/include",
             "${BUILD_PREFIX}/include/c++/v1",
             "${PREFIX}/include",
+            "${HOST_PREFIX}/include",
         ]
     else:
         cxx_builtin_include_directories = [

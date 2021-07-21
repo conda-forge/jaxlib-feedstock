@@ -12,6 +12,7 @@ function apply_cc_template() {
   sed -ie "s:\${GCC}:${BAZEL_TOOLCHAIN_GCC}:" $1
   sed -ie "s:\${PREFIX}:${PREFIX}:" $1
   sed -ie "s:\${BUILD_PREFIX}:${BUILD_PREFIX}:" $1
+  sed -ie "s:\${HOST_PREFIX}:${HOST_PREFIX}:" $1
   sed -ie "s:\${LD}:${LD}:" $1
   sed -ie "s:\${CFLAGS}:${CFLAGS}:" $1
   sed -ie "s:\${CPPFLAGS}:${CPPFLAGS}:" $1
@@ -40,7 +41,7 @@ pushd custom_toolchain
         -e "s:\${INSTALL_NAME_TOOL}:${INSTALL_NAME_TOOL//${HOST}/${BUILD}}:" \
         -e "s:\${CONDA_BUILD_SYSROOT}:${CONDA_BUILD_SYSROOT}:" \
         cc_wrapper.sh.template > cc_wrapper_build.sh
-    chmod +x cc_wrapper.sh
+    chmod +x cc_wrapper_build.sh
     export BAZEL_TOOLCHAIN_GCC="cc_wrapper.sh"
     export BAZEL_TOOLCHAIN_LIBCXX="c++"
     export BAZEL_TOOLCHAIN_AR=${LIBTOOL}
@@ -96,6 +97,8 @@ pushd custom_toolchain
   
   sed -ie "s:TARGET_CPU:${TARGET_CPU}:" BUILD
   sed -ie "s:BUILD_CPU:${BUILD_CPU}:" BUILD
+
+  HOST_PREFIX=${PREFIX}
 
   cp cc_toolchain_config.bzl cc_toolchain_build_config.bzl
   apply_cc_template cc_toolchain_config.bzl
