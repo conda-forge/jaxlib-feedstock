@@ -24,6 +24,7 @@ requirements:
     - numpy                                  # [build_platform != target_platform]
     - scipy                                  # [build_platform != target_platform]
     - bazel
+    - bazel-toolchain
   host:
     - python
     - pip

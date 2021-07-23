@@ -7,9 +7,9 @@ if [[ "${target_platform}" == osx-* ]]; then
 else
   export LDFLAGS="${LDFLAGS} -lrt"
 fi
-source ${RECIPE_DIR}/gen-bazel-toolchain.sh
+source gen-bazel-toolchain
 
-CUSTOM_BAZEL_OPTIONS="--crosstool_top=//custom_toolchain:toolchain --logging=6 --verbose_failures"
+CUSTOM_BAZEL_OPTIONS="--crosstool_top=//bazel_toolchain:toolchain --logging=6 --verbose_failures"
 
 if [[ "${target_platform}" == "osx-64" ]]; then
   # Tensorflow doesn't cope yet with an explicit architecture (darwin_x86_64) on osx-64 yet.
