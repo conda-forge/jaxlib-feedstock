@@ -21,9 +21,9 @@ source:
   fn: wheel.whl
 
   url: https://pypi.io/packages/cp36/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp36-none-{{ linux_whl }}.whl  # [linux and py==36]
-  sha256: 05858e34e542ed9fd54b066efa9a53ac6297eb5d6c1ee83f67808fc4d17a12bc  # [linux and py==36]
+  sha256: e41830b8b02a44da36b73bf8dc268c3acc9d85194bb96cbed07f1ab24ce6be53  # [linux and py==36]
   url: https://pypi.io/packages/cp36/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp36-none-{{ osx_whl }}.whl  # [osx and py==36]
-  sha256: 4ad5c340b4f1a47011a8d499aa8590796532c2946691ca414c51e116223cf576  # [osx and py==36]
+  sha256: f40ef7dd6bef4273f68fe5e724f29d0504ccc6b47b31ea19fab305fc4322a272  # [osx and py==36]
 
   url: https://pypi.io/packages/cp37/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp37-none-{{ linux_whl }}.whl  # [linux and py==37]
   sha256: 99d4fc1ecf940d8d4c28e54e6e1ff99d57978e7e5a73f2db5bfd4b46ffa210f7  # [linux and py==37]
