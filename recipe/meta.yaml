@@ -1,60 +1,40 @@
 {% set version = "0.1.69" %}
 {% set name = "jaxlib" %}
 
-# compute right wheel filename for later
-{% set pyver = "cp{}{}".format(PY_VER[0], PY_VER[2]) %}
-{% set platform = "manylinux2010_x86_64" %}  # [linux]
-{% set platform = "macosx_10_9_x86_64" %}  # [osx]
-# {distribution}-{version}(-{build tag})?-{python tag}-{abi tag}-{platform tag}.whl.
-{% set fn = "{}-{}-{}-none-{}.whl".format(name, version, pyver, platform) %}
-
-# only use these for the URLS to help the bot
-# the urls below have to be explicit for the bot to work
-{% set linux_whl = "manylinux2010_x86_64" %}
-{% set osx_whl = "macosx_10_9_x86_64" %}
-
 package:
   name: jaxlib
   version: {{ version }}
 
 source:
-  fn: wheel.whl
-
-  url: https://pypi.io/packages/cp36/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp36-none-{{ linux_whl }}.whl  # [linux and py==36]
-  sha256: e41830b8b02a44da36b73bf8dc268c3acc9d85194bb96cbed07f1ab24ce6be53  # [linux and py==36]
-  url: https://pypi.io/packages/cp36/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp36-none-{{ osx_whl }}.whl  # [osx and py==36]
-  sha256: f40ef7dd6bef4273f68fe5e724f29d0504ccc6b47b31ea19fab305fc4322a272  # [osx and py==36]
-
-  url: https://pypi.io/packages/cp37/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp37-none-{{ linux_whl }}.whl  # [linux and py==37]
-  sha256: 99d4fc1ecf940d8d4c28e54e6e1ff99d57978e7e5a73f2db5bfd4b46ffa210f7  # [linux and py==37]
-  url: https://pypi.io/packages/cp37/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp37-none-{{ osx_whl }}.whl  # [osx and py==37]
-  sha256: 5bb9da8c55afb2ea4bf30fcb1ae4fdc66785201ef7898b31b4e05724277ec382  # [osx and py==37]
-
-  url: https://pypi.io/packages/cp38/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp38-none-{{ linux_whl }}.whl  # [linux and py==38]
-  sha256: 05cbafbc5878406f4e79cadf22c3a9db735f4a842d3805fc7d0162cbefa2e166  # [linux and py==38]
-  url: https://pypi.io/packages/cp38/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp38-none-{{ osx_whl }}.whl  # [osx and py==38]
-  sha256: de78cde68962ff18a5c8f051d6d03aa09a7b910216275fc5f9a8890d2f1909de  # [osx and py==38]
-
-  url: https://pypi.io/packages/cp39/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp39-none-{{ linux_whl }}.whl  # [linux and py==39]
-  sha256: 05858e34e542ed9fd54b066efa9a53ac6297eb5d6c1ee83f67808fc4d17a12bc  # [linux and py==39]
-  url: https://pypi.io/packages/cp39/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}-cp39-none-{{ osx_whl }}.whl  # [osx and py==39]
-  sha256: 4ad5c340b4f1a47011a8d499aa8590796532c2946691ca414c51e116223cf576  # [osx and py==39]
+  url: https://github.com/google/jax/archive/{{ name }}-v{{ version }}.tar.gz
+  sha256: ace829269b7aa80aba132d888a0db65905ee88a3ebc8c950b104b5f846cc807c
+  patches:
+    - 7254.patch
 
 build:
-  number: 1
-  skip: true  # [win or py2k]
-  script:
-    - mv wheel.whl {{ fn }}
-    - {{ PYTHON }} -m pip install --no-deps -vv {{ fn }}
+  number: 0
+  skip: true  # [win]
 
 requirements:
+  build:
+    - {{ compiler('c') }}
+    - {{ compiler('cxx') }}
+    - python                                 # [build_platform != target_platform]
+    - cross-python_{{ target_platform }}     # [build_platform != target_platform]
+    - numpy                                  # [build_platform != target_platform]
+    - scipy                                  # [build_platform != target_platform]
+    - bazel
+    - bazel-toolchain
   host:
     - python
     - pip
+    - numpy
+    - scipy
+    - wheel
   run:
     - python
     - absl-py
-    - numpy >=1.16
+    - {{ pin_compatible('numpy') }}
     - scipy
     - six
     - python-flatbuffers
@@ -64,19 +44,17 @@ test:
     - pip
   commands:
     - pip check
-  # imports:
-    # cannot run the test b/c this is not really manylinux1 GLIBC_2.14
-    # Google :-/
-    # - jaxlib
+  imports:
+    - jaxlib
 
 about:
   home: http://github.com/google/jax
   license: Apache-2.0
   license_file: LICENSE
   summary: 'Composable transformations of Python+NumPy programs: differentiate, vectorize, JIT to GPU/TPU, and more'
-
   dev_url: http://github.com/google/jax
 
 extra:
   recipe-maintainers:
     - ericmjl
+    - xhochy
