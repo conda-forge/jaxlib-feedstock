@@ -8,6 +8,8 @@ package:
 source:
   url: https://github.com/google/jax/archive/{{ name }}-v{{ version }}.tar.gz
   sha256: 5d136c4b72bb254a3700cbac276ebe77108841936ff6d728050775f24a8e36fe
+  patches:
+    - 0001-Don-t-add-dashes-to-version.patch
 
 build:
   number: 0
@@ -21,7 +23,7 @@ requirements:
     - cross-python_{{ target_platform }}     # [build_platform != target_platform]
     - numpy                                  # [build_platform != target_platform]
     - scipy                                  # [build_platform != target_platform]
-    - bazel
+    - bazel 4.1.0
     - bazel-toolchain
   host:
     - python
