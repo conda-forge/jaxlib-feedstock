@@ -8,8 +8,6 @@ package:
 source:
   url: https://github.com/google/jax/archive/{{ name }}-v{{ version }}.tar.gz
   sha256: 5d136c4b72bb254a3700cbac276ebe77108841936ff6d728050775f24a8e36fe
-  patches:
-    - 7254.patch
 
 build:
   number: 0
