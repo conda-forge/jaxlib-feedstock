@@ -21,4 +21,10 @@ if [[ "${target_platform}" == "osx-arm64" ]]; then
 else
   ${PYTHON} build/build.py --target_cpu_features default --enable_mkl_dnn ${CUSTOM_BAZEL_OPTIONS} --bazel_options=--cpu --bazel_options=${TARGET_CPU}
 fi
+
+# Clean up to speedup postprocessing
+pushd build
+bazel clean
+popd
+
 ${PYTHON} -m pip install dist/jaxlib-*.whl
