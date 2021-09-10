@@ -12,7 +12,7 @@ source:
     - 0001-Don-t-add-dashes-to-version.patch
 
 build:
-  number: 0
+  number: 1
   skip: true  # [win or py<37]
 
 requirements:
@@ -46,6 +46,8 @@ test:
     - pip check
   imports:
     - jaxlib
+    # Only this import actually triggers the load of XLA
+    - jaxlib.xla_client
 
 about:
   home: http://github.com/google/jax
