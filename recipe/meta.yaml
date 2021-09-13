@@ -10,6 +10,7 @@ source:
   sha256: 07a602e4e2e37fe46c17eeb6c25e80932f6abc5d1dde59e7868e7e3bb08f46c6
   patches:
     - 0001-Don-t-add-dashes-to-version.patch
+    - 0001-Patch-pocketfft-for-C-17-osx-64.patch  # [osx and x86_64]
 
 build:
   number: 1
