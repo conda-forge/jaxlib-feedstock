@@ -24,7 +24,7 @@ requirements:
     - cross-python_{{ target_platform }}     # [build_platform != target_platform]
     - numpy >=1.18                           
     - scipy                                  # [build_platform != target_platform]
-    - bazel 4.2.1
+    - bazel 4.1.0
   host:
     - python
     - pip
