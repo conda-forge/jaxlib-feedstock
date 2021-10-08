@@ -25,6 +25,7 @@ requirements:
     - numpy >=1.18                           
     - scipy                                  # [build_platform != target_platform]
     - bazel 4.1.0
+    - git
   host:
     - python
     - pip
