@@ -29,7 +29,7 @@ elif [[ "${target_platform}" == "linux-ppc64le" ]]; then
   export TARGET_CPU="ppc"
 fi
 
-CUSTOM_BAZEL_OPTIONS="--bazel_options=--crosstool_top=//bazel_toolchain:toolchain --bazel_options=--logging=6 --bazel_options=--verbose_failures --bazel_options=--toolchain_resolution_debug"
+CUSTOM_BAZEL_OPTIONS="--bazel_options=--bazel_options=--logging=6 --bazel_options=--verbose_failures --bazel_options=--toolchain_resolution_debug"
 
 if [[ "${target_platform}" == "osx-64" ]]; then
   # Tensorflow doesn't cope yet with an explicit architecture (darwin_x86_64) on osx-64 yet.
