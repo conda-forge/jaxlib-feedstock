@@ -24,7 +24,10 @@ requirements:
     - cross-python_{{ target_platform }}     # [build_platform != target_platform]
     - numpy >=1.18                           
     - scipy                                  # [build_platform != target_platform]
-    - bazel 4.1.0
+      # the build will download, compile and run its own bazel.
+      # slow, but avoids problems with bazel transitively fetching
+      # archives from non-existent mirrors.
+      # - bazel 4.1.0
     - git
   host:
     - python
@@ -43,6 +46,7 @@ requirements:
 test:
   requires:
     - pip
+    - python <3.10
   commands:
     - pip check
   imports:
