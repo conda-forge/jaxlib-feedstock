@@ -1,4 +1,4 @@
-{% set version = "0.1.71" %}
+{% set version = "0.1.72" %}
 {% set name = "jaxlib" %}
 
 package:
@@ -7,7 +7,7 @@ package:
 
 source:
   url: https://github.com/google/jax/archive/{{ name }}-v{{ version }}.tar.gz
-  sha256: 07a602e4e2e37fe46c17eeb6c25e80932f6abc5d1dde59e7868e7e3bb08f46c6
+  sha256: 49dee44cb7f2e49500d25cefceea28bfffb1f5f62e78684dfd7b71892ca4293a
   patches:
     - 0001-Don-t-add-dashes-to-version.patch
 
