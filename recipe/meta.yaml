@@ -12,7 +12,7 @@ source:
     - 0001-Don-t-add-dashes-to-version.patch
 
 build:
-  number: 0
+  number: 1
   skip: true  # [win or py<37]
 
 requirements:
