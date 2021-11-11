@@ -28,6 +28,9 @@ requirements:
     - scipy                                  # [build_platform != target_platform]
     - bazel 4.1.0
     - bazel-toolchain >=0.1.0
+    # realpath is not available from the docker image for cuda <= 10.2
+    # so we install coreutils here
+    - coreutils  # [cuda_compiler_version != "None"]
   host:
     - cudnn      # [cuda_compiler_version != "None"]
     - nccl       # [cuda_compiler_version != "None"]
