@@ -33,7 +33,13 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
   export TF_CUDA_VERSION="${cuda_compiler_version}"
   export TF_CUDNN_VERSION="${cudnn}"
 
-  CUDA_ARGS="--enable_cuda --enable_nccl --cuda_compute_capabilities=$TF_CUDA_COMPUTE_CAPABILITIES --cuda_version=$TF_CUDA_VERSION --cudnn_version=$TF_CUDNN_VERSION"
+  CUDA_ARGS="--enable_cuda \
+             --enable_nccl \
+             --cuda_path=$CUDA_HOME \
+             --cudnn_path=$PREFIX   \
+             --cuda_compute_capabilities=$TF_CUDA_COMPUTE_CAPABILITIES \
+             --cuda_version=$TF_CUDA_VERSION \
+             --cudnn_version=$TF_CUDNN_VERSION"
 fi
 
 if [[ "${target_platform}" == "osx-arm64" ]]; then
