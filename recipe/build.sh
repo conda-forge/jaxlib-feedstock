@@ -48,7 +48,7 @@ else
   ${PYTHON} build/build.py \
     --target_cpu_features default \
     --enable_mkl_dnn \
-    ${CUDA_ARGS} \
+    ${CUDA_ARGS:-} \
     ${CUSTOM_BAZEL_OPTIONS} \
     --bazel_options=--cpu \
     --bazel_options=${TARGET_CPU}
