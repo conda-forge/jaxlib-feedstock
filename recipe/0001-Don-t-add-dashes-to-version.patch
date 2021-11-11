@@ -1,17 +1,8 @@
-From 866f0953895cc8a9f99a2a15f8fbfd655e621e0e Mon Sep 17 00:00:00 2001
-From: "Uwe L. Korn" <uwe.korn@quantco.com>
-Date: Wed, 1 Sep 2021 21:35:33 +0200
-Subject: [PATCH] Don't add dashes to version
-
----
- build/build.py | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
 diff --git a/build/build.py b/build/build.py
-index ae512b9..6e3eeaa 100755
+index 2a812632..5bae14dd 100755
 --- a/build/build.py
 +++ b/build/build.py
-@@ -209,10 +209,10 @@ def get_bazel_path(bazel_path_flag):
+@@ -201,10 +201,10 @@ def get_bazel_path(bazel_path_flag):
  
  def check_bazel_version(bazel_path):
    try:
@@ -24,6 +15,14 @@ index ae512b9..6e3eeaa 100755
    if match is None:
      return False
    actual_ints = [int(x) for x in match.group(1).split(".")]
--- 
-2.33.0
-
+@@ -241,6 +241,10 @@ def write_bazelrc(python_bin_path=None, remote_build=None,
+       f.write("build --action_env TF_CUDA_PATHS=\"{tf_cuda_paths}\"\n"
+               .format(tf_cuda_paths=",".join(tf_cuda_paths)))
+     if cuda_version:
++      # set GCC_HOST_COMPILER_PATH for toolchain with conda-forge
++      f.write("build --action_env GCC_HOST_COMPILER_PATH=\"{gcc_host_compiler_path}\"\n"
++              .format(gcc_host_compiler_path=os.environ["CC"]))
++
+       f.write("build --action_env TF_CUDA_VERSION=\"{cuda_version}\"\n"
+               .format(cuda_version=cuda_version))
+     if cudnn_version:
