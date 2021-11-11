@@ -4,6 +4,9 @@ set -euxo pipefail
 
 if [[ "${target_platform}" == osx-* ]]; then
   export LDFLAGS="${LDFLAGS} -lz -framework CoreFoundation -Xlinker -undefined -Xlinker dynamic_lookup"
+  # Force C++17 to workaround symbol visibility issues
+  export CXXFLAGS=${CXXFLAGS/std=c++14/std=c++17}
+  sed -i -e 's/c++14/c++17/g' .bazelrc
 else
   export LDFLAGS="${LDFLAGS} -lrt"
 fi

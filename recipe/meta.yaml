@@ -10,10 +10,12 @@ source:
   sha256: 4cb1a7a9881c6566cf6d0d88f70ba2b8732e8b1dc6010da7deaff399f21873ed
   patches:
     - 0001-Don-t-add-dashes-to-version.patch
+    - 0001-Patch-pocketfft-for-C-17-osx-64.patch  # [osx and x86_64]
 
 build:
-  number: 0
+  number: 1
   skip: true  # [win or py<37]
+  skip: true  # [osx and arm64]
 
 requirements:
   build:
@@ -38,6 +40,8 @@ requirements:
     - scipy
     - six
     - python-flatbuffers
+  run_constrained:  # [osx]
+    - __osx >={{ MACOSX_DEPLOYMENT_TARGET|default("10.9") }}  # [osx]
 
 test:
   requires:
@@ -46,6 +50,8 @@ test:
     - pip check
   imports:
     - jaxlib
+    # Only this import actually triggers the load of XLA
+    - jaxlib.xla_client
 
 about:
   home: http://github.com/google/jax
