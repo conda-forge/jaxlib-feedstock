@@ -23,6 +23,11 @@ jobs:
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-comp7
         SHORT_CONFIG: linux_64_numpy1.19python3.9.____cpython
+      linux_64_numpy1.21python3.10.____cpython:
+        CONFIG: linux_64_numpy1.21python3.10.____cpython
+        UPLOAD_PACKAGES: 'True'
+        DOCKER_IMAGE: quay.io/condaforge/linux-anvil-comp7
+        SHORT_CONFIG: linux_64_numpy1.21python3.10.____cpython
   timeoutInMinutes: 360
 
   steps:
