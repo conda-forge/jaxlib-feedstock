@@ -13,7 +13,7 @@ source:
     - 0001-Patch-pocketfft-for-C-17-osx-64.patch  # [osx and x86_64]
 
 build:
-  number: 1
+  number: 2
   skip: true  # [win or py<37]
   skip: true  # [osx and arm64]
 
