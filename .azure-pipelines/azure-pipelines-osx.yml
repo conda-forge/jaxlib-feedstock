@@ -20,6 +20,10 @@ jobs:
         CONFIG: osx_64_numpy1.19python3.9.____cpython
         UPLOAD_PACKAGES: 'True'
         SHORT_CONFIG: osx_64_numpy1.19python3.9.____cpython
+      osx_64_numpy1.21python3.10.____cpython:
+        CONFIG: osx_64_numpy1.21python3.10.____cpython
+        UPLOAD_PACKAGES: 'True'
+        SHORT_CONFIG: osx_64_numpy1.21python3.10.____cpython
   timeoutInMinutes: 360
 
   steps:
