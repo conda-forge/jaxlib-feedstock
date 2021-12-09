@@ -4,26 +4,21 @@ Date: Wed, 1 Sep 2021 21:35:33 +0200
 Subject: [PATCH] Don't add dashes to version
 
 ---
- build/build.py | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/build/build.py b/build/build.py
-index ae512b9..6e3eeaa 100755
---- a/build/build.py
-+++ b/build/build.py
-@@ -209,10 +209,10 @@ def get_bazel_path(bazel_path_flag):
+--- jax-jaxlib-v0.1.74.orig/build/build.py	2021-11-16 22:17:01.000000000 -0300
++++ jax-jaxlib-v0.1.74/build/build.py	2021-12-09 14:37:18.138160554 -0300
+@@ -204,10 +204,10 @@
  
- def check_bazel_version(bazel_path):
+ def get_bazel_version(bazel_path):
    try:
 -    version_output = shell([bazel_path, "--version"])
 +    version_output = shell([bazel_path, "version"])
    except subprocess.CalledProcessError:
-     return False
+     return None
 -  match = re.search(r"bazel *([0-9\\.]+)", version_output)
 +  match = re.search(r"Build label: *([0-9\\.]+)", version_output)
    if match is None:
-     return False
-   actual_ints = [int(x) for x in match.group(1).split(".")]
+     return None
+   return tuple(int(x) for x in match.group(1).split("."))
 -- 
 2.33.0
 
