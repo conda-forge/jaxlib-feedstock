@@ -25,6 +25,8 @@ requirements:
     - scipy                                  # [build_platform != target_platform]
     - bazel 4.1.0
     - bazel-toolchain
+    - m2-patch  # [win]
+    - patch     # [not win]
   host:
     - python
     - pip
