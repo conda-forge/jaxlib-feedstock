@@ -15,7 +15,6 @@ source:
 build:
   number: 0
   skip: true  # [win or py<37]
-  skip: true  # [osx and arm64]
 
 requirements:
   build:
@@ -25,12 +24,14 @@ requirements:
     - cross-python_{{ target_platform }}     # [build_platform != target_platform]
     - numpy                                  # [build_platform != target_platform]
     - scipy                                  # [build_platform != target_platform]
-    - bazel 4.1.0
+    - bazel 4.1.0      # [not (osx and arm64)]
+    - bazel            # [osx and arm64]
     - bazel-toolchain
   host:
     - python
     - pip
-    - numpy
+    - numpy       # [py>=39]
+    - numpy 1.19  # [py<39]
     - scipy
     - wheel
   run:
