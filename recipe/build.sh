@@ -30,4 +30,7 @@ pushd build
 bazel clean
 popd
 
-${PYTHON} -m pip install dist/jaxlib-*.whl
+pushd $SP_DIR
+# pip doesn't want to install cleanly in all cases, so we use the fact that we can unzip it.
+unzip $SRC_DIR/dist/jaxlib-*.whl
+popd

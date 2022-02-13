@@ -24,6 +24,7 @@ requirements:
     - cross-python_{{ target_platform }}     # [build_platform != target_platform]
     - numpy                                  # [build_platform != target_platform]
     - scipy                                  # [build_platform != target_platform]
+    - unzip
     - bazel 4.1.0      # [not (osx and arm64)]
     - bazel            # [osx and arm64]
     - bazel-toolchain
@@ -45,10 +46,13 @@ requirements:
     - __osx >={{ MACOSX_DEPLOYMENT_TARGET|default("10.9") }}  # [osx]
 
 test:
+  files:
+    - test_jaxlib.py
   requires:
     - pip
   commands:
     - pip check
+    - python test_jaxlib.py
   imports:
     - jaxlib
     # Only this import actually triggers the load of XLA
