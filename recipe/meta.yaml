@@ -11,6 +11,8 @@ source:
   patches:
     - 0001-Don-t-add-dashes-to-version.patch
     - 0001-Patch-pocketfft-for-C-17-osx-64.patch  # [osx and x86_64]
+    - 0001-Add-patch-for-google-jax-9534.patch
+    - 0001-abseil-wyhash-is-now-called-low_level_hash.patch
 
 build:
   number: 0
@@ -25,9 +27,14 @@ requirements:
     - numpy                                  # [build_platform != target_platform]
     - scipy                                  # [build_platform != target_platform]
     - unzip
-    - bazel 4.1.0      # [not (osx and arm64)]
-    - bazel            # [osx and arm64]
+    - bazel
     - bazel-toolchain
+    # need protoc
+    - libprotobuf
+    # needs protoc-gen-grpc
+    - grpc-cpp
+    # needs flatc
+    - flatbuffers
   host:
     - python
     - pip
@@ -35,6 +42,12 @@ requirements:
     - numpy 1.19  # [py<39]
     - scipy
     - wheel
+    - abseil-cpp
+    - flatbuffers
+    - grpc-cpp
+    - libprotobuf
+    - openssl
+    - zlib
   run:
     - python
     - absl-py
