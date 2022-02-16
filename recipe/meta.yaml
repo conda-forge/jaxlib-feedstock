@@ -27,7 +27,7 @@ requirements:
     - numpy                                  # [build_platform != target_platform]
     - scipy                                  # [build_platform != target_platform]
     - unzip
-    - bazel
+    - bazel 4.2.1
     - bazel-toolchain
     # need protoc
     - libprotobuf
