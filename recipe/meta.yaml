@@ -1,4 +1,4 @@
-{% set version = "0.1.75" %}
+{% set version = "0.1.76" %}
 {% set name = "jaxlib" %}
 
 package:
@@ -7,15 +7,16 @@ package:
 
 source:
   url: https://github.com/google/jax/archive/{{ name }}-v{{ version }}.tar.gz
-  sha256: 8196312f5a4c31bb05537abe7cbafc1ffb5d8c9e8b0f0325227fdd7533a8ae94
+  sha256: 6d5e185906dbc8f0f6589c5bc0569ae049bfe6346c271db73d5077f1fda41c7c
   patches:
     - 0001-Don-t-add-dashes-to-version.patch
     - 0001-Patch-pocketfft-for-C-17-osx-64.patch  # [osx and x86_64]
+    - 0001-Add-patch-for-google-jax-9534.patch
+    - 0001-abseil-wyhash-is-now-called-low_level_hash.patch
 
 build:
   number: 0
   skip: true  # [win or py<37]
-  skip: true  # [osx and arm64]
 
 requirements:
   build:
@@ -25,14 +26,28 @@ requirements:
     - cross-python_{{ target_platform }}     # [build_platform != target_platform]
     - numpy                                  # [build_platform != target_platform]
     - scipy                                  # [build_platform != target_platform]
-    - bazel 4.1.0
+    - unzip
+    - bazel 4.2.1
     - bazel-toolchain
+    # need protoc
+    - libprotobuf
+    # needs protoc-gen-grpc
+    - grpc-cpp
+    # needs flatc
+    - flatbuffers
   host:
     - python
     - pip
-    - numpy
+    - numpy       # [py>=39]
+    - numpy 1.19  # [py<39]
     - scipy
     - wheel
+    - abseil-cpp
+    - flatbuffers
+    - grpc-cpp
+    - libprotobuf
+    - openssl
+    - zlib
   run:
     - python
     - absl-py
@@ -44,10 +59,13 @@ requirements:
     - __osx >={{ MACOSX_DEPLOYMENT_TARGET|default("10.9") }}  # [osx]
 
 test:
+  files:
+    - test_jaxlib.py
   requires:
     - pip
   commands:
     - pip check
+    - python test_jaxlib.py
   imports:
     - jaxlib
     # Only this import actually triggers the load of XLA

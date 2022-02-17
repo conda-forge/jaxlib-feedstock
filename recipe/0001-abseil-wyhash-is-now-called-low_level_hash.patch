@@ -1,0 +1,68 @@
+From 856fbeaf6cbdce8fb72c5a8e966c6eff31da5871 Mon Sep 17 00:00:00 2001
+From: "Uwe L. Korn" <uwe.korn@quantco.com>
+Date: Tue, 15 Feb 2022 17:40:47 +0100
+Subject: [PATCH] abseil: wyhash is now called low_level_hash
+
+---
+ WORKSPACE                                     |  1 +
+ ...-wyhash-is-now-called-low_level_hash.patch | 36 +++++++++++++++++++
+ 2 files changed, 37 insertions(+)
+ create mode 100644 jaxlib/0001-abseil-wyhash-is-now-called-low_level_hash.patch
+
+diff --git a/WORKSPACE b/WORKSPACE
+index 2f0a404..64befe1 100644
+--- a/WORKSPACE
++++ b/WORKSPACE
+@@ -15,6 +15,7 @@ http_archive(
+     patch_args = ["-p1"],
+     patches = [
+         "@//jaxlib:d0c885fc6096e06f7cb3678871adcff3279b7dec.patch",
++	"@//jaxlib:0001-abseil-wyhash-is-now-called-low_level_hash.patch",
+     ]
+ )
+ 
+diff --git a/jaxlib/0001-abseil-wyhash-is-now-called-low_level_hash.patch b/jaxlib/0001-abseil-wyhash-is-now-called-low_level_hash.patch
+new file mode 100644
+index 0000000..71f0d6a
+--- /dev/null
++++ b/jaxlib/0001-abseil-wyhash-is-now-called-low_level_hash.patch
+@@ -0,0 +1,36 @@
++From 6a9408c94efd3d0c0f9b4c6b1b06d9928f132244 Mon Sep 17 00:00:00 2001
++From: "Uwe L. Korn" <uwe.korn@quantco.com>
++Date: Tue, 15 Feb 2022 17:39:38 +0100
++Subject: [PATCH] abseil: wyhash is now called low_level_hash
++
++---
++ third_party/absl/system.absl.hash.BUILD | 6 +++---
++ 1 file changed, 3 insertions(+), 3 deletions(-)
++
++diff --git a/third_party/absl/system.absl.hash.BUILD b/third_party/absl/system.absl.hash.BUILD
++index 89f40b570d0..3367340cb25 100644
++--- a/third_party/absl/system.absl.hash.BUILD
+++++ b/third_party/absl/system.absl.hash.BUILD
++@@ -7,7 +7,7 @@ cc_library(
++     linkopts = ["-labsl_hash"],
++     deps = [
++         ":city",
++-        ":wyhash",
+++        ":low_level_hash",
++         "//absl/base:endian",
++         "//absl/container:fixed_array",
++         "//absl/numeric:int128",
++@@ -27,8 +27,8 @@ cc_library(
++ )
++ 
++ cc_library(
++-    name = "wyhash",
++-    linkopts = ["-labsl_wyhash"],
+++    name = "low_level_hash",
+++    linkopts = ["-labsl_low_level_hash"],
++     visibility = ["//visibility:private"],
++     deps = [
++         "//absl/base:endian",
++-- 
++2.35.0
++
+-- 
+2.32.0 (Apple Git-132)
+
