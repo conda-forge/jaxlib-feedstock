@@ -7,7 +7,7 @@ abseil_cpp:
 c_compiler:
 - clang
 c_compiler_version:
-- '11'
+- '12'
 channel_sources:
 - conda-forge
 channel_targets:
@@ -15,9 +15,9 @@ channel_targets:
 cxx_compiler:
 - clangxx
 cxx_compiler_version:
-- '11'
+- '12'
 grpc_cpp:
-- '1.43'
+- '1.44'
 libprotobuf:
 - '3.19'
 macos_machine:
