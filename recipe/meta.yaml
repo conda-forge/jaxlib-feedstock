@@ -1,4 +1,4 @@
-{% set version = "0.3.0" %}
+{% set version = "0.3.2" %}
 {% set name = "jaxlib" %}
 
 package:
@@ -7,7 +7,7 @@ package:
 
 source:
   url: https://github.com/google/jax/archive/{{ name }}-v{{ version }}.tar.gz
-  sha256: 63897ca8ac9616bc830960912ca0cfacf955c4ae7e3461ff9cd3a2ccc61818f0
+  sha256: af9d623b5222219b7dfa91d1c1c91e6df79f40a67f0f36b82a810c9338f703ce
   patches:
     - 0001-Don-t-add-dashes-to-version.patch
     - 0001-Patch-pocketfft-for-C-17-osx-64.patch  # [osx and x86_64]
@@ -15,7 +15,7 @@ source:
     - 0001-abseil-wyhash-is-now-called-low_level_hash.patch
 
 build:
-  number: 3
+  number: 0
   skip: true  # [win or py<37]
 
 requirements:
