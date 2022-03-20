@@ -15,7 +15,7 @@ source:
     - 0001-abseil-wyhash-is-now-called-low_level_hash.patch
 
 build:
-  number: 3
+  number: 4
   skip: true  # [win or py<37]
 
 requirements:
