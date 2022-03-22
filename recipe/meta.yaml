@@ -15,7 +15,7 @@ source:
     - 0001-abseil-wyhash-is-now-called-low_level_hash.patch
 
 build:
-  number: 3
+  number: 4
   skip: true  # [win or py<37]
 
 requirements:
@@ -54,7 +54,8 @@ requirements:
     - scipy
     - six
     - python-flatbuffers
-  run_constrained:   # [osx]
+  run_constrained:
+    - jax >={{ version }}
     - __osx >={{ MACOSX_DEPLOYMENT_TARGET|default("10.9") }}  # [osx]
 
 test:
