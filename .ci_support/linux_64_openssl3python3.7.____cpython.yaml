@@ -21,7 +21,7 @@ grpc_cpp:
 libprotobuf:
 - '3.19'
 numpy:
-- '1.18'
+- '1.19'
 openssl:
 - '3'
 pin_run_as_build:
