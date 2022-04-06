@@ -17,7 +17,7 @@ cxx_compiler_version:
 docker_image:
 - quay.io/condaforge/linux-anvil-cos7-x86_64
 grpc_cpp:
-- '1.44'
+- '1.45'
 libprotobuf:
 - '3.19'
 numpy:
