@@ -11,8 +11,6 @@ source:
   patches:
     - 0001-Don-t-add-dashes-to-version.patch
     - 0001-Patch-pocketfft-for-C-17-osx-64.patch  # [osx and x86_64]
-    - 0001-Add-patch-for-google-jax-9534.patch
-    - 0001-abseil-wyhash-is-now-called-low_level_hash.patch
 
 build:
   number: 0
