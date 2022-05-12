@@ -21,6 +21,32 @@ if [[ "${target_platform}" == "osx-64" ]]; then
   TARGET_CPU=darwin
 fi
 
+if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
+   if [[ ${cuda_compiler_version} == 10.* ]]; then
+       export TF_CUDA_COMPUTE_CAPABILITIES=sm_35,sm_50,sm_60,sm_62,sm_70,sm_72,sm_75,compute_75
+   elif [[ ${cuda_compiler_version} == 11.0* ]]; then
+       export TF_CUDA_COMPUTE_CAPABILITIES=sm_35,sm_50,sm_60,sm_62,sm_70,sm_72,sm_75,sm_80,compute_80
+   elif [[ ${cuda_compiler_version} == 11.1 ]]; then
+       export TF_CUDA_COMPUTE_CAPABILITIES=sm_35,sm_50,sm_60,sm_62,sm_70,sm_72,sm_75,sm_80,sm_86,compute_86
+   elif [[ ${cuda_compiler_version} == 11.2 ]]; then
+       export TF_CUDA_COMPUTE_CAPABILITIES=sm_35,sm_50,sm_60,sm_62,sm_70,sm_72,sm_75,sm_80,sm_86,compute_86
+   else
+       echo "unsupported cuda version."
+       exit 1
+   fi
+
+   export TF_CUDA_VERSION="${cuda_compiler_version}"
+   export TF_CUDNN_VERSION="${cudnn}"
+
+   CUDA_ARGS="--enable_cuda \
+              --enable_nccl \
+              --cuda_path=$CUDA_HOME \
+              --cudnn_path=$PREFIX   \
+              --cuda_compute_capabilities=$TF_CUDA_COMPUTE_CAPABILITIES \
+              --cuda_version=$TF_CUDA_VERSION \
+              --cudnn_version=$TF_CUDNN_VERSION"
+fi
+
 # Force static linkage with protobuf to avoid definition collisions,
 # see https://github.com/conda-forge/jaxlib-feedstock/issues/89
 #
@@ -31,7 +57,7 @@ export TF_SYSTEM_LIBS="boringssl,com_github_googlecloudplatform_google_cloud_cpp
 if [[ "${target_platform}" == "osx-arm64" ]]; then
   ${PYTHON} build/build.py --target_cpu_features default --enable_mkl_dnn ${CUSTOM_BAZEL_OPTIONS} --target_cpu ${TARGET_CPU}
 else
-  ${PYTHON} build/build.py --target_cpu_features default --enable_mkl_dnn ${CUSTOM_BAZEL_OPTIONS} --bazel_options=--cpu --bazel_options=${TARGET_CPU}
+  ${PYTHON} build/build.py --target_cpu_features default --enable_mkl_dnn ${CUSTOM_BAZEL_OPTIONS} ${CUDA_ARGS:-} --bazel_options=--cpu --bazel_options=${TARGET_CPU}
 fi
 
 # Clean up to speedup postprocessing
