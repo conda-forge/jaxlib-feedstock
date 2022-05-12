@@ -1,28 +1,24 @@
-diff --git a/build/build.py b/build/build.py
-index 2a812632..5bae14dd 100755
---- a/build/build.py
-+++ b/build/build.py
-@@ -201,10 +201,10 @@ def get_bazel_path(bazel_path_flag):
+From 866f0953895cc8a9f99a2a15f8fbfd655e621e0e Mon Sep 17 00:00:00 2001
+From: "Uwe L. Korn" <uwe.korn@quantco.com>
+Date: Wed, 1 Sep 2021 21:35:33 +0200
+Subject: [PATCH] Don't add dashes to version
+
+---
+--- jax-jaxlib-v0.1.74.orig/build/build.py	2021-11-16 22:17:01.000000000 -0300
++++ jax-jaxlib-v0.1.74/build/build.py	2021-12-09 14:37:18.138160554 -0300
+@@ -204,10 +204,10 @@
  
- def check_bazel_version(bazel_path):
+ def get_bazel_version(bazel_path):
    try:
 -    version_output = shell([bazel_path, "--version"])
 +    version_output = shell([bazel_path, "version"])
    except subprocess.CalledProcessError:
-     return False
+     return None
 -  match = re.search(r"bazel *([0-9\\.]+)", version_output)
 +  match = re.search(r"Build label: *([0-9\\.]+)", version_output)
    if match is None:
-     return False
-   actual_ints = [int(x) for x in match.group(1).split(".")]
-@@ -241,6 +241,10 @@ def write_bazelrc(python_bin_path=None, remote_build=None,
-       f.write("build --action_env TF_CUDA_PATHS=\"{tf_cuda_paths}\"\n"
-               .format(tf_cuda_paths=",".join(tf_cuda_paths)))
-     if cuda_version:
-+      # set GCC_HOST_COMPILER_PATH for toolchain with conda-forge
-+      f.write("build --action_env GCC_HOST_COMPILER_PATH=\"{gcc_host_compiler_path}\"\n"
-+              .format(gcc_host_compiler_path=os.environ["CC"]))
-+
-       f.write("build --action_env TF_CUDA_VERSION=\"{cuda_version}\"\n"
-               .format(cuda_version=cuda_version))
-     if cudnn_version:
+     return None
+   return tuple(int(x) for x in match.group(1).split("."))
+-- 
+2.33.0
+
