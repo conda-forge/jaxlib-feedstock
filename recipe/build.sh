@@ -57,7 +57,7 @@ export TF_SYSTEM_LIBS="boringssl,com_github_googlecloudplatform_google_cloud_cpp
 if [[ "${target_platform}" == "osx-arm64" ]]; then
   ${PYTHON} build/build.py --target_cpu_features default --enable_mkl_dnn ${CUSTOM_BAZEL_OPTIONS} --target_cpu ${TARGET_CPU}
 else
-  ${PYTHON} build/build.py --target_cpu_features default --enable_mkl_dnn ${CUSTOM_BAZEL_OPTIONS} ${CUDA_ARGS:-} --bazel_options=--cpu --bazel_options=${TARGET_CPU} --bazel_options="--local_cpu_resources=64"
+  ${PYTHON} build/build.py --target_cpu_features default --enable_mkl_dnn ${CUSTOM_BAZEL_OPTIONS} ${CUDA_ARGS:-} --bazel_options=--cpu --bazel_options=${TARGET_CPU} --bazel_options="--local_cpu_resources=${CPU_COUNT}"
 fi
 
 # Clean up to speedup postprocessing
