@@ -1,4 +1,4 @@
-{% set version = "0.3.2" %}
+{% set version = "0.3.7" %}
 {% set name = "jaxlib" %}
 
 package:
@@ -7,7 +7,7 @@ package:
 
 source:
   url: https://github.com/google/jax/archive/{{ name }}-v{{ version }}.tar.gz
-  sha256: e0f343d2325d2a9b9a24d3db636ab19e2aa19baf4bc2ebfd605990d4d0d26491
+  sha256: 60a1ec2f32e28eda90998440c3a3f71dd55abd3e5b033849255ab157c4765632
   patches:
     - 0001-Don-t-add-dashes-to-version.patch
     - 0001-Patch-pocketfft-for-C-17-osx-64.patch  # [osx and x86_64]
@@ -25,7 +25,7 @@ requirements:
     - numpy                                  # [build_platform != target_platform]
     - scipy                                  # [build_platform != target_platform]
     - unzip
-    - bazel 5.0.0
+    - bazel 5.1.1
     - bazel-toolchain
     # need protoc
     - libprotobuf
@@ -40,7 +40,8 @@ requirements:
     - numpy 1.19  # [py<39]
     - scipy
     - wheel
-    - abseil-cpp
+    # Reactivate once we have switched the global abseil pin to a new version
+    # - abseil-cpp
     - flatbuffers <2.0.6
     - grpc-cpp
     - openssl
