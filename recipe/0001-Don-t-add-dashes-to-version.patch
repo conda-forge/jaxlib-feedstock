@@ -32,7 +32,7 @@ index 979bf5617..cdf5309ef 100755
 
    config_args = args.bazel_options
 +  if args.enable_cuda:
-+    config_args += ["--config=cuda"]
++    # config_args += ["--config=cuda"]
 +    if not args.enable_nccl:
 +      config_args += ["--config=nonccl"]
    if args.target_cpu_features == "release":
