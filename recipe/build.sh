@@ -2,6 +2,15 @@
 
 set -euxo pipefail
 
+export PATH="$PWD:$PATH"
+export CC=$(basename $CC)
+export CXX=$(basename $CXX)
+export LIBDIR=$PREFIX/lib
+export INCLUDEDIR=$PREFIX/include
+
+export TF_IGNORE_MAX_BAZEL_VERSION="1"
+
+
 if [[ "${target_platform}" == osx-* ]]; then
   export LDFLAGS="${LDFLAGS} -lz -framework CoreFoundation -Xlinker -undefined -Xlinker dynamic_lookup"
 else
@@ -10,9 +19,11 @@ fi
 sed -i -e 's/c++14/c++17/g' .bazelrc
 export CFLAGS="${CFLAGS} -DNDEBUG"
 export CXXFLAGS="${CXXFLAGS} -DNDEBUG"
-source gen-bazel-toolchain
+# source gen-bazel-toolchain
 
-CUSTOM_BAZEL_OPTIONS="--bazel_options=--crosstool_top=//bazel_toolchain:toolchain --bazel_options=--logging=6 --bazel_options=--verbose_failures --bazel_options=--toolchain_resolution_debug --bazel_options=--define=PREFIX=${PREFIX} --bazel_options=--define=PROTOBUF_INCLUDE_PATH=${PREFIX}/include"
+source ${RECIPE_DIR}/gen-bazel-toolchain.sh
+
+CUSTOM_BAZEL_OPTIONS="--bazel_options=--crosstool_top=//custom_toolchain:toolchain --bazel_options=--logging=6 --bazel_options=--verbose_failures --bazel_options=--toolchain_resolution_debug --bazel_options=--define=PREFIX=${PREFIX} --bazel_options=--define=PROTOBUF_INCLUDE_PATH=${PREFIX}/include"
 # For debugging
 # CUSTOM_BAZEL_OPTIONS="${CUSTOM_BAZEL_OPTIONS} --bazel_options=--subcommands"
 
@@ -58,6 +69,7 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
     export GCC_HOST_COMPILER_PATH="${GCC}"
     export GCC_HOST_COMPILER_PREFIX="$(dirname ${GCC})"
     export LDFLAGS="${LDFLAGS//-Wl,-z,now/-Wl,-z,lazy}"
+    # export CUSTOM_BAZEL_OPTIONS="${CUSTOM_BAZEL_OPTIONS} --bazel_options=--crosstool_top=@local_config_cuda//crosstool:toolchain --bazel_options=--@local_config_cuda//:enable_cuda"
 else
     export TF_SYSTEM_LIBS="boringssl,com_github_googlecloudplatform_google_cloud_cpp,com_github_grpc_grpc,flatbuffers,zlib"
 fi
