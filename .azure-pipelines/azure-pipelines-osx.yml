@@ -64,7 +64,6 @@ jobs:
         CONFIG: osx_arm64_numpy1.21openssl3python3.10.____cpython
         UPLOAD_PACKAGES: 'True'
         SHORT_CONFIG: osx_arm64_numpy1.21openssl3python3._h1dc00f7918
-    maxParallel: 13
   timeoutInMinutes: 360
 
   steps:
