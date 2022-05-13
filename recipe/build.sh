@@ -53,7 +53,10 @@ fi
 # Thus: don't add com_google_protobuf here.
 # FIXME: Current global abseil pin is too old for jaxlib, readd com_google_absl once we are on a newer version.
 if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
-    export TF_SYSTEM_LIBS="boringssl,com_github_googlecloudplatform_google_cloud_cpp,com_github_grpc_grpc,flatbuffers"
+    export TF_SYSTEM_LIBS="boringssl,com_github_googlecloudplatform_google_cloud_cpp,com_github_grpc_grpc,flatbuffers,zlib"
+    export GCC_HOST_COMPILER_PATH="${GCC}"
+    export GCC_HOST_COMPILER_PREFIX="$(dirname ${GCC})"
+    export LDFLAGS="${LDFLAGS//-Wl,-z,now/-Wl,-z,lazy}"
 else
     export TF_SYSTEM_LIBS="boringssl,com_github_googlecloudplatform_google_cloud_cpp,com_github_grpc_grpc,flatbuffers,zlib"
 fi
@@ -61,7 +64,7 @@ fi
 if [[ "${target_platform}" == "osx-arm64" ]]; then
   ${PYTHON} build/build.py --target_cpu_features default --enable_mkl_dnn ${CUSTOM_BAZEL_OPTIONS} --target_cpu ${TARGET_CPU}
 else
-  ${PYTHON} build/build.py --target_cpu_features default --enable_mkl_dnn ${CUSTOM_BAZEL_OPTIONS} ${CUDA_ARGS:-} --bazel_options=--cpu --bazel_options=${TARGET_CPU} --bazel_options="--local_cpu_resources=${CPU_COUNT}"
+  ${PYTHON} build/build.py --target_cpu_features default --enable_mkl_dnn ${CUSTOM_BAZEL_OPTIONS} --bazel_options=--cpu --bazel_options=${TARGET_CPU} --bazel_options="--local_cpu_resources=${CPU_COUNT}" ${CUDA_ARGS:-}
 fi
 
 # Clean up to speedup postprocessing

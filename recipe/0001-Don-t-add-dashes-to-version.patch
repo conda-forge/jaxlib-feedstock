@@ -1,5 +1,5 @@
 diff --git a/build/build.py b/build/build.py
-index 70f53684c..7517bcc87 100755
+index 979bf5617..6641cc916 100755
 --- a/build/build.py
 +++ b/build/build.py
 @@ -204,10 +204,10 @@ def get_bazel_path(bazel_path_flag):
@@ -15,13 +15,25 @@ index 70f53684c..7517bcc87 100755
    if match is None:
      return None
    return tuple(int(x) for x in match.group(1).split("."))
-@@ -243,6 +243,9 @@ def write_bazelrc(python_bin_path=None, remote_build=None,
+@@ -243,6 +243,11 @@ def write_bazelrc(python_bin_path=None, remote_build=None,
        f.write("build --action_env TF_CUDA_PATHS=\"{tf_cuda_paths}\"\n"
                .format(tf_cuda_paths=",".join(tf_cuda_paths)))
      if cuda_version:
 +      # set GCC_HOST_COMPILER_PATH for toolchain with conda-forge
 +      f.write("build --action_env GCC_HOST_COMPILER_PATH=\"{gcc_host_compiler_path}\"\n"
-+              .format(gcc_host_compiler_path=os.environ["CC"]))
++              .format(gcc_host_compiler_path=os.environ["GCC"]))
++      f.write("build --action_env GCC_HOST_COMPILER_PREFIX=\"{gcc_host_compiler_prefix}\"\n"
++              .format(gcc_host_compiler_prefix=os.path.dirname(os.environ["GCC"])))
        f.write("build --action_env TF_CUDA_VERSION=\"{cuda_version}\"\n"
                .format(cuda_version=cuda_version))
      if cudnn_version:
+@@ -503,7 +508,7 @@ def main():
+   if args.enable_mkl_dnn:
+     config_args += ["--config=mkl_open_source_only"]
+   if args.enable_cuda:
+-    config_args += ["--config=cuda"]
++    config_args += ["--config=cuda"] # overrides custom toolchain
+     if not args.enable_nccl:
+       config_args += ["--config=nonccl"]
+   if args.enable_tpu:
+

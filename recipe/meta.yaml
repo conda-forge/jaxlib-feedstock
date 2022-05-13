@@ -11,7 +11,7 @@ source:
   patches:
     - 0001-Don-t-add-dashes-to-version.patch
     - 0001-Patch-pocketfft-for-C-17-osx-64.patch  # [osx and x86_64]
-
+    - 0002-fix-bazelrc.diff
 build:
   number: 0
   skip: true  # [win or py<37]
@@ -36,6 +36,10 @@ requirements:
     - grpc-cpp
     # needs flatc
     - flatbuffers <2.0.6
+    # realpath is not available from the docker image for cuda <= 10.2
+    # so we install coreutils here
+    - coreutils  # [cuda_compiler_version != "None"]
+    - binutils   # [cuda_compiler_version != "None"]
   host:
     - cudnn      # [cuda_compiler_version != "None"]
     - nccl       # [cuda_compiler_version != "None"]
