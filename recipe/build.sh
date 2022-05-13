@@ -65,7 +65,7 @@ fi
 if [[ "${target_platform}" == "osx-arm64" ]]; then
   ${PYTHON} build/build.py --target_cpu_features default --enable_mkl_dnn ${CUSTOM_BAZEL_OPTIONS} --target_cpu ${TARGET_CPU}
 else
-  ${PYTHON} build/build.py --target_cpu_features default --enable_mkl_dnn ${CUSTOM_BAZEL_OPTIONS} --bazel_options=--cpu --bazel_options=${TARGET_CPU} --bazel_options="--local_cpu_resources=${CPU_COUNT}" ${CUDA_ARGS:-} --bazel_options="--config=opt"
+  ${PYTHON} build/build.py --target_cpu_features default --enable_mkl_dnn ${CUSTOM_BAZEL_OPTIONS} --bazel_options=--cpu --bazel_options=${TARGET_CPU} --bazel_options="--local_cpu_resources=${CPU_COUNT}" ${CUDA_ARGS:-}
 fi
 
 # Clean up to speedup postprocessing
