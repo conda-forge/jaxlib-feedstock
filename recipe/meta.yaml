@@ -13,7 +13,7 @@ source:
     - 0001-Patch-pocketfft-for-C-17-osx-64.patch  # [osx and x86_64]
     - 0002-fix-bazelrc.diff  # [cuda_compiler_version != "None"]
 build:
-  number: 0
+  number: 1
   skip: true  # [win or py<37]
   skip: true  # [cuda_compiler_version in ("10.2", "11.0", "11.1")]
   string: cuda{{ cuda_compiler_version | replace('.', '') }}py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [cuda_compiler_version != "None"]
