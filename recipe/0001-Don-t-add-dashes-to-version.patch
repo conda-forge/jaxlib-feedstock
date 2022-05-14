@@ -1,13 +1,9 @@
-From 866f0953895cc8a9f99a2a15f8fbfd655e621e0e Mon Sep 17 00:00:00 2001
-From: "Uwe L. Korn" <uwe.korn@quantco.com>
-Date: Wed, 1 Sep 2021 21:35:33 +0200
-Subject: [PATCH] Don't add dashes to version
+diff --git a/build/build.py b/build/build.py
+index 979bf5617..cdf5309ef 100755
+--- a/build/build.py
++++ b/build/build.py
+@@ -204,10 +204,10 @@ def get_bazel_path(bazel_path_flag):
 
----
---- jax-jaxlib-v0.1.74.orig/build/build.py	2021-11-16 22:17:01.000000000 -0300
-+++ jax-jaxlib-v0.1.74/build/build.py	2021-12-09 14:37:18.138160554 -0300
-@@ -204,10 +204,10 @@
- 
  def get_bazel_version(bazel_path):
    try:
 -    version_output = shell([bazel_path, "--version"])
@@ -19,6 +15,37 @@ Subject: [PATCH] Don't add dashes to version
    if match is None:
      return None
    return tuple(int(x) for x in match.group(1).split("."))
--- 
-2.33.0
+@@ -243,6 +243,11 @@ def write_bazelrc(python_bin_path=None, remote_build=None,
+       f.write("build --action_env TF_CUDA_PATHS=\"{tf_cuda_paths}\"\n"
+               .format(tf_cuda_paths=",".join(tf_cuda_paths)))
+     if cuda_version:
++      # set GCC_HOST_COMPILER_PATH for toolchain with conda-forge
++      f.write("build --action_env GCC_HOST_COMPILER_PATH=\"{gcc_host_compiler_path}\"\n"
++              .format(gcc_host_compiler_path=os.environ["GCC"]))
++      f.write("build --action_env GCC_HOST_COMPILER_PREFIX=\"{gcc_host_compiler_prefix}\"\n"
++              .format(gcc_host_compiler_prefix=os.path.dirname(os.environ["GCC"])))
+       f.write("build --action_env TF_CUDA_VERSION=\"{cuda_version}\"\n"
+               .format(cuda_version=cuda_version))
+     if cudnn_version:
+@@ -490,6 +495,10 @@ def main():
+   print("\nBuilding XLA and installing it in the jaxlib source tree...")
 
+   config_args = args.bazel_options
++  if args.enable_cuda:
++    # config_args += ["--config=cuda"]
++    if not args.enable_nccl:
++      config_args += ["--config=nonccl"]
+   if args.target_cpu_features == "release":
+     if wheel_cpu == "x86_64":
+       config_args += ["--config=avx_windows" if is_windows()
+@@ -502,10 +511,6 @@ def main():
+
+   if args.enable_mkl_dnn:
+     config_args += ["--config=mkl_open_source_only"]
+-  if args.enable_cuda:
+-    config_args += ["--config=cuda"]
+-    if not args.enable_nccl:
+-      config_args += ["--config=nonccl"]
+   if args.enable_tpu:
+     config_args += ["--config=tpu"]
+   if args.enable_rocm:
