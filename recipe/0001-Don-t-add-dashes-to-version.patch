@@ -27,7 +27,7 @@ index 979bf5617..cdf5309ef 100755
        f.write("build --action_env TF_CUDA_VERSION=\"{cuda_version}\"\n"
                .format(cuda_version=cuda_version))
      if cudnn_version:
-@@ -490,6 +495,10 @@ def main():
+@@ -491,6 +496,10 @@ def main():
    print("\nBuilding XLA and installing it in the jaxlib source tree...")
 
    config_args = args.bazel_options
@@ -38,7 +38,7 @@ index 979bf5617..cdf5309ef 100755
    if args.target_cpu_features == "release":
      if wheel_cpu == "x86_64":
        config_args += ["--config=avx_windows" if is_windows()
-@@ -502,10 +511,6 @@ def main():
+@@ -503,10 +512,6 @@ def main():
 
    if args.enable_mkl_dnn:
      config_args += ["--config=mkl_open_source_only"]
