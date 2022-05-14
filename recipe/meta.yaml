@@ -7,7 +7,7 @@ package:
 
 source:
   url: https://github.com/google/jax/archive/{{ name }}-v{{ version }}.tar.gz
-  sha256: 60a1ec2f32e28eda90998440c3a3f71dd55abd3e5b033849255ab157c4765632
+  sha256: cc6669abf53bb2edb85c0f86b32aef66cd64b4db0b432c206622946d4bd9d6df
   patches:
     - 0001-Don-t-add-dashes-to-version.patch
     - 0001-Patch-pocketfft-for-C-17-osx-64.patch  # [osx and x86_64]
