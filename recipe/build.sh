@@ -20,8 +20,8 @@ export CFLAGS="${CFLAGS} -DNDEBUG"
 export CXXFLAGS="${CXXFLAGS} -DNDEBUG"
 
 if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
-   source ${RECIPE_DIR}/gen-bazel-toolchain.sh
-   CUSTOM_BAZEL_OPTIONS="--bazel_options=--crosstool_top=//custom_toolchain:toolchain"
+   source gen-bazel-toolchain
+   CUSTOM_BAZEL_OPTIONS="--bazel_options=--crosstool_top=//bazel_toolchain:toolchain"
 else
    source gen-bazel-toolchain
    CUSTOM_BAZEL_OPTIONS="--bazel_options=--crosstool_top=//bazel_toolchain:toolchain"
