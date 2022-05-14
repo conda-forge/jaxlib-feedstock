@@ -28,22 +28,6 @@ conda-build:
 
 CONDARC
 
-if [ ${SINGULARITY_BUILD:-"False"} == "True" ]; then
-    ### rough workaround to avoid singularity
-    ### read-only defaults:
-    export PATH="$PATH":/opt/conda/condabin
-    env > envvar
-    mamba init
-    source ~/.bashrc
-    mamba create --prefix=/tmp/building --yes --quiet
-    mamba activate /tmp/building
-    # conda clean --packages --yes --quiet
-    sed 's/^/"/;s/$/"/' envvar > envvarmod
-    sed 's/^/export /' envvarmod > envvarmodmod
-    source ./envvarmodmod
-fi
-
-
 
 mamba install --update-specs --yes --quiet --channel conda-forge \
     conda-build pip boa conda-forge-ci-setup=3
