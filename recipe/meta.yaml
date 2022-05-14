@@ -11,12 +11,12 @@ source:
   patches:
     - 0001-Don-t-add-dashes-to-version.patch
     - 0001-Patch-pocketfft-for-C-17-osx-64.patch  # [osx and x86_64]
-    - 0002-fix-bazelrc-112.diff  # [cuda_compiler_version == "11.2"]
-    - 0002-fix-bazelrc-111.diff  # [cuda_compiler_version == "11.1"]
-    - 0002-fix-bazelrc-110.diff  # [cuda_compiler_version == "11.0"]
-    - 0002-fix-bazelrc-102.diff  # [cuda_compiler_version == "10.2"]
+    - 0002-bazelrc-112.diff  # [cuda_compiler_version == "11.2"]
+    - 0002-bazelrc-111.diff  # [cuda_compiler_version == "11.1"]
+    - 0002-bazelrc-110.diff  # [cuda_compiler_version == "11.0"]
+    - 0002-bazelrc-102.diff  # [cuda_compiler_version == "10.2"]
 build:
-  number: 1
+  number: 0
   skip: true  # [win or py<37]
   skip: true  # [cuda_compiler_version == "11.0" or cuda_compiler_version == "11.1"]
   string: cuda{{ cuda_compiler_version | replace('.', '') }}py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [cuda_compiler_version != "None"]
