@@ -34,7 +34,7 @@ requirements:
     - scipy                                  # [build_platform != target_platform]
     - unzip
     - bazel 5.1.1
-    - bazel-toolchain                        # [cuda_compiler_version == "None"]
+    - bazel-toolchain
     # need protoc
     - libprotobuf
     # needs protoc-gen-grpc
