@@ -35,8 +35,13 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
         echo "unsupported cuda version."
         exit 1
     fi
+
     export TF_CUDA_VERSION="${cuda_compiler_version}"
     export TF_CUDNN_VERSION="${cudnn}"
+    export TF_CUDA_PATHS="${PREFIX},${CUDA_HOME}"
+    export TF_NEED_CUDA=1
+    export TF_NCCL_VERSION=$(pkg-config nccl --modversion | grep -Po '\d+\.\d+')
+
     CUDA_ARGS="--enable_cuda \
                --enable_nccl \
                --cuda_path=$CUDA_HOME \
