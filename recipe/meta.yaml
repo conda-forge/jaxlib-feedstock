@@ -63,6 +63,7 @@ requirements:
     - scipy
     - six
     - python-flatbuffers
+    - __cuda  # [cuda_compiler_version != "None"]
   run_constrained:
     - jax >={{ version }}
     - __osx >={{ MACOSX_DEPLOYMENT_TARGET|default("10.9") }}  # [osx]
