@@ -8,6 +8,12 @@ channel_sources:
 - conda-forge
 channel_targets:
 - conda-forge main
+cuda_compiler:
+- nvcc
+cuda_compiler_version:
+- None
+cudnn:
+- undefined
 cxx_compiler:
 - gxx
 cxx_compiler_version:
@@ -15,13 +21,15 @@ cxx_compiler_version:
 docker_image:
 - quay.io/condaforge/linux-anvil-cos7-x86_64
 grpc_cpp:
-- '1.46'
+- '1.45'
 libprotobuf:
 - '3.20'
+nccl:
+- '2'
 numpy:
 - '1.21'
 openssl:
-- '3'
+- 1.1.1
 pin_run_as_build:
   python:
     min_pin: x.x
@@ -34,7 +42,11 @@ target_platform:
 - linux-64
 zip_keys:
 - - c_compiler_version
+  - cdt_name
+  - cuda_compiler_version
+  - cudnn
   - cxx_compiler_version
+  - docker_image
 - - numpy
   - python
 zlib:

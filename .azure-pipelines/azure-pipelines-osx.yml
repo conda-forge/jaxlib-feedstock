@@ -120,6 +120,7 @@ jobs:
         CONFIG: osx_arm64_grpc_cpp1.46numpy1.21openssl3python3.10.____cpython
         UPLOAD_PACKAGES: 'True'
         SHORT_CONFIG: osx_arm64_grpc_cpp1.46numpy1.21open_hd65c2df23f
+    maxParallel: 23
   timeoutInMinutes: 360
 
   steps:
