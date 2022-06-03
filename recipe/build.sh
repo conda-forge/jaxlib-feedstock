@@ -22,6 +22,11 @@ if [[ "${target_platform}" == "osx-64" ]]; then
   TARGET_CPU=darwin
 fi
 
+if [[ "${target_platform}" == *ppc ]]; then
+  # Tensorflow doesn't cope yet with an explicit architecture (darwin_x86_64) on osx-64 yet.
+  TARGET_CPU=ppc
+fi
+
 if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
     if [[ ${cuda_compiler_version} == 10.* ]]; then
         export TF_CUDA_COMPUTE_CAPABILITIES=sm_35,sm_50,sm_60,sm_62,sm_70,sm_72,sm_75,compute_75
@@ -60,6 +65,8 @@ export TF_SYSTEM_LIBS="boringssl,com_github_googlecloudplatform_google_cloud_cpp
 
 if [[ "${target_platform}" == "osx-arm64" ]]; then
   ${PYTHON} build/build.py --target_cpu_features default --enable_mkl_dnn ${CUSTOM_BAZEL_OPTIONS} --target_cpu ${TARGET_CPU}
+elif [[ "${target_platform}" == *ppc ]]; then
+   ${PYTHON} build/build.py --target_cpu_features default ${CUSTOM_BAZEL_OPTIONS} --bazel_options=--cpu --bazel_options=${TARGET_CPU} ${CUDA_ARGS:-}   
 else
   ${PYTHON} build/build.py --target_cpu_features default --enable_mkl_dnn ${CUSTOM_BAZEL_OPTIONS} --bazel_options=--cpu --bazel_options=${TARGET_CPU} ${CUDA_ARGS:-}
 fi
