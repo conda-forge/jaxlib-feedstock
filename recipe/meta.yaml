@@ -1,4 +1,4 @@
-{% set version = "0.3.10" %}
+{% set version = "0.3.14" %}
 {% set name = "jaxlib" %}
 
 package:
@@ -7,7 +7,7 @@ package:
 
 source:
   url: https://github.com/google/jax/archive/{{ name }}-v{{ version }}.tar.gz
-  sha256: cc6669abf53bb2edb85c0f86b32aef66cd64b4db0b432c206622946d4bd9d6df
+  sha256: 194827464046360b0258fc11380422ffeb53b443df1275a941966446f7b4a654
   patches:
     - 0001-Don-t-add-dashes-to-version.patch
     - 0001-Patch-pocketfft-for-C-17-osx-64.patch  # [osx and x86_64]
