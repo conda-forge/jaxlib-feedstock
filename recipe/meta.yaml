@@ -53,7 +53,7 @@ requirements:
     - wheel
     # Reactivate once we have switched the global abseil pin to a new version
     # - abseil-cpp
-    - flatbuffers >=1.12,<3.0
+    - flatbuffers <2.0.6
     - grpc-cpp
     - openssl
     - zlib
