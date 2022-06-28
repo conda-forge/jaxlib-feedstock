@@ -62,7 +62,7 @@ requirements:
     - absl-py
     - {{ pin_compatible('numpy') }}
     - scipy >=1.5
-    - flatbuffers >=1.12,<3.0
+    - python-flatbuffers >=1.12,<3.0
     - __cuda  # [cuda_compiler_version != "None"]
   run_constrained:
     - jax >={{ version }}
