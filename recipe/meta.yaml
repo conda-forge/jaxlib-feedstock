@@ -53,7 +53,7 @@ requirements:
     - wheel
     # Reactivate once we have switched the global abseil pin to a new version
     # - abseil-cpp
-    - flatbuffers <2.0.6
+    - flatbuffers >=1.12,<3.0
     - grpc-cpp
     - openssl
     - zlib
@@ -62,6 +62,7 @@ requirements:
     - absl-py
     - {{ pin_compatible('numpy') }}
     - scipy >=1.5
+    - flatbuffers >=1.12,<3.0
     - __cuda  # [cuda_compiler_version != "None"]
   run_constrained:
     - jax >={{ version }}
