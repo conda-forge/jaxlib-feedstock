@@ -90,5 +90,6 @@ about:
 
 extra:
   recipe-maintainers:
+    - ngam
     - ericmjl
     - xhochy
