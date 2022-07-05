@@ -6,7 +6,7 @@ package:
   version: {{ version }}
 
 source:
-  # only pull sources after upstream PyPI release.
+  # only pull sources after upstream PyPI release...
   url: https://github.com/google/jax/archive/{{ name }}-v{{ version }}.tar.gz
   sha256: 6d6b660cb915b3fbf151dc67a471623e5f83b6a66493b9e438273d290a43b40f
   patches:
