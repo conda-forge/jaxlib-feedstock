@@ -578,5 +578,6 @@ Feedstock Maintainers
 =====================
 
 * [@ericmjl](https://github.com/ericmjl/)
+* [@ngam](https://github.com/ngam/)
 * [@xhochy](https://github.com/xhochy/)
 
