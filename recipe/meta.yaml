@@ -1,6 +1,13 @@
 {% set version = "0.3.14" %}
 {% set name = "jaxlib" %}
 
+{% set number = 2 %}
+
+{% if cuda_compiler_version != "None" %}
+{% set number = number + 200 %}
+{% endif %}
+
+
 package:
   name: jaxlib
   version: {{ version }}
@@ -15,7 +22,7 @@ source:
     - 0002-bazelrc-112.diff  # [cuda_compiler_version == "11.2"]
 
 build:
-  number: 1
+  number: {{ number }}
   skip: true  # [win or py<37]
   skip: true  # [cuda_compiler_version == "10.2"]
   skip: true  # [cuda_compiler_version == "11.0"]
