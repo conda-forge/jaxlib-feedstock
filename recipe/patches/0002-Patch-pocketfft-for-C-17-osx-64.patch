@@ -1,4 +1,4 @@
-From 92d6956b0a669d87a4a36a3a659f18e772592dfd Mon Sep 17 00:00:00 2001
+From 0b5d141cff139710909be00dd3e824b4e302bfb6 Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwe.korn@quantco.com>
 Date: Mon, 13 Sep 2021 15:25:28 +0200
 Subject: [PATCH 2/3] Patch pocketfft for C++17/osx-64
