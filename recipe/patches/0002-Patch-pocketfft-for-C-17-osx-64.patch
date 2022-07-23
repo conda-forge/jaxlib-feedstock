@@ -1,0 +1,77 @@
+From 92d6956b0a669d87a4a36a3a659f18e772592dfd Mon Sep 17 00:00:00 2001
+From: "Uwe L. Korn" <uwe.korn@quantco.com>
+Date: Mon, 13 Sep 2021 15:25:28 +0200
+Subject: [PATCH 2/3] Patch pocketfft for C++17/osx-64
+
+---
+ .../0001-Force-use-of-own-aligned_alloc.patch | 42 +++++++++++++++++++
+ third_party/pocketfft/workspace.bzl           |  4 ++
+ 2 files changed, 46 insertions(+)
+ create mode 100644 third_party/pocketfft/0001-Force-use-of-own-aligned_alloc.patch
+
+diff --git a/third_party/pocketfft/0001-Force-use-of-own-aligned_alloc.patch b/third_party/pocketfft/0001-Force-use-of-own-aligned_alloc.patch
+new file mode 100644
+index 000000000..391996944
+--- /dev/null
++++ b/third_party/pocketfft/0001-Force-use-of-own-aligned_alloc.patch
+@@ -0,0 +1,42 @@
++From 735ee745ebac331099767e21359531992d0a121d Mon Sep 17 00:00:00 2001
++From: "Uwe L. Korn" <uwe.korn@quantco.com>
++Date: Mon, 13 Sep 2021 13:49:56 +0200
++Subject: [PATCH] Force use of own aligned_alloc
++
++---
++ pocketfft_hdronly.h | 12 ------------
++ 1 file changed, 12 deletions(-)
++
++diff --git a/pocketfft_hdronly.h b/pocketfft_hdronly.h
++index f2ac8e0..83ff161 100644
++--- a/pocketfft_hdronly.h
+++++ b/pocketfft_hdronly.h
++@@ -149,17 +149,6 @@ template<> struct VLEN<double> { static constexpr size_t val=2; };
++ #endif
++ #endif
++ 
++-#if __cplusplus >= 201703L
++-inline void *aligned_alloc(size_t align, size_t size)
++-  {
++-  // aligned_alloc() requires that the requested size is a multiple of "align"
++-  void *ptr = ::aligned_alloc(align,(size+align-1)&(~(align-1)));
++-  if (!ptr) throw std::bad_alloc();
++-  return ptr;
++-  }
++-inline void aligned_dealloc(void *ptr)
++-    { free(ptr); }
++-#else // portable emulation
++ inline void *aligned_alloc(size_t align, size_t size)
++   {
++   align = std::max(align, alignof(max_align_t));
++@@ -172,7 +161,6 @@ inline void *aligned_alloc(size_t align, size_t size)
++   }
++ inline void aligned_dealloc(void *ptr)
++   { if (ptr) free((reinterpret_cast<void**>(ptr))[-1]); }
++-#endif
++ 
++ template<typename T> class arr
++   {
++-- 
++2.33.0
++
+diff --git a/third_party/pocketfft/workspace.bzl b/third_party/pocketfft/workspace.bzl
+index 6181573c8..c890beb9d 100644
+--- a/third_party/pocketfft/workspace.bzl
++++ b/third_party/pocketfft/workspace.bzl
+@@ -21,6 +21,10 @@ def repo():
+         name = "pocketfft",
+         sha256 = "66eda977b195965d27aeb9d74f46e0029a6a02e75fbbc47bb554aad68615a260",
+         strip_prefix = "pocketfft-f800d91ba695b6e19ae2687dd60366900b928002",
++        patch_args = ["-p1"],
++        patches = [
++             "@//third_party/pocketfft:0001-Force-use-of-own-aligned_alloc.patch",
++        ],
+         urls = [
+             "https://github.com/mreineck/pocketfft/archive/f800d91ba695b6e19ae2687dd60366900b928002.tar.gz",
+             "https://storage.googleapis.com/jax-releases/mirror/pocketfft/pocketfft-f800d91ba695b6e19ae2687dd60366900b928002.tar.gz",
+-- 
+2.37.0
+

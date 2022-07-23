@@ -17,9 +17,9 @@ source:
   url: https://github.com/google/jax/archive/{{ name }}-v{{ version }}.tar.gz
   sha256: c7eeaf7084865f2c558d755b06bd8a54f2711fa8d020a9d75d88dc7625a158cf
   patches:
-    - 0001-Don-t-add-dashes-to-version.patch
-    - 0001-Patch-pocketfft-for-C-17-osx-64.patch  # [osx and x86_64]
-    - 0002-bazelrc-112.diff  # [cuda_compiler_version == "11.2"]
+    - patches/0001-no-dashes-to-version-and-gcc-host-conda-forge.patch
+    - patches/0002-Patch-pocketfft-for-C-17-osx-64.patch  # [osx and x86_64]
+    - patches/0003-cuda.patch  # [cuda_compiler_version == "11.2"]
 
 build:
   number: {{ number }}
