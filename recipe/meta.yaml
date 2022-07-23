@@ -50,7 +50,7 @@ requirements:
     # needs protoc-gen-grpc
     - grpc-cpp
     # needs flatc
-    - flatbuffers <2.0.6
+    - flatbuffers <2
   host:
     - cudnn      # [cuda_compiler_version != "None"]
     - nccl       # [cuda_compiler_version != "None"]
@@ -60,7 +60,7 @@ requirements:
     - scipy
     - wheel
     - abseil-cpp
-    - flatbuffers <2.0.6
+    - flatbuffers <2
     - grpc-cpp
     - openssl
     - zlib
