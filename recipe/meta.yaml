@@ -54,18 +54,18 @@ requirements:
     # needs flatc
     - flatbuffers <2
   host:
-    - cudnn      # [cuda_compiler_version != "None"]
-    - nccl       # [cuda_compiler_version != "None"]
+    - cudnn             # [cuda_compiler_version != "None"]
+    - nccl              # [cuda_compiler_version != "None"]
     - python
     - pip
     - numpy
     - scipy
     - wheel
-    - abseil-cpp
+    - abseil-cpp        # [cuda_compiler_version == "None"]
     - flatbuffers <2
     - grpc-cpp
     - openssl
-    - zlib
+    - zlib              # [cuda_compiler_version == "None"]
   run:
     - python
     - absl-py
