@@ -9,7 +9,7 @@ export LIBDIR=$PREFIX/lib
 export INCLUDEDIR=$PREFIX/include
 
 mkdir -p ./bazel_output_base
-export BAZEL_OPTS=""
+export CUSTOM_BAZEL_OPTIONS=""
 # Set this to something as otherwise, it would include CFLAGS which itself contains a host path and this then breaks bazel's include path validation.
 export CC_OPT_FLAGS="-O2"
 
