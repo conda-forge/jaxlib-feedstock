@@ -50,7 +50,7 @@ requirements:
     # need protoc
     - libprotobuf
     # needs protoc-gen-grpc
-    - grpc-cpp          # [cuda_compiler_version == "None"]
+    - grpc-cpp
     # needs flatc
     - flatbuffers <2
   host:
@@ -61,11 +61,11 @@ requirements:
     - numpy
     - scipy
     - wheel
-    - abseil-cpp        # [cuda_compiler_version == "None"]
+    - abseil-cpp
     - flatbuffers <2
-    - grpc-cpp          # [cuda_compiler_version == "None"]
+    - grpc-cpp
     - openssl
-    - zlib              # [cuda_compiler_version == "None"]
+    - zlib
   run:
     - python
     - absl-py
