@@ -2,6 +2,17 @@
 
 set -euxo pipefail
 
+export PATH="$PWD:$PATH"
+export CC=$(basename $CC)
+export CXX=$(basename $CXX)
+export LIBDIR=$PREFIX/lib
+export INCLUDEDIR=$PREFIX/include
+
+mkdir -p ./bazel_output_base
+export BAZEL_OPTS=""
+# Set this to something as otherwise, it would include CFLAGS which itself contains a host path and this then breaks bazel's include path validation.
+export CC_OPT_FLAGS="-O2"
+
 if [[ "${target_platform}" == osx-* ]]; then
   export LDFLAGS="${LDFLAGS} -lz -framework CoreFoundation -Xlinker -undefined -Xlinker dynamic_lookup"
 else
@@ -56,6 +67,9 @@ fi
 #
 # Thus: don't add com_google_protobuf here.
 export TF_SYSTEM_LIBS="boringssl,com_google_absl,com_github_googlecloudplatform_google_cloud_cpp,com_github_grpc_grpc,flatbuffers,zlib"
+
+bazel clean --expunge
+bazel shutdown
 
 if [[ "${target_platform}" == "osx-arm64" ]]; then
   ${PYTHON} build/build.py --target_cpu_features default --enable_mkl_dnn ${CUSTOM_BAZEL_OPTIONS} --target_cpu ${TARGET_CPU}
