@@ -72,7 +72,11 @@ fi
 # see https://github.com/conda-forge/jaxlib-feedstock/issues/89
 #
 # Thus: don't add com_google_protobuf here.
-export TF_SYSTEM_LIBS="boringssl,com_google_absl,com_github_googlecloudplatform_google_cloud_cpp,com_github_grpc_grpc,flatbuffers,zlib"
+if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
+  export TF_SYSTEM_LIBS="boringssl,com_google_absl,com_github_googlecloudplatform_google_cloud_cpp,com_github_grpc_grpc,flatbuffers"
+else
+  export TF_SYSTEM_LIBS="boringssl,com_google_absl,com_github_googlecloudplatform_google_cloud_cpp,com_github_grpc_grpc,flatbuffers,zlib"
+fi
 
 bazel clean --expunge
 bazel shutdown
