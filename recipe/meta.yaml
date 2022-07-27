@@ -1,7 +1,7 @@
 {% set version = "0.3.15" %}
 {% set name = "jaxlib" %}
 
-{% set number = 3 %}
+{% set number = 0 %}
 
 {% if cuda_compiler_version != "None" %}
 {% set number = number + 200 %}
