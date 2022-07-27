@@ -1,4 +1,4 @@
-{% set version = "0.3.14" %}
+{% set version = "0.3.15" %}
 {% set name = "jaxlib" %}
 
 {% set number = 3 %}
@@ -15,7 +15,7 @@ package:
 source:
   # only pull sources after upstream PyPI release...
   url: https://github.com/google/jax/archive/{{ name }}-v{{ version }}.tar.gz
-  sha256: 6d6b660cb915b3fbf151dc67a471623e5f83b6a66493b9e438273d290a43b40f
+  sha256: c7eeaf7084865f2c558d755b06bd8a54f2711fa8d020a9d75d88dc7625a158cf
   patches:
     - 0001-Don-t-add-dashes-to-version.patch
     - 0001-Patch-pocketfft-for-C-17-osx-64.patch  # [osx and x86_64]
