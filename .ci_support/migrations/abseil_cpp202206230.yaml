@@ -1,0 +1,10 @@
+__migrator:
+  build_number: 1
+  kind: version
+  migration_number: 1
+  use_local: True
+
+grpc_cpp:
+- '1.48'
+
+migrator_ts: 1656693919.0942996
