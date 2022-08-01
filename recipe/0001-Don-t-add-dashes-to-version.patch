@@ -1,9 +1,18 @@
+From 673d879f4c383b3cb834440c018ce3bf808c6c96 Mon Sep 17 00:00:00 2001
+From: ngam <67342040+ngam@users.noreply.github.com>
+Date: Sat, 23 Jul 2022 17:12:25 +0000
+Subject: [PATCH 1/3] no version dash, set gcc for conda-forge, and modify cuda
+
+---
+ build/build.py | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
+
 diff --git a/build/build.py b/build/build.py
-index 979bf5617..cdf5309ef 100755
+index d8e902027..748e4010a 100755
 --- a/build/build.py
 +++ b/build/build.py
 @@ -204,10 +204,10 @@ def get_bazel_path(bazel_path_flag):
-
+ 
  def get_bazel_version(bazel_path):
    try:
 -    version_output = shell([bazel_path, "--version"])
@@ -15,7 +24,7 @@ index 979bf5617..cdf5309ef 100755
    if match is None:
      return None
    return tuple(int(x) for x in match.group(1).split("."))
-@@ -243,6 +243,11 @@ def write_bazelrc(python_bin_path=None, remote_build=None,
+@@ -245,6 +245,11 @@ def write_bazelrc(*, python_bin_path, remote_build,
        f.write("build --action_env TF_CUDA_PATHS=\"{tf_cuda_paths}\"\n"
                .format(tf_cuda_paths=",".join(tf_cuda_paths)))
      if cuda_version:
@@ -27,25 +36,14 @@ index 979bf5617..cdf5309ef 100755
        f.write("build --action_env TF_CUDA_VERSION=\"{cuda_version}\"\n"
                .format(cuda_version=cuda_version))
      if cudnn_version:
-@@ -491,6 +496,10 @@ def main():
-   print("\nBuilding XLA and installing it in the jaxlib source tree...")
-
-   config_args = args.bazel_options
-+  if args.enable_cuda:
-+    # config_args += ["--config=cuda"]
-+    if not args.enable_nccl:
-+      config_args += ["--config=nonccl"]
-   if args.target_cpu_features == "release":
-     if wheel_cpu == "x86_64":
-       config_args += ["--config=avx_windows" if is_windows()
-@@ -503,10 +512,6 @@ def main():
-
-   if args.enable_mkl_dnn:
-     config_args += ["--config=mkl_open_source_only"]
--  if args.enable_cuda:
--    config_args += ["--config=cuda"]
--    if not args.enable_nccl:
--      config_args += ["--config=nonccl"]
-   if args.enable_tpu:
-     config_args += ["--config=tpu"]
-   if args.enable_rocm:
+@@ -280,7 +285,7 @@ def write_bazelrc(*, python_bin_path, remote_build,
+     if enable_mkl_dnn:
+       f.write("build --config=mkl_open_source_only\n")
+     if enable_cuda:
+-      f.write("build --config=cuda\n")
++      # f.write("build --config=cuda\n")
+       if not enable_nccl:
+         f.write("build --config=nonccl\n")
+     if enable_tpu:
+-- 
+2.37.0

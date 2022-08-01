@@ -1,7 +1,7 @@
-From 9952bd3fe8a33d73e263b769fd9983e5808cf45e Mon Sep 17 00:00:00 2001
+From 0b5d141cff139710909be00dd3e824b4e302bfb6 Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwe.korn@quantco.com>
 Date: Mon, 13 Sep 2021 15:25:28 +0200
-Subject: [PATCH] Patch pocketfft for C++17/osx-64
+Subject: [PATCH 2/3] Patch pocketfft for C++17/osx-64
 
 ---
  .../0001-Force-use-of-own-aligned_alloc.patch | 42 +++++++++++++++++++
@@ -11,7 +11,7 @@ Subject: [PATCH] Patch pocketfft for C++17/osx-64
 
 diff --git a/third_party/pocketfft/0001-Force-use-of-own-aligned_alloc.patch b/third_party/pocketfft/0001-Force-use-of-own-aligned_alloc.patch
 new file mode 100644
-index 0000000..3919969
+index 000000000..391996944
 --- /dev/null
 +++ b/third_party/pocketfft/0001-Force-use-of-own-aligned_alloc.patch
 @@ -0,0 +1,42 @@
@@ -58,7 +58,7 @@ index 0000000..3919969
 +2.33.0
 +
 diff --git a/third_party/pocketfft/workspace.bzl b/third_party/pocketfft/workspace.bzl
-index 6181573..c890beb 100644
+index 6181573c8..c890beb9d 100644
 --- a/third_party/pocketfft/workspace.bzl
 +++ b/third_party/pocketfft/workspace.bzl
 @@ -21,6 +21,10 @@ def repo():
@@ -73,5 +73,4 @@ index 6181573..c890beb 100644
              "https://github.com/mreineck/pocketfft/archive/f800d91ba695b6e19ae2687dd60366900b928002.tar.gz",
              "https://storage.googleapis.com/jax-releases/mirror/pocketfft/pocketfft-f800d91ba695b6e19ae2687dd60366900b928002.tar.gz",
 -- 
-2.30.1 (Apple Git-130)
-
+2.37.0
