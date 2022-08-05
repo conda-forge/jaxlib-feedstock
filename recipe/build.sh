@@ -14,7 +14,7 @@ export CXXFLAGS="${CXXFLAGS} -DNDEBUG"
 # source gen-bazel-toolchain
 source ${RECIPE_DIR}/gen-bazel-toolchain.sh
 
-CUSTOM_BAZEL_OPTIONS="--bazel_options=--crosstool_top=//bazel_toolchain:toolchain --bazel_options=--logging=6 --bazel_options=--verbose_failures --bazel_options=--toolchain_resolution_debug --bazel_options=--define=PREFIX=${PREFIX} --bazel_options=--define=PROTOBUF_INCLUDE_PATH=${PREFIX}/include
+CUSTOM_BAZEL_OPTIONS="--bazel_options=--crosstool_top=//custom_toolchain:toolchain --bazel_options=--logging=6 --bazel_options=--verbose_failures --bazel_options=--toolchain_resolution_debug --bazel_options=--define=PREFIX=${PREFIX} --bazel_options=--define=PROTOBUF_INCLUDE_PATH=${PREFIX}/include
 --bazel_options=--local_cpu_resources=${CPU_COUNT}"
 # For debugging
 # CUSTOM_BAZEL_OPTIONS="${CUSTOM_BAZEL_OPTIONS} --bazel_options=--subcommands"
