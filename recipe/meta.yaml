@@ -50,7 +50,7 @@ requirements:
     - openjdk ==11.0.15
     # - bazel-toolchain
     # need protoc
-    - libprotobuf
+    # - libprotobuf
     # needs protoc-gen-grpc
     - grpc-cpp
     # needs flatc
@@ -70,6 +70,7 @@ requirements:
     - zlib
   run:
     - python
+    - protobuf >=3.9.2
     - absl-py
     - {{ pin_compatible('numpy') }}
     - scipy >=1.5

@@ -1,0 +1,72 @@
+From 6b1610ce9efd3c63cc140783e38663cb59b04f97 Mon Sep 17 00:00:00 2001
+From: Parker Schuh <parkers@google.com>
+Date: Mon, 1 Aug 2022 16:00:16 -0700
+Subject: [PATCH] Add dep on protobuf and build protobufs if protoc is
+ available.
+
+PiperOrigin-RevId: 464645042
+---
+ .gitignore |  1 +
+ setup.py   | 23 ++++++++++++++++++++++-
+ 2 files changed, 23 insertions(+), 1 deletion(-)
+
+diff --git a/.gitignore b/.gitignore
+index c8b90c6f8e..4aa3edc1fd 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -12,6 +12,7 @@ dist/
+ .mypy_cache/
+ .pytype/
+ docs/build
++*_pb2.py
+ docs/notebooks/.ipynb_checkpoints/
+ docs/_autosummary
+ .idea
+diff --git a/setup.py b/setup.py
+index 50b455fbc7..87fbb82b1e 100644
+--- a/setup.py
++++ b/setup.py
+@@ -12,6 +12,11 @@
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+ 
++from distutils import spawn
++import subprocess
++import os
++import sys
++
+ from setuptools import setup, find_packages
+ 
+ _current_jaxlib_version = '0.3.15'
+@@ -32,6 +37,21 @@
+ with open('README.md') as f:
+   _long_description = f.read()
+ 
++if 'PROTOC' in os.environ and os.path.exists(os.environ['PROTOC']):
++  protoc = os.environ['PROTOC']
++else:
++  protoc = spawn.find_executable('protoc')
++
++def generate_proto(source):
++  if not protoc or not os.path.exists(source):
++    return
++  protoc_command = [protoc, '-I.', '--python_out=.', source]
++  if subprocess.call(protoc_command) != 0:
++    sys.exit(-1)
++
++generate_proto("jax/experimental/australis/executable.proto")
++generate_proto("jax/experimental/australis/petri.proto")
++
+ setup(
+     name='jax',
+     version=__version__,
+@@ -49,7 +69,8 @@
+         'opt_einsum',
+         'scipy>=1.5',
+         'typing_extensions',
+-        'etils[epath]'
++        'etils[epath]',
++        'protobuf>=3.13,<4',
+     ],
+     extras_require={
+         # Minimum jaxlib version; used in testing.
