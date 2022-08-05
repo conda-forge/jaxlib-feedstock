@@ -65,6 +65,7 @@ requirements:
     - grpc-cpp
     - openssl
     - zlib
+    - openjdk ==11.*
   run:
     - python
     - absl-py
