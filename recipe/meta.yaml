@@ -44,14 +44,17 @@ requirements:
     - unzip
     # Keep bazel listed twice here to help the migrators track dependencies
     - bazel
-    - bazel  >=5.1.1
+    - bazel  >=5.2.0
+    # ngam 20220805
+    # confusing bug: https://github.com/bazelbuild/bazel/issues/14548
+    - openjdk ==11.0.15
     # - bazel-toolchain
     # need protoc
     - libprotobuf
     # needs protoc-gen-grpc
     - grpc-cpp
     # needs flatc
-    # - flatbuffers <2
+    - flatbuffers <2.0.6
   host:
     - cudnn      # [cuda_compiler_version != "None"]
     - nccl       # [cuda_compiler_version != "None"]
@@ -61,7 +64,7 @@ requirements:
     - scipy
     - wheel
     # - abseil-cpp
-    # - flatbuffers <2
+    - flatbuffers <2.0.6
     - grpc-cpp
     - openssl
     - zlib
