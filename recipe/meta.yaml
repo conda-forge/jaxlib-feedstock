@@ -51,7 +51,7 @@ requirements:
     # needs protoc-gen-grpc
     - grpc-cpp
     # needs flatc
-    - flatbuffers
+    # - flatbuffers <2
   host:
     - cudnn      # [cuda_compiler_version != "None"]
     - nccl       # [cuda_compiler_version != "None"]
@@ -60,12 +60,11 @@ requirements:
     - numpy
     - scipy
     - wheel
-    - abseil-cpp
-    - flatbuffers
+    # - abseil-cpp
+    # - flatbuffers <2
     - grpc-cpp
     - openssl
     - zlib
-    - openjdk ==11.*
   run:
     - python
     - absl-py
