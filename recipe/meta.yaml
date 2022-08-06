@@ -57,10 +57,10 @@ requirements:
     # confusing bug: https://github.com/bazelbuild/bazel/issues/14548
     - openjdk ==11.0.15
     - bazel-toolchain
-    # need protoc
-    - libprotobuf
-    # needs protoc-gen-grpc
-    - grpc-cpp
+    # # need protoc
+    # - libprotobuf
+    # # needs protoc-gen-grpc
+    # - grpc-cpp
     # needs flatc
     - flatbuffers >=2
   host:
@@ -74,7 +74,7 @@ requirements:
     # Reactivate once we have switched the global abseil pin to a new version
     # - abseil-cpp
     - flatbuffers >=2
-    - grpc-cpp
+    # - grpc-cpp
     - openssl
     - zlib
   run:
