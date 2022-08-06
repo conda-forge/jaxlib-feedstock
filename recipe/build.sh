@@ -11,10 +11,14 @@ fi
 export CFLAGS="${CFLAGS} -DNDEBUG"
 export CXXFLAGS="${CXXFLAGS} -DNDEBUG"
 
-# source gen-bazel-toolchain
-source ${RECIPE_DIR}/gen-bazel-toolchain.sh
+mv ${CONDA_PREFIX}/share/bazel_toolchain/crosstool_wrapper_driver_is_not_gcc /tmp/orig
 
-CUSTOM_BAZEL_OPTIONS="--bazel_options=--crosstool_top=//custom_toolchain:toolchain --bazel_options=--logging=6 --bazel_options=--verbose_failures --bazel_options=--toolchain_resolution_debug --bazel_options=--define=PREFIX=${PREFIX} --bazel_options=--define=PROTOBUF_INCLUDE_PATH=${PREFIX}/include
+cp ${RECIPE_DIR}/custom_toolchain/crosstool_wrapper_driver_is_not_gcc ${CONDA_PREFIX}/share/bazel_toolchain/crosstool_wrapper_driver_is_not_gcc
+source gen-bazel-toolchain
+
+source gen-bazel-toolchain
+
+CUSTOM_BAZEL_OPTIONS="--bazel_options=--crosstool_top=//bazel_toolchain:toolchain --bazel_options=--logging=6 --bazel_options=--verbose_failures --bazel_options=--toolchain_resolution_debug --bazel_options=--define=PREFIX=${PREFIX} --bazel_options=--define=PROTOBUF_INCLUDE_PATH=${PREFIX}/include
 --bazel_options=--local_cpu_resources=${CPU_COUNT}"
 # For debugging
 # CUSTOM_BAZEL_OPTIONS="${CUSTOM_BAZEL_OPTIONS} --bazel_options=--subcommands"
