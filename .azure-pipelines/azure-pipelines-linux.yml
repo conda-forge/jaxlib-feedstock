@@ -8,86 +8,86 @@ jobs:
     vmImage: ubuntu-latest
   strategy:
     matrix:
-      ? linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10grpc_cpp1.46numpy1.19openssl1.1.1python3.7.____cpython
-      : CONFIG: linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10grpc_cpp1.46numpy1.19openssl1.1.1python3.7.____cpython
+      ? linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10numpy1.19openssl1.1.1python3.7.____cpython
+      : CONFIG: linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10numpy1.19openssl1.1.1python3.7.____cpython
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cuda:11.2
-        SHORT_CONFIG: linux_64_abseil_cpp20211102.0c_comp_he819704eb8
-      ? linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10grpc_cpp1.46numpy1.19openssl1.1.1python3.8.____cpython
-      : CONFIG: linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10grpc_cpp1.46numpy1.19openssl1.1.1python3.8.____cpython
+        SHORT_CONFIG: linux_64_abseil_cpp20211102.0c_comp_hd228e33c30
+      ? linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10numpy1.19openssl1.1.1python3.8.____cpython
+      : CONFIG: linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10numpy1.19openssl1.1.1python3.8.____cpython
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cuda:11.2
-        SHORT_CONFIG: linux_64_abseil_cpp20211102.0c_comp_h5d7167c17c
-      ? linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10grpc_cpp1.46numpy1.19openssl1.1.1python3.9.____cpython
-      : CONFIG: linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10grpc_cpp1.46numpy1.19openssl1.1.1python3.9.____cpython
+        SHORT_CONFIG: linux_64_abseil_cpp20211102.0c_comp_h0334146853
+      ? linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10numpy1.19openssl1.1.1python3.9.____cpython
+      : CONFIG: linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10numpy1.19openssl1.1.1python3.9.____cpython
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cuda:11.2
-        SHORT_CONFIG: linux_64_abseil_cpp20211102.0c_comp_hb2229ae665
-      ? linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10grpc_cpp1.46numpy1.19openssl3python3.7.____cpython
-      : CONFIG: linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10grpc_cpp1.46numpy1.19openssl3python3.7.____cpython
+        SHORT_CONFIG: linux_64_abseil_cpp20211102.0c_comp_hcc434e5c18
+      ? linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10numpy1.19openssl3python3.7.____cpython
+      : CONFIG: linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10numpy1.19openssl3python3.7.____cpython
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cuda:11.2
-        SHORT_CONFIG: linux_64_abseil_cpp20211102.0c_comp_hfa9f5cc13b
-      ? linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10grpc_cpp1.46numpy1.19openssl3python3.8.____cpython
-      : CONFIG: linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10grpc_cpp1.46numpy1.19openssl3python3.8.____cpython
+        SHORT_CONFIG: linux_64_abseil_cpp20211102.0c_comp_h164070fe23
+      ? linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10numpy1.19openssl3python3.8.____cpython
+      : CONFIG: linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10numpy1.19openssl3python3.8.____cpython
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cuda:11.2
-        SHORT_CONFIG: linux_64_abseil_cpp20211102.0c_comp_hf7f5ab552c
-      ? linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10grpc_cpp1.46numpy1.19openssl3python3.9.____cpython
-      : CONFIG: linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10grpc_cpp1.46numpy1.19openssl3python3.9.____cpython
+        SHORT_CONFIG: linux_64_abseil_cpp20211102.0c_comp_h1bf6c39937
+      ? linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10numpy1.19openssl3python3.9.____cpython
+      : CONFIG: linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10numpy1.19openssl3python3.9.____cpython
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cuda:11.2
-        SHORT_CONFIG: linux_64_abseil_cpp20211102.0c_comp_h5832e0f7b8
-      ? linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10grpc_cpp1.46numpy1.21openssl1.1.1python3.10.____cpython
-      : CONFIG: linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10grpc_cpp1.46numpy1.21openssl1.1.1python3.10.____cpython
+        SHORT_CONFIG: linux_64_abseil_cpp20211102.0c_comp_h70e28787bf
+      ? linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10numpy1.21openssl1.1.1python3.10.____cpython
+      : CONFIG: linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10numpy1.21openssl1.1.1python3.10.____cpython
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cuda:11.2
-        SHORT_CONFIG: linux_64_abseil_cpp20211102.0c_comp_hed52a9101d
-      ? linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10grpc_cpp1.46numpy1.21openssl3python3.10.____cpython
-      : CONFIG: linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10grpc_cpp1.46numpy1.21openssl3python3.10.____cpython
+        SHORT_CONFIG: linux_64_abseil_cpp20211102.0c_comp_h6aca72be81
+      ? linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10numpy1.21openssl3python3.10.____cpython
+      : CONFIG: linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10numpy1.21openssl3python3.10.____cpython
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cuda:11.2
-        SHORT_CONFIG: linux_64_abseil_cpp20211102.0c_comp_h400c4bdb9e
-      ? linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10grpc_cpp1.46numpy1.19openssl1.1.1python3.7.____cpython
-      : CONFIG: linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10grpc_cpp1.46numpy1.19openssl1.1.1python3.7.____cpython
+        SHORT_CONFIG: linux_64_abseil_cpp20211102.0c_comp_h9b2ed450ad
+      ? linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.19openssl1.1.1python3.7.____cpython
+      : CONFIG: linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.19openssl1.1.1python3.7.____cpython
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cos7-x86_64
-        SHORT_CONFIG: linux_64_abseil_cpp20211102.0c_comp_h083c02eca1
-      ? linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10grpc_cpp1.46numpy1.19openssl1.1.1python3.8.____cpython
-      : CONFIG: linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10grpc_cpp1.46numpy1.19openssl1.1.1python3.8.____cpython
+        SHORT_CONFIG: linux_64_abseil_cpp20211102.0c_comp_hcddf505c68
+      ? linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.19openssl1.1.1python3.8.____cpython
+      : CONFIG: linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.19openssl1.1.1python3.8.____cpython
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cos7-x86_64
-        SHORT_CONFIG: linux_64_abseil_cpp20211102.0c_comp_hc70ce20e53
-      ? linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10grpc_cpp1.46numpy1.19openssl1.1.1python3.9.____cpython
-      : CONFIG: linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10grpc_cpp1.46numpy1.19openssl1.1.1python3.9.____cpython
+        SHORT_CONFIG: linux_64_abseil_cpp20211102.0c_comp_ha5786e189b
+      ? linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.19openssl1.1.1python3.9.____cpython
+      : CONFIG: linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.19openssl1.1.1python3.9.____cpython
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cos7-x86_64
-        SHORT_CONFIG: linux_64_abseil_cpp20211102.0c_comp_hc09eab4de0
-      ? linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10grpc_cpp1.46numpy1.19openssl3python3.7.____cpython
-      : CONFIG: linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10grpc_cpp1.46numpy1.19openssl3python3.7.____cpython
+        SHORT_CONFIG: linux_64_abseil_cpp20211102.0c_comp_h58b6a18256
+      ? linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.19openssl3python3.7.____cpython
+      : CONFIG: linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.19openssl3python3.7.____cpython
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cos7-x86_64
-        SHORT_CONFIG: linux_64_abseil_cpp20211102.0c_comp_he3feca677d
-      ? linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10grpc_cpp1.46numpy1.19openssl3python3.8.____cpython
-      : CONFIG: linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10grpc_cpp1.46numpy1.19openssl3python3.8.____cpython
+        SHORT_CONFIG: linux_64_abseil_cpp20211102.0c_comp_h48e7c3b0b3
+      ? linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.19openssl3python3.8.____cpython
+      : CONFIG: linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.19openssl3python3.8.____cpython
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cos7-x86_64
-        SHORT_CONFIG: linux_64_abseil_cpp20211102.0c_comp_h9bdd774c4b
-      ? linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10grpc_cpp1.46numpy1.19openssl3python3.9.____cpython
-      : CONFIG: linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10grpc_cpp1.46numpy1.19openssl3python3.9.____cpython
+        SHORT_CONFIG: linux_64_abseil_cpp20211102.0c_comp_h86e669af26
+      ? linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.19openssl3python3.9.____cpython
+      : CONFIG: linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.19openssl3python3.9.____cpython
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cos7-x86_64
-        SHORT_CONFIG: linux_64_abseil_cpp20211102.0c_comp_h315a0be4e8
-      ? linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10grpc_cpp1.46numpy1.21openssl1.1.1python3.10.____cpython
-      : CONFIG: linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10grpc_cpp1.46numpy1.21openssl1.1.1python3.10.____cpython
+        SHORT_CONFIG: linux_64_abseil_cpp20211102.0c_comp_h8cd4c93d09
+      ? linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.21openssl1.1.1python3.10.____cpython
+      : CONFIG: linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.21openssl1.1.1python3.10.____cpython
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cos7-x86_64
-        SHORT_CONFIG: linux_64_abseil_cpp20211102.0c_comp_hd43a314e7a
-      ? linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10grpc_cpp1.46numpy1.21openssl3python3.10.____cpython
-      : CONFIG: linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10grpc_cpp1.46numpy1.21openssl3python3.10.____cpython
+        SHORT_CONFIG: linux_64_abseil_cpp20211102.0c_comp_hab2e6392f4
+      ? linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.21openssl3python3.10.____cpython
+      : CONFIG: linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.21openssl3python3.10.____cpython
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cos7-x86_64
-        SHORT_CONFIG: linux_64_abseil_cpp20211102.0c_comp_hd8a3fe13ec
+        SHORT_CONFIG: linux_64_abseil_cpp20211102.0c_comp_hddd3e63751
   timeoutInMinutes: 360
 
   steps:
