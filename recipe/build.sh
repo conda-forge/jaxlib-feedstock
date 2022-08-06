@@ -15,7 +15,7 @@ mv ${CONDA_PREFIX}/share/bazel_toolchain/crosstool_wrapper_driver_is_not_gcc /tm
 
 cp ${RECIPE_DIR}/custom_toolchain/crosstool_wrapper_driver_is_not_gcc ${CONDA_PREFIX}/share/bazel_toolchain/crosstool_wrapper_driver_is_not_gcc
 
-chmod 777 {CONDA_PREFIX}/share/bazel_toolchain/crosstool_wrapper_driver_is_not_gcc
+chmod 777 ${CONDA_PREFIX}/share/bazel_toolchain/crosstool_wrapper_driver_is_not_gcc
 
 source gen-bazel-toolchain
 
