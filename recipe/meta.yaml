@@ -57,7 +57,7 @@ requirements:
     - openjdk ==11.0.15
     # - bazel-toolchain
     # need protoc
-    # - libprotobuf
+    - libprotobuf
     # needs protoc-gen-grpc
     - grpc-cpp
     # needs flatc
