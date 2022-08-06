@@ -7,14 +7,15 @@ if [[ "${target_platform}" == osx-* ]]; then
 else
   export LDFLAGS="${LDFLAGS} -lrt"
 fi
-
+sed -i -e 's/c++14/c++17/g' .bazelrc
 export CFLAGS="${CFLAGS} -DNDEBUG"
 export CXXFLAGS="${CXXFLAGS} -DNDEBUG"
 
 mv ${CONDA_PREFIX}/share/bazel_toolchain/crosstool_wrapper_driver_is_not_gcc /tmp/orig
 
 cp ${RECIPE_DIR}/custom_toolchain/crosstool_wrapper_driver_is_not_gcc ${CONDA_PREFIX}/share/bazel_toolchain/crosstool_wrapper_driver_is_not_gcc
-source gen-bazel-toolchain
+
+chmod 777 {CONDA_PREFIX}/share/bazel_toolchain/crosstool_wrapper_driver_is_not_gcc
 
 source gen-bazel-toolchain
 
@@ -62,7 +63,7 @@ fi
 #
 # Thus: don't add com_google_protobuf here.
 # FIXME: Current global abseil pin is too old for jaxlib, readd com_google_absl once we are on a newer version.
-export TF_SYSTEM_LIBS="boringssl,com_github_googlecloudplatform_google_cloud_cpp,flatbuffers,zlib"
+export TF_SYSTEM_LIBS="boringssl,com_github_googlecloudplatform_google_cloud_cpp,com_github_grpc_grpc,flatbuffers,zlib"
 
 if [[ "${target_platform}" == "osx-arm64" ]]; then
   ${PYTHON} build/build.py --target_cpu_features default --enable_mkl_dnn ${CUSTOM_BAZEL_OPTIONS} --target_cpu ${TARGET_CPU}

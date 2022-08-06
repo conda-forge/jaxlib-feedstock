@@ -21,7 +21,6 @@ source:
     - patches/0001-Don-t-add-dashes-to-version.patch
     - patches/0002-Patch-pocketfft-for-C-17-osx-64.patch  # [osx and x86_64]
     - patches/0003-bazelrc-112.patch  # [cuda_compiler_version == "11.2"]
-    - patches/0004-protobufs.patch  # [cuda_compiler_version == "11.2"]
 
 build:
   number: {{ number }}
@@ -35,13 +34,6 @@ build:
 
 requirements:
   build:
-    - autoconf  # [not win]
-    - automake  # [not win]
-    - libtool  # [not win]
-    - pkg-config  # [not win]
-    - coreutils  # [cuda_compiler_version != "None"]
-    - unzip  # [not win]
-    - make  # [not win]
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
     - {{ compiler('cuda') }}                 # [cuda_compiler_version != "None"]
@@ -57,12 +49,12 @@ requirements:
     # confusing bug: https://github.com/bazelbuild/bazel/issues/14548
     - openjdk ==11.0.15
     - bazel-toolchain
-    # # need protoc
-    # - libprotobuf
-    # # needs protoc-gen-grpc
-    # - grpc-cpp
+    # need protoc
+    - libprotobuf
+    # needs protoc-gen-grpc
+    - grpc-cpp
     # needs flatc
-    - flatbuffers >=2
+    - flatbuffers <2.0.6
   host:
     - cudnn      # [cuda_compiler_version != "None"]
     - nccl       # [cuda_compiler_version != "None"]
@@ -73,13 +65,12 @@ requirements:
     - wheel
     # Reactivate once we have switched the global abseil pin to a new version
     # - abseil-cpp
-    - flatbuffers >=2
-    # - grpc-cpp
+    - flatbuffers <2.0.6
+    - grpc-cpp
     - openssl
     - zlib
   run:
     - python
-    - protobuf >=3.9.2
     - absl-py
     - {{ pin_compatible('numpy') }}
     - scipy >=1.5
