@@ -10,13 +10,6 @@ fi
 sed -i -e 's/c++14/c++17/g' .bazelrc
 export CFLAGS="${CFLAGS} -DNDEBUG"
 export CXXFLAGS="${CXXFLAGS} -DNDEBUG"
-
-mv ${CONDA_PREFIX}/share/bazel_toolchain/crosstool_wrapper_driver_is_not_gcc /tmp/orig
-
-cp ${RECIPE_DIR}/custom_toolchain/crosstool_wrapper_driver_is_not_gcc ${CONDA_PREFIX}/share/bazel_toolchain/crosstool_wrapper_driver_is_not_gcc
-
-chmod 777 ${CONDA_PREFIX}/share/bazel_toolchain/crosstool_wrapper_driver_is_not_gcc
-
 source gen-bazel-toolchain
 
 CUSTOM_BAZEL_OPTIONS="--bazel_options=--crosstool_top=//bazel_toolchain:toolchain --bazel_options=--logging=6 --bazel_options=--verbose_failures --bazel_options=--toolchain_resolution_debug --bazel_options=--define=PREFIX=${PREFIX} --bazel_options=--define=PROTOBUF_INCLUDE_PATH=${PREFIX}/include
