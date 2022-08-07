@@ -52,7 +52,7 @@ requirements:
     # need protoc
     # try libprotobuf static for "-lite" symbols...
     # https://github.com/conda-forge/libprotobuf-feedstock/blob/e808532a117516cfae4e7df65df5f04a63229200/recipe/meta.yaml#L87
-    - libprotobuf
+    - libprotobuf-static
     # needs protoc-gen-grpc
     - grpc-cpp
     # needs flatc
