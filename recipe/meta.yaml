@@ -43,8 +43,10 @@ requirements:
     - scipy                                  # [build_platform != target_platform]
     - unzip
     # Keep bazel listed twice here to help the migrators track dependencies
-    - bazel ==4
-    - bazel ==4
+    - bazel  # [cuda_compiler_version == "None"]
+    - bazel  # [cuda_compiler_version == "None"]
+    - bazel <4  # [cuda_compiler_version != "None"]
+    - bazel <4  # [cuda_compiler_version != "None"]
     # ngam 20220805
     # confusing bug: https://github.com/bazelbuild/bazel/issues/14548
     - openjdk ==11.0.15
