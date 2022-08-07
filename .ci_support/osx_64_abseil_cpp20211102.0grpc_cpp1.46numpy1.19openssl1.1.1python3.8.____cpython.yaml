@@ -22,6 +22,8 @@ cxx_compiler_version:
 - '13'
 grpc_cpp:
 - '1.46'
+libprotobuf:
+- '3.20'
 macos_machine:
 - x86_64-apple-darwin13.4.0
 numpy:

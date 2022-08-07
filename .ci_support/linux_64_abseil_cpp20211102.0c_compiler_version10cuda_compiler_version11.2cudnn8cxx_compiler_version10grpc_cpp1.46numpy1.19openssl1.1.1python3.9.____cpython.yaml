@@ -24,6 +24,8 @@ docker_image:
 - quay.io/condaforge/linux-anvil-cuda:11.2
 grpc_cpp:
 - '1.46'
+libprotobuf:
+- '3.20'
 nccl:
 - '2'
 numpy:
