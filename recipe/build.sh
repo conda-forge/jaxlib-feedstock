@@ -86,8 +86,29 @@ fi
 #
 # Thus: don't add com_google_protobuf here.
 # FIXME: Current global abseil pin is too old for jaxlib, readd com_google_absl once we are on a newer version.
-export TF_SYSTEM_LIBS="boringssl,com_github_googlecloudplatform_google_cloud_cpp,com_github_grpc_grpc,flatbuffers,zlib"
-
+# export TF_SYSTEM_LIBS="boringssl,com_github_googlecloudplatform_google_cloud_cpp,com_github_grpc_grpc,flatbuffers,zlib"
+export TF_SYSTEM_LIBS="
+  absl_py
+  astor_archive
+  astunparse_archive
+  boringssl
+  com_github_googlecloudplatform_google_cloud_cpp
+  com_github_grpc_grpc
+  com_google_protobuf
+  curl
+  cython
+  dill_archive
+  flatbuffers
+  gast_archive
+  gif
+  icu
+  libjpeg_turbo
+  org_sqlite
+  png
+  pybind11
+  snappy
+  zlib
+  "
 bazel clean --expunge
 bazel shutdown
 
