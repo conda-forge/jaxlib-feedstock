@@ -52,6 +52,8 @@ requirements:
     - grpc-cpp
     # needs flatc
     - flatbuffers <2.0.6
+    - zlib
+    - openssl
   host:
     - cudnn      # [cuda_compiler_version != "None"]
     - nccl       # [cuda_compiler_version != "None"]
