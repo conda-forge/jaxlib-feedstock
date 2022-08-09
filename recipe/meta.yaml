@@ -44,7 +44,10 @@ requirements:
     - unzip
     # Keep bazel listed twice here to help the migrators track dependencies
     - bazel
-    - bazel  >=5.1.1
+    - bazel
+    # ngam 20220805
+    # confusing bug: https://github.com/bazelbuild/bazel/issues/14548
+    - openjdk ==11.0.15
     - bazel-toolchain
     # need protoc
     - libprotobuf
