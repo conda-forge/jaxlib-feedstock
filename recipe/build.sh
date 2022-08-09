@@ -38,7 +38,6 @@ CUSTOM_BAZEL_OPTIONS="
   --bazel_options=--crosstool_top=//bazel_toolchain:toolchain 
   --bazel_options=--logging=6 
   --bazel_options=--verbose_failures 
-  --bazel_options=--config=opt 
   --bazel_options=--toolchain_resolution_debug 
   --bazel_options=--define=PREFIX=${PREFIX} 
   --bazel_options=--local_cpu_resources=${CPU_COUNT} "
