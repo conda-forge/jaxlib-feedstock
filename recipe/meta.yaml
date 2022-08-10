@@ -1,7 +1,7 @@
-{% set version = "0.3.14" %}
+{% set version = "0.3.16.dev.0" %}
 {% set name = "jaxlib" %}
 
-{% set number = 3 %}
+{% set number = 0 %}
 
 {% if cuda_compiler_version != "None" %}
 {% set number = number + 200 %}
@@ -14,12 +14,13 @@ package:
 
 source:
   # only pull sources after upstream PyPI release...
-  url: https://github.com/google/jax/archive/{{ name }}-v{{ version }}.tar.gz
-  sha256: 6d6b660cb915b3fbf151dc67a471623e5f83b6a66493b9e438273d290a43b40f
-  patches:
-    - 0001-Don-t-add-dashes-to-version.patch
-    - 0001-Patch-pocketfft-for-C-17-osx-64.patch  # [osx and x86_64]
-    - 0002-bazelrc-112.diff  # [cuda_compiler_version == "11.2"]
+  git_url: https://github.com/google/jax.git
+  git_rev: "03590d86c0c5d45fdca3672a0f8618c3bc03e555"
+  git_depth: 2000
+  # patches:
+  #   - 0001-Don-t-add-dashes-to-version.patch
+  #   - 0001-Patch-pocketfft-for-C-17-osx-64.patch  # [osx and x86_64]
+  #   - 0002-bazelrc-112.diff  # [cuda_compiler_version == "11.2"]
 
 build:
   number: {{ number }}
