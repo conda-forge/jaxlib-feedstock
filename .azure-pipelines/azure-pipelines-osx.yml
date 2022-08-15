@@ -5,7 +5,7 @@
 jobs:
 - job: osx
   pool:
-    vmImage: macOS-10.15
+    vmImage: macOS-11
   strategy:
     matrix:
       osx_64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl1.1.1python3.7.____cpython:
