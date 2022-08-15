@@ -7,13 +7,24 @@ if [[ "${target_platform}" == osx-* ]]; then
 else
   export LDFLAGS="${LDFLAGS} -lrt"
 fi
-sed -i -e 's/c++14/c++17/g' .bazelrc
 export CFLAGS="${CFLAGS} -DNDEBUG"
 export CXXFLAGS="${CXXFLAGS} -DNDEBUG"
 source gen-bazel-toolchain
 
-CUSTOM_BAZEL_OPTIONS="--bazel_options=--crosstool_top=//bazel_toolchain:toolchain --bazel_options=--logging=6 --bazel_options=--verbose_failures --bazel_options=--toolchain_resolution_debug --bazel_options=--define=PREFIX=${PREFIX} --bazel_options=--define=PROTOBUF_INCLUDE_PATH=${PREFIX}/include
---bazel_options=--local_cpu_resources=${CPU_COUNT}"
+cat >> .bazelrc <<EOF
+build --crosstool_top=//bazel_toolchain:toolchain
+build --logging=6
+build --verbose_failures
+build --toolchain_resolution_debug
+build --define=PREFIX=${PREFIX}
+build --define=PROTOBUF_INCLUDE_PATH=${PREFIX}/include
+build --local_cpu_resources=${CPU_COUNT}"
+EOF
+
+if [[ "${target_platform}" == "osx-arm64" ]]; then
+  echo "build --cpu=${TARGET_CPU}" >> .bazelrc
+fi
+
 # For debugging
 # CUSTOM_BAZEL_OPTIONS="${CUSTOM_BAZEL_OPTIONS} --bazel_options=--subcommands"
 
@@ -59,9 +70,9 @@ fi
 export TF_SYSTEM_LIBS="boringssl,com_github_googlecloudplatform_google_cloud_cpp,com_github_grpc_grpc,flatbuffers,zlib"
 
 if [[ "${target_platform}" == "osx-arm64" ]]; then
-  ${PYTHON} build/build.py --target_cpu_features default --enable_mkl_dnn ${CUSTOM_BAZEL_OPTIONS} --target_cpu ${TARGET_CPU}
+  ${PYTHON} build/build.py --target_cpu_features default --enable_mkl_dnn --target_cpu ${TARGET_CPU}
 else
-  ${PYTHON} build/build.py --target_cpu_features default --enable_mkl_dnn ${CUSTOM_BAZEL_OPTIONS} --bazel_options=--cpu --bazel_options=${TARGET_CPU} ${CUDA_ARGS:-}
+  ${PYTHON} build/build.py --target_cpu_features default --enable_mkl_dnn ${CUDA_ARGS:-}
 fi
 
 # Clean up to speedup postprocessing
