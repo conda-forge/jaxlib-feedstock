@@ -29,213 +29,213 @@ Current build status
         <table>
           <thead><tr><th>Variant</th><th>Status</th></tr></thead>
           <tbody><tr>
-              <td>linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10grpc_cpp1.46numpy1.19openssl1.1.1python3.7.____cpython</td>
+              <td>linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10numpy1.19openssl1.1.1python3.7.____cpython</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=7112&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=linux&configuration=linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10grpc_cpp1.46numpy1.19openssl1.1.1python3.7.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=linux&configuration=linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10numpy1.19openssl1.1.1python3.7.____cpython" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10grpc_cpp1.46numpy1.19openssl1.1.1python3.8.____cpython</td>
+              <td>linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10numpy1.19openssl1.1.1python3.8.____cpython</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=7112&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=linux&configuration=linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10grpc_cpp1.46numpy1.19openssl1.1.1python3.8.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=linux&configuration=linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10numpy1.19openssl1.1.1python3.8.____cpython" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10grpc_cpp1.46numpy1.19openssl1.1.1python3.9.____cpython</td>
+              <td>linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10numpy1.19openssl1.1.1python3.9.____cpython</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=7112&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=linux&configuration=linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10grpc_cpp1.46numpy1.19openssl1.1.1python3.9.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=linux&configuration=linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10numpy1.19openssl1.1.1python3.9.____cpython" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10grpc_cpp1.46numpy1.19openssl3python3.7.____cpython</td>
+              <td>linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10numpy1.19openssl3python3.7.____cpython</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=7112&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=linux&configuration=linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10grpc_cpp1.46numpy1.19openssl3python3.7.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=linux&configuration=linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10numpy1.19openssl3python3.7.____cpython" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10grpc_cpp1.46numpy1.19openssl3python3.8.____cpython</td>
+              <td>linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10numpy1.19openssl3python3.8.____cpython</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=7112&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=linux&configuration=linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10grpc_cpp1.46numpy1.19openssl3python3.8.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=linux&configuration=linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10numpy1.19openssl3python3.8.____cpython" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10grpc_cpp1.46numpy1.19openssl3python3.9.____cpython</td>
+              <td>linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10numpy1.19openssl3python3.9.____cpython</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=7112&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=linux&configuration=linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10grpc_cpp1.46numpy1.19openssl3python3.9.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=linux&configuration=linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10numpy1.19openssl3python3.9.____cpython" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10grpc_cpp1.46numpy1.21openssl1.1.1python3.10.____cpython</td>
+              <td>linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10numpy1.21openssl1.1.1python3.10.____cpython</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=7112&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=linux&configuration=linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10grpc_cpp1.46numpy1.21openssl1.1.1python3.10.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=linux&configuration=linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10numpy1.21openssl1.1.1python3.10.____cpython" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10grpc_cpp1.46numpy1.21openssl3python3.10.____cpython</td>
+              <td>linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10numpy1.21openssl3python3.10.____cpython</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=7112&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=linux&configuration=linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10grpc_cpp1.46numpy1.21openssl3python3.10.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=linux&configuration=linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_version11.2cudnn8cxx_compiler_version10numpy1.21openssl3python3.10.____cpython" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10grpc_cpp1.46numpy1.19openssl1.1.1python3.7.____cpython</td>
+              <td>linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.19openssl1.1.1python3.7.____cpython</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=7112&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=linux&configuration=linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10grpc_cpp1.46numpy1.19openssl1.1.1python3.7.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=linux&configuration=linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.19openssl1.1.1python3.7.____cpython" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10grpc_cpp1.46numpy1.19openssl1.1.1python3.8.____cpython</td>
+              <td>linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.19openssl1.1.1python3.8.____cpython</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=7112&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=linux&configuration=linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10grpc_cpp1.46numpy1.19openssl1.1.1python3.8.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=linux&configuration=linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.19openssl1.1.1python3.8.____cpython" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10grpc_cpp1.46numpy1.19openssl1.1.1python3.9.____cpython</td>
+              <td>linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.19openssl1.1.1python3.9.____cpython</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=7112&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=linux&configuration=linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10grpc_cpp1.46numpy1.19openssl1.1.1python3.9.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=linux&configuration=linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.19openssl1.1.1python3.9.____cpython" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10grpc_cpp1.46numpy1.19openssl3python3.7.____cpython</td>
+              <td>linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.19openssl3python3.7.____cpython</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=7112&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=linux&configuration=linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10grpc_cpp1.46numpy1.19openssl3python3.7.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=linux&configuration=linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.19openssl3python3.7.____cpython" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10grpc_cpp1.46numpy1.19openssl3python3.8.____cpython</td>
+              <td>linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.19openssl3python3.8.____cpython</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=7112&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=linux&configuration=linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10grpc_cpp1.46numpy1.19openssl3python3.8.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=linux&configuration=linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.19openssl3python3.8.____cpython" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10grpc_cpp1.46numpy1.19openssl3python3.9.____cpython</td>
+              <td>linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.19openssl3python3.9.____cpython</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=7112&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=linux&configuration=linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10grpc_cpp1.46numpy1.19openssl3python3.9.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=linux&configuration=linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.19openssl3python3.9.____cpython" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10grpc_cpp1.46numpy1.21openssl1.1.1python3.10.____cpython</td>
+              <td>linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.21openssl1.1.1python3.10.____cpython</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=7112&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=linux&configuration=linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10grpc_cpp1.46numpy1.21openssl1.1.1python3.10.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=linux&configuration=linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.21openssl1.1.1python3.10.____cpython" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10grpc_cpp1.46numpy1.21openssl3python3.10.____cpython</td>
+              <td>linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.21openssl3python3.10.____cpython</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=7112&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=linux&configuration=linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10grpc_cpp1.46numpy1.21openssl3python3.10.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=linux&configuration=linux_64_abseil_cpp20211102.0c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.21openssl3python3.10.____cpython" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>osx_64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl1.1.1python3.7.____cpython</td>
+              <td>osx_64_abseil_cpp20211102.0numpy1.19openssl1.1.1python3.7.____cpython</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=7112&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=osx&configuration=osx_64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl1.1.1python3.7.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=osx&configuration=osx_64_abseil_cpp20211102.0numpy1.19openssl1.1.1python3.7.____cpython" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>osx_64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl1.1.1python3.8.____cpython</td>
+              <td>osx_64_abseil_cpp20211102.0numpy1.19openssl1.1.1python3.8.____cpython</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=7112&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=osx&configuration=osx_64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl1.1.1python3.8.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=osx&configuration=osx_64_abseil_cpp20211102.0numpy1.19openssl1.1.1python3.8.____cpython" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>osx_64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl1.1.1python3.9.____cpython</td>
+              <td>osx_64_abseil_cpp20211102.0numpy1.19openssl1.1.1python3.9.____cpython</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=7112&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=osx&configuration=osx_64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl1.1.1python3.9.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=osx&configuration=osx_64_abseil_cpp20211102.0numpy1.19openssl1.1.1python3.9.____cpython" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>osx_64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl3python3.7.____cpython</td>
+              <td>osx_64_abseil_cpp20211102.0numpy1.19openssl3python3.7.____cpython</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=7112&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=osx&configuration=osx_64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl3python3.7.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=osx&configuration=osx_64_abseil_cpp20211102.0numpy1.19openssl3python3.7.____cpython" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>osx_64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl3python3.8.____cpython</td>
+              <td>osx_64_abseil_cpp20211102.0numpy1.19openssl3python3.8.____cpython</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=7112&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=osx&configuration=osx_64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl3python3.8.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=osx&configuration=osx_64_abseil_cpp20211102.0numpy1.19openssl3python3.8.____cpython" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>osx_64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl3python3.9.____cpython</td>
+              <td>osx_64_abseil_cpp20211102.0numpy1.19openssl3python3.9.____cpython</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=7112&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=osx&configuration=osx_64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl3python3.9.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=osx&configuration=osx_64_abseil_cpp20211102.0numpy1.19openssl3python3.9.____cpython" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>osx_64_abseil_cpp20211102.0grpc_cpp1.46numpy1.21openssl1.1.1python3.10.____cpython</td>
+              <td>osx_64_abseil_cpp20211102.0numpy1.21openssl1.1.1python3.10.____cpython</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=7112&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=osx&configuration=osx_64_abseil_cpp20211102.0grpc_cpp1.46numpy1.21openssl1.1.1python3.10.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=osx&configuration=osx_64_abseil_cpp20211102.0numpy1.21openssl1.1.1python3.10.____cpython" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>osx_64_abseil_cpp20211102.0grpc_cpp1.46numpy1.21openssl3python3.10.____cpython</td>
+              <td>osx_64_abseil_cpp20211102.0numpy1.21openssl3python3.10.____cpython</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=7112&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=osx&configuration=osx_64_abseil_cpp20211102.0grpc_cpp1.46numpy1.21openssl3python3.10.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=osx&configuration=osx_64_abseil_cpp20211102.0numpy1.21openssl3python3.10.____cpython" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>osx_arm64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl1.1.1python3.8.____cpython</td>
+              <td>osx_arm64_abseil_cpp20211102.0numpy1.19openssl1.1.1python3.8.____cpython</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=7112&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=osx&configuration=osx_arm64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl1.1.1python3.8.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=osx&configuration=osx_arm64_abseil_cpp20211102.0numpy1.19openssl1.1.1python3.8.____cpython" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>osx_arm64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl1.1.1python3.9.____cpython</td>
+              <td>osx_arm64_abseil_cpp20211102.0numpy1.19openssl1.1.1python3.9.____cpython</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=7112&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=osx&configuration=osx_arm64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl1.1.1python3.9.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=osx&configuration=osx_arm64_abseil_cpp20211102.0numpy1.19openssl1.1.1python3.9.____cpython" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>osx_arm64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl3python3.8.____cpython</td>
+              <td>osx_arm64_abseil_cpp20211102.0numpy1.19openssl3python3.8.____cpython</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=7112&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=osx&configuration=osx_arm64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl3python3.8.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=osx&configuration=osx_arm64_abseil_cpp20211102.0numpy1.19openssl3python3.8.____cpython" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>osx_arm64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl3python3.9.____cpython</td>
+              <td>osx_arm64_abseil_cpp20211102.0numpy1.19openssl3python3.9.____cpython</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=7112&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=osx&configuration=osx_arm64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl3python3.9.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=osx&configuration=osx_arm64_abseil_cpp20211102.0numpy1.19openssl3python3.9.____cpython" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>osx_arm64_abseil_cpp20211102.0grpc_cpp1.46numpy1.21openssl1.1.1python3.10.____cpython</td>
+              <td>osx_arm64_abseil_cpp20211102.0numpy1.21openssl1.1.1python3.10.____cpython</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=7112&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=osx&configuration=osx_arm64_abseil_cpp20211102.0grpc_cpp1.46numpy1.21openssl1.1.1python3.10.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=osx&configuration=osx_arm64_abseil_cpp20211102.0numpy1.21openssl1.1.1python3.10.____cpython" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>osx_arm64_abseil_cpp20211102.0grpc_cpp1.46numpy1.21openssl3python3.10.____cpython</td>
+              <td>osx_arm64_abseil_cpp20211102.0numpy1.21openssl3python3.10.____cpython</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=7112&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=osx&configuration=osx_arm64_abseil_cpp20211102.0grpc_cpp1.46numpy1.21openssl3python3.10.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/jaxlib-feedstock?branchName=main&jobName=osx&configuration=osx_arm64_abseil_cpp20211102.0numpy1.21openssl3python3.10.____cpython" alt="variant">
                 </a>
               </td>
             </tr>

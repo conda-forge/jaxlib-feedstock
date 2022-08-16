@@ -5,7 +5,7 @@ c_compiler:
 c_compiler_version:
 - '10'
 cdt_name:
-- cos6
+- cos7
 channel_sources:
 - conda-forge
 channel_targets:
@@ -13,17 +13,15 @@ channel_targets:
 cuda_compiler:
 - nvcc
 cuda_compiler_version:
-- None
+- '11.2'
 cudnn:
-- undefined
+- '8'
 cxx_compiler:
 - gxx
 cxx_compiler_version:
 - '10'
 docker_image:
-- quay.io/condaforge/linux-anvil-cos7-x86_64
-grpc_cpp:
-- '1.46'
+- quay.io/condaforge/linux-anvil-cuda:11.2
 libprotobuf:
 - '3.20'
 nccl:
@@ -43,8 +41,6 @@ python:
 target_platform:
 - linux-64
 zip_keys:
-- - abseil_cpp
-  - grpc_cpp
 - - c_compiler_version
   - cxx_compiler_version
   - cudnn
