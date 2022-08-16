@@ -2,8 +2,6 @@ MACOSX_DEPLOYMENT_TARGET:
 - '10.14'
 MACOSX_SDK_VERSION:
 - '10.14'
-abseil_cpp:
-- '20211102.0'
 c_compiler:
 - clang
 c_compiler_version:
@@ -41,8 +39,6 @@ python:
 target_platform:
 - osx-64
 zip_keys:
-- - abseil_cpp
-  - grpc_cpp
 - - c_compiler_version
   - cxx_compiler_version
 - - python
