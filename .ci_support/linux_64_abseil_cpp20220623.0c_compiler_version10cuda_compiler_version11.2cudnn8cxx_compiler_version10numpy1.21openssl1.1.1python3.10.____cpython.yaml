@@ -1,3 +1,5 @@
+abseil_cpp:
+- '20220623.0'
 c_compiler:
 - gcc
 c_compiler_version:
@@ -41,6 +43,8 @@ python:
 target_platform:
 - linux-64
 zip_keys:
+- - abseil_cpp
+  - grpc_cpp
 - - c_compiler_version
   - cxx_compiler_version
   - cudnn
