@@ -56,7 +56,8 @@ requirements:
     - pip
     - numpy
     - wheel
-    - abseil-cpp
+    # Reactivate once we have switched the global abseil pin to a new version
+    # - abseil-cpp
     - flatbuffers <2.0.6
     - grpc-cpp
     - openssl
