@@ -8,62 +8,62 @@ jobs:
     vmImage: macOS-11
   strategy:
     matrix:
-      osx_64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl1.1.1python3.7.____cpython:
-        CONFIG: osx_64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl1.1.1python3.7.____cpython
+      osx_64_abseil_cpp20211102.0numpy1.19openssl1.1.1python3.7.____cpython:
+        CONFIG: osx_64_abseil_cpp20211102.0numpy1.19openssl1.1.1python3.7.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_64_abseil_cpp20211102.0grpc_cpp_h92fbf3e706
-      osx_64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl1.1.1python3.8.____cpython:
-        CONFIG: osx_64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl1.1.1python3.8.____cpython
+        SHORT_CONFIG: osx_64_abseil_cpp20211102.0numpy1.1_h8a68930cf4
+      osx_64_abseil_cpp20211102.0numpy1.19openssl1.1.1python3.8.____cpython:
+        CONFIG: osx_64_abseil_cpp20211102.0numpy1.19openssl1.1.1python3.8.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_64_abseil_cpp20211102.0grpc_cpp_h3915c6bf7c
-      osx_64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl1.1.1python3.9.____cpython:
-        CONFIG: osx_64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl1.1.1python3.9.____cpython
+        SHORT_CONFIG: osx_64_abseil_cpp20211102.0numpy1.1_hd2f3826490
+      osx_64_abseil_cpp20211102.0numpy1.19openssl1.1.1python3.9.____cpython:
+        CONFIG: osx_64_abseil_cpp20211102.0numpy1.19openssl1.1.1python3.9.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_64_abseil_cpp20211102.0grpc_cpp_h238629199d
-      osx_64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl3python3.7.____cpython:
-        CONFIG: osx_64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl3python3.7.____cpython
+        SHORT_CONFIG: osx_64_abseil_cpp20211102.0numpy1.1_h7af9b6996f
+      osx_64_abseil_cpp20211102.0numpy1.19openssl3python3.7.____cpython:
+        CONFIG: osx_64_abseil_cpp20211102.0numpy1.19openssl3python3.7.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_64_abseil_cpp20211102.0grpc_cpp_h3837d6a7c7
-      osx_64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl3python3.8.____cpython:
-        CONFIG: osx_64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl3python3.8.____cpython
+        SHORT_CONFIG: osx_64_abseil_cpp20211102.0numpy1.1_hd07e158308
+      osx_64_abseil_cpp20211102.0numpy1.19openssl3python3.8.____cpython:
+        CONFIG: osx_64_abseil_cpp20211102.0numpy1.19openssl3python3.8.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_64_abseil_cpp20211102.0grpc_cpp_h3c57d065e0
-      osx_64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl3python3.9.____cpython:
-        CONFIG: osx_64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl3python3.9.____cpython
+        SHORT_CONFIG: osx_64_abseil_cpp20211102.0numpy1.1_h7528f3808a
+      osx_64_abseil_cpp20211102.0numpy1.19openssl3python3.9.____cpython:
+        CONFIG: osx_64_abseil_cpp20211102.0numpy1.19openssl3python3.9.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_64_abseil_cpp20211102.0grpc_cpp_h6bbd675e0c
-      osx_64_abseil_cpp20211102.0grpc_cpp1.46numpy1.21openssl1.1.1python3.10.____cpython:
-        CONFIG: osx_64_abseil_cpp20211102.0grpc_cpp1.46numpy1.21openssl1.1.1python3.10.____cpython
+        SHORT_CONFIG: osx_64_abseil_cpp20211102.0numpy1.1_hc80ca83710
+      osx_64_abseil_cpp20211102.0numpy1.21openssl1.1.1python3.10.____cpython:
+        CONFIG: osx_64_abseil_cpp20211102.0numpy1.21openssl1.1.1python3.10.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_64_abseil_cpp20211102.0grpc_cpp_h2e759a0141
-      osx_64_abseil_cpp20211102.0grpc_cpp1.46numpy1.21openssl3python3.10.____cpython:
-        CONFIG: osx_64_abseil_cpp20211102.0grpc_cpp1.46numpy1.21openssl3python3.10.____cpython
+        SHORT_CONFIG: osx_64_abseil_cpp20211102.0numpy1.2_he0a2f684bb
+      osx_64_abseil_cpp20211102.0numpy1.21openssl3python3.10.____cpython:
+        CONFIG: osx_64_abseil_cpp20211102.0numpy1.21openssl3python3.10.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_64_abseil_cpp20211102.0grpc_cpp_h1423134ef1
-      osx_arm64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl1.1.1python3.8.____cpython:
-        CONFIG: osx_arm64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl1.1.1python3.8.____cpython
+        SHORT_CONFIG: osx_64_abseil_cpp20211102.0numpy1.2_h81dcd425a0
+      osx_arm64_abseil_cpp20211102.0numpy1.19openssl1.1.1python3.8.____cpython:
+        CONFIG: osx_arm64_abseil_cpp20211102.0numpy1.19openssl1.1.1python3.8.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_arm64_abseil_cpp20211102.0grpc__h98fda6fcba
-      osx_arm64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl1.1.1python3.9.____cpython:
-        CONFIG: osx_arm64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl1.1.1python3.9.____cpython
+        SHORT_CONFIG: osx_arm64_abseil_cpp20211102.0numpy_h7b2d8b5534
+      osx_arm64_abseil_cpp20211102.0numpy1.19openssl1.1.1python3.9.____cpython:
+        CONFIG: osx_arm64_abseil_cpp20211102.0numpy1.19openssl1.1.1python3.9.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_arm64_abseil_cpp20211102.0grpc__h74fa3f8584
-      osx_arm64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl3python3.8.____cpython:
-        CONFIG: osx_arm64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl3python3.8.____cpython
+        SHORT_CONFIG: osx_arm64_abseil_cpp20211102.0numpy_h4cc92efda6
+      osx_arm64_abseil_cpp20211102.0numpy1.19openssl3python3.8.____cpython:
+        CONFIG: osx_arm64_abseil_cpp20211102.0numpy1.19openssl3python3.8.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_arm64_abseil_cpp20211102.0grpc__h91139b88fc
-      osx_arm64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl3python3.9.____cpython:
-        CONFIG: osx_arm64_abseil_cpp20211102.0grpc_cpp1.46numpy1.19openssl3python3.9.____cpython
+        SHORT_CONFIG: osx_arm64_abseil_cpp20211102.0numpy_ha4f39ef72e
+      osx_arm64_abseil_cpp20211102.0numpy1.19openssl3python3.9.____cpython:
+        CONFIG: osx_arm64_abseil_cpp20211102.0numpy1.19openssl3python3.9.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_arm64_abseil_cpp20211102.0grpc__hb81af7b846
-      osx_arm64_abseil_cpp20211102.0grpc_cpp1.46numpy1.21openssl1.1.1python3.10.____cpython:
-        CONFIG: osx_arm64_abseil_cpp20211102.0grpc_cpp1.46numpy1.21openssl1.1.1python3.10.____cpython
+        SHORT_CONFIG: osx_arm64_abseil_cpp20211102.0numpy_h71d63eb17b
+      osx_arm64_abseil_cpp20211102.0numpy1.21openssl1.1.1python3.10.____cpython:
+        CONFIG: osx_arm64_abseil_cpp20211102.0numpy1.21openssl1.1.1python3.10.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_arm64_abseil_cpp20211102.0grpc__ha138f4598b
-      osx_arm64_abseil_cpp20211102.0grpc_cpp1.46numpy1.21openssl3python3.10.____cpython:
-        CONFIG: osx_arm64_abseil_cpp20211102.0grpc_cpp1.46numpy1.21openssl3python3.10.____cpython
+        SHORT_CONFIG: osx_arm64_abseil_cpp20211102.0numpy_hd033b15a99
+      osx_arm64_abseil_cpp20211102.0numpy1.21openssl3python3.10.____cpython:
+        CONFIG: osx_arm64_abseil_cpp20211102.0numpy1.21openssl3python3.10.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_arm64_abseil_cpp20211102.0grpc__hd2b5c6de83
+        SHORT_CONFIG: osx_arm64_abseil_cpp20211102.0numpy_h943dbdfec7
   timeoutInMinutes: 360
 
   steps:
