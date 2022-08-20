@@ -1,6 +1,9 @@
-channel_sources:
-- ngam
-- conda-forge
+channels:
+  # sources selects the channels to pull packages from, in order.
+  sources:
+    - ngam
+    - conda-forge
+
 azure:
   store_build_artifacts: true
 bot:
