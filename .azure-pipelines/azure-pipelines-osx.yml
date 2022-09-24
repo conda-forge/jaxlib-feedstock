@@ -8,62 +8,62 @@ jobs:
     vmImage: macOS-11
   strategy:
     matrix:
-      osx_64_grpc_cpp1.47numpy1.19openssl1.1.1python3.7.____cpython:
-        CONFIG: osx_64_grpc_cpp1.47numpy1.19openssl1.1.1python3.7.____cpython
+      osx_64_numpy1.20openssl1.1.1python3.7.____cpython:
+        CONFIG: osx_64_numpy1.20openssl1.1.1python3.7.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_64_grpc_cpp1.47numpy1.19openssl_h005f60593d
-      osx_64_grpc_cpp1.47numpy1.19openssl1.1.1python3.8.____cpython:
-        CONFIG: osx_64_grpc_cpp1.47numpy1.19openssl1.1.1python3.8.____cpython
+        SHORT_CONFIG: osx_64_numpy1.20openssl1.1.1python3_hd47c9492b4
+      osx_64_numpy1.20openssl1.1.1python3.8.____cpython:
+        CONFIG: osx_64_numpy1.20openssl1.1.1python3.8.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_64_grpc_cpp1.47numpy1.19openssl_h66cde4ab90
-      osx_64_grpc_cpp1.47numpy1.19openssl1.1.1python3.9.____cpython:
-        CONFIG: osx_64_grpc_cpp1.47numpy1.19openssl1.1.1python3.9.____cpython
+        SHORT_CONFIG: osx_64_numpy1.20openssl1.1.1python3_h848bda0ef4
+      osx_64_numpy1.20openssl1.1.1python3.9.____cpython:
+        CONFIG: osx_64_numpy1.20openssl1.1.1python3.9.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_64_grpc_cpp1.47numpy1.19openssl_heb3dfbaa89
-      osx_64_grpc_cpp1.47numpy1.19openssl3python3.7.____cpython:
-        CONFIG: osx_64_grpc_cpp1.47numpy1.19openssl3python3.7.____cpython
+        SHORT_CONFIG: osx_64_numpy1.20openssl1.1.1python3_h8337850636
+      osx_64_numpy1.20openssl3python3.7.____cpython:
+        CONFIG: osx_64_numpy1.20openssl3python3.7.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_64_grpc_cpp1.47numpy1.19openssl_h5d7fce352a
-      osx_64_grpc_cpp1.47numpy1.19openssl3python3.8.____cpython:
-        CONFIG: osx_64_grpc_cpp1.47numpy1.19openssl3python3.8.____cpython
+        SHORT_CONFIG: osx_64_numpy1.20openssl3python3.7.____cpython
+      osx_64_numpy1.20openssl3python3.8.____cpython:
+        CONFIG: osx_64_numpy1.20openssl3python3.8.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_64_grpc_cpp1.47numpy1.19openssl_hf2d2860e1f
-      osx_64_grpc_cpp1.47numpy1.19openssl3python3.9.____cpython:
-        CONFIG: osx_64_grpc_cpp1.47numpy1.19openssl3python3.9.____cpython
+        SHORT_CONFIG: osx_64_numpy1.20openssl3python3.8.____cpython
+      osx_64_numpy1.20openssl3python3.9.____cpython:
+        CONFIG: osx_64_numpy1.20openssl3python3.9.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_64_grpc_cpp1.47numpy1.19openssl_h4defde2360
-      osx_64_grpc_cpp1.47numpy1.21openssl1.1.1python3.10.____cpython:
-        CONFIG: osx_64_grpc_cpp1.47numpy1.21openssl1.1.1python3.10.____cpython
+        SHORT_CONFIG: osx_64_numpy1.20openssl3python3.9.____cpython
+      osx_64_numpy1.21openssl1.1.1python3.10.____cpython:
+        CONFIG: osx_64_numpy1.21openssl1.1.1python3.10.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_64_grpc_cpp1.47numpy1.21openssl_ha9f9efbc3a
-      osx_64_grpc_cpp1.47numpy1.21openssl3python3.10.____cpython:
-        CONFIG: osx_64_grpc_cpp1.47numpy1.21openssl3python3.10.____cpython
+        SHORT_CONFIG: osx_64_numpy1.21openssl1.1.1python3_hddb47d55e4
+      osx_64_numpy1.21openssl3python3.10.____cpython:
+        CONFIG: osx_64_numpy1.21openssl3python3.10.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_64_grpc_cpp1.47numpy1.21openssl_ha6407b080a
-      osx_arm64_grpc_cpp1.47numpy1.19openssl1.1.1python3.8.____cpython:
-        CONFIG: osx_arm64_grpc_cpp1.47numpy1.19openssl1.1.1python3.8.____cpython
+        SHORT_CONFIG: osx_64_numpy1.21openssl3python3.10.____cpython
+      osx_arm64_numpy1.20openssl1.1.1python3.8.____cpython:
+        CONFIG: osx_arm64_numpy1.20openssl1.1.1python3.8.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_arm64_grpc_cpp1.47numpy1.19open_h8cce8fe1a8
-      osx_arm64_grpc_cpp1.47numpy1.19openssl1.1.1python3.9.____cpython:
-        CONFIG: osx_arm64_grpc_cpp1.47numpy1.19openssl1.1.1python3.9.____cpython
+        SHORT_CONFIG: osx_arm64_numpy1.20openssl1.1.1pyth_h33e1b7fa2a
+      osx_arm64_numpy1.20openssl1.1.1python3.9.____cpython:
+        CONFIG: osx_arm64_numpy1.20openssl1.1.1python3.9.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_arm64_grpc_cpp1.47numpy1.19open_h271224cfc1
-      osx_arm64_grpc_cpp1.47numpy1.19openssl3python3.8.____cpython:
-        CONFIG: osx_arm64_grpc_cpp1.47numpy1.19openssl3python3.8.____cpython
+        SHORT_CONFIG: osx_arm64_numpy1.20openssl1.1.1pyth_h607b9de7bd
+      osx_arm64_numpy1.20openssl3python3.8.____cpython:
+        CONFIG: osx_arm64_numpy1.20openssl3python3.8.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_arm64_grpc_cpp1.47numpy1.19open_h6ee96de46c
-      osx_arm64_grpc_cpp1.47numpy1.19openssl3python3.9.____cpython:
-        CONFIG: osx_arm64_grpc_cpp1.47numpy1.19openssl3python3.9.____cpython
+        SHORT_CONFIG: osx_arm64_numpy1.20openssl3python3.8.____cpython
+      osx_arm64_numpy1.20openssl3python3.9.____cpython:
+        CONFIG: osx_arm64_numpy1.20openssl3python3.9.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_arm64_grpc_cpp1.47numpy1.19open_hfc2fd4db67
-      osx_arm64_grpc_cpp1.47numpy1.21openssl1.1.1python3.10.____cpython:
-        CONFIG: osx_arm64_grpc_cpp1.47numpy1.21openssl1.1.1python3.10.____cpython
+        SHORT_CONFIG: osx_arm64_numpy1.20openssl3python3.9.____cpython
+      osx_arm64_numpy1.21openssl1.1.1python3.10.____cpython:
+        CONFIG: osx_arm64_numpy1.21openssl1.1.1python3.10.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_arm64_grpc_cpp1.47numpy1.21open_h2be8b69241
-      osx_arm64_grpc_cpp1.47numpy1.21openssl3python3.10.____cpython:
-        CONFIG: osx_arm64_grpc_cpp1.47numpy1.21openssl3python3.10.____cpython
+        SHORT_CONFIG: osx_arm64_numpy1.21openssl1.1.1pyth_h9de93910ef
+      osx_arm64_numpy1.21openssl3python3.10.____cpython:
+        CONFIG: osx_arm64_numpy1.21openssl3python3.10.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_arm64_grpc_cpp1.47numpy1.21open_h6e168b427d
+        SHORT_CONFIG: osx_arm64_numpy1.21openssl3python3._h1dc00f7918
   timeoutInMinutes: 360
 
   steps:

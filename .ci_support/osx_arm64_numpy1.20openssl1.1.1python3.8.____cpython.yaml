@@ -1,7 +1,5 @@
 MACOSX_DEPLOYMENT_TARGET:
-- '10.14'
-MACOSX_SDK_VERSION:
-- '10.14'
+- '11.0'
 c_compiler:
 - clang
 c_compiler_version:
@@ -25,11 +23,11 @@ libabseil:
 libprotobuf:
 - '3.21'
 macos_machine:
-- x86_64-apple-darwin13.4.0
+- arm64-apple-darwin20.0.0
 numpy:
-- '1.19'
+- '1.20'
 openssl:
-- '3'
+- 1.1.1
 pin_run_as_build:
   python:
     min_pin: x.x
@@ -39,7 +37,7 @@ pin_run_as_build:
 python:
 - 3.8.* *_cpython
 target_platform:
-- osx-64
+- osx-arm64
 zip_keys:
 - - c_compiler_version
   - cxx_compiler_version
