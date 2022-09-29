@@ -16,7 +16,6 @@ source:
   sha256: dc8f23df3853dfacd395752dc2e877221285cae7b9f5363a951856666e8b257e
   patches:
     - patches/0001-Don-t-add-dashes-to-version.patch
-    - patches/0001-Patch-pocketfft-for-C-17-osx-64.patch  # [osx and x86_64]
     - patches/0002-bazelrc-112.diff                       # [cuda_compiler_version == "11.2"]
 
 build:
