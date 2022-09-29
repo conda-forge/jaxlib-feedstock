@@ -1,5 +1,5 @@
-{% set version = "0.3.15" %}
-{% set number = 4 %}
+{% set version = "0.3.20" %}
+{% set number = 0 %}
 
 {% if cuda_compiler_version != "None" %}
 {% set number = number + 200 %}
