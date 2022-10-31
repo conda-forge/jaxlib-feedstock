@@ -1,5 +1,5 @@
 {% set version = "0.3.22" %}
-{% set number = 0 %}
+{% set number = 1 %}
 
 {% if cuda_compiler_version != "None" %}
 {% set number = number + 200 %}
@@ -43,7 +43,7 @@ requirements:
     # need protoc
     - libprotobuf
     # needs protoc-gen-grpc
-    - grpc-cpp
+    - libgrpc
     # needs flatc
     - flatbuffers <2.0.6
     # list libabseil here to ensure pinning correctly
@@ -58,7 +58,7 @@ requirements:
     # list libabseil here to ensure pinning correctly
     - libabseil
     - flatbuffers <2.0.6
-    - grpc-cpp
+    - libgrpc
     - openssl
     - zlib
   run:
