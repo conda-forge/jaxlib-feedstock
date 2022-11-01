@@ -20,10 +20,10 @@ cxx_compiler_version:
 - '10'
 docker_image:
 - quay.io/condaforge/linux-anvil-cuda:11.2
-grpc_cpp:
-- '1.47'
 libabseil:
 - '20220623.0'
+libgrpc:
+- '1.49'
 libprotobuf:
 - '3.21'
 nccl:

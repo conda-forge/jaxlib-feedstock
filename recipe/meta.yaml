@@ -1,5 +1,5 @@
 {% set version = "0.3.22" %}
-{% set number = 0 %}
+{% set number = 1 %}
 
 {% if cuda_compiler_version != "None" %}
 {% set number = number + 200 %}
@@ -22,8 +22,6 @@ build:
   number: {{ number }}
   skip: true  # [win or py<37]
   skip: true  # [cuda_compiler_version in ("10.2", "11.0", "11.1")]
-  skip: true  # [libabseil != '20220623.0']
-  skip: true  # [grpc_cpp != '1.47']
   string: cuda{{ cuda_compiler_version | replace('.', '') }}py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [cuda_compiler_version != "None"]
   string: cpu_py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [cuda_compiler_version == "None"]
 
@@ -43,7 +41,7 @@ requirements:
     # need protoc
     - libprotobuf
     # needs protoc-gen-grpc
-    - grpc-cpp
+    - libgrpc
     # needs flatc
     - flatbuffers <2.0.6
     # list libabseil here to ensure pinning correctly
@@ -58,7 +56,7 @@ requirements:
     # list libabseil here to ensure pinning correctly
     - libabseil
     - flatbuffers <2.0.6
-    - grpc-cpp
+    - libgrpc
     - openssl
     - zlib
   run:
