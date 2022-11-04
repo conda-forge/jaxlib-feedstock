@@ -61,7 +61,6 @@ requirements:
     - zlib
   run:
     - python
-    - absl-py
     - {{ pin_compatible('numpy') }}
     - scipy >=1.5
     - __cuda  # [cuda_compiler_version != "None"]
