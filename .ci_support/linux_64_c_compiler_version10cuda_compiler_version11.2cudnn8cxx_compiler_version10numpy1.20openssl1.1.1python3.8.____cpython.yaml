@@ -22,8 +22,6 @@ docker_image:
 - quay.io/condaforge/linux-anvil-cuda:11.2
 libabseil:
 - '20220623.0'
-libgrpc:
-- '1.49'
 libprotobuf:
 - '3.21'
 nccl:
