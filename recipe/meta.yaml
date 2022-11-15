@@ -1,5 +1,5 @@
-{% set version = "0.3.15" %}
-{% set number = 4 %}
+{% set version = "0.3.24" %}
+{% set number = 1 %}
 
 {% if cuda_compiler_version != "None" %}
 {% set number = number + 200 %}
@@ -13,18 +13,15 @@ package:
 source:
   # only pull sources after upstream PyPI release...
   url: https://github.com/google/jax/archive/jaxlib-v{{ version }}.tar.gz
-  sha256: c7eeaf7084865f2c558d755b06bd8a54f2711fa8d020a9d75d88dc7625a158cf
+  sha256: 8f50563b6d8b58696183e2c6e4bdd41b59538659b9b89953ecec6a3fa56491c8
   patches:
     - patches/0001-Don-t-add-dashes-to-version.patch
-    - patches/0001-Patch-pocketfft-for-C-17-osx-64.patch  # [osx and x86_64]
     - patches/0002-bazelrc-112.diff                       # [cuda_compiler_version == "11.2"]
 
 build:
   number: {{ number }}
   skip: true  # [win or py<37]
   skip: true  # [cuda_compiler_version in ("10.2", "11.0", "11.1")]
-  skip: true  # [libabseil != '20220623.0']
-  skip: true  # [grpc_cpp != '1.47']
   string: cuda{{ cuda_compiler_version | replace('.', '') }}py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [cuda_compiler_version != "None"]
   string: cpu_py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [cuda_compiler_version == "None"]
 
@@ -44,7 +41,7 @@ requirements:
     # need protoc
     - libprotobuf
     # needs protoc-gen-grpc
-    - grpc-cpp
+    - libgrpc
     # needs flatc
     - flatbuffers <2.0.6
     # list libabseil here to ensure pinning correctly
@@ -59,12 +56,11 @@ requirements:
     # list libabseil here to ensure pinning correctly
     - libabseil
     - flatbuffers <2.0.6
-    - grpc-cpp
+    - libgrpc
     - openssl
     - zlib
   run:
     - python
-    - absl-py
     - {{ pin_compatible('numpy') }}
     - scipy >=1.5
     - __cuda  # [cuda_compiler_version != "None"]
