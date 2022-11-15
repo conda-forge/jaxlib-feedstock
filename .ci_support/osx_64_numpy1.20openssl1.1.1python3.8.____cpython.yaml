@@ -20,6 +20,8 @@ cxx_compiler_version:
 - '14'
 libabseil:
 - '20220623.0'
+libgrpc:
+- '1.49'
 libprotobuf:
 - '3.21'
 macos_machine:
