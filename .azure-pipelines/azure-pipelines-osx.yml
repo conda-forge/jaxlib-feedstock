@@ -8,22 +8,6 @@ jobs:
     vmImage: macOS-11
   strategy:
     matrix:
-      osx_64_numpy1.20openssl1.1.1python3.8.____cpython:
-        CONFIG: osx_64_numpy1.20openssl1.1.1python3.8.____cpython
-        UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_64_numpy1.20openssl1.1.1python3_h848bda0ef4
-      osx_64_numpy1.20openssl1.1.1python3.9.____cpython:
-        CONFIG: osx_64_numpy1.20openssl1.1.1python3.9.____cpython
-        UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_64_numpy1.20openssl1.1.1python3_h8337850636
-      osx_64_numpy1.20openssl3python3.8.____cpython:
-        CONFIG: osx_64_numpy1.20openssl3python3.8.____cpython
-        UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_64_numpy1.20openssl3python3.8.____cpython
-      osx_64_numpy1.20openssl3python3.9.____cpython:
-        CONFIG: osx_64_numpy1.20openssl3python3.9.____cpython
-        UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_64_numpy1.20openssl3python3.9.____cpython
       osx_64_numpy1.21openssl1.1.1python3.10.____cpython:
         CONFIG: osx_64_numpy1.21openssl1.1.1python3.10.____cpython
         UPLOAD_PACKAGES: 'True'
@@ -40,22 +24,6 @@ jobs:
         CONFIG: osx_64_numpy1.23openssl3python3.11.____cpython
         UPLOAD_PACKAGES: 'True'
         SHORT_CONFIG: osx_64_numpy1.23openssl3python3.11.____cpython
-      osx_arm64_numpy1.20openssl1.1.1python3.8.____cpython:
-        CONFIG: osx_arm64_numpy1.20openssl1.1.1python3.8.____cpython
-        UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_arm64_numpy1.20openssl1.1.1pyth_h33e1b7fa2a
-      osx_arm64_numpy1.20openssl1.1.1python3.9.____cpython:
-        CONFIG: osx_arm64_numpy1.20openssl1.1.1python3.9.____cpython
-        UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_arm64_numpy1.20openssl1.1.1pyth_h607b9de7bd
-      osx_arm64_numpy1.20openssl3python3.8.____cpython:
-        CONFIG: osx_arm64_numpy1.20openssl3python3.8.____cpython
-        UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_arm64_numpy1.20openssl3python3.8.____cpython
-      osx_arm64_numpy1.20openssl3python3.9.____cpython:
-        CONFIG: osx_arm64_numpy1.20openssl3python3.9.____cpython
-        UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_arm64_numpy1.20openssl3python3.9.____cpython
       osx_arm64_numpy1.21openssl1.1.1python3.10.____cpython:
         CONFIG: osx_arm64_numpy1.21openssl1.1.1python3.10.____cpython
         UPLOAD_PACKAGES: 'True'
