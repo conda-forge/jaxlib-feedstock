@@ -9,7 +9,8 @@ else
 fi
 export CFLAGS="${CFLAGS} -DNDEBUG"
 export CXXFLAGS="${CXXFLAGS} -DNDEBUG"
-source gen-bazel-toolchain
+# source gen-bazel-toolchain
+source ${RECIPE_DIR}/gen-bazel-toolchain.sh
 
 cat >> .bazelrc <<EOF
 build --crosstool_top=//bazel_toolchain:toolchain
