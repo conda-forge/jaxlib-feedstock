@@ -41,7 +41,6 @@ requirements:
     - {{ pin_compatible('numpy') }}
     - scipy
     - six
-    - python-flatbuffers
 
 test:
   requires:
