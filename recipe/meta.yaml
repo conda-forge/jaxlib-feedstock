@@ -53,13 +53,20 @@ test:
     - jaxlib
 
 about:
-  home: http://github.com/google/jax
+  home: https://github.com/google/jax
   license: Apache-2.0
   license_file: LICENSE
+  license_family: Apache
   summary: 'Composable transformations of Python+NumPy programs: differentiate, vectorize, JIT to GPU/TPU, and more'
-  dev_url: http://github.com/google/jax
+  description: |
+    jaxlib is the support library for JAX. While JAX itself is a pure Python package, jaxlib contains the binary (C/C++) parts of the library, including Python bindings, the XLA compiler, the PJRT runtime, and a handful of handwritten kernels.
+  dev_url: https://github.com/google/jax
+  doc_url: https://jax.readthedocs.io/
 
 extra:
   recipe-maintainers:
     - ericmjl
     - xhochy
+  skip-lints:
+    - missing_license_url
+    - missing_doc_source_url
