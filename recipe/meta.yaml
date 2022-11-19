@@ -19,33 +19,28 @@ requirements:
   build:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
-    - patch
-    - python                                 # [build_platform != target_platform]
-    - cross-python_{{ target_platform }}     # [build_platform != target_platform]
-    - numpy >=1.18                           
-    - scipy                                  # [build_platform != target_platform]
-      # the build will download, compile and run its own bazel.
-      # slow, but avoids problems with bazel transitively fetching
-      # archives from non-existent mirrors.
-      # - bazel 4.1.0
+    - python
+    - numpy >=1.20
+    # https://github.com/google/jax/blob/jaxlib-v0.3.25/build/build.py#L197
+    - bazel >=5.1.1
     - git
   host:
     - python
     - pip
-    - numpy >=1.18
-    - scipy
     - wheel
+    - numpy >1.20
+    - scipy
   run:
-    - python
     - absl-py
     - {{ pin_compatible('numpy') }}
     - scipy
     - six
+    - typing_extensions
 
 test:
   requires:
     - pip
-    - python <3.10
+    - python
   commands:
     - pip check
   imports:
