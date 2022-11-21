@@ -15,7 +15,7 @@ ${PYTHON} build/build.py --target_cpu_features default --enable_mkl_dnn ${CUSTOM
 
 # Clean up to speedup postprocessing
 pushd build
-# bazel clean
+bazel clean
 popd
 
 ${PYTHON} -m pip install dist/jaxlib-*.whl
