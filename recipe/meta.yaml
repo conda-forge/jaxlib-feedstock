@@ -13,8 +13,7 @@ source:
 
 build:
   number: 0
-  skip: true  # [win or py<37]
-
+  skip: true  # [ppc64le or s390x or win or py<37]
 requirements:
   build:
     - {{ compiler('c') }}
