@@ -37,7 +37,6 @@ requirements:
     - absl-py
     - {{ pin_compatible('numpy') }}
     - scipy >=1.5
-    - six
     - typing_extensions
 
 test:
