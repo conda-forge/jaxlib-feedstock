@@ -27,12 +27,8 @@ requirements:
     - python
     - pip
     - wheel
-    # Adjust pinnings to minimum compatibile (and available)
-    - numpy 1.21.5  # [osx and arm64]
-    - numpy 1.20.3  # [not (osx and arm64)]
-    - scipy 1.7.1  # [osx and arm64]
-    - scipy 1.6.2  # [aarch64]
-    - scipy 1.5.2  # [(osx and x86_64) or linux64]
+    - numpy >1.20
+    - scipy
   run:
     - absl-py
     - {{ pin_compatible('numpy') }}
