@@ -34,13 +34,17 @@ requirements:
     - typing_extensions
 
 test:
+  files:
+    - test_jaxlib.py
   requires:
     - pip
     - python
   commands:
     - pip check
+    - python test_jaxlib.py
   imports:
     - jaxlib
+    - jaxlib.xla_client
 
 about:
   home: https://github.com/google/jax
