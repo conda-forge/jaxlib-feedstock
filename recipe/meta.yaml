@@ -8,8 +8,6 @@ package:
 source:
   url: https://github.com/google/jax/archive/{{ name }}-v{{ version }}.tar.gz
   sha256: 73ebc7868631cd9d520385557bbd7f08762d748a5a6a1bebef0f3b8d7ba748ef
-  # patches:
-  #   - 0001-Don-t-add-dashes-to-version.patch
 
 build:
   number: 0
