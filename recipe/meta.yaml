@@ -25,11 +25,13 @@ requirements:
     - python
     - pip
     - wheel
-    - numpy >1.20
-    - scipy
+    - numpy 1.21.2  # [osx and arm64]
+    - numpy 1.20.1  # [not (osx and arm64)]
+    - scipy 1.7.1  # [osx and arm64]    
+    - scipy 1.6.1  # [not (osx and arm64)]
   run:
     - absl-py
-    - {{ pin_compatible('numpy') }}
+    - {{ pin_compatible('numpy', lower_bound='1.20') }}
     - scipy >=1.5
     - typing_extensions
 
