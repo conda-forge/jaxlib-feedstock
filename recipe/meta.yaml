@@ -25,6 +25,7 @@ requirements:
     - python
     - pip
     - wheel
+    - setuptools
     - numpy 1.21.*  # [py>=310 or (osx and arm64)]
     - numpy 1.20.*  # [py<310 and not (osx and arm64)]
   run:
