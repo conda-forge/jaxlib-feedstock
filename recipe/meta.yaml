@@ -1,4 +1,4 @@
-{% set version = "0.1.71" %}
+{% set version = "0.3.25" %}
 {% set name = "jaxlib" %}
 
 package:
@@ -7,56 +7,62 @@ package:
 
 source:
   url: https://github.com/google/jax/archive/{{ name }}-v{{ version }}.tar.gz
-  sha256: 07a602e4e2e37fe46c17eeb6c25e80932f6abc5d1dde59e7868e7e3bb08f46c6
-  patches:
-    - 0001-Don-t-add-dashes-to-version.patch
+  sha256: 73ebc7868631cd9d520385557bbd7f08762d748a5a6a1bebef0f3b8d7ba748ef
 
 build:
   number: 0
-  skip: true  # [win or py<37]
-
+  # ppc64le and s390x are missing bazel. Win not supported by jaxlib.
+  skip: true  # [ppc64le or s390x or win or py<37]
 requirements:
   build:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
-    - python                                 # [build_platform != target_platform]
-    - cross-python_{{ target_platform }}     # [build_platform != target_platform]
-    - numpy                                  # [build_platform != target_platform]
-    - scipy                                  # [build_platform != target_platform]
-    - bazel 4.1.0
-    - bazel-toolchain
-    - m2-patch  # [win]
-    - patch     # [not win]
+    - python
+    # https://github.com/google/jax/blob/jaxlib-v0.3.25/build/build.py#L197
+    - bazel >=5.1.1
+    - git
   host:
     - python
     - pip
-    - numpy
-    - scipy
     - wheel
+    - setuptools
+    - numpy 1.21.*  # [py>=310 or (osx and arm64)]
+    - numpy 1.20.*  # [py<310 and not (osx and arm64)]
   run:
-    - python
-    - absl-py
-    - {{ pin_compatible('numpy') }}
-    - scipy
-    - six
-    - python-flatbuffers
+    - numpy >=1.21,<2  # [py>=310 or (osx and arm64)]
+    - numpy >=1.20,<2  # [py<310 and not (osx and arm64)]
+    - scipy >=1.5
+  run_constrained:
+    - jax >={{ version }}
 
 test:
+  files:
+    - test_jaxlib.py
   requires:
     - pip
+    - python
   commands:
     - pip check
+    - python test_jaxlib.py
   imports:
     - jaxlib
+    - jaxlib.xla_client
 
 about:
-  home: http://github.com/google/jax
+  home: https://github.com/google/jax
   license: Apache-2.0
   license_file: LICENSE
+  license_family: Apache
   summary: 'Composable transformations of Python+NumPy programs: differentiate, vectorize, JIT to GPU/TPU, and more'
-  dev_url: http://github.com/google/jax
+  description: |
+    jaxlib is the support library for JAX. While JAX itself is a pure Python package, jaxlib contains the binary (C/C++) parts of the library, including Python bindings, the XLA compiler, the PJRT runtime, and a handful of handwritten kernels.
+  dev_url: https://github.com/google/jax
+  doc_url: https://jax.readthedocs.io/
 
 extra:
   recipe-maintainers:
     - ericmjl
     - xhochy
+  skip-lints:
+    - missing_license_url
+    - missing_doc_source_url
