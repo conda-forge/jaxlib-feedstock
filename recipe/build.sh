@@ -18,7 +18,7 @@ echo "Building done."
 # Clean up to speedup postprocessing
 echo "Issuing bazel clean..."
 pushd build
-bazel clean
+bazel clean --expunge
 popd
 
 echo "Issuing bazel shutdown..."
