@@ -48,46 +48,46 @@ jobs:
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cuda:11.2
         SHORT_CONFIG: linux_64_c_compiler_version10cuda_c_ha30df34a8d
-      ? linux_64_c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.20openssl1.1.1python3.8.____cpython
-      : CONFIG: linux_64_c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.20openssl1.1.1python3.8.____cpython
+      ? linux_64_c_compiler_version11cuda_compiler_versionNonecudnnundefinedcxx_compiler_version11numpy1.20openssl1.1.1python3.8.____cpython
+      : CONFIG: linux_64_c_compiler_version11cuda_compiler_versionNonecudnnundefinedcxx_compiler_version11numpy1.20openssl1.1.1python3.8.____cpython
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cos7-x86_64
-        SHORT_CONFIG: linux_64_c_compiler_version10cuda_c_hc0d403cb60
-      ? linux_64_c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.20openssl1.1.1python3.9.____cpython
-      : CONFIG: linux_64_c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.20openssl1.1.1python3.9.____cpython
+        SHORT_CONFIG: linux_64_c_compiler_version11cuda_c_h7dbcf4d9ba
+      ? linux_64_c_compiler_version11cuda_compiler_versionNonecudnnundefinedcxx_compiler_version11numpy1.20openssl1.1.1python3.9.____cpython
+      : CONFIG: linux_64_c_compiler_version11cuda_compiler_versionNonecudnnundefinedcxx_compiler_version11numpy1.20openssl1.1.1python3.9.____cpython
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cos7-x86_64
-        SHORT_CONFIG: linux_64_c_compiler_version10cuda_c_h94cf76da31
-      ? linux_64_c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.20openssl3python3.8.____cpython
-      : CONFIG: linux_64_c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.20openssl3python3.8.____cpython
+        SHORT_CONFIG: linux_64_c_compiler_version11cuda_c_h5dde03f2a1
+      ? linux_64_c_compiler_version11cuda_compiler_versionNonecudnnundefinedcxx_compiler_version11numpy1.20openssl3python3.8.____cpython
+      : CONFIG: linux_64_c_compiler_version11cuda_compiler_versionNonecudnnundefinedcxx_compiler_version11numpy1.20openssl3python3.8.____cpython
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cos7-x86_64
-        SHORT_CONFIG: linux_64_c_compiler_version10cuda_c_haf4d6dfa6d
-      ? linux_64_c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.20openssl3python3.9.____cpython
-      : CONFIG: linux_64_c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.20openssl3python3.9.____cpython
+        SHORT_CONFIG: linux_64_c_compiler_version11cuda_c_h49fc497364
+      ? linux_64_c_compiler_version11cuda_compiler_versionNonecudnnundefinedcxx_compiler_version11numpy1.20openssl3python3.9.____cpython
+      : CONFIG: linux_64_c_compiler_version11cuda_compiler_versionNonecudnnundefinedcxx_compiler_version11numpy1.20openssl3python3.9.____cpython
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cos7-x86_64
-        SHORT_CONFIG: linux_64_c_compiler_version10cuda_c_ha9451e2ee5
-      ? linux_64_c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.21openssl1.1.1python3.10.____cpython
-      : CONFIG: linux_64_c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.21openssl1.1.1python3.10.____cpython
+        SHORT_CONFIG: linux_64_c_compiler_version11cuda_c_hdef637d0b0
+      ? linux_64_c_compiler_version11cuda_compiler_versionNonecudnnundefinedcxx_compiler_version11numpy1.21openssl1.1.1python3.10.____cpython
+      : CONFIG: linux_64_c_compiler_version11cuda_compiler_versionNonecudnnundefinedcxx_compiler_version11numpy1.21openssl1.1.1python3.10.____cpython
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cos7-x86_64
-        SHORT_CONFIG: linux_64_c_compiler_version10cuda_c_hd7ab2294b3
-      ? linux_64_c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.21openssl3python3.10.____cpython
-      : CONFIG: linux_64_c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.21openssl3python3.10.____cpython
+        SHORT_CONFIG: linux_64_c_compiler_version11cuda_c_h3d334f7fdb
+      ? linux_64_c_compiler_version11cuda_compiler_versionNonecudnnundefinedcxx_compiler_version11numpy1.21openssl3python3.10.____cpython
+      : CONFIG: linux_64_c_compiler_version11cuda_compiler_versionNonecudnnundefinedcxx_compiler_version11numpy1.21openssl3python3.10.____cpython
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cos7-x86_64
-        SHORT_CONFIG: linux_64_c_compiler_version10cuda_c_hfbda628ab6
-      ? linux_64_c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.23openssl1.1.1python3.11.____cpython
-      : CONFIG: linux_64_c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.23openssl1.1.1python3.11.____cpython
+        SHORT_CONFIG: linux_64_c_compiler_version11cuda_c_h5360f7c413
+      ? linux_64_c_compiler_version11cuda_compiler_versionNonecudnnundefinedcxx_compiler_version11numpy1.23openssl1.1.1python3.11.____cpython
+      : CONFIG: linux_64_c_compiler_version11cuda_compiler_versionNonecudnnundefinedcxx_compiler_version11numpy1.23openssl1.1.1python3.11.____cpython
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cos7-x86_64
-        SHORT_CONFIG: linux_64_c_compiler_version10cuda_c_h8eb3300bf3
-      ? linux_64_c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.23openssl3python3.11.____cpython
-      : CONFIG: linux_64_c_compiler_version10cuda_compiler_versionNonecudnnundefinedcxx_compiler_version10numpy1.23openssl3python3.11.____cpython
+        SHORT_CONFIG: linux_64_c_compiler_version11cuda_c_h998ebc6abc
+      ? linux_64_c_compiler_version11cuda_compiler_versionNonecudnnundefinedcxx_compiler_version11numpy1.23openssl3python3.11.____cpython
+      : CONFIG: linux_64_c_compiler_version11cuda_compiler_versionNonecudnnundefinedcxx_compiler_version11numpy1.23openssl3python3.11.____cpython
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cos7-x86_64
-        SHORT_CONFIG: linux_64_c_compiler_version10cuda_c_h40d8545965
+        SHORT_CONFIG: linux_64_c_compiler_version11cuda_c_h5b93440afc
   timeoutInMinutes: 360
 
   steps:
