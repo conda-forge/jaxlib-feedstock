@@ -10,7 +10,7 @@ source:
   sha256: 73ebc7868631cd9d520385557bbd7f08762d748a5a6a1bebef0f3b8d7ba748ef
 
 build:
-  number: 1
+  number: 2
   # ppc64le and s390x are missing bazel. Win not supported by jaxlib.
   skip: true  # [ppc64le or s390x or win or py<37]
 
@@ -27,11 +27,13 @@ requirements:
     - pip
     - wheel
     - setuptools
-    - numpy 1.21.*
+    - numpy 1.21.*  # [py<311]
+    - numpy 1.23.*  # [py>=311]
 
   run:
     - python
-    - numpy >=1.21,<2  
+    - numpy >=1.21,<2  # [py<311]
+    - numpy >=1.21,<2  # [py>=311]
     - scipy >=1.5
   run_constrained:
     - jax >={{ version }}
