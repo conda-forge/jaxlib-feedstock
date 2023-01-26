@@ -36,7 +36,7 @@ requirements:
     - unzip
     # Keep bazel listed twice here to help the migrators track dependencies
     - bazel
-    - bazel  >=5.1.1
+    - bazel  <6
     - bazel-toolchain
     # need protoc
     - libprotobuf
