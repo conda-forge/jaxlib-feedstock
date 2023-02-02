@@ -13,7 +13,7 @@ package:
 source:
   # only pull sources after upstream PyPI release...
   url: https://github.com/google/jax/archive/jaxlib-v{{ version }}.tar.gz
-  sha256: 81e53b62620d2366a5193ab1fa35d4e9271010c90efb329b8975f2270de673f9
+  sha256: c84a6c0740533edac63a6e56a0b4a109c9293b412a805905e9d00ebeebc09738
   patches:
     - patches/0001-Don-t-add-dashes-to-version.patch
     - patches/0002-bazelrc-112.diff                       # [cuda_compiler_version == "11.2"]
