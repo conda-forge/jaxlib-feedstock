@@ -21,7 +21,7 @@ cxx_compiler_version:
 docker_image:
 - quay.io/condaforge/linux-anvil-cuda:11.2
 libabseil:
-- '20220623.0'
+- '20230125'
 libgrpc:
 - '1.51'
 libprotobuf:
