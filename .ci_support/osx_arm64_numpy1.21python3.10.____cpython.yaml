@@ -17,7 +17,7 @@ cxx_compiler:
 cxx_compiler_version:
 - '14'
 libabseil:
-- '20220623.0'
+- '20230125'
 libgrpc:
 - '1.51'
 libprotobuf:
