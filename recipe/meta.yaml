@@ -1,4 +1,4 @@
-{% set version = "0.4.3" %}
+{% set version = "0.4.4" %}
 {% set number = 1 %}
 
 {% if cuda_compiler_version != "None" %}
@@ -13,7 +13,7 @@ package:
 source:
   # only pull sources after upstream PyPI release...
   url: https://github.com/google/jax/archive/jaxlib-v{{ version }}.tar.gz
-  sha256: 2104735dc22be2b105e5517bd5bc6ae97f40e8e9e54928cac1585c6112a3d910
+  sha256: 881f402c7983b56b185e182d5315dd64c9f5320be96213d0415996ece1826806
   patches:
     - patches/0001-Don-t-add-dashes-to-version.patch
     - patches/0002-bazelrc-112.diff                       # [cuda_compiler_version == "11.2"]
