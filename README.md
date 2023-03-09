@@ -1,11 +1,11 @@
-About jaxlib
-============
+About jaxlib-feedstock
+======================
+
+Feedstock license: [BSD-3-Clause](https://github.com/conda-forge/jaxlib-feedstock/blob/main/LICENSE.txt)
 
 Home: http://github.com/google/jax
 
 Package license: Apache-2.0
-
-Feedstock license: [BSD-3-Clause](https://github.com/conda-forge/jaxlib-feedstock/blob/main/LICENSE.txt)
 
 Summary: Composable transformations of Python+NumPy programs: differentiate, vectorize, JIT to GPU/TPU, and more
 
