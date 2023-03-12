@@ -23,7 +23,7 @@ docker_image:
 libabseil:
 - '20230125'
 libgrpc:
-- '1.51'
+- '1.52'
 libprotobuf:
 - '3.21'
 nccl:
