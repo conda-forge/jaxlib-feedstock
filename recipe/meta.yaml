@@ -1,5 +1,5 @@
-{% set version = "0.4.6" %}
-{% set number = 1 %}
+{% set version = "0.4.7" %}
+{% set number = 0 %}
 
 {% if cuda_compiler_version != "None" %}
 {% set number = number + 200 %}
@@ -13,10 +13,10 @@ package:
 source:
   # only pull sources after upstream PyPI release...
   url: https://github.com/google/jax/archive/jaxlib-v{{ version }}.tar.gz
-  sha256: 2c9bf8962815bc54ef524e33dc8eda9d165d379fe87e0df210f316adead27787
+  sha256: 0578d5dd5035b5225cadb6a62ca5f93dd76b70292268502fc01a0fd9ca7001d0
   patches:
-    - patches/0001-Don-t-add-dashes-to-version.patch
-    - patches/0002-bazelrc-112.diff                       # [cuda_compiler_version == "11.2"]
+    - patches/0001-custom-build.diff
+    - patches/0002-bazelrc-edit.diff  # [cuda_compiler_version == "11.2"]
 
 build:
   number: {{ number }}
@@ -63,6 +63,7 @@ requirements:
     - python
     - {{ pin_compatible('numpy') }}
     - scipy >=1.5
+    - ml_dtypes >=0.0.3
     - __cuda  # [cuda_compiler_version != "None"]
   run_constrained:
     - jax >={{ version }}

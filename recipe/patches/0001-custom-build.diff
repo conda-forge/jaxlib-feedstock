@@ -1,0 +1,17 @@
+diff --git a/build/build.py b/build/build.py
+--- build/build.py
++++ build/build.py
+@@ -244,8 +244,13 @@
+     if len(tf_cuda_paths):
+       f.write("build --action_env TF_CUDA_PATHS=\"{tf_cuda_paths}\"\n"
+               .format(tf_cuda_paths=",".join(tf_cuda_paths)))
+     if cuda_version:
++      # set GCC_HOST_COMPILER_PATH for toolchain with conda-forge
++      f.write("build --action_env GCC_HOST_COMPILER_PATH=\"{gcc_host_compiler_path}\"\n"
++              .format(gcc_host_compiler_path=os.environ["GCC"]))
++      f.write("build --action_env GCC_HOST_COMPILER_PREFIX=\"{gcc_host_compiler_prefix}\"\n"
++              .format(gcc_host_compiler_prefix=os.path.dirname(os.environ["GCC"])))
+       f.write("build --action_env TF_CUDA_VERSION=\"{cuda_version}\"\n"
+               .format(cuda_version=cuda_version))
+     if cudnn_version:
+       f.write("build --action_env TF_CUDNN_VERSION=\"{cudnn_version}\"\n"
