@@ -1,5 +1,5 @@
 {% set version = "0.4.7" %}
-{% set number = 1 %}
+{% set number = 0 %}
 
 {% if cuda_compiler_version != "None" %}
 {% set number = number + 200 %}
@@ -63,6 +63,7 @@ requirements:
     - python
     - {{ pin_compatible('numpy') }}
     - scipy >=1.5
+    - ml_dtypes >=0.0.3
     - __cuda  # [cuda_compiler_version != "None"]
   run_constrained:
     - jax >={{ version }}
