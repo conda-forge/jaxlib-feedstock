@@ -63,7 +63,7 @@ requirements:
     - python
     - {{ pin_compatible('numpy') }}
     - scipy >=1.5
-    - ml_dtypes >=0.0.3
+    - ml_dtypes >=0.1.0
     - __cuda  # [cuda_compiler_version != "None"]
   run_constrained:
     - jax >={{ version }}
