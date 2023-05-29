@@ -48,6 +48,8 @@ zip_keys:
   - cuda_compiler_version
   - cdt_name
   - docker_image
+- - libgrpc
+  - libprotobuf
 - - python
   - numpy
 zlib:
