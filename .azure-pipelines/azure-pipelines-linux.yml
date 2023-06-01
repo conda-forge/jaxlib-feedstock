@@ -48,6 +48,26 @@ jobs:
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cos7-x86_64
         SHORT_CONFIG: linux_64_c_compiler_version12cuda_c_haab5f0cf6e
+      ? linux_64_c_compiler_version12cuda_compilercuda-nvcccuda_compiler_version12.0cudnn8cxx_compiler_version12numpy1.21python3.10.____cpython
+      : CONFIG: linux_64_c_compiler_version12cuda_compilercuda-nvcccuda_compiler_version12.0cudnn8cxx_compiler_version12numpy1.21python3.10.____cpython
+        UPLOAD_PACKAGES: 'True'
+        DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cos7-x86_64
+        SHORT_CONFIG: linux_64_c_compiler_version12cuda_c_h13d105f2ed
+      ? linux_64_c_compiler_version12cuda_compilercuda-nvcccuda_compiler_version12.0cudnn8cxx_compiler_version12numpy1.21python3.8.____cpython
+      : CONFIG: linux_64_c_compiler_version12cuda_compilercuda-nvcccuda_compiler_version12.0cudnn8cxx_compiler_version12numpy1.21python3.8.____cpython
+        UPLOAD_PACKAGES: 'True'
+        DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cos7-x86_64
+        SHORT_CONFIG: linux_64_c_compiler_version12cuda_c_hafed9fe721
+      ? linux_64_c_compiler_version12cuda_compilercuda-nvcccuda_compiler_version12.0cudnn8cxx_compiler_version12numpy1.21python3.9.____cpython
+      : CONFIG: linux_64_c_compiler_version12cuda_compilercuda-nvcccuda_compiler_version12.0cudnn8cxx_compiler_version12numpy1.21python3.9.____cpython
+        UPLOAD_PACKAGES: 'True'
+        DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cos7-x86_64
+        SHORT_CONFIG: linux_64_c_compiler_version12cuda_c_h74cfe24387
+      ? linux_64_c_compiler_version12cuda_compilercuda-nvcccuda_compiler_version12.0cudnn8cxx_compiler_version12numpy1.23python3.11.____cpython
+      : CONFIG: linux_64_c_compiler_version12cuda_compilercuda-nvcccuda_compiler_version12.0cudnn8cxx_compiler_version12numpy1.23python3.11.____cpython
+        UPLOAD_PACKAGES: 'True'
+        DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cos7-x86_64
+        SHORT_CONFIG: linux_64_c_compiler_version12cuda_c_h243c65c5ff
   timeoutInMinutes: 360
 
   steps:
