@@ -40,7 +40,7 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
         export TF_CUDA_COMPUTE_CAPABILITIES=sm_60,sm_70,sm_75,sm_80,sm_86,compute_86
     elif [[ ${cuda_compiler_version} == 12* ]]; then
         export TF_CUDA_COMPUTE_CAPABILITIES=sm_60,sm_70,sm_75,sm_80,sm_86,sm_89,sm_90,sm_90a,compute_90a
-        export CUDA_HOME="${PREFIX}"
+        export CUDA_HOME="${PREFIX}/targets/${target_platform}"
     else
         echo "unsupported cuda version."
         exit 1
