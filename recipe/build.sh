@@ -69,7 +69,7 @@ fi
 # FIXME: Current global abseil pin is too old for jaxlib, readd com_google_absl once we are on a newer version.
 export TF_SYSTEM_LIBS="boringssl,com_github_googlecloudplatform_google_cloud_cpp,com_github_grpc_grpc,flatbuffers,zlib"
 
-if [[ "${target_platform}" == "osx-arm64" ]]; then
+if [[ "${target_platform}" == "osx-arm64" || "${target_platform}" != "${build_platform}" ]]; then
   ${PYTHON} build/build.py --target_cpu_features default --enable_mkl_dnn --target_cpu ${TARGET_CPU}
 else
   ${PYTHON} build/build.py --target_cpu_features default --enable_mkl_dnn ${CUDA_ARGS:-}
