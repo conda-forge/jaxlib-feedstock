@@ -51,8 +51,9 @@ requirements:
     - nccl       # [cuda_compiler_version != "None"]
     - python
     - pip
-    - numpy 1.23.*
+    - numpy
     - wheel
+    - build
     # list libabseil here to ensure pinning correctly
     - libabseil
     - flatbuffers <2.0.6
@@ -62,7 +63,7 @@ requirements:
   run:
     - python
     - {{ pin_compatible('numpy') }}
-    - scipy >=1.5
+    - scipy >=1.7
     - ml_dtypes >=0.2.0
     - __cuda  # [cuda_compiler_version != "None"]
   run_constrained:
