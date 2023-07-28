@@ -53,7 +53,7 @@ requirements:
     - pip
     - numpy
     - wheel
-    - build
+    - python-build
     # list libabseil here to ensure pinning correctly
     - libabseil
     - flatbuffers <2.0.6
