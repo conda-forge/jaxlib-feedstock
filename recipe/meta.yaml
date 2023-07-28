@@ -51,8 +51,7 @@ requirements:
     - nccl       # [cuda_compiler_version != "None"]
     - python
     - pip
-    - numpy 1.22.*  # [py<311]
-    - numpy 1.23.*  # [py>310]
+    - numpy 1.23.*
     - wheel
     # list libabseil here to ensure pinning correctly
     - libabseil
