@@ -8,54 +8,54 @@ jobs:
     vmImage: macOS-11
   strategy:
     matrix:
-      osx_64_libgrpc1.54libprotobuf3.21python3.10.____cpython:
-        CONFIG: osx_64_libgrpc1.54libprotobuf3.21python3.10.____cpython
+      osx_64_libgrpc1.54libprotobuf3.21numpy1.21python3.10.____cpython:
+        CONFIG: osx_64_libgrpc1.54libprotobuf3.21numpy1.21python3.10.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_64_libgrpc1.54libprotobuf3.21py_hb1e7d40f55
-      osx_64_libgrpc1.54libprotobuf3.21python3.11.____cpython:
-        CONFIG: osx_64_libgrpc1.54libprotobuf3.21python3.11.____cpython
+        SHORT_CONFIG: osx_64_libgrpc1.54libprotobuf3.21nu_hb56ee30e46
+      osx_64_libgrpc1.54libprotobuf3.21numpy1.21python3.9.____cpython:
+        CONFIG: osx_64_libgrpc1.54libprotobuf3.21numpy1.21python3.9.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_64_libgrpc1.54libprotobuf3.21py_h277fffe670
-      osx_64_libgrpc1.54libprotobuf3.21python3.9.____cpython:
-        CONFIG: osx_64_libgrpc1.54libprotobuf3.21python3.9.____cpython
+        SHORT_CONFIG: osx_64_libgrpc1.54libprotobuf3.21nu_h21306e72a9
+      osx_64_libgrpc1.54libprotobuf3.21numpy1.23python3.11.____cpython:
+        CONFIG: osx_64_libgrpc1.54libprotobuf3.21numpy1.23python3.11.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_64_libgrpc1.54libprotobuf3.21py_hc2d03d88bc
-      osx_64_libgrpc1.56libprotobuf4.23.3python3.10.____cpython:
-        CONFIG: osx_64_libgrpc1.56libprotobuf4.23.3python3.10.____cpython
+        SHORT_CONFIG: osx_64_libgrpc1.54libprotobuf3.21nu_h79acd12959
+      osx_64_libgrpc1.56libprotobuf4.23.3numpy1.21python3.10.____cpython:
+        CONFIG: osx_64_libgrpc1.56libprotobuf4.23.3numpy1.21python3.10.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_64_libgrpc1.56libprotobuf4.23.3_h3232658bec
-      osx_64_libgrpc1.56libprotobuf4.23.3python3.11.____cpython:
-        CONFIG: osx_64_libgrpc1.56libprotobuf4.23.3python3.11.____cpython
+        SHORT_CONFIG: osx_64_libgrpc1.56libprotobuf4.23.3_h480289f550
+      osx_64_libgrpc1.56libprotobuf4.23.3numpy1.21python3.9.____cpython:
+        CONFIG: osx_64_libgrpc1.56libprotobuf4.23.3numpy1.21python3.9.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_64_libgrpc1.56libprotobuf4.23.3_h71cf6678b7
-      osx_64_libgrpc1.56libprotobuf4.23.3python3.9.____cpython:
-        CONFIG: osx_64_libgrpc1.56libprotobuf4.23.3python3.9.____cpython
+        SHORT_CONFIG: osx_64_libgrpc1.56libprotobuf4.23.3_h1b39ac073d
+      osx_64_libgrpc1.56libprotobuf4.23.3numpy1.23python3.11.____cpython:
+        CONFIG: osx_64_libgrpc1.56libprotobuf4.23.3numpy1.23python3.11.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_64_libgrpc1.56libprotobuf4.23.3_h5b8efc17d4
-      osx_arm64_libgrpc1.54libprotobuf3.21python3.10.____cpython:
-        CONFIG: osx_arm64_libgrpc1.54libprotobuf3.21python3.10.____cpython
+        SHORT_CONFIG: osx_64_libgrpc1.56libprotobuf4.23.3_haa5810179e
+      osx_arm64_libgrpc1.54libprotobuf3.21numpy1.21python3.10.____cpython:
+        CONFIG: osx_arm64_libgrpc1.54libprotobuf3.21numpy1.21python3.10.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_arm64_libgrpc1.54libprotobuf3.2_h57fccf26f3
-      osx_arm64_libgrpc1.54libprotobuf3.21python3.11.____cpython:
-        CONFIG: osx_arm64_libgrpc1.54libprotobuf3.21python3.11.____cpython
+        SHORT_CONFIG: osx_arm64_libgrpc1.54libprotobuf3.2_hc6765131cf
+      osx_arm64_libgrpc1.54libprotobuf3.21numpy1.21python3.9.____cpython:
+        CONFIG: osx_arm64_libgrpc1.54libprotobuf3.21numpy1.21python3.9.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_arm64_libgrpc1.54libprotobuf3.2_h92238ab61f
-      osx_arm64_libgrpc1.54libprotobuf3.21python3.9.____cpython:
-        CONFIG: osx_arm64_libgrpc1.54libprotobuf3.21python3.9.____cpython
+        SHORT_CONFIG: osx_arm64_libgrpc1.54libprotobuf3.2_hce31774d85
+      osx_arm64_libgrpc1.54libprotobuf3.21numpy1.23python3.11.____cpython:
+        CONFIG: osx_arm64_libgrpc1.54libprotobuf3.21numpy1.23python3.11.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_arm64_libgrpc1.54libprotobuf3.2_h1e07652de2
-      osx_arm64_libgrpc1.56libprotobuf4.23.3python3.10.____cpython:
-        CONFIG: osx_arm64_libgrpc1.56libprotobuf4.23.3python3.10.____cpython
+        SHORT_CONFIG: osx_arm64_libgrpc1.54libprotobuf3.2_ha4ef085b50
+      osx_arm64_libgrpc1.56libprotobuf4.23.3numpy1.21python3.10.____cpython:
+        CONFIG: osx_arm64_libgrpc1.56libprotobuf4.23.3numpy1.21python3.10.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_arm64_libgrpc1.56libprotobuf4.2_h8a78c84293
-      osx_arm64_libgrpc1.56libprotobuf4.23.3python3.11.____cpython:
-        CONFIG: osx_arm64_libgrpc1.56libprotobuf4.23.3python3.11.____cpython
+        SHORT_CONFIG: osx_arm64_libgrpc1.56libprotobuf4.2_h778ec2379c
+      osx_arm64_libgrpc1.56libprotobuf4.23.3numpy1.21python3.9.____cpython:
+        CONFIG: osx_arm64_libgrpc1.56libprotobuf4.23.3numpy1.21python3.9.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_arm64_libgrpc1.56libprotobuf4.2_h906a99b8c1
-      osx_arm64_libgrpc1.56libprotobuf4.23.3python3.9.____cpython:
-        CONFIG: osx_arm64_libgrpc1.56libprotobuf4.23.3python3.9.____cpython
+        SHORT_CONFIG: osx_arm64_libgrpc1.56libprotobuf4.2_ha67224fd3e
+      osx_arm64_libgrpc1.56libprotobuf4.23.3numpy1.23python3.11.____cpython:
+        CONFIG: osx_arm64_libgrpc1.56libprotobuf4.23.3numpy1.23python3.11.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_arm64_libgrpc1.56libprotobuf4.2_h2b62443f19
+        SHORT_CONFIG: osx_arm64_libgrpc1.56libprotobuf4.2_hb356009388
   timeoutInMinutes: 360
 
   steps:

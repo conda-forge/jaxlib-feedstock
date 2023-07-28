@@ -1,11 +1,7 @@
-BUILD:
-- aarch64-conda_cos7-linux-gnu
 c_compiler:
 - gcc
 c_compiler_version:
-- '12'
-cdt_arch:
-- aarch64
+- '10'
 cdt_name:
 - cos7
 channel_sources:
@@ -13,23 +9,27 @@ channel_sources:
 channel_targets:
 - conda-forge main
 cuda_compiler:
-- None
+- nvcc
 cuda_compiler_version:
-- None
+- '11.2'
 cudnn:
 - '8'
 cxx_compiler:
 - gxx
 cxx_compiler_version:
-- '12'
+- '10'
 docker_image:
-- quay.io/condaforge/linux-anvil-cos7-x86_64
+- quay.io/condaforge/linux-anvil-cuda:11.2
 libabseil:
 - '20230125'
 libgrpc:
 - '1.54'
 libprotobuf:
 - '3.21'
+nccl:
+- '2'
+numpy:
+- '1.23'
 openssl:
 - '3'
 pin_run_as_build:
@@ -39,7 +39,7 @@ pin_run_as_build:
 python:
 - 3.11.* *_cpython
 target_platform:
-- linux-aarch64
+- linux-64
 zip_keys:
 - - c_compiler_version
   - cxx_compiler_version
@@ -49,5 +49,7 @@ zip_keys:
   - docker_image
 - - libgrpc
   - libprotobuf
+- - python
+  - numpy
 zlib:
 - '1.2'
