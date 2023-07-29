@@ -6,6 +6,7 @@ build_platform:
 conda_build:
   pkg_format: '2'
 conda_forge_output_validation: true
+free_disk_space: true
 github:
   branch_name: main
   tooling_branch_name: main
