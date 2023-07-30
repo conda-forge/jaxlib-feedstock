@@ -11,51 +11,39 @@ jobs:
       osx_64_libgrpc1.54libprotobuf3.21numpy1.22python3.10.____cpython:
         CONFIG: osx_64_libgrpc1.54libprotobuf3.21numpy1.22python3.10.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_64_libgrpc1.54libprotobuf3.21nu_h142b46b6eb
       osx_64_libgrpc1.54libprotobuf3.21numpy1.22python3.9.____cpython:
         CONFIG: osx_64_libgrpc1.54libprotobuf3.21numpy1.22python3.9.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_64_libgrpc1.54libprotobuf3.21nu_h30a5fbd663
       osx_64_libgrpc1.54libprotobuf3.21numpy1.23python3.11.____cpython:
         CONFIG: osx_64_libgrpc1.54libprotobuf3.21numpy1.23python3.11.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_64_libgrpc1.54libprotobuf3.21nu_h79acd12959
       osx_64_libgrpc1.56libprotobuf4.23.3numpy1.22python3.10.____cpython:
         CONFIG: osx_64_libgrpc1.56libprotobuf4.23.3numpy1.22python3.10.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_64_libgrpc1.56libprotobuf4.23.3_h1ec38d4084
       osx_64_libgrpc1.56libprotobuf4.23.3numpy1.22python3.9.____cpython:
         CONFIG: osx_64_libgrpc1.56libprotobuf4.23.3numpy1.22python3.9.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_64_libgrpc1.56libprotobuf4.23.3_h641fd85845
       osx_64_libgrpc1.56libprotobuf4.23.3numpy1.23python3.11.____cpython:
         CONFIG: osx_64_libgrpc1.56libprotobuf4.23.3numpy1.23python3.11.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_64_libgrpc1.56libprotobuf4.23.3_haa5810179e
       osx_arm64_libgrpc1.54libprotobuf3.21numpy1.22python3.10.____cpython:
         CONFIG: osx_arm64_libgrpc1.54libprotobuf3.21numpy1.22python3.10.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_arm64_libgrpc1.54libprotobuf3.2_he6bb450355
       osx_arm64_libgrpc1.54libprotobuf3.21numpy1.22python3.9.____cpython:
         CONFIG: osx_arm64_libgrpc1.54libprotobuf3.21numpy1.22python3.9.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_arm64_libgrpc1.54libprotobuf3.2_hf0cbf4efe3
       osx_arm64_libgrpc1.54libprotobuf3.21numpy1.23python3.11.____cpython:
         CONFIG: osx_arm64_libgrpc1.54libprotobuf3.21numpy1.23python3.11.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_arm64_libgrpc1.54libprotobuf3.2_ha4ef085b50
       osx_arm64_libgrpc1.56libprotobuf4.23.3numpy1.22python3.10.____cpython:
         CONFIG: osx_arm64_libgrpc1.56libprotobuf4.23.3numpy1.22python3.10.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_arm64_libgrpc1.56libprotobuf4.2_h9b71f673ed
       osx_arm64_libgrpc1.56libprotobuf4.23.3numpy1.22python3.9.____cpython:
         CONFIG: osx_arm64_libgrpc1.56libprotobuf4.23.3numpy1.22python3.9.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_arm64_libgrpc1.56libprotobuf4.2_h1aa4c2636e
       osx_arm64_libgrpc1.56libprotobuf4.23.3numpy1.23python3.11.____cpython:
         CONFIG: osx_arm64_libgrpc1.56libprotobuf4.23.3numpy1.23python3.11.____cpython
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_arm64_libgrpc1.56libprotobuf4.2_hb356009388
   timeoutInMinutes: 360
 
   steps:
@@ -76,32 +64,3 @@ jobs:
       BINSTAR_TOKEN: $(BINSTAR_TOKEN)
       FEEDSTOCK_TOKEN: $(FEEDSTOCK_TOKEN)
       STAGING_BINSTAR_TOKEN: $(STAGING_BINSTAR_TOKEN)
-  - script: |
-      export CI=azure
-      export CI_RUN_ID=$(build.BuildNumber).$(system.JobAttempt)
-      export FEEDSTOCK_NAME=$(basename ${BUILD_REPOSITORY_NAME})
-      export CONDA_BLD_DIR=/Users/runner/miniforge3/conda-bld
-      export ARTIFACT_STAGING_DIR="$(Build.ArtifactStagingDirectory)"
-      # Archive everything in CONDA_BLD_DIR except environments
-      export BLD_ARTIFACT_PREFIX=conda_artifacts
-      if [[ "$AGENT_JOBSTATUS" == "Failed" ]]; then
-        # Archive the CONDA_BLD_DIR environments only when the job fails
-        export ENV_ARTIFACT_PREFIX=conda_envs
-      fi
-      ./.scripts/create_conda_build_artifacts.sh
-    displayName: Prepare conda build artifacts
-    condition: succeededOrFailed()
-
-  - task: PublishPipelineArtifact@1
-    displayName: Store conda build artifacts
-    condition: not(eq(variables.BLD_ARTIFACT_PATH, ''))
-    inputs:
-      targetPath: $(BLD_ARTIFACT_PATH)
-      artifactName: $(BLD_ARTIFACT_NAME)
-
-  - task: PublishPipelineArtifact@1
-    displayName: Store conda build environment artifacts
-    condition: not(eq(variables.ENV_ARTIFACT_PATH, ''))
-    inputs:
-      targetPath: $(ENV_ARTIFACT_PATH)
-      artifactName: $(ENV_ARTIFACT_NAME)
