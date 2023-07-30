@@ -1,4 +1,4 @@
-{% set version = "0.4.12" %}
+{% set version = "0.4.14" %}
 {% set number = 1 %}
 
 {% if cuda_compiler_version != "None" %}
@@ -13,14 +13,14 @@ package:
 source:
   # only pull sources after upstream PyPI release...
   url: https://github.com/google/jax/archive/jaxlib-v{{ version }}.tar.gz
-  sha256: 90bdaf1351809f6d73ffc20dbdd4390293742a62368e33870ef3a67e2ce52647
+  sha256: 9f309476a8f6337717b059b8d10b5859b4134c30cf8f1220bb70379b5e2744a4
   patches:
     - patches/0001-custom-build.diff
     - patches/0002-bazelrc-edit.diff  # [cuda_compiler_version == "11.2"]
 
 build:
   number: {{ number }}
-  skip: true  # [win or py<37]
+  skip: true  # [win or py<39]
   skip: true  # [cuda_compiler_version in ("10.2", "11.0", "11.1")]
   string: cuda{{ cuda_compiler_version | replace('.', '') }}py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [cuda_compiler_version != "None"]
   string: cpu_py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [cuda_compiler_version == "None"]
@@ -53,6 +53,7 @@ requirements:
     - pip
     - numpy
     - wheel
+    - python-build
     # list libabseil here to ensure pinning correctly
     - libabseil
     - flatbuffers <2.0.6
@@ -62,8 +63,8 @@ requirements:
   run:
     - python
     - {{ pin_compatible('numpy') }}
-    - scipy >=1.5
-    - ml_dtypes >=0.1.0
+    - scipy >=1.7
+    - ml_dtypes >=0.2.0
     - __cuda  # [cuda_compiler_version != "None"]
   run_constrained:
     - jax >={{ version }}

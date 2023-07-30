@@ -2,3 +2,27 @@ MACOSX_SDK_VERSION:        # [osx and x86_64]
   - "10.14"                # [osx and x86_64]
 MACOSX_DEPLOYMENT_TARGET:  # [osx and x86_64]
   - "10.14"                # [osx and x86_64]
+
+# temporarily in-feedstock pinning for python--numpy zip
+# due to upstream dropping support for numpy 1.21
+zip_keys:
+  -
+    - python
+    - numpy
+    - python_impl
+# we build for the oldest version possible of numpy for forward compatibility
+numpy:
+  # part of a zip_keys: python, python_impl, numpy
+  - 1.22
+  - 1.22
+  - 1.23
+python:
+  # part of a zip_keys: python, python_impl, numpy
+  - 3.9.* *_cpython
+  - 3.10.* *_cpython
+  - 3.11.* *_cpython
+python_impl:
+  # part of a zip_keys: python, python_impl, numpy
+  - cpython
+  - cpython
+  - cpython
