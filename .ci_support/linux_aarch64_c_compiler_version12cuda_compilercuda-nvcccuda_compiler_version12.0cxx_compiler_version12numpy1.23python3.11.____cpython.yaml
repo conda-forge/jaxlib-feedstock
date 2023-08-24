@@ -13,9 +13,9 @@ channel_sources:
 channel_targets:
 - conda-forge main
 cuda_compiler:
-- None
+- cuda-nvcc
 cuda_compiler_version:
-- None
+- '12.0'
 cudnn:
 - '8'
 cxx_compiler:
@@ -30,6 +30,8 @@ libgrpc:
 - '1.56'
 libprotobuf:
 - 4.23.3
+nccl:
+- '2'
 numpy:
 - '1.23'
 openssl:
