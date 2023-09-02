@@ -16,7 +16,7 @@ source:
   sha256: 9f309476a8f6337717b059b8d10b5859b4134c30cf8f1220bb70379b5e2744a4
   patches:
     - patches/0001-custom-build.diff
-    - patches/0002-bazelrc-edit.diff  # [cuda_compiler_version == "11.2"]
+    - patches/0002-bazelrc-edit.diff  # [cuda_compiler_version != "None"]
 
 build:
   number: {{ number }}
