@@ -47,8 +47,9 @@ requirements:
     # list libabseil here to ensure pinning correctly
     - libabseil
   host:
-    - cudnn      # [cuda_compiler_version != "None"]
-    - nccl       # [cuda_compiler_version != "None"]
+    - cudnn       # [cuda_compiler_version != "None"]
+    - nccl        # [cuda_compiler_version != "None"]
+    - cuda-cupti  # [cuda_compiler_version == "12.0"]
     - python
     - pip
     - numpy
