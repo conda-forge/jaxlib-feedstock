@@ -12,7 +12,7 @@ source:
 build:
   number: 0
   # ppc64le and s390x are missing bazel. Win not supported by jaxlib.
-  skip: true  # [ppc64le or s390x or win or py<37]
+  skip: true  # [ppc64le or s390x or win or py<39]
 
 requirements:
   build:
