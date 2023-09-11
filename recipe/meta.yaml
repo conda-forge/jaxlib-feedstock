@@ -35,7 +35,8 @@ requirements:
     - python
     - numpy >=1.21,<2  # [py<311]
     - numpy >=1.21,<2  # [py>=311]
-    - scipy >=1.5
+    - scipy >=1.7
+    - ml_dtypes
   run_constrained:
     - jax >={{ version }}
 
