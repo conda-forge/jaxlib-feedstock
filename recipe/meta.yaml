@@ -1,4 +1,4 @@
-{% set version = "0.3.25" %}
+{% set version = "0.4.15" %}
 {% set name = "jaxlib" %}
 
 package:
@@ -7,10 +7,10 @@ package:
 
 source:
   url: https://github.com/google/jax/archive/{{ name }}-v{{ version }}.tar.gz
-  sha256: 73ebc7868631cd9d520385557bbd7f08762d748a5a6a1bebef0f3b8d7ba748ef
+  sha256: d89e25cab6fc2b5e0cbde2ade0963272fa98b00167b0b8aca0516a0af9befca2
 
 build:
-  number: 2
+  number: 0
   # ppc64le and s390x are missing bazel. Win not supported by jaxlib.
   skip: true  # [ppc64le or s390x or win or py<37]
 
