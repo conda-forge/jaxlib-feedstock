@@ -53,7 +53,10 @@ requirements:
     - pip
     - numpy
     - wheel
-    - python-build
+    # avoid not being able to pass `-C=--build-option=--python-tag=cp<x>` due to
+    # https://github.com/pypa/build/issues/202, which is being used by jaxlib in
+    # https://github.com/google/jax/blame/jaxlib-v0.4.15/jaxlib/tools/build_wheel.py
+    - python-build <1
     # list libabseil here to ensure pinning correctly
     - libabseil
     - flatbuffers <2.0.6
