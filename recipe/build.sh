@@ -25,4 +25,4 @@ echo "Issuing bazel shutdown..."
 bazel shutdown
 
 echo "Installing jaxlib wheel..."
-${PYTHON} -m pip install dist/jaxlib-*.whl
+${PYTHON} -m pip install dist/jaxlib-*.whl --no-build-isolation --no-deps
