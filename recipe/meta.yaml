@@ -68,6 +68,3 @@ extra:
   recipe-maintainers:
     - ericmjl
     - xhochy
-  skip-lints:
-    - missing_license_url
-    - missing_doc_source_url
