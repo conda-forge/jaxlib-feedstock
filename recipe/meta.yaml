@@ -15,7 +15,7 @@ source:
   url: https://github.com/google/jax/archive/jaxlib-v{{ version }}.tar.gz
   sha256: 7500534702189e221fccb6eb7bac2dee55769789ef99c161eeaf9b30d7f05c7c
   patches:
-    - patches/0001-custom-build.diff
+    - patches/0001-Allow-for-custom-CUDA-build.patch
     - patches/0002-bazelrc-edit.diff  # [cuda_compiler_version == "11.2"]
 
 build:

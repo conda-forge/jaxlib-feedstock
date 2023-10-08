@@ -41,7 +41,7 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
     elif [[ ${cuda_compiler_version} == 11.1 ]]; then
         export TF_CUDA_COMPUTE_CAPABILITIES=sm_35,sm_50,sm_60,sm_62,sm_70,sm_72,sm_75,sm_80,sm_86,compute_86
     elif [[ ${cuda_compiler_version} == 11.2 ]]; then
-        export TF_CUDA_COMPUTE_CAPABILITIES=sm_35,sm_50,sm_60,sm_62,sm_70,sm_72,sm_75,sm_80,sm_86,compute_86
+        export TF_CUDA_COMPUTE_CAPABILITIES=sm_52,sm_60,sm_70,sm_80,compute_90
     else
         echo "unsupported cuda version."
         exit 1
