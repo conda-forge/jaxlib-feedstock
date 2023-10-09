@@ -5,7 +5,7 @@ MACOSX_SDK_VERSION:
 c_compiler:
 - clang
 c_compiler_version:
-- '15'
+- '16'
 channel_sources:
 - conda-forge
 channel_targets:
@@ -19,7 +19,7 @@ cudnn:
 cxx_compiler:
 - clangxx
 cxx_compiler_version:
-- '15'
+- '16'
 libabseil:
 - '20230802'
 libgrpc:
