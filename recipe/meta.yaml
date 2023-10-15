@@ -53,6 +53,7 @@ requirements:
     - pip
     - numpy
     - wheel
+    - cuda-version {{ cuda_compiler_version }}  # [cuda_compiler_version != "None"]
     # avoid not being able to pass `-C=--build-option=--python-tag=cp<x>` due to
     # https://github.com/pypa/build/issues/202, which is being used by jaxlib in
     # https://github.com/google/jax/blame/jaxlib-v0.4.15/jaxlib/tools/build_wheel.py
