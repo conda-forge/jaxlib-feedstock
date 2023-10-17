@@ -28,12 +28,13 @@ requirements:
     - wheel
     - setuptools
     - numpy 1.22.*  # [py<311]
-    - numpy 1.23.*  # [py>=311]
+    - numpy 1.23.*  # [py==311]
+    - numpy 1.26.*  # [py==312]
     - python-build
 
   run:
     - python
-    - numpy >=1.21,<2
+    - {{ pin_compatible('numpy') }}
     - scipy >=1.7
     - ml_dtypes
   run_constrained:
