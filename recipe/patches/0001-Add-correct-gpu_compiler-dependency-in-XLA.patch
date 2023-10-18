@@ -1,13 +1,15 @@
-From ca6963931187f9b3e55686d9f981661d409a4bde Mon Sep 17 00:00:00 2001
+From 1c4715a8e0570ef5d5108b7b37e496ed904afd51 Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwe.korn@quantco.com>
 Date: Tue, 17 Oct 2023 17:15:54 +0200
 Subject: [PATCH] Add correct gpu_compiler dependency in XLA
 
 ---
  ...-dependency-inside-if_cuda_or_rocm-b.patch | 41 +++++++++++++++++++
+ ...cuda_build_defs-in-NCCL-system-build.patch | 40 ++++++++++++++++++
  third_party/xla/workspace.bzl                 |  5 +++
- 2 files changed, 46 insertions(+)
+ 3 files changed, 86 insertions(+)
  create mode 100644 third_party/xla/0001-Add-gpu_compiler-dependency-inside-if_cuda_or_rocm-b.patch
+ create mode 100644 third_party/xla/0002-Fix-path-to-cuda_build_defs-in-NCCL-system-build.patch
 
 diff --git a/third_party/xla/0001-Add-gpu_compiler-dependency-inside-if_cuda_or_rocm-b.patch b/third_party/xla/0001-Add-gpu_compiler-dependency-inside-if_cuda_or_rocm-b.patch
 new file mode 100644
@@ -53,6 +55,52 @@ index 0000000..1f03117
 +         "//xla/service/gpu:amdgpu_compiler_impl",
 +     ]),
 +     alwayslink = True,
++-- 
++2.42.0
++
+diff --git a/third_party/xla/0002-Fix-path-to-cuda_build_defs-in-NCCL-system-build.patch b/third_party/xla/0002-Fix-path-to-cuda_build_defs-in-NCCL-system-build.patch
+new file mode 100644
+index 0000000..0f1fc06
+--- /dev/null
++++ b/third_party/xla/0002-Fix-path-to-cuda_build_defs-in-NCCL-system-build.patch
+@@ -0,0 +1,40 @@
++From b8c8f18d3ad72d5a6a89f12fdaba0b97ccb32fe4 Mon Sep 17 00:00:00 2001
++From: Peter Hawkins <phawkins@google.com>
++Date: Fri, 13 Oct 2023 10:37:55 -0700
++Subject: [PATCH 2/2] Fix path to cuda_build_defs in NCCL system build.
++
++Copy of https://github.com/openxla/xla/pull/6291 that resolves a TSL merge problem.
++
++PiperOrigin-RevId: 573259068
++---
++ third_party/nccl/system.BUILD.tpl                 | 2 +-
++ third_party/tsl/third_party/nccl/system.BUILD.tpl | 2 +-
++ 2 files changed, 2 insertions(+), 2 deletions(-)
++
++diff --git a/third_party/nccl/system.BUILD.tpl b/third_party/nccl/system.BUILD.tpl
++index 2868efb3e..98d0e080d 100644
++--- a/third_party/nccl/system.BUILD.tpl
+++++ b/third_party/nccl/system.BUILD.tpl
++@@ -1,6 +1,6 @@
++ load("@bazel_skylib//rules:write_file.bzl", "write_file")
++ load(
++-    "@xla//tensorflow/platform/default:cuda_build_defs.bzl",
+++    "@tsl//tsl/platform/default:cuda_build_defs.bzl",
++     "cuda_rpath_flags"
++ )
++ 
++diff --git a/third_party/tsl/third_party/nccl/system.BUILD.tpl b/third_party/tsl/third_party/nccl/system.BUILD.tpl
++index 997b7b9fd..98d0e080d 100644
++--- a/third_party/tsl/third_party/nccl/system.BUILD.tpl
+++++ b/third_party/tsl/third_party/nccl/system.BUILD.tpl
++@@ -1,6 +1,6 @@
++ load("@bazel_skylib//rules:write_file.bzl", "write_file")
++ load(
++-    "@tsl//tensorflow/platform/default:cuda_build_defs.bzl",
+++    "@tsl//tsl/platform/default:cuda_build_defs.bzl",
++     "cuda_rpath_flags"
++ )
++ 
 +-- 
 +2.42.0
 +
