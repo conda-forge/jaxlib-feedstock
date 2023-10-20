@@ -1,5 +1,5 @@
-{% set version = "0.4.14" %}
-{% set number = 1 %}
+{% set version = "0.4.18" %}
+{% set number = 0 %}
 
 {% if cuda_compiler_version != "None" %}
 {% set number = number + 200 %}
@@ -13,15 +13,16 @@ package:
 source:
   # only pull sources after upstream PyPI release...
   url: https://github.com/google/jax/archive/jaxlib-v{{ version }}.tar.gz
-  sha256: 9f309476a8f6337717b059b8d10b5859b4134c30cf8f1220bb70379b5e2744a4
+  sha256: 7500534702189e221fccb6eb7bac2dee55769789ef99c161eeaf9b30d7f05c7c
   patches:
-    - patches/0001-custom-build.diff
-    - patches/0002-bazelrc-edit.diff  # [cuda_compiler_version == "11.2"]
+    - patches/0001-Allow-for-custom-CUDA-build.patch
+    - patches/0001-Add-correct-gpu_compiler-dependency-in-XLA.patch
 
 build:
   number: {{ number }}
   skip: true  # [win or py<39]
-  skip: true  # [cuda_compiler_version in ("10.2", "11.0", "11.1")]
+  skip: true  # [cuda_compiler_version in ("10.2", "11.0", "11.1", "11.2")]
+  skip: true  # [cuda_compiler != "None" and aarch64]
   string: cuda{{ cuda_compiler_version | replace('.', '') }}py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [cuda_compiler_version != "None"]
   string: cpu_py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [cuda_compiler_version == "None"]
 
@@ -37,7 +38,7 @@ requirements:
     # Keep bazel listed twice here to help the migrators track dependencies
     - bazel
     - bazel >=5.1.1,<6
-    - bazel-toolchain
+    - bazel-toolchain >=0.1.9
     # need protoc
     - libprotobuf
     # needs protoc-gen-grpc
@@ -53,6 +54,7 @@ requirements:
     - pip
     - numpy
     - wheel
+    - cuda-version {{ cuda_compiler_version }}  # [cuda_compiler_version != "None"]
     # avoid not being able to pass `-C=--build-option=--python-tag=cp<x>` due to
     # https://github.com/pypa/build/issues/202, which is being used by jaxlib in
     # https://github.com/google/jax/blame/jaxlib-v0.4.15/jaxlib/tools/build_wheel.py
