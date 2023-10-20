@@ -31,6 +31,9 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
     export TF_CUDA_VERSION="${cuda_compiler_version}"
     export TF_CUDNN_VERSION="${cudnn}"
     export TF_CUDA_PATHS="${PREFIX},${CUDA_HOME}"
+    if [[ "${target_platform}" == "linux-aarch64" ]]; then
+        export TF_CUDA_PATHS="${CUDA_HOME}/targets/sbsa-linux,${TF_CUDA_PATHS}"
+    fi
     export TF_NEED_CUDA=1
     export TF_NCCL_VERSION=$(pkg-config nccl --modversion | grep -Po '\d+\.\d+')
 
