@@ -16,7 +16,6 @@ source:
   sha256: 51242b217a1f82474e42d24f09ed5dedff951eeb4579c6e49e706d1adfd6949d
   patches:
     - patches/0001-Allow-for-custom-CUDA-build.patch
-    - patches/0001-Add-correct-gpu_compiler-dependency-in-XLA.patch
 
 build:
   number: {{ number }}
