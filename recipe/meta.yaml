@@ -1,4 +1,4 @@
-{% set version = "0.4.18" %}
+{% set version = "0.4.19" %}
 {% set number = 0 %}
 
 {% if cuda_compiler_version != "None" %}
@@ -13,10 +13,9 @@ package:
 source:
   # only pull sources after upstream PyPI release...
   url: https://github.com/google/jax/archive/jaxlib-v{{ version }}.tar.gz
-  sha256: 7500534702189e221fccb6eb7bac2dee55769789ef99c161eeaf9b30d7f05c7c
+  sha256: 51242b217a1f82474e42d24f09ed5dedff951eeb4579c6e49e706d1adfd6949d
   patches:
     - patches/0001-Allow-for-custom-CUDA-build.patch
-    - patches/0001-Add-correct-gpu_compiler-dependency-in-XLA.patch
 
 build:
   number: {{ number }}
