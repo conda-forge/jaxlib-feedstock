@@ -12,10 +12,14 @@ export CXXFLAGS="${CXXFLAGS} -DNDEBUG"
 
 if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
     if [[ ${cuda_compiler_version} == 11.8 ]]; then
-        export TF_CUDA_COMPUTE_CAPABILITIES=sm_35,sm_50,sm_60,sm_62,sm_70,sm_72,sm_75,sm_80,sm_86,sm_87,sm_89,sm_90,compute_90
+        # export TF_CUDA_COMPUTE_CAPABILITIES=sm_35,sm_50,sm_60,sm_62,sm_70,sm_72,sm_75,sm_80,sm_86,sm_87,sm_89,sm_90,compute_90
+        # Reduced capabilities to speed up the build:
+        export TF_CUDA_COMPUTE_CAPABILITIES=sm_60,sm_70,sm_75,sm_80,sm_86,sm_89,sm_90,compute_90
 	export TF_CUDA_PATHS="${CUDA_HOME},${PREFIX}"
     elif [[ ${cuda_compiler_version} == 12* ]]; then
-        export TF_CUDA_COMPUTE_CAPABILITIES=sm_60,sm_70,sm_75,sm_80,sm_86,sm_89,sm_90,compute_90
+        # export TF_CUDA_COMPUTE_CAPABILITIES=sm_60,sm_70,sm_75,sm_80,sm_86,sm_89,sm_90,compute_90
+        # Reduced capabilities to speed up the build:
+        export TF_CUDA_COMPUTE_CAPABILITIES=sm_60,sm_70,sm_80,sm_86,sm_89,sm_90,compute_90
         export CUDA_HOME="${BUILD_PREFIX}/targets/x86_64-linux"
         export TF_CUDA_PATHS="${BUILD_PREFIX}/targets/x86_64-linux,${PREFIX}/targets/x86_64-linux"
 	# Needed for some nvcc binaries
