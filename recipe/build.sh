@@ -4,6 +4,8 @@ set -euxo pipefail
 
 if [[ "${target_platform}" == osx-* ]]; then
   export LDFLAGS="${LDFLAGS} -lz -framework CoreFoundation -Xlinker -undefined -Xlinker dynamic_lookup"
+  # Remove stdlib=libc++; this is the default and errors on C sources.
+  export CXXFLAGS=${CXXFLAGS/-stdlib=libc++}
 else
   export LDFLAGS="${LDFLAGS} -lrt"
 fi
@@ -75,7 +77,8 @@ fi
 #
 # Thus: don't add com_google_protobuf here.
 # FIXME: Current global abseil pin is too old for jaxlib, readd com_google_absl once we are on a newer version.
-export TF_SYSTEM_LIBS="boringssl,com_github_googlecloudplatform_google_cloud_cpp,com_github_grpc_grpc,flatbuffers,zlib"
+# FIXME: Reintroduce boringssl systemlib once XLA was updated
+export TF_SYSTEM_LIBS="com_github_googlecloudplatform_google_cloud_cpp,com_github_grpc_grpc,flatbuffers,zlib"
 
 if [[ "${target_platform}" == "osx-arm64" || "${target_platform}" != "${build_platform}" ]]; then
     EXTRA="--target_cpu ${TARGET_CPU}"
