@@ -16,6 +16,7 @@ source:
   sha256: 058410d2bc12f7562c7b01e0c8cd587cb68059c12f78bc945055e5ddc445f5fd
   patches:
     - patches/0001-Allow-for-custom-CUDA-build.patch
+    - patches/0001-xla-Support-third-party-build-of-boringssl.patch
 
 build:
   number: {{ number }}
