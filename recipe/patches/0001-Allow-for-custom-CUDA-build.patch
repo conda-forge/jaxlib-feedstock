@@ -1,4 +1,4 @@
-From 95d25f8f01b3ad2a006040c8348d16684767932e Mon Sep 17 00:00:00 2001
+From 17365058809e185821f928813d79c61ac0a4bcaf Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwelk@xhochy.com>
 Date: Sun, 8 Oct 2023 19:34:34 +0200
 Subject: [PATCH 1/2] Allow for custom CUDA build
@@ -8,10 +8,10 @@ Subject: [PATCH 1/2] Allow for custom CUDA build
  1 file changed, 5 insertions(+)
 
 diff --git a/build/build.py b/build/build.py
-index ccb1e63..739f881 100755
+index 41994c4..51d2ddc 100755
 --- a/build/build.py
 +++ b/build/build.py
-@@ -247,6 +247,11 @@ def write_bazelrc(*, python_bin_path, remote_build,
+@@ -251,6 +251,11 @@ def write_bazelrc(*, python_bin_path, remote_build,
        f.write("build --action_env TF_CUDA_PATHS=\"{tf_cuda_paths}\"\n"
                .format(tf_cuda_paths=",".join(tf_cuda_paths)))
      if cuda_version:
@@ -23,6 +23,3 @@ index ccb1e63..739f881 100755
        f.write("build --action_env TF_CUDA_VERSION=\"{cuda_version}\"\n"
                .format(cuda_version=cuda_version))
      if cudnn_version:
--- 
-2.39.3 (Apple Git-145)
-
