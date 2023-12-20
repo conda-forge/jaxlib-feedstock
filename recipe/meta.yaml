@@ -35,6 +35,7 @@ requirements:
     - python                                 # [build_platform != target_platform]
     - cross-python_{{ target_platform }}     # [build_platform != target_platform]
     - numpy                                  # [build_platform != target_platform]
+    - llvm-for-tensorflow 14.0.0.jax0420_b3e353  # [build_platform != target_platform]
     - unzip
     # Keep bazel listed twice here to help the migrators track dependencies
     - bazel
