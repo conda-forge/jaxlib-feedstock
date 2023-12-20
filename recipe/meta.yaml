@@ -66,6 +66,7 @@ requirements:
     - libgrpc
     - openssl
     - zlib
+    - llvm-for-tensorflow 14.0.0.jax0420_b3e353
   run:
     - python
     - {{ pin_compatible('numpy') }}
