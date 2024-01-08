@@ -1,5 +1,5 @@
 {% set version = "0.4.23" %}
-{% set number = 0 %}
+{% set number = 1 %}
 
 {% if cuda_compiler_version != "None" %}
 {% set number = number + 200 %}
@@ -17,6 +17,7 @@ source:
   patches:
     - patches/0001-Allow-for-custom-CUDA-build.patch
     - patches/0002-xla-Support-third-party-build-of-boringssl.patch
+    - patches/0001-Pre-register-llvm-project-using-llvm-for-tf.patch
 
 build:
   number: {{ number }}
@@ -29,10 +30,11 @@ requirements:
   build:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
-    - {{ compiler('cuda') }}                 # [cuda_compiler_version != "None"]
-    - python                                 # [build_platform != target_platform]
-    - cross-python_{{ target_platform }}     # [build_platform != target_platform]
-    - numpy                                  # [build_platform != target_platform]
+    - {{ compiler('cuda') }}                  # [cuda_compiler_version != "None"]
+    - python                                  # [build_platform != target_platform]
+    - cross-python_{{ target_platform }}      # [build_platform != target_platform]
+    - numpy                                   # [build_platform != target_platform]
+    - llvm-bazel-cache 18.0.0.jax0423_cd9a64  # [build_platform != target_platform]
     - unzip
     # Keep bazel listed twice here to help the migrators track dependencies
     - bazel
@@ -64,6 +66,7 @@ requirements:
     - libgrpc
     - openssl
     - zlib
+    - llvm-bazel-cache 18.0.0.jax0423_cd9a64
   run:
     - python
     - {{ pin_compatible('numpy') }}
