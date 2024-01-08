@@ -3,7 +3,7 @@
 set -euxo pipefail
 
 # Use pre-built LLVM and MLIR
-cp -r $PREFIX/share/llvm_for_tf llvm-project
+cp -r $PREFIX/share/llvm-bazel-cache llvm-project
 touch llvm-project/utils/BUILD.bazel
 # See https://github.com/tensorflow/tensorflow/blob/3f878cff5b698b82eea85db2b60d65a2e320850e/third_party/llvm/setup.bzl#L6
 echo 'llvm_targets = ["AArch64", "AMDGPU", "ARM", "NVPTX", "PowerPC", "RISCV", "SystemZ", "X86"]' > llvm-project/llvm/targets.bzl
