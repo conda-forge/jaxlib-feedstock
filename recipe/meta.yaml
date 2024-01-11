@@ -21,6 +21,7 @@ requirements:
     - python
     # https://github.com/google/jax/blob/jaxlib-v0.3.25/build/build.py#L197
     - bazel >=5.1.1,<6
+    - bazel-toolchain >=0.1.9
 
   host:
     - python
