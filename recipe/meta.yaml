@@ -1,4 +1,4 @@
-{% set version = "0.4.16" %}
+{% set version = "0.4.23" %}
 {% set name = "jaxlib" %}
 
 package:
@@ -7,7 +7,7 @@ package:
 
 source:
   url: https://github.com/google/jax/archive/{{ name }}-v{{ version }}.tar.gz
-  sha256: 85c8bc050abe0a2cf62e8cfc7edb4904dd3807924b5714ec6277f291c576b5ca
+  sha256: e4c06d62ba54becffd91abc862627b8b11b79c5a77366af8843b819665b6d568
 
 build:
   number: 0
