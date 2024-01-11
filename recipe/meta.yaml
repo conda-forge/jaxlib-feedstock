@@ -11,8 +11,8 @@ source:
 
 build:
   number: 0
-  # ppc64le and s390x are missing bazel. Win not supported by jaxlib.
-  skip: true  # [ppc64le or s390x or win or py<39]
+  # s390x is missing bazel. Win not supported by jaxlib.
+  skip: true  # [s390x or win or py<39]
 
 requirements:
   build:
@@ -35,7 +35,7 @@ requirements:
   run:
     - python
     - {{ pin_compatible('numpy') }}
-    - scipy >=1.7
+    - scipy >=1.9
     - ml_dtypes >=0.2.0
   run_constrained:
     - jax >={{ version }}
