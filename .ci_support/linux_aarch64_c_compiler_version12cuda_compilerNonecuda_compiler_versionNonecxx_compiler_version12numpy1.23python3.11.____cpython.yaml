@@ -9,7 +9,7 @@ cdt_arch:
 cdt_name:
 - cos7
 channel_sources:
-- uwe.korn,conda-forge
+- conda-forge
 channel_targets:
 - conda-forge main
 cuda_compiler:
