@@ -85,7 +85,7 @@ test:
     - pip
   commands:
     - pip check
-    - python test_jaxlib.py
+    - python -X faulthandler test_jaxlib.py
   imports:
     - jaxlib
     # Only this import actually triggers the load of XLA
