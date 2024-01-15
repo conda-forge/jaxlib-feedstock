@@ -1,0 +1,26 @@
+From 554055166574bce7cd3a54b8799856128e4fa632 Mon Sep 17 00:00:00 2001
+From: "Uwe L. Korn" <uwe.korn@quantco.com>
+Date: Wed, 20 Dec 2023 12:02:23 +0100
+Subject: [PATCH] Pre-register llvm-project using llvm-for-tf
+
+---
+ third_party/xla/workspace.bzl | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/third_party/xla/workspace.bzl b/third_party/xla/workspace.bzl
+index ea49377..a51fa87 100644
+--- a/third_party/xla/workspace.bzl
++++ b/third_party/xla/workspace.bzl
+@@ -24,6 +24,12 @@ XLA_COMMIT = "ca31652cdbeb6ea187589dea546ff8019274f8b2"
+ XLA_SHA256 = "15235814a637f2199d2adae05c09dc8f6655737f06713108f970749bc5e87b46"
+ 
+ def repo():
++    native.new_local_repository(
++        name = "llvm-project",
++        path = "llvm-project",
++        build_file_content = "# empty",
++    )
++
+     tf_http_archive(
+         name = "xla",
+         sha256 = XLA_SHA256,

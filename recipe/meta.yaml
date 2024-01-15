@@ -1,5 +1,5 @@
 {% set version = "0.4.23" %}
-{% set number = 0 %}
+{% set number = 1 %}
 
 {% if cuda_compiler_version != "None" %}
 {% set number = number + 200 %}
@@ -17,10 +17,12 @@ source:
   patches:
     - patches/0001-Allow-for-custom-CUDA-build.patch
     - patches/0002-xla-Support-third-party-build-of-boringssl.patch
+    - patches/0001-Pre-register-llvm-project-using-llvm-for-tf.patch
 
 build:
   number: {{ number }}
   skip: true  # [win or py<39]
+  skip: true  # [cuda_compiler_version == "11.2"]
   skip: true  # [cuda_compiler != "None" and aarch64]
   string: cuda{{ cuda_compiler_version | replace('.', '') }}py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [cuda_compiler_version != "None"]
   string: cpu_py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [cuda_compiler_version == "None"]
@@ -29,10 +31,11 @@ requirements:
   build:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
-    - {{ compiler('cuda') }}                 # [cuda_compiler_version != "None"]
-    - python                                 # [build_platform != target_platform]
-    - cross-python_{{ target_platform }}     # [build_platform != target_platform]
-    - numpy                                  # [build_platform != target_platform]
+    - {{ compiler('cuda') }}                  # [cuda_compiler_version != "None"]
+    - python                                  # [build_platform != target_platform]
+    - cross-python_{{ target_platform }}      # [build_platform != target_platform]
+    - numpy                                   # [build_platform != target_platform]
+    - llvm-bazel-cache 18.0.0.jax0423_cd9a64  # [build_platform != target_platform]
     - unzip
     # Keep bazel listed twice here to help the migrators track dependencies
     - bazel
@@ -64,6 +67,7 @@ requirements:
     - libgrpc
     - openssl
     - zlib
+    - llvm-bazel-cache 18.0.0.jax0423_cd9a64
   run:
     - python
     - {{ pin_compatible('numpy') }}
@@ -81,7 +85,7 @@ test:
     - pip
   commands:
     - pip check
-    - python test_jaxlib.py
+    - python -X faulthandler test_jaxlib.py
   imports:
     - jaxlib
     # Only this import actually triggers the load of XLA
