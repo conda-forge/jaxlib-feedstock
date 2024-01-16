@@ -20,6 +20,18 @@ build --define=PROTOBUF_INCLUDE_PATH=${PREFIX}/include
 build --local_cpu_resources=${CPU_COUNT}"
 EOF
 
+# export TF_SYSTEM_LIBS="com_github_googlecloudplatform_google_cloud_cpp"
+
+if [[ "${target_platform}" == "osx-arm64" || "${target_platform}" != "${build_platform}" ]]; then
+    EXTRA="--target_cpu ${TARGET_CPU}"
+else
+    EXTRA="${CUDA_ARGS:-}"
+fi
+${PYTHON} build/build.py \
+    --target_cpu_features default \
+    --enable_mkl_dnn \
+    ${EXTRA}
+
 CUSTOM_BAZEL_OPTIONS="--bazel_options=--logging=6 --bazel_options=--verbose_failures --bazel_options=--toolchain_resolution_debug"
 
 echo "Building...."
