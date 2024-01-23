@@ -19,10 +19,10 @@ requirements:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
     - python
-    # https://github.com/google/jax/blob/jaxlib-v0.3.25/build/build.py#L197
-    - bazel >=5.1.1,<6
+    # https://github.com/google/jax/blob/jaxlib-v0.4.23/build/build.py#L207
+    # https://github.com/google/jax/blob/jaxlib-v0.4.23/build/build.py#L98
+    - bazel >=5.1.1,<7
     - bazel-toolchain >=0.1.9
-
   host:
     - python
     - pip
@@ -36,7 +36,8 @@ requirements:
   run:
     - python
     - {{ pin_compatible('numpy') }}
-    - scipy >=1.9
+    - scipy >=1.9     # [py<312]
+    - scipy >= 1.11.1 # [py>=312]
     - ml_dtypes >=0.2.0
   run_constrained:
     - jax >={{ version }}
