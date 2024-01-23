@@ -37,7 +37,7 @@ requirements:
     - python
     - {{ pin_compatible('numpy') }}
     - scipy >=1.9     # [py<312]
-    - scipy >= 1.11.1 # [py>=312]
+    - scipy >=1.11.1  # [py>=312]
     - ml_dtypes >=0.2.0
   run_constrained:
     - jax >={{ version }}
