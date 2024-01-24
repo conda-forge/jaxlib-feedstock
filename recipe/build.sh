@@ -8,6 +8,21 @@ else
   export LDFLAGS="${LDFLAGS} -lrt"
 fi
 
+if [[ "${target_platform}" == linux-aarch64 ]]; then
+  echo "TODO debug why using gen-bazel-toolchain leads to undeclared inclusion(s) of pybind11"
+else
+source gen-bazel-toolchain
+
+cat >> .bazelrc <<EOF
+build --crosstool_top=//bazel_toolchain:toolchain
+build --logging=6
+build --verbose_failures
+build --toolchain_resolution_debug
+build --define=PREFIX=${PREFIX}
+build --define=PROTOBUF_INCLUDE_PATH=${PREFIX}/include
+build --local_cpu_resources=${CPU_COUNT}"
+EOF
+fi
 
 CUSTOM_BAZEL_OPTIONS="--bazel_options=--logging=6 --bazel_options=--verbose_failures --bazel_options=--toolchain_resolution_debug"
 

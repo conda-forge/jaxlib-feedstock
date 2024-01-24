@@ -1,4 +1,4 @@
-{% set version = "0.4.16" %}
+{% set version = "0.4.23" %}
 {% set name = "jaxlib" %}
 
 package:
@@ -7,21 +7,22 @@ package:
 
 source:
   url: https://github.com/google/jax/archive/{{ name }}-v{{ version }}.tar.gz
-  sha256: 85c8bc050abe0a2cf62e8cfc7edb4904dd3807924b5714ec6277f291c576b5ca
+  sha256: e4c06d62ba54becffd91abc862627b8b11b79c5a77366af8843b819665b6d568
 
 build:
   number: 0
-  # ppc64le and s390x are missing bazel. Win not supported by jaxlib.
-  skip: true  # [ppc64le or s390x or win or py<39]
+  # s390x is missing bazel. Win not supported by jaxlib.
+  skip: true  # [s390x or win or py<39]
 
 requirements:
   build:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
     - python
-    # https://github.com/google/jax/blob/jaxlib-v0.3.25/build/build.py#L197
-    - bazel >=5.1.1,<6
-
+    # https://github.com/google/jax/blob/jaxlib-v0.4.23/build/build.py#L207
+    # https://github.com/google/jax/blob/jaxlib-v0.4.23/build/build.py#L98
+    - bazel >=5.1.1,<7
+    - bazel-toolchain >=0.1.9
   host:
     - python
     - pip
@@ -35,7 +36,8 @@ requirements:
   run:
     - python
     - {{ pin_compatible('numpy') }}
-    - scipy >=1.7
+    - scipy >=1.9     # [py<312]
+    - scipy >=1.11.1  # [py>=312]
     - ml_dtypes >=0.2.0
   run_constrained:
     - jax >={{ version }}
