@@ -46,6 +46,7 @@ requirements:
     - flatbuffers <2.0.6
     # list libabseil here to ensure pinning correctly
     - libabseil
+    - abseil-cpp
   host:
     - cudnn      # [cuda_compiler_version != "None"]
     - nccl       # [cuda_compiler_version != "None"]
@@ -60,6 +61,7 @@ requirements:
     - python-build <1
     # list libabseil here to ensure pinning correctly
     - libabseil
+    - abseil-cpp
     - flatbuffers <2.0.6
     - libgrpc
     - openssl
