@@ -1,0 +1,11 @@
+diff --git a/WORKSPACE b/WORKSPACE
+--- a/WORKSPACE	(revision 1c68577dcdf70b4c0b42805d279b6a5c04d144fe)
++++ b/WORKSPACE	(date 1707582996978)
+@@ -26,3 +26,5 @@
+ load("//third_party/nanobind:workspace.bzl", nanobind = "repo")
+ nanobind()
+ 
++load("//third_party/absl:workspace.bzl", absl = "repo")
++absl()
+diff --git a/third_party/absl/BUILD.bazel b/third_party/absl/BUILD.bazel
+new file mode 100644
