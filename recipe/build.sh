@@ -72,19 +72,6 @@ if [[ "${target_platform}" == "osx-64" ]]; then
   TARGET_CPU=darwin
 fi
 
-# Try to force using CF absl
-cat <<EOF >third_party/absl/workspace.bzl
-def repo():
-    local_repository(
-        name = "com_google_absl",
-        path = "$PREFIX/lib",
-    )
-
-EOF
-
-echo "ABSL BAZEL CONTENTS"
-cat third_party/absl/workspace.bzl
-
 # Force static linkage with protobuf to avoid definition collisions,
 # see https://github.com/conda-forge/jaxlib-feedstock/issues/89
 #
@@ -99,6 +86,7 @@ fi
 ${PYTHON} build/build.py \
     --target_cpu_features default \
     --enable_mkl_dnn \
+    --bazel_options=--override_repository=com_google_absl=$PREFIX/lib \
     ${EXTRA}
 
 # Clean up to speedup postprocessing

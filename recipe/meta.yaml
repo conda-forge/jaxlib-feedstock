@@ -17,7 +17,6 @@ source:
   patches:
     - patches/0001-Allow-for-custom-CUDA-build.patch
     - patches/0002-xla-Support-third-party-build-of-boringssl.patch
-    - patches/0003-add-absl-placeholder.patch
 
 build:
   number: {{ number }}
