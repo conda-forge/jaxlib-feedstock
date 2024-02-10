@@ -72,6 +72,26 @@ if [[ "${target_platform}" == "osx-64" ]]; then
   TARGET_CPU=darwin
 fi
 
+# Try to force using CF absl
+
+PREFIX_LIB="${PREFIX}/lib"
+
+cat <<EOF >third_party/xla/0002-Support-third-party-build-of-absl.patch
+diff --git a/WORKSPACE b/WORKSPACE
+--- a/WORKSPACE	(revision a487d8ba5da8d0dec056972270e50de6748a1035)
++++ b/WORKSPACE	(date 1707581277152)
+@@ -25,3 +25,8 @@
+ load(":workspace0.bzl", "xla_workspace0")
+ 
+ xla_workspace0()
++
++local_repository(
++    name = "com_google_absl",
++    path = "$PREFIX/lib",
++)
+\ No newline at end of file
+EOF
+
 # Force static linkage with protobuf to avoid definition collisions,
 # see https://github.com/conda-forge/jaxlib-feedstock/issues/89
 #
