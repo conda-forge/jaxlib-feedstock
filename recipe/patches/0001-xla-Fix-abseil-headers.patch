@@ -1,0 +1,79 @@
+From f14f07e11324414f007b9aa3dfc125c4dbb357f0 Mon Sep 17 00:00:00 2001
+From: "Uwe L. Korn" <uwelk@xhochy.com>
+Date: Sun, 11 Feb 2024 20:18:13 +0100
+Subject: [PATCH] xla: Fix abseil headers
+
+---
+ third_party/xla/0001-Fix-abseil-headers.patch | 47 +++++++++++++++++++
+ third_party/xla/workspace.bzl                 |  1 +
+ 2 files changed, 48 insertions(+)
+ create mode 100644 third_party/xla/0001-Fix-abseil-headers.patch
+
+diff --git a/third_party/xla/0001-Fix-abseil-headers.patch b/third_party/xla/0001-Fix-abseil-headers.patch
+new file mode 100644
+index 0000000..41f411e
+--- /dev/null
++++ b/third_party/xla/0001-Fix-abseil-headers.patch
+@@ -0,0 +1,47 @@
++From 97ff4aad5cbb51103ff2bd0880af454b324ff6af Mon Sep 17 00:00:00 2001
++From: "Uwe L. Korn" <uwelk@xhochy.com>
++Date: Sun, 11 Feb 2024 19:35:02 +0100
++Subject: [PATCH] Fix abseil headers
++
++---
++ third_party/tsl/tsl/distributed_runtime/rpc/BUILD | 1 +
++ third_party/tsl/tsl/profiler/rpc/client/BUILD     | 4 ++++
++ 2 files changed, 5 insertions(+)
++
++diff --git a/third_party/tsl/tsl/distributed_runtime/rpc/BUILD b/third_party/tsl/tsl/distributed_runtime/rpc/BUILD
++index 9b52ee1cb..875b575b4 100644
++--- a/third_party/tsl/tsl/distributed_runtime/rpc/BUILD
+++++ b/third_party/tsl/tsl/distributed_runtime/rpc/BUILD
++@@ -43,6 +43,7 @@ cc_library(
++         "//tsl/platform:stringprintf",
++         "//tsl/protobuf:distributed_runtime_payloads_proto_cc",
++         "@com_google_absl//absl/status",
+++        "@com_google_absl//absl/status:statusor",
++         "@com_google_absl//absl/strings:cord",
++     ] + tsl_grpc_cc_dependencies(),
++ )
++diff --git a/third_party/tsl/tsl/profiler/rpc/client/BUILD b/third_party/tsl/tsl/profiler/rpc/client/BUILD
++index fb3a39cd1..2b93965e8 100644
++--- a/third_party/tsl/tsl/profiler/rpc/client/BUILD
+++++ b/third_party/tsl/tsl/profiler/rpc/client/BUILD
++@@ -100,6 +100,8 @@ cc_library(
++         "//tsl/platform:status",
++         "//tsl/profiler/protobuf:profiler_analysis_cc_grpc_proto",
++         "//tsl/profiler/protobuf:profiler_service_cc_grpc_proto",
+++        "@com_google_absl//absl/status",
+++        "@com_google_absl//absl/status:statusor",
++         "@com_google_absl//absl/strings",
++         "@com_google_absl//absl/time",
++     ],
++@@ -128,6 +130,8 @@ cc_library(
++         "//tsl/profiler/protobuf:profiler_service_cc_grpc_proto",
++         "//tsl/protobuf:error_codes_proto_impl_cc",
++         "@com_google_absl//absl/memory",
+++        "@com_google_absl//absl/status",
+++        "@com_google_absl//absl/status:statusor",
++         "@com_google_absl//absl/strings",
++         "@com_google_absl//absl/time",
++     ] + tsl_grpc_cc_dependencies(),
++-- 
++2.43.0
++
+diff --git a/third_party/xla/workspace.bzl b/third_party/xla/workspace.bzl
+index 456a0a8..a1bc834 100644
+--- a/third_party/xla/workspace.bzl
++++ b/third_party/xla/workspace.bzl
+@@ -32,6 +32,7 @@ def repo():
+         patch_file = [
+             "//third_party/xla:log.patch",
+             "//third_party/xla:0001-Support-third-party-build-of-boringssl.patch",
++            "//third_party/xla:0001-Fix-abseil-headers.patch",
+         ],
+     )
+ 
+-- 
+2.39.3 (Apple Git-145)
+
