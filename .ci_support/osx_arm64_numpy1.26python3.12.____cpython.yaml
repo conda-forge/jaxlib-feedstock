@@ -21,9 +21,9 @@ cxx_compiler_version:
 libabseil:
 - '20240116'
 libgrpc:
-- '1.61'
+- '1.62'
 libprotobuf:
-- 4.25.2
+- 4.25.3
 macos_machine:
 - arm64-apple-darwin20.0.0
 numpy:
