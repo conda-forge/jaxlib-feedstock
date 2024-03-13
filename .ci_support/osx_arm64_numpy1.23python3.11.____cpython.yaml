@@ -18,12 +18,14 @@ cxx_compiler:
 - clangxx
 cxx_compiler_version:
 - '16'
+github_actions_labels:
+- cirun-openstack-cpu-large
 libabseil:
 - '20230802'
 libgrpc:
-- '1.59'
+- '1.60'
 libprotobuf:
-- 4.24.4
+- 4.25.1
 macos_machine:
 - arm64-apple-darwin20.0.0
 numpy:
@@ -41,8 +43,6 @@ target_platform:
 zip_keys:
 - - c_compiler_version
   - cxx_compiler_version
-- - libgrpc
-  - libprotobuf
 - - python
   - numpy
 zlib:
