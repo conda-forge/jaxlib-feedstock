@@ -47,7 +47,7 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
 fi
 
 if [[ "$CI" == "github_actions" ]]; then
-  export CPU_COUNT=4
+  export CPU_COUNT=3
 fi
 
 source gen-bazel-toolchain
