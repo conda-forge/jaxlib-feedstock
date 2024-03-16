@@ -9,7 +9,6 @@ conda_forge_output_validation: true
 github:
   branch_name: main
   tooling_branch_name: main
-test_on_native_only: true
 github_actions:
   self_hosted: true
   triggers:
