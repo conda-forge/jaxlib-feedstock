@@ -20,6 +20,8 @@ cxx_compiler_version:
 - '12'
 docker_image:
 - quay.io/condaforge/linux-anvil-cos7-x86_64
+github_actions_labels:
+- cirun-openstack-cpu-large
 libabseil:
 - '20240116'
 libgrpc:
@@ -47,8 +49,6 @@ zip_keys:
   - cuda_compiler
   - cuda_compiler_version
   - docker_image
-- - libgrpc
-  - libprotobuf
 - - python
   - numpy
 zlib:

@@ -13,18 +13,17 @@ export CFLAGS="${CFLAGS} -DNDEBUG"
 export CXXFLAGS="${CXXFLAGS} -DNDEBUG"
 
 if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
-    if [[ ${cuda_compiler_version} == 10.* ]]; then
-        export TF_CUDA_COMPUTE_CAPABILITIES=sm_35,sm_50,sm_60,sm_62,sm_70,sm_72,sm_75,compute_75
-    elif [[ ${cuda_compiler_version} == 11.0* ]]; then
-        export TF_CUDA_COMPUTE_CAPABILITIES=sm_35,sm_50,sm_60,sm_62,sm_70,sm_72,sm_75,sm_80,compute_80
-    elif [[ ${cuda_compiler_version} == 11.1 ]]; then
-        export TF_CUDA_COMPUTE_CAPABILITIES=sm_35,sm_50,sm_60,sm_62,sm_70,sm_72,sm_75,sm_80,sm_86,compute_86
-    elif [[ ${cuda_compiler_version} == 11.2 ]]; then
-        export TF_CUDA_COMPUTE_CAPABILITIES=sm_35,sm_50,sm_60,sm_62,sm_70,sm_72,sm_75,sm_80,sm_86,compute_86
-	export CFLAGS="-DTF_CUPTI_HAS_CHANNEL_ID=0 ${CFLAGS}"
-	export CXXFLAGS="-DTF_CUPTI_HAS_CHANNEL_ID=0 ${CXXFLAGS}"
-    elif [[ ${cuda_compiler_version} == 11.8 ]]; then
+    if [[ ${cuda_compiler_version} == 11.8 ]]; then
         export TF_CUDA_COMPUTE_CAPABILITIES=sm_35,sm_50,sm_60,sm_62,sm_70,sm_72,sm_75,sm_80,sm_86,sm_87,sm_89,sm_90,compute_90
+	export TF_CUDA_PATHS="${CUDA_HOME},${PREFIX}"
+    elif [[ ${cuda_compiler_version} == 12* ]]; then
+        export TF_CUDA_COMPUTE_CAPABILITIES=sm_60,sm_70,sm_75,sm_80,sm_86,sm_89,sm_90,compute_90
+        export CUDA_HOME="${BUILD_PREFIX}/targets/x86_64-linux"
+        export TF_CUDA_PATHS="${BUILD_PREFIX}/targets/x86_64-linux,${PREFIX}/targets/x86_64-linux"
+	# Needed for some nvcc binaries
+	export PATH=$PATH:${BUILD_PREFIX}/nvvm/bin
+	# XLA can only cope with a single cuda header include directory, merge both
+	rsync -a ${PREFIX}/targets/x86_64-linux/include/ ${BUILD_PREFIX}/targets/x86_64-linux/include/
     else
         echo "unsupported cuda version."
         exit 1
@@ -32,7 +31,6 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
 
     export TF_CUDA_VERSION="${cuda_compiler_version}"
     export TF_CUDNN_VERSION="${cudnn}"
-    export TF_CUDA_PATHS="${PREFIX},${CUDA_HOME}"
     if [[ "${target_platform}" == "linux-aarch64" ]]; then
         export TF_CUDA_PATHS="${CUDA_HOME}/targets/sbsa-linux,${TF_CUDA_PATHS}"
     fi
@@ -41,11 +39,15 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
 
     CUDA_ARGS="--enable_cuda \
                --enable_nccl \
-               --cuda_path=$CUDA_HOME \
-               --cudnn_path=$PREFIX   \
+               --cuda_path=${TF_CUDA_PATHS} \
+               --cudnn_path=${PREFIX}   \
                --cuda_compute_capabilities=$TF_CUDA_COMPUTE_CAPABILITIES \
                --cuda_version=$TF_CUDA_VERSION \
                --cudnn_version=$TF_CUDNN_VERSION"
+fi
+
+if [[ "$CI" == "github_actions" ]]; then
+  export CPU_COUNT=2
 fi
 
 source gen-bazel-toolchain
