@@ -158,7 +158,7 @@ jobs:
         ./.scripts/run_osx_build.sh
 
     - name: Install Miniconda for windows
-      uses: conda-incubator/setup-miniconda@v2
+      uses: conda-incubator/setup-miniconda@v3
       with:
         miniforge-version: latest
         miniforge-variant: Mambaforge
