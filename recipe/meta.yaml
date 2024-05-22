@@ -80,7 +80,6 @@ requirements:
     - zlib
   run:
     - python
-    - {{ pin_compatible('numpy') }}
     - scipy >=1.9
     - ml_dtypes >=0.2.0
     - __cuda  # [cuda_compiler_version != "None"]
