@@ -77,9 +77,7 @@ index a6f972c..456a0a8 100644
          sha256 = XLA_SHA256,
          strip_prefix = "xla-{commit}".format(commit = XLA_COMMIT),
          urls = tf_mirror_urls("https://github.com/openxla/xla/archive/{commit}.tar.gz".format(commit = XLA_COMMIT)),
--        patch_file = ["//third_party/xla:log.patch"],
 +        patch_file = [
-+            "//third_party/xla:log.patch",
 +            "//third_party/xla:0001-Support-third-party-build-of-boringssl.patch",
 +        ],
      )
