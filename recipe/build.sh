@@ -46,7 +46,7 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
                --cudnn_version=$TF_CUDNN_VERSION"
 fi
 
-if [[ "$CI" == "github_actions" ]]; then
+if [[ "${CI:-}" == "github_actions" ]]; then
   export CPU_COUNT=2
 fi
 

@@ -1,12 +1,12 @@
-From 3eadf03384f6967042a8f5c48c541cafbf784132 Mon Sep 17 00:00:00 2001
+From c7a275fc1ec8a7a79d4eaa7cad4204b1aedfe37b Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwe.korn@quantco.com>
 Date: Thu, 14 Dec 2023 17:06:15 +0100
-Subject: [PATCH 2/2] xla: Support third-party build of boringssl
+Subject: [PATCH 2/3] xla: Support third-party build of boringssl
 
 ---
  ...pport-third-party-build-of-boringssl.patch | 54 +++++++++++++++++++
- third_party/xla/workspace.bzl                 |  5 +-
- 2 files changed, 58 insertions(+), 1 deletion(-)
+ third_party/xla/workspace.bzl                 |  3 ++
+ 2 files changed, 57 insertions(+)
  create mode 100644 third_party/xla/0001-Support-third-party-build-of-boringssl.patch
 
 diff --git a/third_party/xla/0001-Support-third-party-build-of-boringssl.patch b/third_party/xla/0001-Support-third-party-build-of-boringssl.patch
@@ -70,16 +70,14 @@ index 0000000..1f11444
 +2.43.0
 +
 diff --git a/third_party/xla/workspace.bzl b/third_party/xla/workspace.bzl
-index a6f972c..456a0a8 100644
+index 0b09fa9..b81e13a 100644
 --- a/third_party/xla/workspace.bzl
 +++ b/third_party/xla/workspace.bzl
-@@ -29,7 +29,10 @@ def repo():
+@@ -29,6 +29,9 @@ def repo():
          sha256 = XLA_SHA256,
          strip_prefix = "xla-{commit}".format(commit = XLA_COMMIT),
          urls = tf_mirror_urls("https://github.com/openxla/xla/archive/{commit}.tar.gz".format(commit = XLA_COMMIT)),
--        patch_file = ["//third_party/xla:log.patch"],
 +        patch_file = [
-+            "//third_party/xla:log.patch",
 +            "//third_party/xla:0001-Support-third-party-build-of-boringssl.patch",
 +        ],
      )
