@@ -1,7 +1,7 @@
-From 3c66e397754fd18c003eb047bf48593dd5a4cee5 Mon Sep 17 00:00:00 2001
+From 730f54ecf5bd630de69368e0a1108737289ecb38 Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwelk@xhochy.com>
 Date: Sun, 11 Feb 2024 20:18:13 +0100
-Subject: [PATCH 3/3] xla: Fix abseil headers
+Subject: [PATCH 3/4] xla: Fix abseil headers
 
 ---
  third_party/xla/0001-Fix-abseil-headers.patch | 47 +++++++++++++++++++
