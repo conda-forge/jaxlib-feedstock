@@ -1,0 +1,56 @@
+From 8e28aa73a45c296914c3f4e19c748418303de190 Mon Sep 17 00:00:00 2001
+From: "Uwe L. Korn" <uwe.korn@quantco.com>
+Date: Mon, 24 Jun 2024 16:42:05 +0200
+Subject: [PATCH 4/4] Upstream xla Patch
+
+---
+ ...4cd346594fc7ea2fe75570c9c53a4a444f60.patch | 27 +++++++++++++++++++
+ third_party/xla/workspace.bzl                 |  1 +
+ 2 files changed, 28 insertions(+)
+ create mode 100644 third_party/xla/7a614cd346594fc7ea2fe75570c9c53a4a444f60.patch
+
+diff --git a/third_party/xla/7a614cd346594fc7ea2fe75570c9c53a4a444f60.patch b/third_party/xla/7a614cd346594fc7ea2fe75570c9c53a4a444f60.patch
+new file mode 100644
+index 0000000..44abc07
+--- /dev/null
++++ b/third_party/xla/7a614cd346594fc7ea2fe75570c9c53a4a444f60.patch
+@@ -0,0 +1,27 @@
++From 7a614cd346594fc7ea2fe75570c9c53a4a444f60 Mon Sep 17 00:00:00 2001
++From: David Majnemer <majnemer@google.com>
++Date: Mon, 5 Feb 2024 11:12:46 -0800
++Subject: [PATCH] [XLA:GPU] Fix macOS build
++
++DelinearizeInBoundsIndex returns a `llvm::SmallVector<AffineExpr, 4>` but
++`result` has type `llvm::SmallVector<AffineExpr>` which can cause compilers to
++complain that there is no known conversion available.
++
++PiperOrigin-RevId: 604374810
++---
++ xla/service/gpu/model/indexing_analysis.cc | 2 +-
++ 1 file changed, 1 insertion(+), 1 deletion(-)
++
++diff --git a/xla/service/gpu/model/indexing_analysis.cc b/xla/service/gpu/model/indexing_analysis.cc
++index 4f9c36faf422d..e859b8c98d02d 100644
++--- a/xla/service/gpu/model/indexing_analysis.cc
+++++ b/xla/service/gpu/model/indexing_analysis.cc
++@@ -687,7 +687,7 @@ std::vector<int64_t> ToTransposeDimensions(const Layout& l) {
++ llvm::SmallVector<AffineExpr, 4> DelinearizeInBoundsIndex(
++     mlir::AffineExpr linear, absl::Span<const int64_t> sizes,
++     absl::Span<const int64_t> strides) {
++-  llvm::SmallVector<AffineExpr> result;
+++  llvm::SmallVector<AffineExpr, 4> result;
++   result.reserve(sizes.size());
++   for (auto [size, stride] : llvm::zip(sizes, strides)) {
++     result.push_back(linear.floorDiv(stride) % size);
+diff --git a/third_party/xla/workspace.bzl b/third_party/xla/workspace.bzl
+index 9671b9b..76f050d 100644
+--- a/third_party/xla/workspace.bzl
++++ b/third_party/xla/workspace.bzl
+@@ -32,6 +32,7 @@ def repo():
+         patch_file = [
+             "//third_party/xla:0001-Support-third-party-build-of-boringssl.patch",
+             "//third_party/xla:0001-Fix-abseil-headers.patch",
++	    "//third_party/xla:7a614cd346594fc7ea2fe75570c9c53a4a444f60.patch",
+         ],
+     )
+ 
