@@ -21,7 +21,7 @@ source:
 
 build:
   number: {{ number }}
-  skip: true  # [win or py<39]
+  skip: true  # [(not win) or py<39]
   skip: true  # [cuda_compiler != "None" and aarch64]
   skip: true  # [cuda_compiler_version == "11.2"]
   string: cuda{{ cuda_compiler_version | replace('.', '') }}py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [cuda_compiler_version != "None"]
