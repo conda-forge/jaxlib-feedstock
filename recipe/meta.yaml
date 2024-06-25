@@ -38,12 +38,12 @@ requirements:
     - python                                 # [build_platform != target_platform]
     - cross-python_{{ target_platform }}     # [build_platform != target_platform]
     - numpy                                  # [build_platform != target_platform]
-    - unzip
+    - unzip   # [unix]
     - rsync  # [(cuda_compiler_version or "").startswith("12")]
     # Keep bazel listed twice here to help the migrators track dependencies
     - bazel
     - bazel >=5.1.1,<6
-    - bazel-toolchain >=0.1.10
+    - bazel-toolchain >=0.1.10  # [unix]
     # need protoc
     - libprotobuf
     # needs protoc-gen-grpc
