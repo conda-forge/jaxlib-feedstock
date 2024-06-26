@@ -1,7 +1,7 @@
-From 691dd89b6d14b7c71302a46f54b1564c486ea7ba Mon Sep 17 00:00:00 2001
+From a7ae8b8397a8a3f0f1206c08f3461aff9b686670 Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwe.korn@quantco.com>
 Date: Thu, 14 Dec 2023 17:06:15 +0100
-Subject: [PATCH 2/4] xla: Support third-party build of boringssl
+Subject: [PATCH 2/3] xla: Support third-party build of boringssl
 
 ---
  ...pport-third-party-build-of-boringssl.patch | 54 +++++++++++++++++++
@@ -70,7 +70,7 @@ index 0000000..1f11444
 +2.43.0
 +
 diff --git a/third_party/xla/workspace.bzl b/third_party/xla/workspace.bzl
-index 0b09fa9..b81e13a 100644
+index ebc8d98..ebb0137 100644
 --- a/third_party/xla/workspace.bzl
 +++ b/third_party/xla/workspace.bzl
 @@ -29,6 +29,9 @@ def repo():
