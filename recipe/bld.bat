@@ -2,6 +2,10 @@
 
 set "BAZEL_SH=%BUILD_PREFIX%\Library\usr\bin\bash.exe"
 
+echo "build --local_cpu_resources=1" >> .bazelrc
+
+type .bazelrc
+
 %PYTHON% build/build.py --target_cpu_features default --enable_mkl_dnn
 if %ERRORLEVEL% neq 0 exit 1
 
