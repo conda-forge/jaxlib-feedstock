@@ -3,6 +3,9 @@
 set "BAZEL_SH=%BUILD_PREFIX%\Library\usr\bin\bash.exe"
 
 echo "build --local_cpu_resources=1" >> .bazelrc
+echo "--extra_toolchains=@local_config_cc//:cc-toolchain-x64_windows-clang-cl" >> .bazelrc
+echo "--extra_execution_platforms=//jax/tools/toolchains:x64_windows-clang-cl" >> .bazelrc
+echo "--compiler=clang-cl" >> .bazelrc
 
 type .bazelrc
 
