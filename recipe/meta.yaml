@@ -1,4 +1,4 @@
-{% set version = "0.4.25" %}
+{% set version = "0.4.26" %}
 {% set number = 0 %}
 
 {% if cuda_compiler_version != "None" %}
@@ -13,7 +13,7 @@ package:
 source:
   # only pull sources after upstream PyPI release...
   url: https://github.com/google/jax/archive/jaxlib-v{{ version }}.tar.gz
-  sha256: fc1197c401924942eb14185a61688d0c476e3e81ff71f9dc95e620b57c06eec8
+  sha256: ddc14da1eaa34f23430d40ad9b9585088575cac439a2fa1c6833a247e1b221fd
   patches:
     - patches/0001-Allow-for-custom-CUDA-build.patch
     - patches/0002-xla-Support-third-party-build-of-boringssl.patch
@@ -41,7 +41,7 @@ requirements:
     - rsync  # [(cuda_compiler_version or "").startswith("12")]
     # Keep bazel listed twice here to help the migrators track dependencies
     - bazel
-    - bazel >=5.1.1,<6
+    - bazel 6.*
     - bazel-toolchain >=0.1.10
     # need protoc
     - libprotobuf
