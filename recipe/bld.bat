@@ -6,7 +6,8 @@ echo "build --local_cpu_resources=1" >> .bazelrc
 
 type .bazelrc
 
-set "TF_SYSTEM_LIBS=boringssl,com_github_googlecloudplatform_google_cloud_cpp,com_github_grpc_grpc,flatbuffers,zlib"
+@rem set "TF_SYSTEM_LIBS=boringssl,com_github_googlecloudplatform_google_cloud_cpp,com_github_grpc_grpc,flatbuffers,zlib"
+set "TF_SYSTEM_LIBS=boringssl,com_github_googlecloudplatform_google_cloud_cpp,com_github_grpc_grpc,flatbuffers"
 
 %PYTHON% build/build.py --target_cpu_features default --enable_mkl_dnn
 if %ERRORLEVEL% neq 0 exit 1
