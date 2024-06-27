@@ -1,8 +1,8 @@
 {% set version = "0.4.27" %}
-{% set number = 0 %}
+{% set build = 0 %}
 
 {% if cuda_compiler_version != "None" %}
-{% set number = number + 200 %}
+{% set build = build + 200 %}
 {% endif %}
 
 
@@ -20,7 +20,7 @@ source:
     - patches/0003-xla-Fix-abseil-headers.patch
 
 build:
-  number: {{ number }}
+  number: {{ build }}
   skip: true  # [win or py<39]
   skip: true  # [cuda_compiler != "None" and aarch64]
   skip: true  # [cuda_compiler_version == "11.2"]
