@@ -4,7 +4,9 @@ set "BAZEL_SH=%BUILD_PREFIX%\Library\usr\bin\bash.exe"
 
 echo "build --local_cpu_resources=1" >> .bazelrc
 
+@rem Debug information, can be commented
 type .bazelrc
+set
 
 @rem set "TF_SYSTEM_LIBS=boringssl,com_github_googlecloudplatform_google_cloud_cpp,com_github_grpc_grpc,flatbuffers,zlib"
 set "TF_SYSTEM_LIBS=boringssl,com_github_googlecloudplatform_google_cloud_cpp,com_github_grpc_grpc,flatbuffers"
