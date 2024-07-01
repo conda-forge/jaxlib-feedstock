@@ -1,5 +1,8 @@
 azure:
   free_disk_space: true
+  settings_win:
+    variables:
+      SET_PAGEFILE: 'True'
 build_platform:
   linux_aarch64: linux_64
   osx_arm64: osx_64
