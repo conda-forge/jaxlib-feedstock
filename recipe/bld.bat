@@ -12,6 +12,7 @@ set
 set "TF_SYSTEM_LIBS=boringssl,com_github_googlecloudplatform_google_cloud_cpp,com_github_grpc_grpc,flatbuffers"
 
 %PYTHON% build/build.py --target_cpu_features default --enable_mkl_dnn
+type bazel-out\x64_windows-opt\bin\external\tsl\tsl\distributed_runtime\rpc\_objs\grpc_util\grpc_util.obj.params
 if %ERRORLEVEL% neq 0 exit 1
 
 @rem Clean up to speedup postprocessing
