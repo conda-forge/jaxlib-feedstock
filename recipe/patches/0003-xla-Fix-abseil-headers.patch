@@ -1,4 +1,4 @@
-From 67075c53bebacbeeda10271e2d5bcb31d4050964 Mon Sep 17 00:00:00 2001
+From a2289727178005a404d8fd6e81b00d8f57418d87 Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwelk@xhochy.com>
 Date: Sun, 11 Feb 2024 20:18:13 +0100
 Subject: [PATCH 3/3] xla: Fix abseil headers
@@ -11,39 +11,27 @@ Subject: [PATCH 3/3] xla: Fix abseil headers
 
 diff --git a/third_party/xla/0001-Fix-abseil-headers.patch b/third_party/xla/0001-Fix-abseil-headers.patch
 new file mode 100644
-index 0000000..ad2cbaa
+index 0000000..8ca492c
 --- /dev/null
 +++ b/third_party/xla/0001-Fix-abseil-headers.patch
 @@ -0,0 +1,73 @@
-+From 138a28794618469fbcab7634c5febca42e10fef6 Mon Sep 17 00:00:00 2001
++From f7f47d5057a1595cfa2bdbcc9db9ba1ac04dac15 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 23 May 2024 15:45:52 +0200
-+Subject: [PATCH] Fix abseil headers
++Subject: [PATCH 2/2] Fix abseil headers
 +
 +---
-+ third_party/tsl/tsl/distributed_runtime/rpc/BUILD | 1 +
-+ third_party/tsl/tsl/platform/default/BUILD        | 2 ++
-+ third_party/tsl/tsl/profiler/rpc/client/BUILD     | 4 ++++
-+ xla/python/ifrt_proxy/common/BUILD                | 3 +++
++ third_party/tsl/tsl/platform/default/BUILD    | 2 ++
++ third_party/tsl/tsl/profiler/rpc/client/BUILD | 4 ++++
++ xla/python/ifrt_proxy/common/BUILD            | 3 +++
++ xla/tsl/distributed_runtime/rpc/BUILD         | 1 +
 + 4 files changed, 10 insertions(+)
 +
-+diff --git a/third_party/tsl/tsl/distributed_runtime/rpc/BUILD b/third_party/tsl/tsl/distributed_runtime/rpc/BUILD
-+index ae18059b63..8b2f356a08 100644
-+--- a/third_party/tsl/tsl/distributed_runtime/rpc/BUILD
-++++ b/third_party/tsl/tsl/distributed_runtime/rpc/BUILD
-+@@ -42,6 +42,7 @@ cc_library(
-+         "//tsl/platform:stringprintf",
-+         "//tsl/protobuf:distributed_runtime_payloads_proto_cc",
-+         "@com_google_absl//absl/status",
-++        "@com_google_absl//absl/status:statusor",
-+         "@com_google_absl//absl/strings:cord",
-+     ] + tsl_grpc_cc_dependencies(),
-+ )
 +diff --git a/third_party/tsl/tsl/platform/default/BUILD b/third_party/tsl/tsl/platform/default/BUILD
-+index 6b0e9a8c8c..d3c406fb7b 100644
++index 5adfc6b58d..34387f9a25 100644
 +--- a/third_party/tsl/tsl/platform/default/BUILD
 ++++ b/third_party/tsl/tsl/platform/default/BUILD
-+@@ -221,6 +221,8 @@ cc_library(
++@@ -220,6 +220,8 @@ cc_library(
 +     deps = [
 +         "//tsl/platform:logging",
 +         "@com_google_absl//absl/log:check",
@@ -53,10 +41,10 @@ index 0000000..ad2cbaa
 + )
 + 
 +diff --git a/third_party/tsl/tsl/profiler/rpc/client/BUILD b/third_party/tsl/tsl/profiler/rpc/client/BUILD
-+index 1dd7d8a227..ab28e814e5 100644
++index 03f8c1deff..1f081a14d1 100644
 +--- a/third_party/tsl/tsl/profiler/rpc/client/BUILD
 ++++ b/third_party/tsl/tsl/profiler/rpc/client/BUILD
-+@@ -100,6 +100,8 @@ cc_library(
++@@ -101,6 +101,8 @@ cc_library(
 +         "//tsl/platform:status",
 +         "//tsl/profiler/protobuf:profiler_analysis_cc_grpc_proto",
 +         "//tsl/profiler/protobuf:profiler_service_cc_grpc_proto",
@@ -65,7 +53,7 @@ index 0000000..ad2cbaa
 +         "@com_google_absl//absl/strings",
 +         "@com_google_absl//absl/time",
 +     ],
-+@@ -126,6 +128,8 @@ cc_library(
++@@ -127,6 +129,8 @@ cc_library(
 +         "//tsl/platform:types",
 +         "//tsl/profiler/protobuf:profiler_analysis_cc_grpc_proto",
 +         "//tsl/profiler/protobuf:profiler_service_cc_grpc_proto",
@@ -75,10 +63,10 @@ index 0000000..ad2cbaa
 +         "@com_google_absl//absl/memory",
 +         "@com_google_absl//absl/strings",
 +diff --git a/xla/python/ifrt_proxy/common/BUILD b/xla/python/ifrt_proxy/common/BUILD
-+index 8e750cb525..aede7facd0 100644
++index 257f813a5f..65abf54caf 100644
 +--- a/xla/python/ifrt_proxy/common/BUILD
 ++++ b/xla/python/ifrt_proxy/common/BUILD
-+@@ -51,6 +51,9 @@ cc_library(
++@@ -52,6 +52,9 @@ cc_library(
 +         "@com_github_grpc_grpc//:grpc++",
 +         "@com_google_absl//absl/log",
 +         "@com_google_absl//absl/log:check",
@@ -88,8 +76,20 @@ index 0000000..ad2cbaa
 +         "@tsl//tsl/platform",
 +     ],
 +     alwayslink = True,
++diff --git a/xla/tsl/distributed_runtime/rpc/BUILD b/xla/tsl/distributed_runtime/rpc/BUILD
++index 0f9a93eb1a..e5f11fa62c 100644
++--- a/xla/tsl/distributed_runtime/rpc/BUILD
+++++ b/xla/tsl/distributed_runtime/rpc/BUILD
++@@ -37,6 +37,7 @@ cc_library(
++     hdrs = ["grpc_util.h"],
++     deps = [
++         "@com_google_absl//absl/status",
+++        "@com_google_absl//absl/status:statusor",
++         "@com_google_absl//absl/strings:cord",
++         "@tsl//tsl/platform:protobuf",
++         "@tsl//tsl/platform:status",
 diff --git a/third_party/xla/workspace.bzl b/third_party/xla/workspace.bzl
-index ebb0137..1a55893 100644
+index 1471b46..7b7ca42 100644
 --- a/third_party/xla/workspace.bzl
 +++ b/third_party/xla/workspace.bzl
 @@ -31,6 +31,7 @@ def repo():

@@ -1,21 +1,21 @@
-From a7ae8b8397a8a3f0f1206c08f3461aff9b686670 Mon Sep 17 00:00:00 2001
+From 3a8a97f983c8a3c6e41d335841663a2e262e4801 Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwe.korn@quantco.com>
 Date: Thu, 14 Dec 2023 17:06:15 +0100
 Subject: [PATCH 2/3] xla: Support third-party build of boringssl
 
 ---
- ...pport-third-party-build-of-boringssl.patch | 54 +++++++++++++++++++
+ ...pport-third-party-build-of-boringssl.patch | 51 +++++++++++++++++++
  third_party/xla/workspace.bzl                 |  3 ++
- 2 files changed, 57 insertions(+)
+ 2 files changed, 54 insertions(+)
  create mode 100644 third_party/xla/0001-Support-third-party-build-of-boringssl.patch
 
 diff --git a/third_party/xla/0001-Support-third-party-build-of-boringssl.patch b/third_party/xla/0001-Support-third-party-build-of-boringssl.patch
 new file mode 100644
-index 0000000..1f11444
+index 0000000..51f893a
 --- /dev/null
 +++ b/third_party/xla/0001-Support-third-party-build-of-boringssl.patch
-@@ -0,0 +1,54 @@
-+From b08ec603746c14836a7538220390f9e9d32a7182 Mon Sep 17 00:00:00 2001
+@@ -0,0 +1,51 @@
++From b7eabac7fd5af989b11ea68095ad73471cdbf650 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 14 Dec 2023 15:04:51 +0100
 +Subject: [PATCH 1/2] Support third-party build of boringssl
@@ -28,7 +28,7 @@ index 0000000..1f11444
 +
 +diff --git a/third_party/boringssl.BUILD b/third_party/boringssl.BUILD
 +new file mode 100644
-+index 000000000..bc4c53340
++index 0000000000..bc4c533403
 +--- /dev/null
 ++++ b/third_party/boringssl.BUILD
 +@@ -0,0 +1,21 @@
@@ -54,10 +54,10 @@ index 0000000..1f11444
 ++    ],
 ++)
 +diff --git a/workspace2.bzl b/workspace2.bzl
-+index c2f8547b0..9175b68c2 100644
++index b61970b831..6159edcf66 100644
 +--- a/workspace2.bzl
 ++++ b/workspace2.bzl
-+@@ -41,7 +41,7 @@ def _tf_repositories():
++@@ -65,7 +65,7 @@ def _tf_repositories():
 +         name = "boringssl",
 +         sha256 = "9dc53f851107eaf87b391136d13b815df97ec8f76dadb487b58b2fc45e624d2c",
 +         strip_prefix = "boringssl-c00d7ca810e93780bd0c8ee4eea28f4f2ea4bcdc",
@@ -66,11 +66,8 @@ index 0000000..1f11444
 +         urls = tf_mirror_urls("https://github.com/google/boringssl/archive/c00d7ca810e93780bd0c8ee4eea28f4f2ea4bcdc.tar.gz"),
 +     )
 + 
-+-- 
-+2.43.0
-+
 diff --git a/third_party/xla/workspace.bzl b/third_party/xla/workspace.bzl
-index ebc8d98..ebb0137 100644
+index d11550b..1471b46 100644
 --- a/third_party/xla/workspace.bzl
 +++ b/third_party/xla/workspace.bzl
 @@ -29,6 +29,9 @@ def repo():
