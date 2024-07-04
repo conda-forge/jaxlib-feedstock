@@ -1,7 +1,7 @@
-From ffb28f03fb11e10a3a93606267b62c551a21ef06 Mon Sep 17 00:00:00 2001
+From 92c0e63e59de039a2ac9f09a6143b9021e2a05ae Mon Sep 17 00:00:00 2001
 From: Uwe Korn <uwe.korn@quantco.com>
 Date: Thu, 4 Jul 2024 08:45:13 +0000
-Subject: [PATCH 4/4] Omit usage of StrFormat in xla
+Subject: [PATCH 4/5] Omit usage of StrFormat in xla
 
 ---
  .../xla/0001-Omit-usage-of-StrFormat.patch    | 43 +++++++++++++++++++

@@ -19,6 +19,7 @@ source:
     - patches/0002-xla-Support-third-party-build-of-boringssl.patch
     - patches/0003-xla-Fix-abseil-headers.patch
     - patches/0004-Omit-usage-of-StrFormat-in-xla.patch
+    - patches/0005-Add-missing-bits-to-absl-systemlib.patch
 
 build:
   number: {{ build }}
