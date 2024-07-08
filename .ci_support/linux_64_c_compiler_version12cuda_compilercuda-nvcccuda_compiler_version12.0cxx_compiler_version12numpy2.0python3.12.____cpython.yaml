@@ -35,7 +35,7 @@ libprotobuf:
 nccl:
 - '2'
 numpy:
-- '1.26'
+- '2.0'
 openssl:
 - '3'
 pin_run_as_build:
