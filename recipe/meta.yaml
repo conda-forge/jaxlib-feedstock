@@ -16,10 +16,7 @@ source:
   sha256: c2c82cd9ad3b395d5cbc0affa26a2938e52677a69ca8f0b9ef9922a52cac4f0c
   patches:
     - patches/0001-Allow-for-custom-CUDA-build.patch
-    - patches/0002-xla-Support-third-party-build-of-boringssl.patch
-    - patches/0003-xla-Fix-abseil-headers.patch
-    - patches/0004-Omit-usage-of-StrFormat-in-xla.patch
-    - patches/0005-Add-missing-bits-to-absl-systemlib.patch
+    - patches/0002-Consolidated-build-fixes-for-XLA.patch
 
 build:
   number: {{ build }}
