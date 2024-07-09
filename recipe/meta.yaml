@@ -1,5 +1,5 @@
-{% set version = "0.4.26" %}
-{% set build = 1 %}
+{% set version = "0.4.27" %}
+{% set build = 0 %}
 
 {% if cuda_compiler_version != "None" %}
 {% set build = build + 200 %}
@@ -13,17 +13,18 @@ package:
 source:
   # only pull sources after upstream PyPI release...
   url: https://github.com/google/jax/archive/jaxlib-v{{ version }}.tar.gz
-  sha256: ddc14da1eaa34f23430d40ad9b9585088575cac439a2fa1c6833a247e1b221fd
+  sha256: c2c82cd9ad3b395d5cbc0affa26a2938e52677a69ca8f0b9ef9922a52cac4f0c
   patches:
     - patches/0001-Allow-for-custom-CUDA-build.patch
-    - patches/0002-xla-Support-third-party-build-of-boringssl.patch
-    - patches/0003-xla-Fix-abseil-headers.patch
+    - patches/0002-Consolidated-build-fixes-for-XLA.patch
 
 build:
   number: {{ build }}
   skip: true  # [win or py<39]
   skip: true  # [cuda_compiler != "None" and aarch64]
   skip: true  # [cuda_compiler_version == "11.2"]
+  # Currently the GPU kernels (and their abseil includes) are not compatible with GCC 11
+  skip: true  # [cuda_compiler_version == "11.8"]
   string: cuda{{ cuda_compiler_version | replace('.', '') }}py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [cuda_compiler_version != "None"]
   string: cpu_py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [cuda_compiler_version == "None"]
 

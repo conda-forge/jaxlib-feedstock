@@ -59,7 +59,7 @@ build --verbose_failures
 build --toolchain_resolution_debug
 build --define=PREFIX=${PREFIX}
 build --define=PROTOBUF_INCLUDE_PATH=${PREFIX}/include
-build --local_cpu_resources=${CPU_COUNT}"
+build --local_cpu_resources=${CPU_COUNT}
 build --define=with_cross_compiler_support=true
 EOF
 
@@ -80,7 +80,7 @@ fi
 #
 # Thus: don't add com_google_protobuf here.
 # FIXME: Current global abseil pin is too old for jaxlib, readd com_google_absl once we are on a newer version.
-export TF_SYSTEM_LIBS="boringssl,com_github_googlecloudplatform_google_cloud_cpp,com_github_grpc_grpc,flatbuffers,zlib"
+export TF_SYSTEM_LIBS="boringssl,com_github_googlecloudplatform_google_cloud_cpp,com_github_grpc_grpc,flatbuffers,zlib,com_google_absl"
 
 if [[ "${target_platform}" == "osx-arm64" || "${target_platform}" != "${build_platform}" ]]; then
     EXTRA="--target_cpu ${TARGET_CPU}"
