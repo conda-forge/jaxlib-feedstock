@@ -1,78 +1,35 @@
-From b7b618bc47586c9ad4b6bbd0113b67e4feb7e3ff Mon Sep 17 00:00:00 2001
+From 207987afda71acae0e24ebd296f67c09ba10f55c Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwe.korn@quantco.com>
 Date: Thu, 14 Dec 2023 17:06:15 +0100
 Subject: [PATCH 2/2] Consolidated build fixes for XLA
 
+jax vendors xla, but only populates the sources through bazel, so we cannot
+patch as usual through conda, but rather need to teach the bazel build file
+for xla to apply those patches.
+
+To maintain/rebase these patches, use a checkout of https://github.com/openxla/xla,
+and then rebase to the commit of xla being used by jax, which can be found in
+https://github.com/google/jax/blob/jaxlib-v{{ version }}/third_party/xla/workspace.bzl
+which is also where we're patching in the list of patches to apply to xla.
 ---
- .../xla/0001-Omit-usage-of-StrFormat.patch    |  43 ++++++
  ...pport-third-party-build-of-boringssl.patch |  51 +++++++
  third_party/xla/0002-Fix-abseil-headers.patch |  73 +++++++++
  .../xla/0003-Omit-usage-of-StrFormat.patch    |  43 ++++++
  ...0004-Add-missing-bits-absl-systemlib.patch | 141 ++++++++++++++++++
  third_party/xla/workspace.bzl                 |   6 +
- 6 files changed, 357 insertions(+)
- create mode 100644 third_party/xla/0001-Omit-usage-of-StrFormat.patch
+ 5 files changed, 314 insertions(+)
  create mode 100644 third_party/xla/0001-Support-third-party-build-of-boringssl.patch
  create mode 100644 third_party/xla/0002-Fix-abseil-headers.patch
  create mode 100644 third_party/xla/0003-Omit-usage-of-StrFormat.patch
  create mode 100644 third_party/xla/0004-Add-missing-bits-absl-systemlib.patch
 
-diff --git a/third_party/xla/0001-Omit-usage-of-StrFormat.patch b/third_party/xla/0001-Omit-usage-of-StrFormat.patch
-new file mode 100644
-index 0000000..d1b4765
---- /dev/null
-+++ b/third_party/xla/0001-Omit-usage-of-StrFormat.patch
-@@ -0,0 +1,43 @@
-+From b7d3f685ea9f58f0054af0f34d0bc3ccac43fa5c Mon Sep 17 00:00:00 2001
-+From: "Uwe L. Korn" <uwe.korn@quantco.com>
-+Date: Thu, 4 Jul 2024 10:36:03 +0200
-+Subject: [PATCH] Omit usage of StrFormat
-+
-+---
-+ xla/stream_executor/gpu/gpu_executor.h | 9 ++++++---
-+ 1 file changed, 6 insertions(+), 3 deletions(-)
-+
-+diff --git a/xla/stream_executor/gpu/gpu_executor.h b/xla/stream_executor/gpu/gpu_executor.h
-+index 3a5945e884..9bdc2acd47 100644
-+--- a/xla/stream_executor/gpu/gpu_executor.h
-++++ b/xla/stream_executor/gpu/gpu_executor.h
-+@@ -29,6 +29,7 @@ limitations under the License.
-+ #include <optional>
-+ #include <set>
-+ #include <string>
-++#include <sstream>
-+ #include <unordered_map>
-+ #include <utility>
-+ 
-+@@ -38,7 +39,6 @@ limitations under the License.
-+ #include "absl/numeric/int128.h"
-+ #include "absl/status/status.h"
-+ #include "absl/status/statusor.h"
-+-#include "absl/strings/str_format.h"
-+ #include "absl/synchronization/mutex.h"
-+ #include "absl/types/span.h"
-+ #include "xla/stream_executor/blas.h"
-+@@ -187,8 +187,11 @@ class GpuExecutor : public StreamExecutor {
-+       uint64_t size) override {
-+     auto* buffer = GpuDriver::HostAllocate(context_, size);
-+     if (buffer == nullptr && size > 0) {
-+-      return absl::InternalError(
-+-          absl::StrFormat("Failed to allocate HostMemory of size %d", size));
-++      std::ostringstream stringStream;
-++      stringStream << "Failed to allocate HostMemory of size ";
-++      stringStream << size;
-++      std::string res = stringStream.str();
-++      return absl::InternalError(res);
-+     }
-+     return std::make_unique<HostMemoryAllocation>(buffer, size, this);
-+   }
 diff --git a/third_party/xla/0001-Support-third-party-build-of-boringssl.patch b/third_party/xla/0001-Support-third-party-build-of-boringssl.patch
 new file mode 100644
-index 0000000..9b91954
+index 000000000..a1ee10b60
 --- /dev/null
 +++ b/third_party/xla/0001-Support-third-party-build-of-boringssl.patch
 @@ -0,0 +1,51 @@
-+From 206c2100f7ffadb3751ad46406c6c22c66e7a877 Mon Sep 17 00:00:00 2001
++From 37e9126b101e646f3c6090ebee508790eca59ddb Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 14 Dec 2023 15:04:51 +0100
 +Subject: [PATCH 1/4] Support third-party build of boringssl
@@ -125,11 +82,11 @@ index 0000000..9b91954
 + 
 diff --git a/third_party/xla/0002-Fix-abseil-headers.patch b/third_party/xla/0002-Fix-abseil-headers.patch
 new file mode 100644
-index 0000000..4781433
+index 000000000..4e5084489
 --- /dev/null
 +++ b/third_party/xla/0002-Fix-abseil-headers.patch
 @@ -0,0 +1,73 @@
-+From 8f05e22791b71ae0d8a8832861bf6529bc7af2b8 Mon Sep 17 00:00:00 2001
++From d7775566d001f014568aeb7506acdfb0e643e5d3 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 23 May 2024 15:45:52 +0200
 +Subject: [PATCH 2/4] Fix abseil headers
@@ -204,11 +161,11 @@ index 0000000..4781433
 +         "@tsl//tsl/platform:status",
 diff --git a/third_party/xla/0003-Omit-usage-of-StrFormat.patch b/third_party/xla/0003-Omit-usage-of-StrFormat.patch
 new file mode 100644
-index 0000000..1572372
+index 000000000..5fc62e682
 --- /dev/null
 +++ b/third_party/xla/0003-Omit-usage-of-StrFormat.patch
 @@ -0,0 +1,43 @@
-+From 1430afe4f319fd43601cf2fa068f419e095a8392 Mon Sep 17 00:00:00 2001
++From 492ff32f4405d0c05898d796b1a8aab6c36e9e97 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 4 Jul 2024 10:36:03 +0200
 +Subject: [PATCH 3/4] Omit usage of StrFormat
@@ -218,7 +175,7 @@ index 0000000..1572372
 + 1 file changed, 6 insertions(+), 3 deletions(-)
 +
 +diff --git a/xla/stream_executor/gpu/gpu_executor.h b/xla/stream_executor/gpu/gpu_executor.h
-+index 3a5945e884..9bdc2acd47 100644
++index 01e343822d..1db715328f 100644
 +--- a/xla/stream_executor/gpu/gpu_executor.h
 ++++ b/xla/stream_executor/gpu/gpu_executor.h
 +@@ -29,6 +29,7 @@ limitations under the License.
@@ -253,11 +210,11 @@ index 0000000..1572372
 +   }
 diff --git a/third_party/xla/0004-Add-missing-bits-absl-systemlib.patch b/third_party/xla/0004-Add-missing-bits-absl-systemlib.patch
 new file mode 100644
-index 0000000..1d73357
+index 000000000..18051c5bb
 --- /dev/null
 +++ b/third_party/xla/0004-Add-missing-bits-absl-systemlib.patch
 @@ -0,0 +1,141 @@
-+From bdf0cf43986256fafa763493b92d889aadf64de8 Mon Sep 17 00:00:00 2001
++From 610b72a30f863b5c5c6e7249889927c51832cb5e Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 4 Jul 2024 15:58:32 +0200
 +Subject: [PATCH 4/4] Add missing bits absl systemlib
@@ -399,7 +356,7 @@ index 0000000..1d73357
 +         "meta",
 +         "numeric",
 diff --git a/third_party/xla/workspace.bzl b/third_party/xla/workspace.bzl
-index d11550b..9c163c9 100644
+index 848f38627..b89fcb7b0 100644
 --- a/third_party/xla/workspace.bzl
 +++ b/third_party/xla/workspace.bzl
 @@ -29,6 +29,12 @@ def repo():

@@ -1,4 +1,4 @@
-From 37e7cf11108148cc037d85146aac83500d322c35 Mon Sep 17 00:00:00 2001
+From 6c265042420d4894d9454403c53263f386d5ca42 Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwelk@xhochy.com>
 Date: Sun, 8 Oct 2023 19:34:34 +0200
 Subject: [PATCH 1/2] Allow for custom CUDA build
@@ -8,7 +8,7 @@ Subject: [PATCH 1/2] Allow for custom CUDA build
  1 file changed, 5 insertions(+)
 
 diff --git a/build/build.py b/build/build.py
-index 463b713..11030f6 100755
+index 6bea5fdd1..518ff7115 100755
 --- a/build/build.py
 +++ b/build/build.py
 @@ -299,6 +299,11 @@ def write_bazelrc(*, python_bin_path, remote_build,
