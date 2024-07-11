@@ -17,7 +17,6 @@ source:
   patches:
     - patches/0001-Allow-for-custom-CUDA-build.patch
     - patches/0002-Consolidated-build-fixes-for-XLA.patch
-    - patches/0003-patch-out-overly-eager-get_githash.patch
 
 build:
   number: {{ build }}
