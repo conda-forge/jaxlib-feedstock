@@ -1,0 +1,28 @@
+From 4dae261b807eed551e2441b64a81963417e4a5e0 Mon Sep 17 00:00:00 2001
+From: "H. Vetinari" <h.vetinari@gmx.com>
+Date: Thu, 11 Jul 2024 16:03:41 +1100
+Subject: [PATCH 3/3] patch out overly eager get_githash
+
+---
+ build/build.py | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
+
+diff --git a/build/build.py b/build/build.py
+index 0c25cea16..f5c7cecec 100755
+--- a/build/build.py
++++ b/build/build.py
+@@ -76,13 +76,7 @@ def check_python_version(python_version):
+ 
+ 
+ def get_githash():
+-  try:
+-    return subprocess.run(
+-        ["git", "rev-parse", "HEAD"],
+-        encoding='utf-8',
+-        capture_output=True).stdout.strip()
+-  except OSError:
+-    return ""
++  return ""
+ 
+ # Bazel
+ 
