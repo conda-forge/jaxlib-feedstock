@@ -1,5 +1,7 @@
 c_compiler:
-- vs2019
+- clang
+c_compiler_version:
+- '18'
 c_stdlib:
 - vs
 channel_sources:
@@ -13,7 +15,9 @@ cuda_compiler_version:
 cudnn:
 - '8'
 cxx_compiler:
-- vs2019
+- clangxx
+cxx_compiler_version:
+- '18'
 github_actions_labels:
 - cirun-openstack-cpu-large
 libabseil:
