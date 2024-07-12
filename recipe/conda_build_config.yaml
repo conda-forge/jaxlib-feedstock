@@ -4,3 +4,11 @@ c_stdlib_version:          # [osx and x86_64]
 - '10.14'                  # [osx and x86_64]
 github_actions_labels:
 - cirun-openstack-cpu-large
+c_compiler:            # [win]
+  - clang              # [win]
+c_compiler_version:    # [win]
+  - 18                 # [win]
+cxx_compiler:          # [win]
+  - clangxx            # [win]
+cxx_compiler_version:  # [win]
+  - 18                 # [win]
