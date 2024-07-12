@@ -2,6 +2,8 @@
 
 set -euxo pipefail
 
+export JAX_RELEASE=$PKG_VERSION
+
 if [[ "${target_platform}" == osx-* ]]; then
   export LDFLAGS="${LDFLAGS} -lz -framework CoreFoundation -Xlinker -undefined -Xlinker dynamic_lookup"
   # Remove stdlib=libc++; this is the default and errors on C sources.
