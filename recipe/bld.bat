@@ -6,6 +6,7 @@ set "BAZEL_SH=%BUILD_PREFIX%\Library\usr\bin\bash.exe"
 echo --extra_toolchains=@local_config_cc//:cc-toolchain-x64_windows-clang-cl >> .bazelrc
 echo --extra_execution_platforms=//jax/tools/toolchains:x64_windows-clang-cl >> .bazelrc
 echo --compiler=clang-cl >> .bazelrc
+echo --incompatible_enable_cc_toolchain_resolution >> .bazelrc
 
 type .bazelrc
 
