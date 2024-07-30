@@ -1,4 +1,4 @@
-From dad31562858cd0af502e6a1835c0bce7f4025157 Mon Sep 17 00:00:00 2001
+From 3967a662a3cb00e8144628ba021116ee59d74134 Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwe.korn@quantco.com>
 Date: Thu, 14 Dec 2023 17:06:15 +0100
 Subject: [PATCH 2/2] Consolidated build fixes for XLA
@@ -11,13 +11,15 @@ To maintain/rebase these patches, use a checkout of https://github.com/openxla/x
 and then rebase to the commit of xla being used by jax, which can be found in
 https://github.com/google/jax/blob/jaxlib-v{{ version }}/third_party/xla/workspace.bzl
 which is also where we're patching in the list of patches to apply to xla.
+
+Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
 ---
- ...pport-third-party-build-of-boringssl.patch |  51 +++++++
- third_party/xla/0002-Fix-abseil-headers.patch |  73 +++++++++
- .../xla/0003-Omit-usage-of-StrFormat.patch    |  43 ++++++
- ...0004-Add-missing-bits-absl-systemlib.patch | 141 ++++++++++++++++++
+ ...pport-third-party-build-of-boringssl.patch |  51 ++++
+ third_party/xla/0002-Fix-abseil-headers.patch |  73 ++++++
+ .../xla/0003-Omit-usage-of-StrFormat.patch    |  43 ++++
+ ...0004-Add-missing-bits-absl-systemlib.patch | 226 ++++++++++++++++++
  third_party/xla/workspace.bzl                 |   6 +
- 5 files changed, 314 insertions(+)
+ 5 files changed, 399 insertions(+)
  create mode 100644 third_party/xla/0001-Support-third-party-build-of-boringssl.patch
  create mode 100644 third_party/xla/0002-Fix-abseil-headers.patch
  create mode 100644 third_party/xla/0003-Omit-usage-of-StrFormat.patch
@@ -210,21 +212,24 @@ index 000000000..541c06f40
 +   }
 diff --git a/third_party/xla/0004-Add-missing-bits-absl-systemlib.patch b/third_party/xla/0004-Add-missing-bits-absl-systemlib.patch
 new file mode 100644
-index 000000000..67b738767
+index 000000000..e151c23c8
 --- /dev/null
 +++ b/third_party/xla/0004-Add-missing-bits-absl-systemlib.patch
-@@ -0,0 +1,141 @@
-+From 0d4b3952e47cdbea885e5a3b3fd8a6e4acdcff1c Mon Sep 17 00:00:00 2001
+@@ -0,0 +1,226 @@
++From f43652257c58896305d13c6dc9829c9f3f522a8f Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 4 Jul 2024 15:58:32 +0200
 +Subject: [PATCH 4/4] Add missing bits absl systemlib
 +
++Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
 +---
-+ .../third_party/absl/system.absl.base.BUILD   | 16 ++++++
-+ .../third_party/absl/system.absl.log.BUILD    | 56 +++++++++++++++++++
++ .../third_party/absl/system.absl.base.BUILD   | 16 +++++
++ .../third_party/absl/system.absl.crc.BUILD    | 70 +++++++++++++++++++
++ .../third_party/absl/system.absl.log.BUILD    | 56 +++++++++++++++
 + .../absl/system.absl.strings.BUILD            | 12 ++++
-+ .../tsl/third_party/absl/workspace.bzl        |  1 +
-+ 4 files changed, 85 insertions(+)
++ .../tsl/third_party/absl/workspace.bzl        |  2 +
++ 5 files changed, 156 insertions(+)
++ create mode 100644 third_party/tsl/third_party/absl/system.absl.crc.BUILD
 + create mode 100644 third_party/tsl/third_party/absl/system.absl.log.BUILD
 +
 +diff --git a/third_party/tsl/third_party/absl/system.absl.base.BUILD b/third_party/tsl/third_party/absl/system.absl.base.BUILD
@@ -256,6 +261,82 @@ index 000000000..67b738767
 ++    deps = [
 ++        ":config",
 ++        ":core_headers",
+++    ],
+++)
++diff --git a/third_party/tsl/third_party/absl/system.absl.crc.BUILD b/third_party/tsl/third_party/absl/system.absl.crc.BUILD
++new file mode 100644
++index 0000000000..487c36ff45
++--- /dev/null
+++++ b/third_party/tsl/third_party/absl/system.absl.crc.BUILD
++@@ -0,0 +1,70 @@
+++load("@rules_cc//cc:defs.bzl", "cc_library")
+++
+++package(default_visibility = ["//visibility:public"])
+++
+++cc_library(
+++    name = "crc32c",
+++    linkopts = [
+++        "-labsl_crc32c",
+++        "-labsl_crc_cord_state",
+++        "-labsl_crc_cpu_detect",
+++        "-labsl_crc_internal",
+++    ],
+++    deps = [
+++        ":cpu_detect",
+++        ":crc_internal",
+++        ":non_temporal_memcpy",
+++        "//absl/base:config",
+++        "//absl/base:core_headers",
+++        "//absl/base:endian",
+++        "//absl/base:prefetch",
+++        "//absl/strings",
+++        "//absl/strings:str_format",
+++    ],
+++)
+++
+++cc_library(
+++    name = "cpu_detect",
+++    visibility = ["//visibility:private"],
+++    deps = [
+++        "//absl/base",
+++        "//absl/base:config",
+++    ],
+++)
+++
+++cc_library(
+++    name = "crc_internal",
+++    visibility = ["//visibility:private"],
+++    deps = [
+++        ":cpu_detect",
+++        "//absl/base:config",
+++        "//absl/base:core_headers",
+++        "//absl/base:endian",
+++        "//absl/base:prefetch",
+++        "//absl/base:raw_logging_internal",
+++        "//absl/memory",
+++        "//absl/numeric:bits",
+++    ],
+++)
+++
+++cc_library(
+++    name = "non_temporal_memcpy",
+++    visibility = [
+++        ":__pkg__",
+++    ],
+++    deps = [
+++        ":non_temporal_arm_intrinsics",
+++        "//absl/base:config",
+++        "//absl/base:core_headers",
+++    ],
+++)
+++
+++cc_library(
+++    name = "non_temporal_arm_intrinsics",
+++    visibility = [
+++        ":__pkg__",
+++    ],
+++    deps = [
+++        "//absl/base:config",
 ++    ],
 ++)
 +diff --git a/third_party/tsl/third_party/absl/system.absl.log.BUILD b/third_party/tsl/third_party/absl/system.absl.log.BUILD
@@ -344,10 +425,16 @@ index 000000000..67b738767
 +     name = "strings",
 +     linkopts = ["-labsl_strings"],
 +diff --git a/third_party/tsl/third_party/absl/workspace.bzl b/third_party/tsl/third_party/absl/workspace.bzl
-+index 06f75166ce..c54df3cfba 100644
++index 06f75166ce..446dbc4081 100644
 +--- a/third_party/tsl/third_party/absl/workspace.bzl
 ++++ b/third_party/tsl/third_party/absl/workspace.bzl
-+@@ -20,6 +20,7 @@ def repo():
++@@ -15,11 +15,13 @@ def repo():
++         "algorithm",
++         "base",
++         "cleanup",
+++        "crc",
++         "container",
++         "debugging",
 +         "flags",
 +         "functional",
 +         "hash",
