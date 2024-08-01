@@ -1,4 +1,4 @@
-{% set version = "0.4.30" %}
+{% set version = "0.4.31" %}
 {% set build = 0 %}
 
 {% if cuda_compiler_version != "None" %}
@@ -13,14 +13,14 @@ package:
 source:
   # only pull sources after upstream PyPI release...
   url: https://github.com/google/jax/archive/jaxlib-v{{ version }}.tar.gz
-  sha256: 0ef9635c734d9bbb44fcc87df4f1c3ccce1cfcfd243572c80d36fcdf826fe1e6
+  sha256: 022ea1347f9b21cbea31410b3d650d976ea4452a48ea7317a5f91c238031bf94
   patches:
     - patches/0001-Allow-for-custom-CUDA-build.patch
     - patches/0002-Consolidated-build-fixes-for-XLA.patch
 
 build:
   number: {{ build }}
-  skip: true  # [win or py<39]
+  skip: true  # [win or py<310]
   skip: true  # [cuda_compiler != "None" and aarch64]
   # Currently the GPU kernels (and their abseil includes) are not compatible with GCC 11
   skip: true  # [cuda_compiler_version == "11.8"]
