@@ -5,7 +5,7 @@ MACOSX_SDK_VERSION:
 c_compiler:
 - clang
 c_compiler_version:
-- '16'
+- '17'
 c_stdlib:
 - macosx_deployment_target
 c_stdlib_version:
@@ -19,11 +19,11 @@ cuda_compiler:
 cuda_compiler_version:
 - None
 cudnn:
-- '8'
+- '9'
 cxx_compiler:
 - clangxx
 cxx_compiler_version:
-- '16'
+- '17'
 github_actions_labels:
 - cirun-openstack-cpu-large
 libabseil:
