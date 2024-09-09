@@ -56,5 +56,6 @@ zip_keys:
   - docker_image
 - - python
   - numpy
+  - channel_sources
 zlib:
 - '1'
