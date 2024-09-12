@@ -1,4 +1,4 @@
-From 1daa8cc30c7c2d70a71aa164d9ecb5923b34e0c0 Mon Sep 17 00:00:00 2001
+From 96762e9ab2ab0cf89354b25da2d0738df4d2dc1a Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwelk@xhochy.com>
 Date: Sun, 8 Oct 2023 19:34:34 +0200
 Subject: [PATCH 1/2] Allow for custom CUDA build
@@ -8,18 +8,18 @@ Subject: [PATCH 1/2] Allow for custom CUDA build
  1 file changed, 5 insertions(+)
 
 diff --git a/build/build.py b/build/build.py
-index 2f6822281..0000dbbf8 100755
+index c3a8627..5bfbdcb 100755
 --- a/build/build.py
 +++ b/build/build.py
-@@ -277,6 +277,11 @@ def write_bazelrc(*, remote_build,
-       f.write("build --action_env TF_CUDA_PATHS=\"{tf_cuda_paths}\"\n"
-               .format(tf_cuda_paths=",".join(tf_cuda_paths)))
-     if cuda_version:
-+      # set GCC_HOST_COMPILER_PATH for toolchain with conda-forge
-+      f.write("build --action_env GCC_HOST_COMPILER_PATH=\"{gcc_host_compiler_path}\"\n"
-+              .format(gcc_host_compiler_path=os.environ["GCC"]))
-+      f.write("build --action_env GCC_HOST_COMPILER_PREFIX=\"{gcc_host_compiler_prefix}\"\n"
+@@ -289,6 +289,11 @@ def write_bazelrc(*, remote_build,
+         f.write("build --config=nvcc_clang\n")
+         f.write(f"build --action_env=CLANG_CUDA_COMPILER_PATH={clang_path}\n")
+       if cuda_version:
++        # set GCC_HOST_COMPILER_PATH for toolchain with conda-forge
++        f.write("build --action_env GCC_HOST_COMPILER_PATH=\"{gcc_host_compiler_path}\"\n"
++                .format(gcc_host_compiler_path=os.environ["GCC"]))
++        f.write("build --action_env GCC_HOST_COMPILER_PREFIX=\"{gcc_host_compiler_prefix}\"\n"
 +              .format(gcc_host_compiler_prefix=os.path.dirname(os.environ["GCC"])))
-       f.write("build --action_env TF_CUDA_VERSION=\"{cuda_version}\"\n"
-               .format(cuda_version=cuda_version))
-     if cudnn_version:
+         f.write("build --repo_env HERMETIC_CUDA_VERSION=\"{cuda_version}\"\n"
+                 .format(cuda_version=cuda_version))
+       if cudnn_version:
