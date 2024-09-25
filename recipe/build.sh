@@ -41,7 +41,6 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
 
     CUDA_ARGS="--enable_cuda \
                --enable_nccl \
-               --cuda_path=${TF_CUDA_PATHS} \
                --cudnn_path=${PREFIX}   \
                --cuda_compute_capabilities=$TF_CUDA_COMPUTE_CAPABILITIES \
                --cuda_version=$TF_CUDA_VERSION \
