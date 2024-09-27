@@ -65,6 +65,7 @@ requirements:
     - python
     - pip
     - numpy
+    - setuptools
     - wheel
     - cuda-version {{ cuda_compiler_version }}  # [cuda_compiler_version != "None"]
     # avoid not being able to pass `-C=--build-option=--python-tag=cp<x>` due to
