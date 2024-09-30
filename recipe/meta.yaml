@@ -17,6 +17,7 @@ source:
   patches:
     - patches/0001-Allow-for-custom-CUDA-build.patch
     - patches/0002-Consolidated-build-fixes-for-XLA.patch
+    - patches/c61e49cd4a6c58b3b9823a32fe1320d65c98c45d.patch
 
 build:
   number: {{ build }}

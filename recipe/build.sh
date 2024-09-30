@@ -87,6 +87,9 @@ if [[ "${target_platform}" == "osx-arm64" || "${target_platform}" != "${build_pl
 else
     EXTRA="${CUDA_ARGS:-}"
 fi
+if [[ "${target_platform}" == linux-* ]]; then
+    EXTRA="${EXTRA} --nouse_clang"
+fi
 ${PYTHON} build/build.py \
     --target_cpu_features default \
     --enable_mkl_dnn \
