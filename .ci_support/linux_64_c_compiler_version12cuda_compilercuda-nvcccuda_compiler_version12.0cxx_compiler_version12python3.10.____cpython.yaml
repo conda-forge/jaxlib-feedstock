@@ -27,11 +27,11 @@ docker_image:
 github_actions_labels:
 - cirun-openstack-cpu-large
 libabseil:
-- '20240116'
+- '20240722'
 libgrpc:
-- '1.62'
+- '1.65'
 libprotobuf:
-- 4.25.3
+- 5.27.5
 nccl:
 - '2'
 numpy:
