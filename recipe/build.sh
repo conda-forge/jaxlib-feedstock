@@ -16,16 +16,25 @@ export CXXFLAGS="${CXXFLAGS} -DNDEBUG"
 
 if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
     if [[ ${cuda_compiler_version} == 11.8 ]]; then
-        export TF_CUDA_COMPUTE_CAPABILITIES=sm_35,sm_50,sm_60,sm_62,sm_70,sm_72,sm_75,sm_80,sm_86,sm_87,sm_89,sm_90,compute_90
+        export HERMETIC_CUDA_COMPUTE_CAPABILITIES=sm_35,sm_50,sm_60,sm_62,sm_70,sm_72,sm_75,sm_80,sm_86,sm_87,sm_89,sm_90,compute_90
 	export TF_CUDA_PATHS="${CUDA_HOME},${PREFIX}"
     elif [[ ${cuda_compiler_version} == 12* ]]; then
-        export TF_CUDA_COMPUTE_CAPABILITIES=sm_60,sm_70,sm_75,sm_80,sm_86,sm_89,sm_90,compute_90
+        export HERMETIC_CUDA_COMPUTE_CAPABILITIES=sm_60,sm_70,sm_75,sm_80,sm_86,sm_89,sm_90,compute_90
         export CUDA_HOME="${BUILD_PREFIX}/targets/x86_64-linux"
         export TF_CUDA_PATHS="${BUILD_PREFIX}/targets/x86_64-linux,${PREFIX}/targets/x86_64-linux"
 	# Needed for some nvcc binaries
 	export PATH=$PATH:${BUILD_PREFIX}/nvvm/bin
 	# XLA can only cope with a single cuda header include directory, merge both
 	rsync -a ${PREFIX}/targets/x86_64-linux/include/ ${BUILD_PREFIX}/targets/x86_64-linux/include/
+
+        # Although XLA supports a non-hermetic build, it still tries to find headers in the hermetic locations.
+        rm -rf ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party
+        mkdir -p ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cuda/extras/CUPTI
+        cp -r ${PREFIX}/targets/x86_64-linux/include ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cuda/
+        cp -r ${PREFIX}/targets/x86_64-linux/include ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cuda/extras/CUPTI/
+        export LOCAL_CUDA_PATH="${BUILD_PREFIX}/targets/x86_64-linux"
+        export LOCAL_CUDNN_PATH="${PREFIX}"
+        export LOCAL_NCCL_PATH="${PREFIX}"
     else
         echo "unsupported cuda version."
         exit 1
@@ -41,7 +50,7 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
 
     CUDA_ARGS="--enable_cuda \
                --enable_nccl \
-               --cuda_compute_capabilities=$TF_CUDA_COMPUTE_CAPABILITIES \
+               --cuda_compute_capabilities=$HERMETIC_CUDA_COMPUTE_CAPABILITIES \
                --cuda_version=$TF_CUDA_VERSION \
                --cudnn_version=$TF_CUDNN_VERSION"
 fi

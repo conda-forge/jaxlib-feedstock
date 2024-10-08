@@ -1,0 +1,62 @@
+From 4576ed73aa2e53d7a235b9f9121b02411c5749c5 Mon Sep 17 00:00:00 2001
+From: Dan Foreman-Mackey <danfm@google.com>
+Date: Tue, 17 Sep 2024 11:22:49 -0700
+Subject: [PATCH 3/4] Simplify logic in jaxlib FFI_ASSIGN_OR_RETURN macro, and
+ fix gcc build.
+
+In https://github.com/google/jax/issues/23687, it was reported that recent jaxlib changes introduced issues when building from source using gcc, instead of the clang build that we test. I'm not 100% sure why the previous macro didn't work, but in investigating I found a version that seems to work on both clang and gcc with simpler logic.
+
+PiperOrigin-RevId: 675641259
+---
+ jaxlib/ffi_helpers.h | 38 +++++++++-----------------------------
+ 1 file changed, 9 insertions(+), 29 deletions(-)
+
+diff --git a/jaxlib/ffi_helpers.h b/jaxlib/ffi_helpers.h
+index fba57d1..4750502 100644
+--- a/jaxlib/ffi_helpers.h
++++ b/jaxlib/ffi_helpers.h
+@@ -62,35 +62,15 @@ namespace jax {
+   FFI_ASSIGN_OR_RETURN_CONCAT_INNER_(x, y)
+ 
+ // All the macros below here are to handle the case in FFI_ASSIGN_OR_RETURN
+-// where the LHS is wrapped in parentheses.
+-#define FFI_ASSIGN_OR_RETURN_EAT(...)
+-#define FFI_ASSIGN_OR_RETURN_REM(...) __VA_ARGS__
+-#define FFI_ASSIGN_OR_RETURN_EMPTY()
+-
+-#define FFI_ASSIGN_OR_RETURN_IS_EMPTY_INNER(...) \
+-  FFI_ASSIGN_OR_RETURN_IS_EMPTY_INNER_HELPER((__VA_ARGS__, 0, 1))
+-#define FFI_ASSIGN_OR_RETURN_IS_EMPTY_INNER_HELPER(args) \
+-  FFI_ASSIGN_OR_RETURN_IS_EMPTY_INNER_I args
+-#define FFI_ASSIGN_OR_RETURN_IS_EMPTY_INNER_I(e0, e1, is_empty, ...) is_empty
+-
+-#define FFI_ASSIGN_OR_RETURN_IS_EMPTY(...) \
+-  FFI_ASSIGN_OR_RETURN_IS_EMPTY_I(__VA_ARGS__)
+-#define FFI_ASSIGN_OR_RETURN_IS_EMPTY_I(...) \
+-  FFI_ASSIGN_OR_RETURN_IS_EMPTY_INNER(_, ##__VA_ARGS__)
+-
+-#define FFI_ASSIGN_OR_RETURN_IF_1(_Then, _Else) _Then
+-#define FFI_ASSIGN_OR_RETURN_IF_0(_Then, _Else) _Else
+-#define FFI_ASSIGN_OR_RETURN_IF(_Cond, _Then, _Else) \
+-  FFI_ASSIGN_OR_RETURN_CONCAT_(FFI_ASSIGN_OR_RETURN_IF_, _Cond)(_Then, _Else)
+-
+-#define FFI_ASSIGN_OR_RETURN_IS_PARENTHESIZED(...) \
+-  FFI_ASSIGN_OR_RETURN_IS_EMPTY(FFI_ASSIGN_OR_RETURN_EAT __VA_ARGS__)
+-
+-#define FFI_ASSIGN_OR_RETURN_UNPARENTHESIZE_IF_PARENTHESIZED(...)             \
+-  FFI_ASSIGN_OR_RETURN_IF(FFI_ASSIGN_OR_RETURN_IS_PARENTHESIZED(__VA_ARGS__), \
+-                          FFI_ASSIGN_OR_RETURN_REM,                           \
+-                          FFI_ASSIGN_OR_RETURN_EMPTY())                       \
+-  __VA_ARGS__
++// where the LHS is wrapped in parentheses. See a more detailed discussion at
++// https://stackoverflow.com/a/62984543
++#define FFI_ASSIGN_OR_RETURN_UNPARENTHESIZE_IF_PARENTHESIZED(X) \
++  FFI_ASSIGN_OR_RETURN_ESCAPE(FFI_ASSIGN_OR_RETURN_EMPTY X)
++#define FFI_ASSIGN_OR_RETURN_EMPTY(...) FFI_ASSIGN_OR_RETURN_EMPTY __VA_ARGS__
++#define FFI_ASSIGN_OR_RETURN_ESCAPE(...) \
++  FFI_ASSIGN_OR_RETURN_ESCAPE_(__VA_ARGS__)
++#define FFI_ASSIGN_OR_RETURN_ESCAPE_(...) FFI_ASSIGN_OR_RETURN_##__VA_ARGS__
++#define FFI_ASSIGN_OR_RETURN_FFI_ASSIGN_OR_RETURN_EMPTY
+ 
+ template <typename T>
+ inline absl::StatusOr<T> MaybeCastNoOverflow(
