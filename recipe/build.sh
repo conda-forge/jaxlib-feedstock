@@ -17,24 +17,32 @@ export CXXFLAGS="${CXXFLAGS} -DNDEBUG"
 if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
     if [[ ${cuda_compiler_version} == 11.8 ]]; then
         export HERMETIC_CUDA_COMPUTE_CAPABILITIES=sm_35,sm_50,sm_60,sm_62,sm_70,sm_72,sm_75,sm_80,sm_86,sm_87,sm_89,sm_90,compute_90
-	export TF_CUDA_PATHS="${CUDA_HOME},${PREFIX}"
+        export TF_CUDA_PATHS="${CUDA_HOME},${PREFIX}"
     elif [[ ${cuda_compiler_version} == 12* ]]; then
         export HERMETIC_CUDA_COMPUTE_CAPABILITIES=sm_60,sm_70,sm_75,sm_80,sm_86,sm_89,sm_90,compute_90
         export CUDA_HOME="${BUILD_PREFIX}/targets/x86_64-linux"
         export TF_CUDA_PATHS="${BUILD_PREFIX}/targets/x86_64-linux,${PREFIX}/targets/x86_64-linux"
-	# Needed for some nvcc binaries
-	export PATH=$PATH:${BUILD_PREFIX}/nvvm/bin
-	# XLA can only cope with a single cuda header include directory, merge both
-	rsync -a ${PREFIX}/targets/x86_64-linux/include/ ${BUILD_PREFIX}/targets/x86_64-linux/include/
+        # Needed for some nvcc binaries
+        export PATH=$PATH:${BUILD_PREFIX}/nvvm/bin
+        # XLA can only cope with a single cuda header include directory, merge both
+        rsync -a ${PREFIX}/targets/x86_64-linux/include/ ${BUILD_PREFIX}/targets/x86_64-linux/include/
 
         # Although XLA supports a non-hermetic build, it still tries to find headers in the hermetic locations.
+        # We do this in the BUILD_PREFIX to not have any impact on the resulting jaxlib package.
+        # Otherwise, these copied files would be included in the package.
         rm -rf ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party
         mkdir -p ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cuda/extras/CUPTI
         cp -r ${PREFIX}/targets/x86_64-linux/include ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cuda/
         cp -r ${PREFIX}/targets/x86_64-linux/include ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cuda/extras/CUPTI/
+        mkdir -p ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cudnn
+	cp ${PREFIX}/include/cudnn.h ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cudnn/
         export LOCAL_CUDA_PATH="${BUILD_PREFIX}/targets/x86_64-linux"
-        export LOCAL_CUDNN_PATH="${PREFIX}"
-        export LOCAL_NCCL_PATH="${PREFIX}"
+        export LOCAL_CUDNN_PATH="${PREFIX}/targets/x86_64-linux"
+        export LOCAL_NCCL_PATH="${PREFIX}/targets/x86_64-linux"
+        mkdir -p ${BUILD_PREFIX}/targets/x86_64-linux/bin
+        ln -s $(which ptxas) ${BUILD_PREFIX}/targets/x86_64-linux/bin/ptxas
+        ln -s $(which nvlink) ${BUILD_PREFIX}/targets/x86_64-linux/bin/nvlink
+        ln -s $(which fatbinary) ${BUILD_PREFIX}/targets/x86_64-linux/bin/fatbinary
     else
         echo "unsupported cuda version."
         exit 1

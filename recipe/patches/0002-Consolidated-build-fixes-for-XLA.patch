@@ -1,7 +1,7 @@
-From 5bb8f68ae81cf4e0484ccaaf399e569da030a76a Mon Sep 17 00:00:00 2001
+From a7e732c129f51d16dd59b353e8c66ceae9b5529c Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwe.korn@quantco.com>
 Date: Thu, 14 Dec 2023 17:06:15 +0100
-Subject: [PATCH 2/4] Consolidated build fixes for XLA
+Subject: [PATCH 2/5] Consolidated build fixes for XLA
 
 jax vendors xla, but only populates the sources through bazel, so we cannot
 patch as usual through conda, but rather need to teach the bazel build file

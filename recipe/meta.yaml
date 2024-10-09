@@ -19,6 +19,7 @@ source:
     - patches/0002-Consolidated-build-fixes-for-XLA.patch
     - patches/0003-Simplify-logic-in-jaxlib-FFI_ASSIGN_OR_RETURN-macro-.patch
     - patches/0004-Fix-XLA_FFIR_REGISTER-macros.patch
+    - patches/0005-Add-missing-typename.patch
 
 build:
   number: {{ build }}

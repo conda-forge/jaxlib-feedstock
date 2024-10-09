@@ -1,7 +1,7 @@
-From d209bfd9298f14f2949366e7747a0f65da72d9d9 Mon Sep 17 00:00:00 2001
+From 39e78f89a5c0c92c5e8591aa458de268493b829d Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwe.korn@quantco.com>
 Date: Tue, 8 Oct 2024 12:57:07 +0000
-Subject: [PATCH 4/4] Fix XLA_FFIR_REGISTER macros
+Subject: [PATCH 4/5] Fix XLA_FFIR_REGISTER macros
 
 ---
  ..._FFI_REGISTER_-macros-global-qualifi.patch | 118 ++++++++++++++++++
