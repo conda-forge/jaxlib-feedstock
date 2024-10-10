@@ -60,6 +60,7 @@ requirements:
     - cuda-cudart-dev   # [(cuda_compiler_version or "").startswith("12")]
     - cuda-nvml-dev     # [(cuda_compiler_version or "").startswith("12")]
     - cuda-nvtx-dev     # [(cuda_compiler_version or "").startswith("12")]
+    - cuda-nvcc-tools  # [(cuda_compiler_version or "").startswith("12")]
     - libcublas-dev     # [(cuda_compiler_version or "").startswith("12")]
     - libcusolver-dev   # [(cuda_compiler_version or "").startswith("12")]
     - libcurand-dev     # [(cuda_compiler_version or "").startswith("12")]
@@ -86,9 +87,7 @@ requirements:
     - scipy >=1.9
     - ml_dtypes >=0.2.0
     - __cuda  # [cuda_compiler_version != "None"]
-    - cuda-nvcc  # [(cuda_compiler_version or "").startswith("12")]
-    # Workaround for https://github.com/conda-forge/cuda-cupti-feedstock/issues/14
-    - cuda-cupti >=12.0.90,<13.0a0  # [(cuda_compiler_version or "").startswith("12")]
+    - cuda-nvcc-tools  # [(cuda_compiler_version or "").startswith("12")]
   run_constrained:
     - jax >={{ version }}
 
