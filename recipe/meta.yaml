@@ -1,5 +1,5 @@
-{% set version = "0.4.31" %}
-{% set build = 2 %}
+{% set version = "0.4.32" %}
+{% set build = 0 %}
 
 {% if cuda_compiler_version != "None" %}
 {% set build = build + 200 %}
@@ -13,10 +13,13 @@ package:
 source:
   # only pull sources after upstream PyPI release...
   url: https://github.com/google/jax/archive/jaxlib-v{{ version }}.tar.gz
-  sha256: 022ea1347f9b21cbea31410b3d650d976ea4452a48ea7317a5f91c238031bf94
+  sha256: 3fe36d596e4d640443c0a5c533845c74fbc4341e024d9bb1cd75cb49f5f419c2
   patches:
     - patches/0001-Allow-for-custom-CUDA-build.patch
     - patches/0002-Consolidated-build-fixes-for-XLA.patch
+    - patches/0003-Simplify-logic-in-jaxlib-FFI_ASSIGN_OR_RETURN-macro-.patch
+    - patches/0004-Fix-XLA_FFIR_REGISTER-macros.patch
+    - patches/0005-Add-missing-typename.patch
 
 build:
   number: {{ build }}
@@ -57,6 +60,7 @@ requirements:
     - cuda-cudart-dev   # [(cuda_compiler_version or "").startswith("12")]
     - cuda-nvml-dev     # [(cuda_compiler_version or "").startswith("12")]
     - cuda-nvtx-dev     # [(cuda_compiler_version or "").startswith("12")]
+    - cuda-nvcc-tools  # [(cuda_compiler_version or "").startswith("12")]
     - libcublas-dev     # [(cuda_compiler_version or "").startswith("12")]
     - libcusolver-dev   # [(cuda_compiler_version or "").startswith("12")]
     - libcurand-dev     # [(cuda_compiler_version or "").startswith("12")]
@@ -65,6 +69,7 @@ requirements:
     - python
     - pip
     - numpy
+    - setuptools
     - wheel
     - cuda-version {{ cuda_compiler_version }}  # [cuda_compiler_version != "None"]
     # avoid not being able to pass `-C=--build-option=--python-tag=cp<x>` due to
@@ -82,9 +87,7 @@ requirements:
     - scipy >=1.9
     - ml_dtypes >=0.2.0
     - __cuda  # [cuda_compiler_version != "None"]
-    - cuda-nvcc  # [(cuda_compiler_version or "").startswith("12")]
-    # Workaround for https://github.com/conda-forge/cuda-cupti-feedstock/issues/14
-    - cuda-cupti >=12.0.90,<13.0a0  # [(cuda_compiler_version or "").startswith("12")]
+    - cuda-nvcc-tools  # [(cuda_compiler_version or "").startswith("12")]
   run_constrained:
     - jax >={{ version }}
 
