@@ -1,7 +1,7 @@
-From a7e732c129f51d16dd59b353e8c66ceae9b5529c Mon Sep 17 00:00:00 2001
+From b23dcbbf6261bf6aa03c35673cf8d9b1568593ad Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwe.korn@quantco.com>
 Date: Thu, 14 Dec 2023 17:06:15 +0100
-Subject: [PATCH 2/5] Consolidated build fixes for XLA
+Subject: [PATCH 2/3] Consolidated build fixes for XLA
 
 jax vendors xla, but only populates the sources through bazel, so we cannot
 patch as usual through conda, but rather need to teach the bazel build file
@@ -17,10 +17,10 @@ Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
  .../xla/0001-Omit-usage-of-StrFormat.patch    |  43 ++++
  ...pport-third-party-build-of-boringssl.patch |  51 ++++
  third_party/xla/0002-Fix-abseil-headers.patch |  73 ++++++
- .../xla/0003-Omit-usage-of-StrFormat.patch    |  43 ++++
+ .../xla/0003-Omit-usage-of-StrFormat.patch    |  24 ++
  ...0004-Add-missing-bits-absl-systemlib.patch | 226 ++++++++++++++++++
  third_party/xla/workspace.bzl                 |   6 +
- 6 files changed, 442 insertions(+)
+ 6 files changed, 423 insertions(+)
  create mode 100644 third_party/xla/0001-Omit-usage-of-StrFormat.patch
  create mode 100644 third_party/xla/0001-Support-third-party-build-of-boringssl.patch
  create mode 100644 third_party/xla/0002-Fix-abseil-headers.patch
@@ -78,11 +78,11 @@ index 0000000..d1b4765
 +   }
 diff --git a/third_party/xla/0001-Support-third-party-build-of-boringssl.patch b/third_party/xla/0001-Support-third-party-build-of-boringssl.patch
 new file mode 100644
-index 0000000..26a9904
+index 0000000..3535220
 --- /dev/null
 +++ b/third_party/xla/0001-Support-third-party-build-of-boringssl.patch
 @@ -0,0 +1,51 @@
-+From 9a5932bb8a363f777ce39ff75a52eda2bba9c21f Mon Sep 17 00:00:00 2001
++From 12f526179896176c1726d5fa9eab2f0332e8ee21 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 14 Dec 2023 15:04:51 +0100
 +Subject: [PATCH 1/4] Support third-party build of boringssl
@@ -135,24 +135,24 @@ index 0000000..26a9904
 + 
 diff --git a/third_party/xla/0002-Fix-abseil-headers.patch b/third_party/xla/0002-Fix-abseil-headers.patch
 new file mode 100644
-index 0000000..96a6fec
+index 0000000..7e5ff56
 --- /dev/null
 +++ b/third_party/xla/0002-Fix-abseil-headers.patch
 @@ -0,0 +1,73 @@
-+From 97ad75d0bf891be488fb223ac95ff6572b4ecd88 Mon Sep 17 00:00:00 2001
++From 87e126882738dd5440430f03ff87fdb4ca31516b Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 23 May 2024 15:45:52 +0200
 +Subject: [PATCH 2/4] Fix abseil headers
 +
 +---
-+ third_party/tsl/tsl/platform/default/BUILD    | 2 ++
-+ third_party/tsl/tsl/profiler/rpc/client/BUILD | 4 ++++
-+ xla/python/ifrt_proxy/common/BUILD            | 3 +++
-+ xla/tsl/distributed_runtime/rpc/BUILD         | 1 +
++ third_party/tsl/tsl/platform/default/BUILD | 2 ++
++ xla/python/ifrt_proxy/common/BUILD         | 3 +++
++ xla/tsl/distributed_runtime/rpc/BUILD      | 1 +
++ xla/tsl/profiler/rpc/client/BUILD          | 4 ++++
 + 4 files changed, 10 insertions(+)
 +
 +diff --git a/third_party/tsl/tsl/platform/default/BUILD b/third_party/tsl/tsl/platform/default/BUILD
-+index b3ce4301fb..9b72c2eb42 100644
++index 8cbb72cfc9..c99667c050 100644
 +--- a/third_party/tsl/tsl/platform/default/BUILD
 ++++ b/third_party/tsl/tsl/platform/default/BUILD
 +@@ -225,6 +225,8 @@ cc_library(
@@ -164,30 +164,8 @@ index 0000000..96a6fec
 +     ] + tsl_grpc_cc_dependencies(),
 + )
 + 
-+diff --git a/third_party/tsl/tsl/profiler/rpc/client/BUILD b/third_party/tsl/tsl/profiler/rpc/client/BUILD
-+index 4b8ece7403..a2772846b8 100644
-+--- a/third_party/tsl/tsl/profiler/rpc/client/BUILD
-++++ b/third_party/tsl/tsl/profiler/rpc/client/BUILD
-+@@ -101,6 +101,8 @@ cc_library(
-+         "//tsl/platform:status",
-+         "//tsl/profiler/protobuf:profiler_analysis_cc_grpc_proto",
-+         "//tsl/profiler/protobuf:profiler_service_cc_grpc_proto",
-++        "@com_google_absl//absl/status",
-++        "@com_google_absl//absl/status:statusor",
-+         "@com_google_absl//absl/strings",
-+         "@com_google_absl//absl/time",
-+     ],
-+@@ -127,6 +129,8 @@ cc_library(
-+         "//tsl/platform:types",
-+         "//tsl/profiler/protobuf:profiler_analysis_cc_grpc_proto",
-+         "//tsl/profiler/protobuf:profiler_service_cc_grpc_proto",
-++        "@com_google_absl//absl/status",
-++        "@com_google_absl//absl/status:statusor",
-+         "//tsl/protobuf:error_codes_proto_impl_cc",
-+         "@com_google_absl//absl/memory",
-+         "@com_google_absl//absl/strings",
 +diff --git a/xla/python/ifrt_proxy/common/BUILD b/xla/python/ifrt_proxy/common/BUILD
-+index 969ab1ce7a..5009078dcb 100644
++index 9d6b3bbecb..934ed56ad3 100644
 +--- a/xla/python/ifrt_proxy/common/BUILD
 ++++ b/xla/python/ifrt_proxy/common/BUILD
 +@@ -52,6 +52,9 @@ cc_library(
@@ -201,73 +179,76 @@ index 0000000..96a6fec
 +     ],
 +     alwayslink = True,
 +diff --git a/xla/tsl/distributed_runtime/rpc/BUILD b/xla/tsl/distributed_runtime/rpc/BUILD
-+index 817c4dc5a4..d6f27deb5c 100644
++index 3fbfdd91f4..e9d18429f3 100644
 +--- a/xla/tsl/distributed_runtime/rpc/BUILD
 ++++ b/xla/tsl/distributed_runtime/rpc/BUILD
-+@@ -37,6 +37,7 @@ cc_library(
-+     hdrs = ["grpc_util.h"],
++@@ -38,6 +38,7 @@ cc_library(
 +     deps = [
++         "//xla/tsl/protobuf:distributed_runtime_payloads_proto_cc",
 +         "@com_google_absl//absl/status",
 ++        "@com_google_absl//absl/status:statusor",
 +         "@com_google_absl//absl/strings:cord",
 +         "@tsl//tsl/platform:protobuf",
 +         "@tsl//tsl/platform:status",
++diff --git a/xla/tsl/profiler/rpc/client/BUILD b/xla/tsl/profiler/rpc/client/BUILD
++index e135bd82dc..81b79f4600 100644
++--- a/xla/tsl/profiler/rpc/client/BUILD
+++++ b/xla/tsl/profiler/rpc/client/BUILD
++@@ -98,6 +98,8 @@ cc_library(
++     ]),
++     deps = [
++         ":profiler_client_impl",
+++        "@com_google_absl//absl/status",
+++        "@com_google_absl//absl/status:statusor",
++         "@com_google_absl//absl/strings",
++         "@com_google_absl//absl/time",
++         "@tsl//tsl/platform:status",
++@@ -121,6 +123,8 @@ cc_library(
++         "//tensorflow/python/profiler/internal:__pkg__",
++     ]),
++     deps = [
+++        "@com_google_absl//absl/status",
+++        "@com_google_absl//absl/status:statusor",
++         "@com_google_absl//absl/memory",
++         "@com_google_absl//absl/strings",
++         "@com_google_absl//absl/time",
 diff --git a/third_party/xla/0003-Omit-usage-of-StrFormat.patch b/third_party/xla/0003-Omit-usage-of-StrFormat.patch
 new file mode 100644
-index 0000000..67d2275
+index 0000000..9b7503e
 --- /dev/null
 +++ b/third_party/xla/0003-Omit-usage-of-StrFormat.patch
-@@ -0,0 +1,43 @@
-+From a360cd33b748c4f6b1ab00e386ac8031112c5b2f Mon Sep 17 00:00:00 2001
+@@ -0,0 +1,24 @@
++From 62ff28675279b0d72cfe477a94dc1d133d680630 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 4 Jul 2024 10:36:03 +0200
 +Subject: [PATCH 3/4] Omit usage of StrFormat
 +
 +---
-+ xla/stream_executor/gpu/gpu_executor.h | 9 ++++++---
-+ 1 file changed, 6 insertions(+), 3 deletions(-)
++ xla/stream_executor/gpu/gpu_executor.h | 4 ++++
++ 1 file changed, 4 insertions(+)
 +
 +diff --git a/xla/stream_executor/gpu/gpu_executor.h b/xla/stream_executor/gpu/gpu_executor.h
-+index 8e9a8352e2..36d42493c6 100644
++index 0fdde6096e..6d0825301f 100644
 +--- a/xla/stream_executor/gpu/gpu_executor.h
 ++++ b/xla/stream_executor/gpu/gpu_executor.h
-+@@ -27,6 +27,7 @@ limitations under the License.
++@@ -18,6 +18,10 @@ limitations under the License.
++ 
++ #include <cstdint>
 + #include <memory>
-+ #include <optional>
-+ #include <string>
+++#include <optional>
+++#include <string>
 ++#include <sstream>
-+ #include <unordered_map>
+++#include <unordered_map>
 + #include <utility>
 + #include <variant>
-+@@ -37,7 +38,6 @@ limitations under the License.
-+ #include "absl/numeric/int128.h"
-+ #include "absl/status/status.h"
-+ #include "absl/status/statusor.h"
-+-#include "absl/strings/str_format.h"
-+ #include "absl/synchronization/mutex.h"
-+ #include "absl/types/span.h"
-+ #include "xla/stream_executor/blas.h"
-+@@ -166,8 +166,11 @@ class GpuExecutor : public StreamExecutorCommon {
-+       uint64_t size) override {
-+     auto* buffer = GpuDriver::HostAllocate(context_, size);
-+     if (buffer == nullptr && size > 0) {
-+-      return absl::InternalError(
-+-          absl::StrFormat("Failed to allocate HostMemory of size %d", size));
-++      std::ostringstream stringStream;
-++      stringStream << "Failed to allocate HostMemory of size ";
-++      stringStream << size;
-++      std::string res = stringStream.str();
-++      return absl::InternalError(res);
-+     }
-+     return std::make_unique<HostMemoryAllocation>(buffer, size, this);
-+   }
++ #include <vector>
 diff --git a/third_party/xla/0004-Add-missing-bits-absl-systemlib.patch b/third_party/xla/0004-Add-missing-bits-absl-systemlib.patch
 new file mode 100644
-index 0000000..1941f79
+index 0000000..6ff4e1d
 --- /dev/null
 +++ b/third_party/xla/0004-Add-missing-bits-absl-systemlib.patch
 @@ -0,0 +1,226 @@
-+From fc6d67a2f5fce78eb91477fa4bca5c47b6fc31fd Mon Sep 17 00:00:00 2001
++From b483c852c960a94e0fe9496e662dc5df7d286fd4 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 4 Jul 2024 15:58:32 +0200
 +Subject: [PATCH 4/4] Add missing bits absl systemlib
@@ -494,7 +475,7 @@ index 0000000..1941f79
 +         "meta",
 +         "numeric",
 diff --git a/third_party/xla/workspace.bzl b/third_party/xla/workspace.bzl
-index 8f4accc..3b7afaf 100644
+index 37861d9..3af773f 100644
 --- a/third_party/xla/workspace.bzl
 +++ b/third_party/xla/workspace.bzl
 @@ -30,6 +30,12 @@ def repo():
