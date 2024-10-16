@@ -1,19 +1,19 @@
-From 1ec53ea591323e47c8ce53ed9b0736e98784ff68 Mon Sep 17 00:00:00 2001
+From b1d721c3831eb8785acd1cc489d37c882925418c Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwelk@xhochy.com>
 Date: Sun, 8 Oct 2023 19:34:34 +0200
-Subject: [PATCH 1/5] Allow for custom CUDA build
+Subject: [PATCH 1/4] Allow for custom CUDA build
 
 ---
  build/build.py | 5 +++++
  1 file changed, 5 insertions(+)
 
 diff --git a/build/build.py b/build/build.py
-index c3a8627..5bfbdcb 100755
+index de0d5a9..8b7a21f 100755
 --- a/build/build.py
 +++ b/build/build.py
-@@ -289,6 +289,11 @@ def write_bazelrc(*, remote_build,
-         f.write("build --config=nvcc_clang\n")
-         f.write(f"build --action_env=CLANG_CUDA_COMPILER_PATH={clang_path}\n")
+@@ -292,6 +292,11 @@ def write_bazelrc(*, remote_build,
+       if not enable_nccl:
+         f.write("build --config=nonccl\n")
        if cuda_version:
 +        # set GCC_HOST_COMPILER_PATH for toolchain with conda-forge
 +        f.write("build --action_env GCC_HOST_COMPILER_PATH=\"{gcc_host_compiler_path}\"\n"
