@@ -22,7 +22,7 @@ requirements:
     # https://github.com/google/jax/blob/jaxlib-v0.4.23/build/build.py#L207
     # https://github.com/google/jax/blob/jaxlib-v0.4.23/build/build.py#L98
     - bazel >=5.1.1,<7
-    - bazel-toolchain >=0.1.9
+    - bazel-toolchain >=0.1.9  # [not win]
   host:
     - python
     - pip
