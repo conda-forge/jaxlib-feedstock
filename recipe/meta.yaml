@@ -21,7 +21,9 @@ requirements:
     - python
     # https://github.com/google/jax/blob/jaxlib-v0.4.23/build/build.py#L207
     # https://github.com/google/jax/blob/jaxlib-v0.4.23/build/build.py#L98
-    - bazel >=5.1.1,<7
+    - bazel >=5.1.1,<7  # [not win]
+    # TODO 6.5.0 is currently broken on windows. 10/21/2022
+    - bazel >=5.1.1,<7,!=6.5.0  # [win]
     - bazel-toolchain >=0.1.9  # [not win]
   host:
     - python
