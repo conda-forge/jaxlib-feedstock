@@ -10,7 +10,7 @@ source:
   sha256: 65e086708ae56670676b7b2340ad82b901d8c9993d1241a839c8990bdb8d6212
 
 build:
-  number: 1
+  number: 0
   # s390x is missing bazel.
   skip: true  # [s390x or py<310]
 
