@@ -1,4 +1,4 @@
-%PYTHON% build/build.py
+%PYTHON% build/build.py --use_clang=false
 bazel clean --expunge
 bazel shutdown
 
