@@ -20,6 +20,8 @@ requirements:
     - {{ compiler('cxx') }}
     - clang                                     # [linux or win]
     - libstdcxx-ng {{ c_compiler_version }}     # [linux]
+    - llvm  # [win]
+    - lld   # [win]
     - python
     # https://github.com/google/jax/blob/jaxlib-v0.4.23/build/build.py#L207
     # https://github.com/google/jax/blob/jaxlib-v0.4.23/build/build.py#L98
