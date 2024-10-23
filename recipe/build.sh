@@ -14,6 +14,11 @@ else
 source gen-bazel-toolchain
 
 cat >> .bazelrc <<EOF
+
+build --copt=-isysroot${CONDA_BUILD_SYSROOT}
+build --host_copt=-isysroot${CONDA_BUILD_SYSROOT}
+build --linkopt=-isysroot${CONDA_BUILD_SYSROOT}
+build --host_linkopt=-isysroot${CONDA_BUILD_SYSROOT}
 build --crosstool_top=//bazel_toolchain:toolchain
 build --logging=6
 build --verbose_failures
@@ -24,7 +29,7 @@ build --local_cpu_resources=${CPU_COUNT}"
 EOF
 fi
 
-CUSTOM_BAZEL_OPTIONS="--bazel_options=--logging=6 --bazel_options=--verbose_failures --bazel_options=--toolchain_resolution_debug"
+CUSTOM_BAZEL_OPTIONS="--bazel_options=--logging=6 --bazel_options=--verbose_failures"
 
 echo "Building...."
 ${PYTHON} build/build.py --target_cpu_features default --enable_mkl_dnn ${CUSTOM_BAZEL_OPTIONS}
