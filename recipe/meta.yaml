@@ -10,9 +10,9 @@ source:
   sha256: e4c06d62ba54becffd91abc862627b8b11b79c5a77366af8843b819665b6d568
 
 build:
-  number: 0
-  # s390x is missing bazel. Win not supported by jaxlib.
-  skip: true  # [s390x or win or py<39]
+  number: 1
+  # s390x is missing bazel.
+  skip: true  # [s390x or py<39]
 
 requirements:
   build:
@@ -22,7 +22,7 @@ requirements:
     # https://github.com/google/jax/blob/jaxlib-v0.4.23/build/build.py#L207
     # https://github.com/google/jax/blob/jaxlib-v0.4.23/build/build.py#L98
     - bazel >=5.1.1,<7
-    - bazel-toolchain >=0.1.9
+    - bazel-toolchain >=0.1.9  # [not win]
   host:
     - python
     - pip
@@ -30,7 +30,7 @@ requirements:
     - setuptools
     - numpy 1.22.*  # [py<311]
     - numpy 1.23.*  # [py==311]
-    - numpy 1.26.*  # [py==312]
+    - numpy 1.26.*  # [py>=312]
     - python-build
 
   run:
