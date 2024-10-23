@@ -29,10 +29,12 @@ build --local_cpu_resources=${CPU_COUNT}"
 EOF
 fi
 
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH+LD_LIBRARY_PATH:}:$PREFIX/lib"
+
 CUSTOM_BAZEL_OPTIONS="--bazel_options=--logging=6 --bazel_options=--verbose_failures"
 
 echo "Building...."
-${PYTHON} build/build.py --target_cpu_features default --enable_mkl_dnn ${CUSTOM_BAZEL_OPTIONS}
+${PYTHON} build/build.py --use_clang=true --target_cpu_features default --enable_mkl_dnn ${CUSTOM_BAZEL_OPTIONS} --clang_path=${BUILD_PREFIX}/bin/clang
 echo "Building done."
 
 # Clean up to speedup postprocessing
