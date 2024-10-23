@@ -1,4 +1,4 @@
-{% set version = "0.4.23" %}
+{% set version = "0.4.35" %}
 {% set name = "jaxlib" %}
 
 package:
@@ -6,13 +6,13 @@ package:
   version: {{ version }}
 
 source:
-  url: https://github.com/google/jax/archive/{{ name }}-v{{ version }}.tar.gz
-  sha256: e4c06d62ba54becffd91abc862627b8b11b79c5a77366af8843b819665b6d568
+  url: https://github.com/google/jax/archive/jax-v{{ version }}.tar.gz
+  sha256: 65e086708ae56670676b7b2340ad82b901d8c9993d1241a839c8990bdb8d6212
 
 build:
   number: 1
   # s390x is missing bazel.
-  skip: true  # [s390x or py<39]
+  skip: true  # [s390x or py<310]
 
 requirements:
   build:
@@ -36,7 +36,7 @@ requirements:
   run:
     - python
     - {{ pin_compatible('numpy') }}
-    - scipy >=1.9     # [py<312]
+    - scipy >=1.10     # [py<312]
     - scipy >=1.11.1  # [py>=312]
     - ml_dtypes >=0.2.0
   run_constrained:
