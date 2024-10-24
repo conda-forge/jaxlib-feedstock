@@ -8,6 +8,7 @@ else
   export LDFLAGS="${LDFLAGS} -lrt"
 fi
 
+# Build with clang on OSX-* and linux-aarch64. Stick with gcc on linux-64.
 if [[ "${target_platform}" == linux-64 ]]; then
   export BUILD_FLAGS="--use_clang=false"
 else
