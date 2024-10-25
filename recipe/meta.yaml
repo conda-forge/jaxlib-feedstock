@@ -8,6 +8,7 @@ package:
 source:
   url: https://github.com/google/jax/archive/jax-v{{ version }}.tar.gz
   sha256: 65e086708ae56670676b7b2340ad82b901d8c9993d1241a839c8990bdb8d6212
+  patches:
 
 build:
   number: 0
