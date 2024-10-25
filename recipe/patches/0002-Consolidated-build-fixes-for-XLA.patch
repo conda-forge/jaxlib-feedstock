@@ -1,0 +1,493 @@
+From b23dcbbf6261bf6aa03c35673cf8d9b1568593ad Mon Sep 17 00:00:00 2001
+From: "Uwe L. Korn" <uwe.korn@quantco.com>
+Date: Thu, 14 Dec 2023 17:06:15 +0100
+Subject: [PATCH 2/4] Consolidated build fixes for XLA
+
+jax vendors xla, but only populates the sources through bazel, so we cannot
+patch as usual through conda, but rather need to teach the bazel build file
+for xla to apply those patches.
+
+To maintain/rebase these patches, use a checkout of https://github.com/openxla/xla,
+and then rebase to the commit of xla being used by jax, which can be found in
+https://github.com/google/jax/blob/jaxlib-v{{ version }}/third_party/xla/workspace.bzl
+which is also where we're patching in the list of patches to apply to xla.
+
+Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
+---
+ .../xla/0001-Omit-usage-of-StrFormat.patch    |  43 ++++
+ ...pport-third-party-build-of-boringssl.patch |  51 ++++
+ third_party/xla/0002-Fix-abseil-headers.patch |  73 ++++++
+ .../xla/0003-Omit-usage-of-StrFormat.patch    |  24 ++
+ ...0004-Add-missing-bits-absl-systemlib.patch | 226 ++++++++++++++++++
+ third_party/xla/workspace.bzl                 |   6 +
+ 6 files changed, 423 insertions(+)
+ create mode 100644 third_party/xla/0001-Omit-usage-of-StrFormat.patch
+ create mode 100644 third_party/xla/0001-Support-third-party-build-of-boringssl.patch
+ create mode 100644 third_party/xla/0002-Fix-abseil-headers.patch
+ create mode 100644 third_party/xla/0003-Omit-usage-of-StrFormat.patch
+ create mode 100644 third_party/xla/0004-Add-missing-bits-absl-systemlib.patch
+
+diff --git a/third_party/xla/0001-Omit-usage-of-StrFormat.patch b/third_party/xla/0001-Omit-usage-of-StrFormat.patch
+new file mode 100644
+index 0000000..d1b4765
+--- /dev/null
++++ b/third_party/xla/0001-Omit-usage-of-StrFormat.patch
+@@ -0,0 +1,43 @@
++From b7d3f685ea9f58f0054af0f34d0bc3ccac43fa5c Mon Sep 17 00:00:00 2001
++From: "Uwe L. Korn" <uwe.korn@quantco.com>
++Date: Thu, 4 Jul 2024 10:36:03 +0200
++Subject: [PATCH] Omit usage of StrFormat
++
++---
++ xla/stream_executor/gpu/gpu_executor.h | 9 ++++++---
++ 1 file changed, 6 insertions(+), 3 deletions(-)
++
++diff --git a/xla/stream_executor/gpu/gpu_executor.h b/xla/stream_executor/gpu/gpu_executor.h
++index 3a5945e884..9bdc2acd47 100644
++--- a/xla/stream_executor/gpu/gpu_executor.h
+++++ b/xla/stream_executor/gpu/gpu_executor.h
++@@ -29,6 +29,7 @@ limitations under the License.
++ #include <optional>
++ #include <set>
++ #include <string>
+++#include <sstream>
++ #include <unordered_map>
++ #include <utility>
++ 
++@@ -38,7 +39,6 @@ limitations under the License.
++ #include "absl/numeric/int128.h"
++ #include "absl/status/status.h"
++ #include "absl/status/statusor.h"
++-#include "absl/strings/str_format.h"
++ #include "absl/synchronization/mutex.h"
++ #include "absl/types/span.h"
++ #include "xla/stream_executor/blas.h"
++@@ -187,8 +187,11 @@ class GpuExecutor : public StreamExecutor {
++       uint64_t size) override {
++     auto* buffer = GpuDriver::HostAllocate(context_, size);
++     if (buffer == nullptr && size > 0) {
++-      return absl::InternalError(
++-          absl::StrFormat("Failed to allocate HostMemory of size %d", size));
+++      std::ostringstream stringStream;
+++      stringStream << "Failed to allocate HostMemory of size ";
+++      stringStream << size;
+++      std::string res = stringStream.str();
+++      return absl::InternalError(res);
++     }
++     return std::make_unique<HostMemoryAllocation>(buffer, size, this);
++   }
+diff --git a/third_party/xla/0001-Support-third-party-build-of-boringssl.patch b/third_party/xla/0001-Support-third-party-build-of-boringssl.patch
+new file mode 100644
+index 0000000..3535220
+--- /dev/null
++++ b/third_party/xla/0001-Support-third-party-build-of-boringssl.patch
+@@ -0,0 +1,51 @@
++From 12f526179896176c1726d5fa9eab2f0332e8ee21 Mon Sep 17 00:00:00 2001
++From: "Uwe L. Korn" <uwe.korn@quantco.com>
++Date: Thu, 14 Dec 2023 15:04:51 +0100
++Subject: [PATCH 1/4] Support third-party build of boringssl
++
++---
++ third_party/boringssl.BUILD | 21 +++++++++++++++++++++
++ workspace2.bzl              |  2 +-
++ 2 files changed, 22 insertions(+), 1 deletion(-)
++ create mode 100644 third_party/boringssl.BUILD
++
++diff --git a/third_party/boringssl.BUILD b/third_party/boringssl.BUILD
++new file mode 100644
++index 0000000000..bc4c533403
++--- /dev/null
+++++ b/third_party/boringssl.BUILD
++@@ -0,0 +1,21 @@
+++licenses(["notice"])
+++
+++filegroup(
+++    name = "LICENSE",
+++    visibility = ["//visibility:public"],
+++)
+++
+++cc_library(
+++    name = "crypto",
+++    linkopts = ["-lcrypto"],
+++    visibility = ["//visibility:public"],
+++)
+++
+++cc_library(
+++    name = "ssl",
+++    linkopts = ["-lssl"],
+++    visibility = ["//visibility:public"],
+++    deps = [
+++        ":crypto",
+++    ],
+++)
++diff --git a/workspace2.bzl b/workspace2.bzl
++index 1809702d8b..6fc538d3a2 100644
++--- a/workspace2.bzl
+++++ b/workspace2.bzl
++@@ -69,7 +69,7 @@ def _tf_repositories():
++         name = "boringssl",
++         sha256 = "9dc53f851107eaf87b391136d13b815df97ec8f76dadb487b58b2fc45e624d2c",
++         strip_prefix = "boringssl-c00d7ca810e93780bd0c8ee4eea28f4f2ea4bcdc",
++-        system_build_file = "//third_party/systemlibs:boringssl.BUILD",
+++        system_build_file = "//third_party:boringssl.BUILD",
++         urls = tf_mirror_urls("https://github.com/google/boringssl/archive/c00d7ca810e93780bd0c8ee4eea28f4f2ea4bcdc.tar.gz"),
++     )
++ 
+diff --git a/third_party/xla/0002-Fix-abseil-headers.patch b/third_party/xla/0002-Fix-abseil-headers.patch
+new file mode 100644
+index 0000000..7e5ff56
+--- /dev/null
++++ b/third_party/xla/0002-Fix-abseil-headers.patch
+@@ -0,0 +1,73 @@
++From 87e126882738dd5440430f03ff87fdb4ca31516b Mon Sep 17 00:00:00 2001
++From: "Uwe L. Korn" <uwe.korn@quantco.com>
++Date: Thu, 23 May 2024 15:45:52 +0200
++Subject: [PATCH 2/4] Fix abseil headers
++
++---
++ third_party/tsl/tsl/platform/default/BUILD | 2 ++
++ xla/python/ifrt_proxy/common/BUILD         | 3 +++
++ xla/tsl/distributed_runtime/rpc/BUILD      | 1 +
++ xla/tsl/profiler/rpc/client/BUILD          | 4 ++++
++ 4 files changed, 10 insertions(+)
++
++diff --git a/third_party/tsl/tsl/platform/default/BUILD b/third_party/tsl/tsl/platform/default/BUILD
++index 8cbb72cfc9..c99667c050 100644
++--- a/third_party/tsl/tsl/platform/default/BUILD
+++++ b/third_party/tsl/tsl/platform/default/BUILD
++@@ -225,6 +225,8 @@ cc_library(
++     deps = [
++         "//tsl/platform:logging",
++         "@com_google_absl//absl/log:check",
+++        "@com_google_absl//absl/status",
+++        "@com_google_absl//absl/status:statusor",
++     ] + tsl_grpc_cc_dependencies(),
++ )
++ 
++diff --git a/xla/python/ifrt_proxy/common/BUILD b/xla/python/ifrt_proxy/common/BUILD
++index 9d6b3bbecb..934ed56ad3 100644
++--- a/xla/python/ifrt_proxy/common/BUILD
+++++ b/xla/python/ifrt_proxy/common/BUILD
++@@ -52,6 +52,9 @@ cc_library(
++         "@com_github_grpc_grpc//:grpc++",
++         "@com_google_absl//absl/log",
++         "@com_google_absl//absl/log:check",
+++        "@com_google_absl//absl/status",
+++        "@com_google_absl//absl/status:statusor",
+++        "@com_google_absl//absl/strings",
++         "@tsl//tsl/platform",
++     ],
++     alwayslink = True,
++diff --git a/xla/tsl/distributed_runtime/rpc/BUILD b/xla/tsl/distributed_runtime/rpc/BUILD
++index 3fbfdd91f4..e9d18429f3 100644
++--- a/xla/tsl/distributed_runtime/rpc/BUILD
+++++ b/xla/tsl/distributed_runtime/rpc/BUILD
++@@ -38,6 +38,7 @@ cc_library(
++     deps = [
++         "//xla/tsl/protobuf:distributed_runtime_payloads_proto_cc",
++         "@com_google_absl//absl/status",
+++        "@com_google_absl//absl/status:statusor",
++         "@com_google_absl//absl/strings:cord",
++         "@tsl//tsl/platform:protobuf",
++         "@tsl//tsl/platform:status",
++diff --git a/xla/tsl/profiler/rpc/client/BUILD b/xla/tsl/profiler/rpc/client/BUILD
++index e135bd82dc..81b79f4600 100644
++--- a/xla/tsl/profiler/rpc/client/BUILD
+++++ b/xla/tsl/profiler/rpc/client/BUILD
++@@ -98,6 +98,8 @@ cc_library(
++     ]),
++     deps = [
++         ":profiler_client_impl",
+++        "@com_google_absl//absl/status",
+++        "@com_google_absl//absl/status:statusor",
++         "@com_google_absl//absl/strings",
++         "@com_google_absl//absl/time",
++         "@tsl//tsl/platform:status",
++@@ -121,6 +123,8 @@ cc_library(
++         "//tensorflow/python/profiler/internal:__pkg__",
++     ]),
++     deps = [
+++        "@com_google_absl//absl/status",
+++        "@com_google_absl//absl/status:statusor",
++         "@com_google_absl//absl/memory",
++         "@com_google_absl//absl/strings",
++         "@com_google_absl//absl/time",
+diff --git a/third_party/xla/0003-Omit-usage-of-StrFormat.patch b/third_party/xla/0003-Omit-usage-of-StrFormat.patch
+new file mode 100644
+index 0000000..9b7503e
+--- /dev/null
++++ b/third_party/xla/0003-Omit-usage-of-StrFormat.patch
+@@ -0,0 +1,24 @@
++From 62ff28675279b0d72cfe477a94dc1d133d680630 Mon Sep 17 00:00:00 2001
++From: "Uwe L. Korn" <uwe.korn@quantco.com>
++Date: Thu, 4 Jul 2024 10:36:03 +0200
++Subject: [PATCH 3/4] Omit usage of StrFormat
++
++---
++ xla/stream_executor/gpu/gpu_executor.h | 4 ++++
++ 1 file changed, 4 insertions(+)
++
++diff --git a/xla/stream_executor/gpu/gpu_executor.h b/xla/stream_executor/gpu/gpu_executor.h
++index 0fdde6096e..6d0825301f 100644
++--- a/xla/stream_executor/gpu/gpu_executor.h
+++++ b/xla/stream_executor/gpu/gpu_executor.h
++@@ -18,6 +18,10 @@ limitations under the License.
++ 
++ #include <cstdint>
++ #include <memory>
+++#include <optional>
+++#include <string>
+++#include <sstream>
+++#include <unordered_map>
++ #include <utility>
++ #include <variant>
++ #include <vector>
+diff --git a/third_party/xla/0004-Add-missing-bits-absl-systemlib.patch b/third_party/xla/0004-Add-missing-bits-absl-systemlib.patch
+new file mode 100644
+index 0000000..6ff4e1d
+--- /dev/null
++++ b/third_party/xla/0004-Add-missing-bits-absl-systemlib.patch
+@@ -0,0 +1,226 @@
++From b483c852c960a94e0fe9496e662dc5df7d286fd4 Mon Sep 17 00:00:00 2001
++From: "Uwe L. Korn" <uwe.korn@quantco.com>
++Date: Thu, 4 Jul 2024 15:58:32 +0200
++Subject: [PATCH 4/4] Add missing bits absl systemlib
++
++---
++ .../third_party/absl/system.absl.base.BUILD   | 16 +++++
++ .../third_party/absl/system.absl.crc.BUILD    | 70 +++++++++++++++++++
++ .../third_party/absl/system.absl.log.BUILD    | 56 +++++++++++++++
++ .../absl/system.absl.strings.BUILD            | 12 ++++
++ .../tsl/third_party/absl/workspace.bzl        |  2 +
++ 5 files changed, 156 insertions(+)
++ create mode 100644 third_party/tsl/third_party/absl/system.absl.crc.BUILD
++ create mode 100644 third_party/tsl/third_party/absl/system.absl.log.BUILD
++
++diff --git a/third_party/tsl/third_party/absl/system.absl.base.BUILD b/third_party/tsl/third_party/absl/system.absl.base.BUILD
++index d6bf8748de..b77fe118e3 100644
++--- a/third_party/tsl/third_party/absl/system.absl.base.BUILD
+++++ b/third_party/tsl/third_party/absl/system.absl.base.BUILD
++@@ -20,6 +20,14 @@ cc_library(
++     linkopts = ["-labsl_log_severity"],
++ )
++ 
+++cc_library(
+++    name = "nullability",
+++    deps = [
+++        ":core_headers",
+++        "//absl/meta:type_traits",
+++    ],
+++)
+++
++ cc_library(
++     name = "raw_logging_internal",
++     linkopts = ["-labsl_raw_logging_internal"],
++@@ -105,3 +113,11 @@ cc_library(
++         "//absl:__subpackages__",
++     ],
++ )
+++
+++cc_library(
+++    name = "prefetch",
+++    deps = [
+++        ":config",
+++        ":core_headers",
+++    ],
+++)
++diff --git a/third_party/tsl/third_party/absl/system.absl.crc.BUILD b/third_party/tsl/third_party/absl/system.absl.crc.BUILD
++new file mode 100644
++index 0000000000..487c36ff45
++--- /dev/null
+++++ b/third_party/tsl/third_party/absl/system.absl.crc.BUILD
++@@ -0,0 +1,70 @@
+++load("@rules_cc//cc:defs.bzl", "cc_library")
+++
+++package(default_visibility = ["//visibility:public"])
+++
+++cc_library(
+++    name = "crc32c",
+++    linkopts = [
+++        "-labsl_crc32c",
+++        "-labsl_crc_cord_state",
+++        "-labsl_crc_cpu_detect",
+++        "-labsl_crc_internal",
+++    ],
+++    deps = [
+++        ":cpu_detect",
+++        ":crc_internal",
+++        ":non_temporal_memcpy",
+++        "//absl/base:config",
+++        "//absl/base:core_headers",
+++        "//absl/base:endian",
+++        "//absl/base:prefetch",
+++        "//absl/strings",
+++        "//absl/strings:str_format",
+++    ],
+++)
+++
+++cc_library(
+++    name = "cpu_detect",
+++    visibility = ["//visibility:private"],
+++    deps = [
+++        "//absl/base",
+++        "//absl/base:config",
+++    ],
+++)
+++
+++cc_library(
+++    name = "crc_internal",
+++    visibility = ["//visibility:private"],
+++    deps = [
+++        ":cpu_detect",
+++        "//absl/base:config",
+++        "//absl/base:core_headers",
+++        "//absl/base:endian",
+++        "//absl/base:prefetch",
+++        "//absl/base:raw_logging_internal",
+++        "//absl/memory",
+++        "//absl/numeric:bits",
+++    ],
+++)
+++
+++cc_library(
+++    name = "non_temporal_memcpy",
+++    visibility = [
+++        ":__pkg__",
+++    ],
+++    deps = [
+++        ":non_temporal_arm_intrinsics",
+++        "//absl/base:config",
+++        "//absl/base:core_headers",
+++    ],
+++)
+++
+++cc_library(
+++    name = "non_temporal_arm_intrinsics",
+++    visibility = [
+++        ":__pkg__",
+++    ],
+++    deps = [
+++        "//absl/base:config",
+++    ],
+++)
++diff --git a/third_party/tsl/third_party/absl/system.absl.log.BUILD b/third_party/tsl/third_party/absl/system.absl.log.BUILD
++new file mode 100644
++index 0000000000..90b2ada6cf
++--- /dev/null
+++++ b/third_party/tsl/third_party/absl/system.absl.log.BUILD
++@@ -0,0 +1,56 @@
+++load("@rules_cc//cc:defs.bzl", "cc_library")
+++
+++package(default_visibility = ["//visibility:public"])
+++
+++cc_library(
+++    name = "die_if_null",
+++    linkopts = ["-labsl_die_if_null"],
+++    deps = [
+++        ":log",
+++        "//absl/base:config",
+++        "//absl/base:core_headers",
+++        "//absl/strings",
+++    ],
+++)
+++
+++cc_library(
+++    name = "log",
+++    linkopts = [
+++        "-labsl_vlog_config_internal",
+++        "-labsl_log_internal_conditions",
+++        "-labsl_log_internal_check_op",
+++        "-labsl_log_internal_message",
+++        "-labsl_log_internal_nullguard",
+++    ],
+++)
+++
+++cc_library(
+++    name = "check",
+++    linkopts = [
+++        "-labsl_vlog_config_internal",
+++        "-labsl_log_internal_check_op",
+++        "-labsl_log_internal_message",
+++        "-labsl_log_internal_nullguard",
+++    ],
+++)
+++
+++cc_library(
+++    name = "initialize",
+++    linkopts = [
+++        "-labsl_log_initialize",
+++    ],
+++)
+++
+++cc_library(
+++    name = "log_sink",
+++    linkopts = [
+++        "-labsl_log_internal_log_sink_set",
+++    ],
+++)
+++
+++cc_library(
+++    name = "log_entry",
+++    linkopts = [
+++        "-labsl_log_internal_log_sink_set",
+++    ],
+++)
++diff --git a/third_party/tsl/third_party/absl/system.absl.strings.BUILD b/third_party/tsl/third_party/absl/system.absl.strings.BUILD
++index fa9a7a84f6..6a898a6d48 100644
++--- a/third_party/tsl/third_party/absl/system.absl.strings.BUILD
+++++ b/third_party/tsl/third_party/absl/system.absl.strings.BUILD
++@@ -2,6 +2,18 @@ load("@rules_cc//cc:defs.bzl", "cc_library")
++ 
++ package(default_visibility = ["//visibility:public"])
++ 
+++cc_library(
+++    name = "string_view",
+++    linkopts = ["-labsl_string_view"],
+++    deps = [
+++        "//absl/base",
+++        "//absl/base:config",
+++        "//absl/base:core_headers",
+++        "//absl/base:nullability",
+++        "//absl/base:throw_delegate",
+++    ],
+++)
+++
++ cc_library(
++     name = "strings",
++     linkopts = ["-labsl_strings"],
++diff --git a/third_party/tsl/third_party/absl/workspace.bzl b/third_party/tsl/third_party/absl/workspace.bzl
++index 9565a82c33..e71aa16726 100644
++--- a/third_party/tsl/third_party/absl/workspace.bzl
+++++ b/third_party/tsl/third_party/absl/workspace.bzl
++@@ -14,12 +14,14 @@ def repo():
++     SYS_DIRS = [
++         "algorithm",
++         "base",
+++        "crc",
++         "cleanup",
++         "container",
++         "debugging",
++         "flags",
++         "functional",
++         "hash",
+++        "log",
++         "memory",
++         "meta",
++         "numeric",
+diff --git a/third_party/xla/workspace.bzl b/third_party/xla/workspace.bzl
+index 37861d9..3af773f 100644
+--- a/third_party/xla/workspace.bzl
++++ b/third_party/xla/workspace.bzl
+@@ -30,6 +30,12 @@ def repo():
+         sha256 = XLA_SHA256,
+         strip_prefix = "xla-{commit}".format(commit = XLA_COMMIT),
+         urls = tf_mirror_urls("https://github.com/openxla/xla/archive/{commit}.tar.gz".format(commit = XLA_COMMIT)),
++        patch_file = [
++            "//third_party/xla:0001-Support-third-party-build-of-boringssl.patch",
++            "//third_party/xla:0002-Fix-abseil-headers.patch",
++            "//third_party/xla:0003-Omit-usage-of-StrFormat.patch",
++            "//third_party/xla:0004-Add-missing-bits-absl-systemlib.patch",
++        ],
+     )
+ 
+     # For development, one often wants to make changes to the TF repository as well
