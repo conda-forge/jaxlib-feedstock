@@ -9,6 +9,7 @@ source:
   url: https://github.com/google/jax/archive/jax-v{{ version }}.tar.gz
   sha256: 65e086708ae56670676b7b2340ad82b901d8c9993d1241a839c8990bdb8d6212
   patches:
+      - patches/0000-Consolidated-build-fixes-for-XLA.patch  # [not win]
 
 build:
   number: 0
@@ -27,6 +28,8 @@ requirements:
     # https://github.com/jax-ml/jax/blob/jax-v0.4.35/build/build.py#L198
     - bazel >=6.5.0,<7
     - bazel-toolchain >=0.1.9  # [not win]
+    - libabseil
+    - patch  # [not win]
   host:
     - python
     - pip
@@ -36,6 +39,7 @@ requirements:
     - numpy 1.23.*  # [py==311]
     - numpy 1.26.*  # [py>=312]
     - python-build
+    - libabseil
 
   run:
     - python
