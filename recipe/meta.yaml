@@ -40,6 +40,7 @@ requirements:
     - numpy 1.26.*  # [py>=312]
     - python-build
     - libabseil
+    - openssl
 
   run:
     - python

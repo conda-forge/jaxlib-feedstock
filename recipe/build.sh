@@ -40,6 +40,7 @@ export LD_LIBRARY_PATH="${LD_LIBRARY_PATH+LD_LIBRARY_PATH:}:$PREFIX/lib"
 
 CUSTOM_BAZEL_OPTIONS="--bazel_options=--logging=6 --bazel_options=--verbose_failures"
 
+export TF_SYSTEM_LIBS="boringssl,com_google_absl,absl"
 echo "Building...."
 ${PYTHON} build/build.py ${BUILD_FLAGS} --target_cpu_features default --enable_mkl_dnn ${CUSTOM_BAZEL_OPTIONS}
 echo "Building done."
