@@ -30,6 +30,9 @@ requirements:
     - bazel-toolchain >=0.1.9  # [not win]
     - libabseil
     - patch  # [not win]
+    - libprotobuf
+    - libgrpc
+
   host:
     - python
     - pip
@@ -41,6 +44,13 @@ requirements:
     - python-build
     - libabseil
     - openssl
+    - nsync
+    - snappy
+    - double-conversion
+    - jsoncpp
+    - pybind11 >=2.13.4
+    - re2
+    - libgrpc
 
   run:
     - python
@@ -48,6 +58,7 @@ requirements:
     - scipy >=1.10     # [py<312]
     - scipy >=1.11.1  # [py>=312]
     - ml_dtypes >=0.2.0
+    - double-conversion
   run_constrained:
     - jax >={{ version }}
 

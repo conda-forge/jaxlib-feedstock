@@ -40,7 +40,49 @@ fi
 
 CUSTOM_BAZEL_OPTIONS="--bazel_options=--logging=6 --bazel_options=--verbose_failures"
 
-export TF_SYSTEM_LIBS="boringssl,com_google_absl,absl"
+
+# Unvendor from XLA using TF_SYSTEM_LIBS. You can find the list of supported libraries at:  
+# https://github.com/openxla/xla/blob/main/third_party/tsl/third_party/systemlibs/syslibs_configure.bzl#L11
+# TODO: RE2 fails with: external/xla/xla/hlo/parser/hlo_lexer.cc:244:8: error: no matching function for call to 'Consume'
+  # if (!RE2::Consume(&consumable, *payload_pattern)) 
+# Removed com_googlesource_code_re2
+export TF_SYSTEM_LIBS="
+  absl_py,
+  astor_archive,
+  astunparse_archive,
+  boringssl,
+  com_github_googlecloudplatform_google_cloud_cpp,
+  com_github_grpc_grpc,
+  com_google_absl,
+  com_google_protobuf,
+  curl,
+  cython,
+  dill_archive,
+  double_conversion,
+  flatbuffers,
+  functools32_archive,
+  gast_archive,
+  gif,
+  hwloc,
+  icu,
+  jsoncpp_git,
+  libjpeg_turbo,
+  nasm,
+  nsync,
+  org_sqlite,
+  pasta,
+  png,
+  pybind11,
+  six_archive,
+  snappy,
+  tblib_archive,
+  termcolor_archive,
+  typing_extensions_archive,
+  wrapt,
+  zlib"
+
+bazel clean --expunge
+
 echo "Building...."
 ${PYTHON} build/build.py ${BUILD_FLAGS} --target_cpu_features default --enable_mkl_dnn ${CUSTOM_BAZEL_OPTIONS}
 echo "Building done."
