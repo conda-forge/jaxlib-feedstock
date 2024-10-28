@@ -48,7 +48,7 @@ requirements:
     - snappy
     - double-conversion
     - jsoncpp
-    - pybind11 >=2.13.4
+    # - pybind11 >=2.13.4 # TODO: renable and unvendor in build.sh when available.
     - re2
     - libgrpc
 
