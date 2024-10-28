@@ -8,6 +8,8 @@ else
   export LDFLAGS="${LDFLAGS} -lrt"
 fi
 
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH+LD_LIBRARY_PATH:}:$PREFIX/lib"
+
 # Build with clang on OSX-* and linux-aarch64. Stick with gcc on linux-64.
 if [[ "${target_platform}" == linux-64 ]]; then
   export BUILD_FLAGS="--use_clang=false"
@@ -35,8 +37,6 @@ build --define=PROTOBUF_INCLUDE_PATH=${PREFIX}/include
 build --local_cpu_resources=${CPU_COUNT}"
 EOF
 fi
-
-export LD_LIBRARY_PATH="${LD_LIBRARY_PATH+LD_LIBRARY_PATH:}:$PREFIX/lib"
 
 CUSTOM_BAZEL_OPTIONS="--bazel_options=--logging=6 --bazel_options=--verbose_failures"
 
