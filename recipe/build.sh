@@ -11,15 +11,13 @@ fi
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH+LD_LIBRARY_PATH:}:$PREFIX/lib"
 
 # Build with clang on OSX-* and linux-aarch64. Stick with gcc on linux-64.
-if [[ "${target_platform}" == linux-64 ]]; then
+if [[ "${target_platform}" == linux-* ]]; then
   export BUILD_FLAGS="--use_clang=false"
 else
   export BUILD_FLAGS="--use_clang=true --clang_path=${BUILD_PREFIX}/bin/clang"
 fi
 
-if [[ "${target_platform}" == linux-aarch64 ]]; then
-  echo "TODO debug why using gen-bazel-toolchain leads to undeclared inclusion(s) of pybind11"
-else
+
 source gen-bazel-toolchain
 
 cat >> .bazelrc <<EOF
@@ -35,8 +33,9 @@ build --toolchain_resolution_debug
 build --define=PREFIX=${PREFIX}
 build --define=PROTOBUF_INCLUDE_PATH=${PREFIX}/include
 build --local_cpu_resources=${CPU_COUNT}"
+build --define=with_cuda=false
+build --cxxopt=-I${PREFIX}/include
 EOF
-fi
 
 CUSTOM_BAZEL_OPTIONS="--bazel_options=--logging=6 --bazel_options=--verbose_failures"
 
