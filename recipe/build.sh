@@ -72,6 +72,7 @@ export TF_SYSTEM_LIBS="
   org_sqlite,
   pasta,
   png,
+  pybind11,
   six_archive,
   snappy,
   tblib_archive,
