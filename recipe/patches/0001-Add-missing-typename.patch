@@ -8,10 +8,10 @@ Subject: [PATCH 4/4] Add missing typename
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/jaxlib/gpu/solver_kernels_ffi.cc b/jaxlib/gpu/solver_kernels_ffi.cc
-index 32cd975..c90dfab 100644
+index 7852da4bc..b5742b5a7 100644
 --- a/jaxlib/gpu/solver_kernels_ffi.cc
 +++ b/jaxlib/gpu/solver_kernels_ffi.cc
-@@ -815,7 +815,7 @@ ffi::Error GesvdjImpl(int64_t batch, int64_t rows, int64_t cols,
+@@ -915,7 +915,7 @@ ffi::Error GesvdjImpl(int64_t batch, int64_t rows, int64_t cols,
  
    auto a_data = static_cast<T*>(a.untyped_data());
    auto out_data = static_cast<T*>(out->untyped_data());
