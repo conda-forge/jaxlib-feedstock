@@ -24,6 +24,7 @@ build:
   skip: true  # [s390x or py<310]
   skip: true  # [cuda_compiler != "None" and aarch64]
   skip: true  # [cuda_compiler != "None" and win]
+  skip: true  # [cuda_compiler_version == "11.8"]
   string: cuda{{ cuda_compiler_version | replace('.', '') }}py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [cuda_compiler_version != "None"]
   string: cpu_py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [cuda_compiler_version == "None"]
 
