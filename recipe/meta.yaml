@@ -1,6 +1,13 @@
 {% set version = "0.4.35" %}
 {% set name = "jaxlib" %}
 
+{% set build = 0 %}
+
+{% if cuda_compiler_version != "None" %}
+{% set build = build + 200 %}
+{% endif %}
+
+
 package:
   name: jaxlib
   version: {{ version }}
@@ -12,14 +19,19 @@ source:
       - patches/0000-Consolidated-build-fixes-for-XLA.patch  # [not win]
 
 build:
-  number: 0
+  number: {{ build }}
   # s390x is missing bazel.
   skip: true  # [s390x or py<310]
+  skip: true  # [cuda_compiler != "None" and aarch64]
+  skip: true  # [cuda_compiler != "None" and win]
+  string: cuda{{ cuda_compiler_version | replace('.', '') }}py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [cuda_compiler_version != "None"]
+  string: cpu_py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [cuda_compiler_version == "None"]
 
 requirements:
   build:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
+    - {{ compiler('cuda') }}              # [cuda_compiler_version != "None"]
     - clang    # [win]
     - llvmdev  # [win]
     - lld      # [win]
@@ -33,6 +45,19 @@ requirements:
     - libgrpc
 
   host:
+    - cudnn             # [cuda_compiler_version != "None"]
+    - nccl              # [cuda_compiler_version != "None"]
+    - cuda-version {{ cuda_compiler_version }}  # [cuda_compiler_version != "None"]
+    - cuda-cupti-dev    # [(cuda_compiler_version or "").startswith("12")]
+    - cuda-cudart-dev   # [(cuda_compiler_version or "").startswith("12")]
+    - cuda-nvml-dev     # [(cuda_compiler_version or "").startswith("12")]
+    - cuda-nvtx-dev     # [(cuda_compiler_version or "").startswith("12")]
+    - cuda-nvcc-tools  # [(cuda_compiler_version or "").startswith("12")]
+    - libcublas-dev     # [(cuda_compiler_version or "").startswith("12")]
+    - libcusolver-dev   # [(cuda_compiler_version or "").startswith("12")]
+    - libcurand-dev     # [(cuda_compiler_version or "").startswith("12")]
+    - libcufft-dev      # [(cuda_compiler_version or "").startswith("12")]
+    - libcusparse-dev   # [(cuda_compiler_version or "").startswith("12")]
     - python
     - pip
     - wheel
@@ -59,6 +84,8 @@ requirements:
     - scipy >=1.11.1  # [py>=312]
     - ml_dtypes >=0.2.0
     - double-conversion
+    - __cuda  # [cuda_compiler_version != "None"]
+    - cuda-nvcc-tools  # [(cuda_compiler_version or "").startswith("12")]
   run_constrained:
     - jax >={{ version }}
 

@@ -38,6 +38,25 @@ build --define=with_cuda=false
 build --cxxopt=-I${PREFIX}/include
 EOF
 
+if [[ ${cuda_compiler_version} != "None" ]]; then
+
+cat >> .bazelrc <<EOF
+
+build --define=with_cuda=true
+build:cuda --repo_env=LOCAL_CUDA_PATH="${BUILD_PREFIX}/targets/x86_64-linux"
+build:cuda --repo_env=LOCAL_CUDNN_PATH="${PREFIX}/targets/x86_64-linux"
+build:cuda --repo_env=LOCAL_NCCL_PATH="${PREFIX}/targets/x86_64-linux"
+build:cuda --repo_env TF_NEED_CUDA=1
+EOF
+
+export BUILD_FLAGS="${BUILD_FLAGS} --enable_cuda"
+
+else
+cat >> .bazelrc <<EOF
+
+build --define=with_cuda=false
+EOF
+fi
 
 
 # Unvendor from XLA using TF_SYSTEM_LIBS. You can find the list of supported libraries at:  
