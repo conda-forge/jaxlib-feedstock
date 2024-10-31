@@ -44,6 +44,7 @@ CUSTOM_BAZEL_OPTIONS="--bazel_options=--logging=6 --bazel_options=--verbose_fail
 # TODO: RE2 fails with: external/xla/xla/hlo/parser/hlo_lexer.cc:244:8: error: no matching function for call to 'Consume'
   # if (!RE2::Consume(&consumable, *payload_pattern)) 
 # Removed com_googlesource_code_re2
+# Removed com_google_protobuf: Upstream discourages dynamically linking with protobuf https://github.com/conda-forge/jaxlib-feedstock/issues/89
 export TF_SYSTEM_LIBS="
   absl_py,
   astor_archive,
@@ -52,7 +53,6 @@ export TF_SYSTEM_LIBS="
   com_github_googlecloudplatform_google_cloud_cpp,
   com_github_grpc_grpc,
   com_google_absl,
-  com_google_protobuf,
   curl,
   cython,
   dill_archive,
