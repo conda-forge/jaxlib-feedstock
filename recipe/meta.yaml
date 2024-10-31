@@ -52,7 +52,7 @@ requirements:
     - libgrpc 1.62.2
     - libcurl 8.9.1  # [not win]
     - zlib 1.2.13
-    - libprotobuf 4.25.3
+    - libprotobuf
 
   run:
     - python
