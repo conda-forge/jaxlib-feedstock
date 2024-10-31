@@ -66,18 +66,18 @@ requirements:
     - numpy 1.23.*  # [py==311]
     - numpy 1.26.*  # [py>=312]
     - python-build
-    - libabseil
-    - openssl
-    - nsync
-    - snappy
-    - double-conversion
-    - jsoncpp
-    - pybind11
-    - re2
-    - libgrpc
-    - libcurl # [not win]
-    - zlib
-    - libprotobuf
+    - libabseil 20240116.2
+    - openssl 3.0.15
+    - nsync 1.24.0
+    - snappy 1.2.1
+    - double-conversion 3.1.5
+    - jsoncpp 1.9.4
+    - pybind11 2.13.6
+    - re2 2022.04.01
+    - libgrpc 1.62.2
+    - libcurl 8.9.1  # [not win]
+    - zlib 1.2.13
+    - libprotobuf 4.25.3
 
   run:
     - python
