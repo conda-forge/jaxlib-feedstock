@@ -17,6 +17,8 @@ else
   export BUILD_FLAGS="--use_clang=true --clang_path=${BUILD_PREFIX}/bin/clang"
 fi
 
+export BUILD_FLAGS="${BUILD_FLAGS} --target_cpu_features default --enable_mkl_dnn"
+
 source gen-bazel-toolchain
 
 cat >> .bazelrc <<EOF
@@ -36,7 +38,6 @@ build --define=with_cuda=false
 build --cxxopt=-I${PREFIX}/include
 EOF
 
-CUSTOM_BAZEL_OPTIONS="--bazel_options=--logging=6 --bazel_options=--verbose_failures"
 
 
 # Unvendor from XLA using TF_SYSTEM_LIBS. You can find the list of supported libraries at:  
@@ -82,7 +83,7 @@ export TF_SYSTEM_LIBS="
 bazel clean --expunge
 
 echo "Building...."
-${PYTHON} build/build.py ${BUILD_FLAGS} --target_cpu_features default --enable_mkl_dnn ${CUSTOM_BAZEL_OPTIONS}
+${PYTHON} build/build.py ${BUILD_FLAGS}
 echo "Building done."
 
 # Clean up to speedup postprocessing
