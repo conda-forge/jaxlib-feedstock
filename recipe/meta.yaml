@@ -20,8 +20,7 @@ requirements:
   build:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
-    - clang                                     # [(linux and aarch64) or win]
-    - libstdcxx-ng {{ c_compiler_version }}     # [(linux and aarch64)]
+    - clang    # [win]
     - llvmdev  # [win]
     - lld      # [win]
     - python
