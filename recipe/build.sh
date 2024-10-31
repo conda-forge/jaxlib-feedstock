@@ -10,13 +10,12 @@ fi
 
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH+LD_LIBRARY_PATH:}:$PREFIX/lib"
 
-# Build with clang on OSX-* and linux-aarch64. Stick with gcc on linux-64.
+# Build with clang on OSX-*. Stick with gcc on linux-*.
 if [[ "${target_platform}" == linux-* ]]; then
   export BUILD_FLAGS="--use_clang=false"
 else
   export BUILD_FLAGS="--use_clang=true --clang_path=${BUILD_PREFIX}/bin/clang"
 fi
-
 
 source gen-bazel-toolchain
 
