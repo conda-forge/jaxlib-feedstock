@@ -39,17 +39,33 @@ build --cxxopt=-I${PREFIX}/include
 EOF
 
 if [[ ${cuda_compiler_version} != "None" ]]; then
+export HERMETIC_CUDA_COMPUTE_CAPABILITIES=sm_60,sm_70,sm_75,sm_80,sm_86,sm_89,sm_90,compute_90
+export CUDA_HOME="${BUILD_PREFIX}/targets/x86_64-linux"
+export TF_CUDA_PATHS="${BUILD_PREFIX}/targets/x86_64-linux,${PREFIX}/targets/x86_64-linux"
+export PATH=$PATH:${BUILD_PREFIX}/nvvm/bin
+# XLA can only cope with a single cuda header include directory, merge both
+rsync -a ${PREFIX}/targets/x86_64-linux/include/ ${BUILD_PREFIX}/targets/x86_64-linux/include/
 
+
+export LOCAL_CUDA_PATH="${BUILD_PREFIX}/targets/x86_64-linux"
+export LOCAL_CUDNN_PATH="${PREFIX}/targets/x86_64-linux"
+export LOCAL_NCCL_PATH="${PREFIX}/targets/x86_64-linux"
 cat >> .bazelrc <<EOF
 
 build --define=with_cuda=true
-build:cuda --repo_env=LOCAL_CUDA_PATH="${BUILD_PREFIX}/targets/x86_64-linux"
-build:cuda --repo_env=LOCAL_CUDNN_PATH="${PREFIX}/targets/x86_64-linux"
-build:cuda --repo_env=LOCAL_NCCL_PATH="${PREFIX}/targets/x86_64-linux"
+build:cuda --repo_env=LOCAL_CUDA_PATH="${LOCAL_CUDA_PATH}"
+build:cuda --repo_env=LOCAL_CUDNN_PATH="${LOCAL_CUDNN_PATH}
+build:cuda --repo_env=LOCAL_NCCL_PATH="${LOCAL_NCCL_PATH}
 build:cuda --repo_env TF_NEED_CUDA=1
 EOF
 
-export BUILD_FLAGS="${BUILD_FLAGS} --enable_cuda"
+
+export BUILD_FLAGS="${BUILD_FLAGS} --enable_cuda --enable_nccl --cuda_compute_capabilities=$HERMETIC_CUDA_COMPUTE_CAPABILITIES --cuda_version=$TF_CUDA_VERSION --cudnn_version=$TF_CUDNN_VERSION"
+
+export TF_CUDA_VERSION="${cuda_compiler_version}"
+export TF_CUDNN_VERSION="${cudnn}"
+export TF_NEED_CUDA=1
+export TF_NCCL_VERSION=$(pkg-config nccl --modversion | grep -Po '\d+\.\d+')
 
 else
 cat >> .bazelrc <<EOF
