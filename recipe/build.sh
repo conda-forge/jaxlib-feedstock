@@ -45,7 +45,6 @@ CUSTOM_BAZEL_OPTIONS="--bazel_options=--logging=6 --bazel_options=--verbose_fail
 # TODO: RE2 fails with: external/xla/xla/hlo/parser/hlo_lexer.cc:244:8: error: no matching function for call to 'Consume'
   # if (!RE2::Consume(&consumable, *payload_pattern)) 
 # Removed com_googlesource_code_re2
-# Removed pybind11 until pybind11 >=2.13.4 is avaialble.
 export TF_SYSTEM_LIBS="
   absl_py,
   astor_archive,
