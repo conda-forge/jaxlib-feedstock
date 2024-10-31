@@ -50,7 +50,9 @@ requirements:
     - pybind11 2.13.6
     - re2 2022.04.01
     - libgrpc 1.62.2
-    - curl 8.9.1  # [not win]
+    - libcurl 8.9.1  # [not win]
+    - zlib 1.2.13
+    - libprotobuf 4.25.3
 
   run:
     - python
