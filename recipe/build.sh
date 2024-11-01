@@ -38,8 +38,11 @@ export HERMETIC_CUDA_COMPUTE_CAPABILITIES=sm_60,sm_70,sm_75,sm_80,sm_86,sm_89,sm
 export CUDA_HOME="${BUILD_PREFIX}/targets/x86_64-linux"
 export TF_CUDA_PATHS="${BUILD_PREFIX}/targets/x86_64-linux,${PREFIX}/targets/x86_64-linux"
 export PATH=$PATH:${BUILD_PREFIX}/nvvm/bin
+export CUDA_TOOLKIT_PATH="/usr/local/cuda"
 # XLA can only cope with a single cuda header include directory, merge both
 rsync -a ${PREFIX}/targets/x86_64-linux/include/ ${BUILD_PREFIX}/targets/x86_64-linux/include/
+ln -s ${BUILD_PREFIX}/bin/nvcc /bin/nvcc
+
 
 # Although XLA supports a non-hermetic build, it still tries to find headers in the hermetic locations.
 # We do this in the BUILD_PREFIX to not have any impact on the resulting jaxlib package.
