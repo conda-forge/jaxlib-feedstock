@@ -42,7 +42,7 @@ requirements:
     - openssl {{ openssl }}
     - nsync 1.24.0
     - snappy 1.2.1
-    - {{ pin_compatible('double-conversion', max_pin='x.x') }}
+    - double-conversion 3.1.5
     - jsoncpp 1.9.4
     - pybind11 2.13.6
     - libgrpc {{ libgrpc }}
@@ -55,7 +55,7 @@ requirements:
     - scipy >=1.10     # [py<312]
     - scipy >=1.11.1  # [py>=312]
     - ml_dtypes >=0.2.0
-    - double-conversion
+    - {{ pin_compatible('double-conversion', max_pin='x.x') }}
   run_constrained:
     - jax >={{ version }}
 
