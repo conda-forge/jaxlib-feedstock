@@ -27,36 +27,31 @@ requirements:
     # https://github.com/jax-ml/jax/blob/jax-v0.4.35/build/build.py#L198
     - bazel >=6.5.0,<7
     - bazel-toolchain >=0.1.9  # [not win]
-    - libabseil
+    - libabseil {{ libabseil }}
     - patch  # [not win]
-    - libprotobuf
-    - libgrpc
+    - libgrpc {{ libgrpc }}
 
   host:
     - python
     - pip
     - wheel
     - setuptools
-    - numpy 1.22.*  # [py<311]
-    - numpy 1.23.*  # [py==311]
-    - numpy 1.26.*  # [py>=312]
+    - numpy 2
     - python-build
     - libabseil {{ libabseil }}
     - openssl {{ openssl }}
     - nsync 1.24.0
     - snappy 1.2.1
-    - double-conversion 3.1.5
+    - {{ pin_compatible('double-conversion', max_pin='x.x') }}
     - jsoncpp 1.9.4
     - pybind11 2.13.6
-    - re2 2022.04.01
     - libgrpc {{ libgrpc }}
     - libcurl {{ libcurl }}  # [not win]
     - zlib {{ zlib }}
-    - libprotobuf {{ libprotobuf }}
 
   run:
     - python
-    - {{ pin_compatible('numpy') }}
+    - numpy >=1.24
     - scipy >=1.10     # [py<312]
     - scipy >=1.11.1  # [py>=312]
     - ml_dtypes >=0.2.0
