@@ -32,8 +32,6 @@ build --toolchain_resolution_debug
 build --define=PREFIX=${PREFIX}
 build --define=PROTOBUF_INCLUDE_PATH=${PREFIX}/include
 build --local_cpu_resources=${CPU_COUNT}"
-build --define=with_cuda=false
-build --cxxopt=-I${PREFIX}/include
 EOF
 
 CUSTOM_BAZEL_OPTIONS="--bazel_options=--logging=6 --bazel_options=--verbose_failures"
