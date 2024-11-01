@@ -23,10 +23,6 @@ source gen-bazel-toolchain
 
 cat >> .bazelrc <<EOF
 
-build --copt=-isysroot${CONDA_BUILD_SYSROOT}
-build --host_copt=-isysroot${CONDA_BUILD_SYSROOT}
-build --linkopt=-isysroot${CONDA_BUILD_SYSROOT}
-build --host_linkopt=-isysroot${CONDA_BUILD_SYSROOT}
 build --crosstool_top=//bazel_toolchain:toolchain
 build --logging=6
 build --verbose_failures
@@ -125,6 +121,7 @@ export TF_SYSTEM_LIBS="
 bazel clean --expunge
 
 echo "Building...."
+${PYTHON} build/build.py ${BUILD_FLAGS} --target_cpu_features default --enable_mkl_dnn
 ${PYTHON} build/build.py ${BUILD_FLAGS}
 echo "Building done."
 
