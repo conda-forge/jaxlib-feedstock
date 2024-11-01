@@ -59,9 +59,7 @@ build:cuda --repo_env=LOCAL_NCCL_PATH="${LOCAL_NCCL_PATH}
 build:cuda --repo_env TF_NEED_CUDA=1
 EOF
 
-
-
-export TF_CUDA_VERSION="12"
+export TF_CUDA_VERSION="12.4"
 export TF_CUDNN_VERSION="8"
 export TF_NEED_CUDA=1
 export TF_NCCL_VERSION=$(pkg-config nccl --modversion | grep -Po '\d+\.\d+')
