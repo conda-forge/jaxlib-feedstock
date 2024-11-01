@@ -121,7 +121,6 @@ export TF_SYSTEM_LIBS="
 bazel clean --expunge
 
 echo "Building...."
-${PYTHON} build/build.py ${BUILD_FLAGS} --target_cpu_features default --enable_mkl_dnn
 ${PYTHON} build/build.py ${BUILD_FLAGS}
 echo "Building done."
 
