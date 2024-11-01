@@ -41,7 +41,6 @@ export PATH=$PATH:${BUILD_PREFIX}/nvvm/bin
 export CUDA_TOOLKIT_PATH="/usr/local/cuda"
 # XLA can only cope with a single cuda header include directory, merge both
 rsync -a ${PREFIX}/targets/x86_64-linux/include/ ${BUILD_PREFIX}/targets/x86_64-linux/include/
-ln -s ${BUILD_PREFIX}/bin/nvcc /bin/nvcc
 
 
 # Although XLA supports a non-hermetic build, it still tries to find headers in the hermetic locations.
@@ -70,7 +69,7 @@ export TF_CUDA_VERSION="12.4"
 export TF_CUDNN_VERSION="8"
 export TF_NEED_CUDA=1
 export TF_NCCL_VERSION=$(pkg-config nccl --modversion | grep -Po '\d+\.\d+')
-export BUILD_FLAGS="${BUILD_FLAGS} --enable_cuda --enable_nccl --cuda_compute_capabilities=$HERMETIC_CUDA_COMPUTE_CAPABILITIES --cuda_version=$TF_CUDA_VERSION --cudnn_version=$TF_CUDNN_VERSION"
+export BUILD_FLAGS="${BUILD_FLAGS} --enable_cuda --use_cuda_nvcc --enable_nccl --cuda_compute_capabilities=$HERMETIC_CUDA_COMPUTE_CAPABILITIES --cuda_version=$TF_CUDA_VERSION --cudnn_version=$TF_CUDNN_VERSION"
 
 else
 cat >> .bazelrc <<EOF
