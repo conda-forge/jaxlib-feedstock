@@ -20,9 +20,9 @@ requirements:
   build:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
-    - clang    # [win]
-    - llvmdev  # [win]
-    - lld      # [win]
+    - clang     # [not osx]
+    - llvmdev   # [not osx]
+    - lld       # [not osx]
     - python
     # https://github.com/jax-ml/jax/blob/jax-v0.4.35/build/build.py#L198
     - bazel >=6.5.0,<7
