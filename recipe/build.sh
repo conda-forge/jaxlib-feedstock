@@ -10,11 +10,10 @@ fi
 
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH+LD_LIBRARY_PATH:}:$PREFIX/lib"
 
-# Build with clang on OSX-*. Stick with gcc on linux-*.
+export BUILD_FLAGS="--use_clang=true --clang_path=${BUILD_PREFIX}/bin/clang"
+
 if [[ "${target_platform}" == linux-* ]]; then
-  export BUILD_FLAGS="--use_clang=false"
-else
-  export BUILD_FLAGS="--use_clang=true --clang_path=${BUILD_PREFIX}/bin/clang"
+  sed -i.bak "/f.write('build --copt=-Wno-error=unused-command-line-argument/d" build/build.py
 fi
 
 export BUILD_FLAGS="${BUILD_FLAGS} --target_cpu_features default --enable_mkl_dnn"
@@ -26,7 +25,6 @@ cat >> .bazelrc <<EOF
 build --crosstool_top=//bazel_toolchain:toolchain
 build --logging=6
 build --verbose_failures
-build --toolchain_resolution_debug
 build --define=PREFIX=${PREFIX}
 build --define=PROTOBUF_INCLUDE_PATH=${PREFIX}/include
 build --local_cpu_resources=${CPU_COUNT}"
