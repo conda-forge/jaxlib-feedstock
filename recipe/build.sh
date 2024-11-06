@@ -30,6 +30,11 @@ build --define=PROTOBUF_INCLUDE_PATH=${PREFIX}/include
 build --local_cpu_resources=${CPU_COUNT}"
 EOF
 
+#  - if JAX_RELEASE or JAXLIB_RELEASE are set: version looks like "0.4.16"
+#  - if JAX_NIGHTLY or JAXLIB_NIGHTLY are set: version looks like "0.4.16.dev20230906"
+#  - if none are set: version looks like "0.4.16.dev20230906+ge58560fdc
+export JAXLIB_RELEASE=1
+
 # Unvendor from XLA using TF_SYSTEM_LIBS. You can find the list of supported libraries at:  
 # https://github.com/openxla/xla/blob/main/third_party/tsl/third_party/systemlibs/syslibs_configure.bzl#L11
 # TODO: RE2 fails with: external/xla/xla/hlo/parser/hlo_lexer.cc:244:8: error: no matching function for call to 'Consume'
