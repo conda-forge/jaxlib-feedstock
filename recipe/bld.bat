@@ -1,5 +1,5 @@
-set BAZEL_VS="C:/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools"
-set BAZEL_VC="C:/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC"
+set BAZEL_VS="%VSINSTALLDIR%"
+set BAZEL_VC="%VSINSTALLDIR%/VC"
 set CLANG_COMPILER_PATH=%BUILD_PREFIX:\=/%/Library/bin/clang.exe
 set BAZEL_LLVM=%BUILD_PREFIX:\=/%/Library/
 
