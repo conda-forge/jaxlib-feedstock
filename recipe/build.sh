@@ -81,7 +81,12 @@ build:cuda --repo_env=LOCAL_NCCL_PATH="${LOCAL_NCCL_PATH}
 build:cuda --repo_env TF_NEED_CUDA=1
 EOF
 
-  export BUILD_FLAGS="${BUILD_FLAGS} --enable_cuda --use_cuda_nvcc --enable_nccl --cuda_compute_capabilities=$HERMETIC_CUDA_COMPUTE_CAPABILITIES --cuda_version=$TF_CUDA_VERSION --cudnn_version=$TF_CUDNN_VERSION"
+  export BUILD_FLAGS="${BUILD_FLAGS} \
+                      --enable_cuda \
+                      --enable_nccl \
+                      --cuda_compute_capabilities=$HERMETIC_CUDA_COMPUTE_CAPABILITIES \
+                      --cuda_version=$TF_CUDA_VERSION \
+                      --cudnn_version=$TF_CUDNN_VERSION"
 
 else
 cat >> .bazelrc <<EOF
