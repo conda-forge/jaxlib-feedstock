@@ -33,6 +33,11 @@ build --local_cpu_resources=${CPU_COUNT}"
 build --cxxopt=-I${PREFIX}/include
 EOF
 
+#  - if JAX_RELEASE or JAXLIB_RELEASE are set: version looks like "0.4.16"
+#  - if JAX_NIGHTLY or JAXLIB_NIGHTLY are set: version looks like "0.4.16.dev20230906"
+#  - if none are set: version looks like "0.4.16.dev20230906+ge58560fdc
+export JAXLIB_RELEASE=1
+
 if [[ ${cuda_compiler_version} != "None" ]]; then
   export HERMETIC_CUDA_COMPUTE_CAPABILITIES=sm_60,sm_70,sm_75,sm_80,sm_86,sm_89,sm_90,compute_90
   export CUDA_HOME="${BUILD_PREFIX}/targets/x86_64-linux"
