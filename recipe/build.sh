@@ -53,6 +53,14 @@ if [[ ${cuda_compiler_version} != "None" ]]; then
   mkdir -p ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cudnn
   cp ${PREFIX}/include/cudnn.h ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cudnn/
 
+  rm -rf "${PREFIX}/targets/x86_64-linux/include"
+
+  if [ -L /bin/nvcc ]; then
+    rm /bin/nvcc
+  fi
+
+  ln -s ${BUILD_PREFIX}/bin/nvcc /bin/nvcc
+
   export LOCAL_CUDA_PATH="${BUILD_PREFIX}/targets/x86_64-linux"
   export LOCAL_CUDNN_PATH="${PREFIX}/targets/x86_64-linux"
   export LOCAL_NCCL_PATH="${PREFIX}/targets/x86_64-linux"
