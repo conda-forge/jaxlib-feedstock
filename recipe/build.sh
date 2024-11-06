@@ -94,7 +94,8 @@ EOF
                       --enable_nccl \
                       --cuda_compute_capabilities=$HERMETIC_CUDA_COMPUTE_CAPABILITIES \
                       --cuda_version=$TF_CUDA_VERSION \
-                      --cudnn_version=$TF_CUDNN_VERSION"
+                      --cudnn_version=$TF_CUDNN_VERSION \
+                      --clang_path=${BUILD_PREFIX}/bin/clang" #clang_path is used to populate CLANG_CUDA_COMPILER_PATH
 
 else
 cat >> .bazelrc <<EOF
