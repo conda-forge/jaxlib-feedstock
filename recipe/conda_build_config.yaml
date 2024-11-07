@@ -1,0 +1,20 @@
+gpu_variant:
+  - None
+  - cuda-12                    # [(linux and x86_64)]
+
+cuda_compiler_version:
+  - None                       
+  - 12.4                       # [(linux and x86_64)]
+
+cuda_compiler:                 # [(linux and x86_64)]
+- cuda-nvcc                    # [(linux and x86_64)]
+
+zip_keys:                      # [(linux and x86_64)]
+  -                            # [(linux and x86_64)]
+    - gpu_variant              # [(linux and x86_64)]
+    - cuda_compiler_version    # [(linux and x86_64)]
+
+c_compiler:                    # [win]
+  - vs2022                     # [win]
+cxx_compiler:                  # [win]
+  - vs2022                     # [win]
