@@ -68,7 +68,7 @@ test:
   commands:
     - pip check
     - python test_jaxlib.py
-    - python -c 'import importlib.metadata; assert importlib.metadata.version("jaxlib") == "{{ version }}"'
+    - python -c "import importlib.metadata; assert importlib.metadata.version('jaxlib') == '{{ version }}'"
   imports:
     - jaxlib
     - jaxlib.xla_client
