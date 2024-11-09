@@ -11,7 +11,7 @@ c_stdlib_version:
 cdt_arch:
 - aarch64
 cdt_name:
-- cos7
+- conda
 channel_sources:
 - conda-forge
 channel_targets:
@@ -33,9 +33,9 @@ github_actions_labels:
 libabseil:
 - '20240722'
 libgrpc:
-- '1.65'
+- '1.67'
 libprotobuf:
-- 5.27.5
+- 5.28.2
 numpy:
 - '2'
 openssl:
@@ -52,7 +52,6 @@ zip_keys:
 - - c_compiler_version
   - cxx_compiler_version
   - c_stdlib_version
-  - cdt_name
   - cuda_compiler
   - cuda_compiler_version
   - docker_image
