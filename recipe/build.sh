@@ -58,12 +58,16 @@ if [[ ${cuda_compiler_version} != "None" ]]; then
   mkdir -p ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cudnn
   cp ${PREFIX}/include/cudnn.h ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cudnn/
 
+  # Remove all includes from PREFIX and use BUILD_PREFIX instead
+  # Fixes "failed: undeclared inclusion(s)" errors. 
   rm -rf "${PREFIX}/targets/x86_64-linux/include"
 
+  # If there is an existing symlink, remove it. 
   if [ -L /bin/nvcc ]; then
     rm /bin/nvcc
   fi
 
+  # link our desired nvcc to global location.
   ln -s ${BUILD_PREFIX}/bin/nvcc /bin/nvcc
 
   export LOCAL_CUDA_PATH="${BUILD_PREFIX}/targets/x86_64-linux"
