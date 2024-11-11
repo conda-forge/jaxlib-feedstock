@@ -96,7 +96,7 @@ if [[ ${cuda_compiler_version} != "None" ]]; then
   build:cuda --repo_env=LOCAL_CUDNN_PATH="${LOCAL_CUDNN_PATH}
   build:cuda --repo_env=LOCAL_NCCL_PATH="${LOCAL_NCCL_PATH}
   build:cuda --repo_env TF_NEED_CUDA=1
-  build: --jobs=12 # build fails with default 16 jobs for cuda builds. 
+  build --jobs=12 # build fails with default 16 jobs for cuda builds. 
 EOF
 
   export BUILD_FLAGS="${BUILD_FLAGS} \
