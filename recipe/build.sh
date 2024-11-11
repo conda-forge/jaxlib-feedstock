@@ -86,12 +86,12 @@ if [[ ${cuda_compiler_version} != "None" ]]; then
   ln -s $(which nvlink) ${BUILD_PREFIX}/targets/x86_64-linux/bin/nvlink
   ln -s $(which fatbinary) ${BUILD_PREFIX}/targets/x86_64-linux/bin/fatbinary
 
-cat >> .bazelrc <<EOF
-build --define=with_cuda=true
-build:cuda --repo_env=LOCAL_CUDA_PATH="${LOCAL_CUDA_PATH}"
-build:cuda --repo_env=LOCAL_CUDNN_PATH="${LOCAL_CUDNN_PATH}
-build:cuda --repo_env=LOCAL_NCCL_PATH="${LOCAL_NCCL_PATH}
-build:cuda --repo_env TF_NEED_CUDA=1
+  cat >> .bazelrc <<EOF
+  build --define=with_cuda=true
+  build:cuda --repo_env=LOCAL_CUDA_PATH="${LOCAL_CUDA_PATH}"
+  build:cuda --repo_env=LOCAL_CUDNN_PATH="${LOCAL_CUDNN_PATH}
+  build:cuda --repo_env=LOCAL_NCCL_PATH="${LOCAL_NCCL_PATH}
+  build:cuda --repo_env TF_NEED_CUDA=1
 EOF
 
   export BUILD_FLAGS="${BUILD_FLAGS} \
@@ -103,9 +103,9 @@ EOF
                       --clang_path=${BUILD_PREFIX}/bin/clang" #clang_path is used to populate CLANG_CUDA_COMPILER_PATH
 
 else
-cat >> .bazelrc <<EOF
+  cat >> .bazelrc <<EOF
 
-build --define=with_cuda=false
+  build --define=with_cuda=false
 EOF
 fi
 
