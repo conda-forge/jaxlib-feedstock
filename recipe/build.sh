@@ -4,20 +4,15 @@ set -euxo pipefail
 
 if [[ "${target_platform}" == osx-* ]]; then
   export LDFLAGS="${LDFLAGS} -lz -framework CoreFoundation -Xlinker -undefined -Xlinker dynamic_lookup"
+  # Remove stdlib=libc++; this is the default and errors on C sources.
+  export CXXFLAGS=${CXXFLAGS/-stdlib=libc++}
 else
   export LDFLAGS="${LDFLAGS} -lrt"
 fi
+export CFLAGS="${CFLAGS} -DNDEBUG"
+export CXXFLAGS="${CXXFLAGS} -DNDEBUG"
 
-export LD_LIBRARY_PATH="${LD_LIBRARY_PATH+LD_LIBRARY_PATH:}:$PREFIX/lib"
-
-# Build with clang on OSX-*. Stick with gcc on linux-*.
-if [[ "${target_platform}" == linux-* ]]; then
-  export BUILD_FLAGS="--use_clang=false"
-else
-  export BUILD_FLAGS="--use_clang=true --clang_path=${BUILD_PREFIX}/bin/clang"
-fi
-
-export BUILD_FLAGS="${BUILD_FLAGS} --target_cpu_features default --enable_mkl_dnn"
+export BUILD_FLAGS="--target_cpu_features default --enable_mkl_dnn"
 
 source gen-bazel-toolchain
 
@@ -47,7 +42,6 @@ if [[ ${cuda_compiler_version} != "None" ]]; then
   # XLA can only cope with a single cuda header include directory, merge both
   rsync -a ${PREFIX}/targets/x86_64-linux/include/ ${BUILD_PREFIX}/targets/x86_64-linux/include/
 
-
   # Although XLA supports a non-hermetic build, it still tries to find headers in the hermetic locations.
   # We do this in the BUILD_PREFIX to not have any impact on the resulting jaxlib package.
   # Otherwise, these copied files would be included in the package.
@@ -58,62 +52,26 @@ if [[ ${cuda_compiler_version} != "None" ]]; then
   mkdir -p ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cudnn
   cp ${PREFIX}/include/cudnn.h ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cudnn/
 
-  # Remove all includes from PREFIX and use BUILD_PREFIX instead
-  # Fixes "failed: undeclared inclusion(s)" errors. 
-  rm -rf "${PREFIX}/targets/x86_64-linux/include"
-
-  # If there is an existing symlink, remove it. 
-  if [ -L /bin/nvcc ]; then
-    rm /bin/nvcc
-  fi
-
-  # link our desired nvcc to global location.
-  ln -s ${BUILD_PREFIX}/bin/nvcc /bin/nvcc
-
   export LOCAL_CUDA_PATH="${BUILD_PREFIX}/targets/x86_64-linux"
   export LOCAL_CUDNN_PATH="${PREFIX}/targets/x86_64-linux"
   export LOCAL_NCCL_PATH="${PREFIX}/targets/x86_64-linux"
-  export TF_CUDA_CLANG=0
   export TF_CUDA_VERSION="${cuda_compiler_version}"
   export TF_CUDNN_VERSION="8"
   export TF_NEED_CUDA=1
   export TF_NCCL_VERSION=$(pkg-config nccl --modversion | grep -Po '\d+\.\d+')
-  export TF_CUDA_TOOLKIT_PATH=${BUILD_PREFIX}
-  export CUDA_TOOLKIT_PATH=${TF_CUDA_TOOLKIT_PATH}
-  export CUDNN_INSTALL_PATH=$PREFIX
-	export NCCL_INSTALL_PATH=$PREFIX
-	export CUDA_HOME="${BUILD_PREFIX}/targets/x86_64-linux"
-  export TF_CUDA_PATHS="${BUILD_PREFIX}/targets/x86_64-linux,${PREFIX}/targets/x86_64-linux"
 
   mkdir -p ${BUILD_PREFIX}/targets/x86_64-linux/bin
   ln -s $(which ptxas) ${BUILD_PREFIX}/targets/x86_64-linux/bin/ptxas
   ln -s $(which nvlink) ${BUILD_PREFIX}/targets/x86_64-linux/bin/nvlink
   ln -s $(which fatbinary) ${BUILD_PREFIX}/targets/x86_64-linux/bin/fatbinary
 
-  cat >> .bazelrc <<EOF
-  build --define=with_cuda=true
-  build:cuda --repo_env=LOCAL_CUDA_PATH="${LOCAL_CUDA_PATH}"
-  build:cuda --repo_env=LOCAL_CUDNN_PATH="${LOCAL_CUDNN_PATH}
-  build:cuda --repo_env=LOCAL_NCCL_PATH="${LOCAL_NCCL_PATH}
-  build:cuda --repo_env TF_NEED_CUDA=1
-  build --jobs=12 # build fails with default 16 jobs for cuda builds. 
-EOF
-
   export BUILD_FLAGS="${BUILD_FLAGS} \
                       --enable_cuda \
                       --enable_nccl \
                       --cuda_compute_capabilities=$HERMETIC_CUDA_COMPUTE_CAPABILITIES \
                       --cuda_version=$TF_CUDA_VERSION \
-                      --cudnn_version=$TF_CUDNN_VERSION \
-                      --clang_path=${BUILD_PREFIX}/bin/clang" #clang_path is used to populate CLANG_CUDA_COMPILER_PATH
-
-else
-  cat >> .bazelrc <<EOF
-
-  build --define=with_cuda=false
-EOF
+                      --cudnn_version=$TF_CUDNN_VERSION"
 fi
-
 
 # Unvendor from XLA using TF_SYSTEM_LIBS. You can find the list of supported libraries at:  
 # https://github.com/openxla/xla/blob/main/third_party/tsl/third_party/systemlibs/syslibs_configure.bzl#L11

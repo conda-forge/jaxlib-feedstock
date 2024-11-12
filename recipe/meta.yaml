@@ -35,9 +35,9 @@ requirements:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
     - {{ compiler('cuda') }}              # [cuda_compiler_version != "None"]
-    - clang    # [win or cuda_compiler_version != "None"]
-    - llvmdev  # [win or cuda_compiler_version != "None"]
-    - lld      # [win or cuda_compiler_version != "None"]
+    - clang    # [win]
+    - llvmdev  # [win]
+    - lld      # [win]
     - python
     # https://github.com/jax-ml/jax/blob/jax-v0.4.35/build/build.py#L198
     - bazel >=6.5.0,<7
