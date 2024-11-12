@@ -8,12 +8,19 @@ else
   export LDFLAGS="${LDFLAGS} -lrt"
 fi
 
-if [[ "${target_platform}" == linux-aarch64 ]]; then
-  echo "TODO debug why using gen-bazel-toolchain leads to undeclared inclusion(s) of pybind11"
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH+LD_LIBRARY_PATH:}:$PREFIX/lib"
+
+# Build with clang on OSX-*. Stick with gcc on linux-*.
+if [[ "${target_platform}" == linux-* ]]; then
+  export BUILD_FLAGS="--use_clang=false"
 else
+  export BUILD_FLAGS="--use_clang=true --clang_path=${BUILD_PREFIX}/bin/clang"
+fi
+
 source gen-bazel-toolchain
 
 cat >> .bazelrc <<EOF
+
 build --crosstool_top=//bazel_toolchain:toolchain
 build --logging=6
 build --verbose_failures
@@ -22,12 +29,56 @@ build --define=PREFIX=${PREFIX}
 build --define=PROTOBUF_INCLUDE_PATH=${PREFIX}/include
 build --local_cpu_resources=${CPU_COUNT}"
 EOF
-fi
 
-CUSTOM_BAZEL_OPTIONS="--bazel_options=--logging=6 --bazel_options=--verbose_failures --bazel_options=--toolchain_resolution_debug"
+#  - if JAX_RELEASE or JAXLIB_RELEASE are set: version looks like "0.4.16"
+#  - if JAX_NIGHTLY or JAXLIB_NIGHTLY are set: version looks like "0.4.16.dev20230906"
+#  - if none are set: version looks like "0.4.16.dev20230906+ge58560fdc
+export JAXLIB_RELEASE=1
+
+# Unvendor from XLA using TF_SYSTEM_LIBS. You can find the list of supported libraries at:  
+# https://github.com/openxla/xla/blob/main/third_party/tsl/third_party/systemlibs/syslibs_configure.bzl#L11
+# TODO: RE2 fails with: external/xla/xla/hlo/parser/hlo_lexer.cc:244:8: error: no matching function for call to 'Consume'
+  # if (!RE2::Consume(&consumable, *payload_pattern)) 
+# Removed com_googlesource_code_re2
+# Removed com_google_protobuf: Upstream discourages dynamically linking with protobuf https://github.com/conda-forge/jaxlib-feedstock/issues/89
+export TF_SYSTEM_LIBS="
+  absl_py,
+  astor_archive,
+  astunparse_archive,
+  boringssl,
+  com_github_googlecloudplatform_google_cloud_cpp,
+  com_github_grpc_grpc,
+  com_google_absl,
+  curl,
+  cython,
+  dill_archive,
+  double_conversion,
+  flatbuffers,
+  functools32_archive,
+  gast_archive,
+  gif,
+  hwloc,
+  icu,
+  jsoncpp_git,
+  libjpeg_turbo,
+  nasm,
+  nsync,
+  org_sqlite,
+  pasta,
+  png,
+  pybind11,
+  six_archive,
+  snappy,
+  tblib_archive,
+  termcolor_archive,
+  typing_extensions_archive,
+  wrapt,
+  zlib"
+
+bazel clean --expunge
 
 echo "Building...."
-${PYTHON} build/build.py --target_cpu_features default --enable_mkl_dnn ${CUSTOM_BAZEL_OPTIONS}
+${PYTHON} build/build.py ${BUILD_FLAGS} --target_cpu_features default --enable_mkl_dnn
 echo "Building done."
 
 # Clean up to speedup postprocessing

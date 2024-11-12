@@ -1,4 +1,4 @@
-{% set version = "0.4.23" %}
+{% set version = "0.4.35" %}
 {% set name = "jaxlib" %}
 
 package:
@@ -6,39 +6,56 @@ package:
   version: {{ version }}
 
 source:
-  url: https://github.com/google/jax/archive/{{ name }}-v{{ version }}.tar.gz
-  sha256: e4c06d62ba54becffd91abc862627b8b11b79c5a77366af8843b819665b6d568
+  url: https://github.com/google/jax/archive/jax-v{{ version }}.tar.gz
+  sha256: 65e086708ae56670676b7b2340ad82b901d8c9993d1241a839c8990bdb8d6212
+  patches:
+      - patches/0000-Consolidated-build-fixes-for-XLA.patch  # [not win]
 
 build:
-  number: 1
+  number: 0
   # s390x is missing bazel.
-  skip: true  # [s390x or py<39]
+  skip: true  # [s390x or py<310]
 
 requirements:
   build:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
+    - clang    # [win]
+    - llvmdev  # [win]
+    - lld      # [win]
     - python
-    # https://github.com/google/jax/blob/jaxlib-v0.4.23/build/build.py#L207
-    # https://github.com/google/jax/blob/jaxlib-v0.4.23/build/build.py#L98
-    - bazel >=5.1.1,<7
+    # https://github.com/jax-ml/jax/blob/jax-v0.4.35/build/build.py#L198
+    - bazel >=6.5.0,<7
     - bazel-toolchain >=0.1.9  # [not win]
+    - libabseil {{ libabseil }}
+    - patch  # [not win]
+    - libgrpc {{ libgrpc }}
+
   host:
     - python
     - pip
     - wheel
     - setuptools
-    - numpy 1.22.*  # [py<311]
-    - numpy 1.23.*  # [py==311]
-    - numpy 1.26.*  # [py>=312]
+    - numpy 2
     - python-build
+    - libabseil {{ libabseil }}  # [not win]
+    - openssl {{ openssl }}  # [not win]
+    - nsync 1.24.0  # [not win]
+    - snappy 1.2.1  # [not win]
+    - double-conversion 3.1.5  # [not win]
+    - jsoncpp 1.9.4  # [not win]
+    - pybind11 2.13.6  # [not win]
+    - libgrpc {{ libgrpc }}  # [not win]
+    - libcurl {{ libcurl }}  # [not win]
+    - zlib {{ zlib }}  # [not win]
 
   run:
     - python
-    - {{ pin_compatible('numpy') }}
-    - scipy >=1.9     # [py<312]
+    - numpy >=1.24
+    - scipy >=1.10     # [py<312]
     - scipy >=1.11.1  # [py>=312]
     - ml_dtypes >=0.2.0
+    - {{ pin_compatible('double-conversion', max_pin='x.x') }}
   run_constrained:
     - jax >={{ version }}
 
@@ -51,6 +68,7 @@ test:
   commands:
     - pip check
     - python test_jaxlib.py
+    - python -c "import importlib.metadata; assert importlib.metadata.version('jaxlib') == '{{ version }}'"
   imports:
     - jaxlib
     - jaxlib.xla_client
