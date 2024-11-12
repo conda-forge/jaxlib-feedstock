@@ -14,20 +14,6 @@ export CXXFLAGS="${CXXFLAGS} -DNDEBUG"
 
 export BUILD_FLAGS="--target_cpu_features default --enable_mkl_dnn"
 
-source gen-bazel-toolchain
-
-cat >> .bazelrc <<EOF
-
-build --crosstool_top=//bazel_toolchain:toolchain
-build --logging=6
-build --verbose_failures
-build --toolchain_resolution_debug
-build --define=PREFIX=${PREFIX}
-build --define=PROTOBUF_INCLUDE_PATH=${PREFIX}/include
-build --local_cpu_resources=${CPU_COUNT}"
-build --cxxopt=-I${PREFIX}/include
-EOF
-
 #  - if JAX_RELEASE or JAXLIB_RELEASE are set: version looks like "0.4.16"
 #  - if JAX_NIGHTLY or JAXLIB_NIGHTLY are set: version looks like "0.4.16.dev20230906"
 #  - if none are set: version looks like "0.4.16.dev20230906+ge58560fdc
@@ -36,7 +22,6 @@ export JAXLIB_RELEASE=1
 if [[ ${cuda_compiler_version} != "None" ]]; then
   export HERMETIC_CUDA_COMPUTE_CAPABILITIES=sm_60,sm_70,sm_75,sm_80,sm_86,sm_89,sm_90,compute_90
   export CUDA_HOME="${BUILD_PREFIX}/targets/x86_64-linux"
-  export TF_CUDA_PATHS="${BUILD_PREFIX}/targets/x86_64-linux,${PREFIX}/targets/x86_64-linux"
   export PATH=$PATH:${BUILD_PREFIX}/nvvm/bin
  
   # XLA can only cope with a single cuda header include directory, merge both
@@ -76,6 +61,20 @@ fi
 if [[ "${target_platform}" == linux-* ]]; then
     export BUILD_FLAGS="${BUILD_FLAGS} --nouse_clang"
 fi
+
+source gen-bazel-toolchain
+
+cat >> .bazelrc <<EOF
+
+build --crosstool_top=//bazel_toolchain:toolchain
+build --logging=6
+build --verbose_failures
+build --toolchain_resolution_debug
+build --define=PREFIX=${PREFIX}
+build --define=PROTOBUF_INCLUDE_PATH=${PREFIX}/include
+build --local_cpu_resources=${CPU_COUNT}"
+build --cxxopt=-I${PREFIX}/include
+EOF
 
 # Unvendor from XLA using TF_SYSTEM_LIBS. You can find the list of supported libraries at:  
 # https://github.com/openxla/xla/blob/main/third_party/tsl/third_party/systemlibs/syslibs_configure.bzl#L11
