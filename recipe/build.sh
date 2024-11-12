@@ -73,6 +73,10 @@ if [[ ${cuda_compiler_version} != "None" ]]; then
                       --cudnn_version=$TF_CUDNN_VERSION"
 fi
 
+if [[ "${target_platform}" == linux-* ]]; then
+    export BUILD_FLAGS="${BUILD_FLAGS} --nouse_clang"
+fi
+
 # Unvendor from XLA using TF_SYSTEM_LIBS. You can find the list of supported libraries at:  
 # https://github.com/openxla/xla/blob/main/third_party/tsl/third_party/systemlibs/syslibs_configure.bzl#L11
 # TODO: RE2 fails with: external/xla/xla/hlo/parser/hlo_lexer.cc:244:8: error: no matching function for call to 'Consume'
