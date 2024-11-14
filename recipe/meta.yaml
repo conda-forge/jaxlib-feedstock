@@ -23,8 +23,8 @@ build:
   number: {{ build }}
   # s390x is missing bazel.
   skip: true  # [s390x or py<310]
-  skip: true  # [cuda_compiler != "None" and aarch64]
-  skip: true  # [cuda_compiler != "None" and win]
+  skip: true  # [(cuda_compiler_version != "None") and aarch64]
+  skip: true  # [(cuda_compiler_version != "None") and win]
   skip: true  # [cuda_compiler_version == "11.8"]
   skip: true  # [skip_cuda_prefect and (gpu_variant or "").startswith('cuda')]
   string: cuda{{ cuda_compiler_version | replace('.', '') }}py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [cuda_compiler_version != "None"]
