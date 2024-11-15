@@ -10,7 +10,7 @@ cudnn:                         # [(linux and x86_64)]
   - '8'                        # [(linux and x86_64)]
 
 cuda_compiler:                 # [(linux and x86_64)]
-- cuda-nvcc                    # [(linux and x86_64)]
+  - cuda-nvcc                  # [(linux and x86_64)]
 
 zip_keys:                      # [(linux and x86_64)]
   -                            # [(linux and x86_64)]
