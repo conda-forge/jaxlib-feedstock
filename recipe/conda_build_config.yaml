@@ -1,5 +1,5 @@
 gpu_variant:
-  - None
+  - cpu
   - cuda-12                    # [(linux and x86_64)]
 
 cuda_compiler_version:
@@ -7,8 +7,9 @@ cuda_compiler_version:
   - 12.4                       # [(linux and x86_64)]
 
 cudnn:                         # [(linux and x86_64)]
-  - '8'                        # [(linux and x86_64)]
-
+  - '9.1.1.17'                 # [(linux and x86_64)]
+nccl:                          # [(linux and x86_64)]
+  - '2.21.5.1'                 # [(linux and x86_64)]
 cuda_compiler:                 # [(linux and x86_64)]
   - cuda-nvcc                  # [(linux and x86_64)]
 
