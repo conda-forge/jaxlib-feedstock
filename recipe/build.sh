@@ -4,8 +4,6 @@ set -euxo pipefail
 
 if [[ "${target_platform}" == osx-* ]]; then
   export LDFLAGS="${LDFLAGS} -lz -framework CoreFoundation -Xlinker -undefined -Xlinker dynamic_lookup"
-  # Remove stdlib=libc++; this is the default and errors on C sources.
-  export CXXFLAGS=${CXXFLAGS//-stdlib=libc++}
 else
   export LDFLAGS="${LDFLAGS} -lrt"
 fi
