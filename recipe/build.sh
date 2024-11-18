@@ -57,8 +57,8 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
     fi
     export TF_NEED_CUDA=1
     export TF_NCCL_VERSION=$(pkg-config nccl --modversion | grep -Po '\d+\.\d+')
-
-    CUDA_ARGS="--enable_cuda \
+    export CUDA_COMPILER_MAJOR_VERSION=$(echo "$cuda_compiler_version" | cut -d '.' -f 1)
+    CUDA_ARGS="--enable_cuda --build_gpu_plugin --gpu_plugin_cuda_version=${CUDA_COMPILER_MAJOR_VERSION} \
                --enable_nccl \
                --cuda_compute_capabilities=$HERMETIC_CUDA_COMPUTE_CAPABILITIES \
                --cuda_version=$TF_CUDA_VERSION \
@@ -121,4 +121,9 @@ popd
 pushd $SP_DIR
 # pip doesn't want to install cleanly in all cases, so we use the fact that we can unzip it.
 unzip $SRC_DIR/dist/jaxlib-*.whl
+
+if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
+  unzip $SRC_DIR/dist/jax-cuda-*.whl
+fi
+
 popd
