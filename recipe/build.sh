@@ -78,7 +78,7 @@ build --verbose_failures
 build --toolchain_resolution_debug
 build --define=PREFIX=${PREFIX}
 build --define=PROTOBUF_INCLUDE_PATH=${PREFIX}/include
-build --local_cpu_resources=${CPU_COUNT}
+build --local_cpu_resources=120
 build --define=with_cross_compiler_support=true
 EOF
 
@@ -123,7 +123,8 @@ pushd $SP_DIR
 unzip $SRC_DIR/dist/jaxlib-*.whl
 
 if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
-  unzip $SRC_DIR/dist/jax-cuda-*.whl
+  unzip $SRC_DIR/dist/jax_cuda*_plugin*.whl
+  unzip $SRC_DIR/dist/jax_cuda*_pjrt*.whl
 fi
 
 popd

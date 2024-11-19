@@ -247,7 +247,7 @@ new file mode 100644
 index 0000000..6ff4e1d
 --- /dev/null
 +++ b/third_party/xla/0004-Add-missing-bits-absl-systemlib.patch
-@@ -0,0 +1,226 @@
+@@ -0,0 +1,230 @@
 +From b483c852c960a94e0fe9496e662dc5df7d286fd4 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 4 Jul 2024 15:58:32 +0200
@@ -375,7 +375,7 @@ index 0000000..6ff4e1d
 +index 0000000000..90b2ada6cf
 +--- /dev/null
 ++++ b/third_party/tsl/third_party/absl/system.absl.log.BUILD
-+@@ -0,0 +1,56 @@
++@@ -0,0 +1,60 @@
 ++load("@rules_cc//cc:defs.bzl", "cc_library")
 ++
 ++package(default_visibility = ["//visibility:public"])
@@ -399,6 +399,10 @@ index 0000000..6ff4e1d
 ++        "-labsl_log_internal_check_op",
 ++        "-labsl_log_internal_message",
 ++        "-labsl_log_internal_nullguard",
+++        "-labsl_synchronization",
+++        "-labsl_kernel_timeout_internal",
+++        "-labsl_cordz_info",
+++        "-labsl_cordz_functions"
 ++    ],
 ++)
 ++
