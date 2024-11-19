@@ -37,7 +37,7 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
         cp -r ${PREFIX}/targets/x86_64-linux/include ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cuda/
         cp -r ${PREFIX}/targets/x86_64-linux/include ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cuda/extras/CUPTI/
         mkdir -p ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cudnn
-	cp ${PREFIX}/include/cudnn.h ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cudnn/
+	cp ${PREFIX}/include/cudnn*.h ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cudnn/
         export LOCAL_CUDA_PATH="${BUILD_PREFIX}/targets/x86_64-linux"
         export LOCAL_CUDNN_PATH="${PREFIX}/targets/x86_64-linux"
         export LOCAL_NCCL_PATH="${PREFIX}/targets/x86_64-linux"
