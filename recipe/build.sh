@@ -7,14 +7,57 @@ if [[ "${target_platform}" == osx-* ]]; then
 else
   export LDFLAGS="${LDFLAGS} -lrt"
 fi
+export CFLAGS="${CFLAGS} -DNDEBUG"
+export CXXFLAGS="${CXXFLAGS} -DNDEBUG"
 
-export LD_LIBRARY_PATH="${LD_LIBRARY_PATH+LD_LIBRARY_PATH:}:$PREFIX/lib"
+export BUILD_FLAGS="--target_cpu_features default --enable_mkl_dnn"
 
-# Build with clang on OSX-*. Stick with gcc on linux-*.
+#  - if JAX_RELEASE or JAXLIB_RELEASE are set: version looks like "0.4.16"
+#  - if JAX_NIGHTLY or JAXLIB_NIGHTLY are set: version looks like "0.4.16.dev20230906"
+#  - if none are set: version looks like "0.4.16.dev20230906+ge58560fdc
+export JAXLIB_RELEASE=1
+
+if [[ ${cuda_compiler_version} != "None" ]]; then
+  export HERMETIC_CUDA_COMPUTE_CAPABILITIES=sm_60,sm_70,sm_75,sm_80,sm_86,sm_89,sm_90,compute_90
+  export CUDA_HOME="${BUILD_PREFIX}/targets/x86_64-linux"
+  export PATH=$PATH:${BUILD_PREFIX}/nvvm/bin
+ 
+  # XLA can only cope with a single cuda header include directory, merge both
+  rsync -a ${PREFIX}/targets/x86_64-linux/include/ ${BUILD_PREFIX}/targets/x86_64-linux/include/
+
+  # Although XLA supports a non-hermetic build, it still tries to find headers in the hermetic locations.
+  # We do this in the BUILD_PREFIX to not have any impact on the resulting jaxlib package.
+  # Otherwise, these copied files would be included in the package.
+  rm -rf ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party
+  mkdir -p ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cuda/extras/CUPTI
+  cp -r ${PREFIX}/targets/x86_64-linux/include ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cuda/
+  cp -r ${PREFIX}/targets/x86_64-linux/include ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cuda/extras/CUPTI/
+  mkdir -p ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cudnn
+  cp ${PREFIX}/include/cudnn.h ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cudnn/
+
+  export LOCAL_CUDA_PATH="${BUILD_PREFIX}/targets/x86_64-linux"
+  export LOCAL_CUDNN_PATH="${PREFIX}/targets/x86_64-linux"
+  export LOCAL_NCCL_PATH="${PREFIX}/targets/x86_64-linux"
+  export TF_CUDA_VERSION="${cuda_compiler_version}"
+  export TF_CUDNN_VERSION="${cudnn}"
+  export TF_NEED_CUDA=1
+  export TF_NCCL_VERSION=$(pkg-config nccl --modversion | grep -Po '\d+\.\d+')
+
+  mkdir -p ${BUILD_PREFIX}/targets/x86_64-linux/bin
+  ln -s $(which ptxas) ${BUILD_PREFIX}/targets/x86_64-linux/bin/ptxas
+  ln -s $(which nvlink) ${BUILD_PREFIX}/targets/x86_64-linux/bin/nvlink
+  ln -s $(which fatbinary) ${BUILD_PREFIX}/targets/x86_64-linux/bin/fatbinary
+
+  export BUILD_FLAGS="${BUILD_FLAGS} \
+                      --enable_cuda \
+                      --enable_nccl \
+                      --cuda_compute_capabilities=$HERMETIC_CUDA_COMPUTE_CAPABILITIES \
+                      --cuda_version=$TF_CUDA_VERSION \
+                      --cudnn_version=$TF_CUDNN_VERSION"
+fi
+
 if [[ "${target_platform}" == linux-* ]]; then
-  export BUILD_FLAGS="--use_clang=false"
-else
-  export BUILD_FLAGS="--use_clang=true --clang_path=${BUILD_PREFIX}/bin/clang"
+    export BUILD_FLAGS="${BUILD_FLAGS} --nouse_clang"
 fi
 
 source gen-bazel-toolchain
@@ -29,11 +72,6 @@ build --define=PREFIX=${PREFIX}
 build --define=PROTOBUF_INCLUDE_PATH=${PREFIX}/include
 build --local_cpu_resources=${CPU_COUNT}"
 EOF
-
-#  - if JAX_RELEASE or JAXLIB_RELEASE are set: version looks like "0.4.16"
-#  - if JAX_NIGHTLY or JAXLIB_NIGHTLY are set: version looks like "0.4.16.dev20230906"
-#  - if none are set: version looks like "0.4.16.dev20230906+ge58560fdc
-export JAXLIB_RELEASE=1
 
 # Unvendor from XLA using TF_SYSTEM_LIBS. You can find the list of supported libraries at:  
 # https://github.com/openxla/xla/blob/main/third_party/tsl/third_party/systemlibs/syslibs_configure.bzl#L11
@@ -78,7 +116,7 @@ export TF_SYSTEM_LIBS="
 bazel clean --expunge
 
 echo "Building...."
-${PYTHON} build/build.py ${BUILD_FLAGS} --target_cpu_features default --enable_mkl_dnn
+${PYTHON} build/build.py ${BUILD_FLAGS}
 echo "Building done."
 
 # Clean up to speedup postprocessing

@@ -1,6 +1,13 @@
 {% set version = "0.4.35" %}
 {% set name = "jaxlib" %}
 
+{% set build = 1 %}
+
+{% if cuda_compiler_version != "None" %}
+{% set build = build + 200 %}
+{% endif %}
+
+
 package:
   name: jaxlib
   version: {{ version }}
@@ -10,16 +17,21 @@ source:
   sha256: 65e086708ae56670676b7b2340ad82b901d8c9993d1241a839c8990bdb8d6212
   patches:
       - patches/0000-Consolidated-build-fixes-for-XLA.patch  # [not win]
+      - patches/0001-Add-missing-typename.patch  # [not win]
 
 build:
-  number: 0
+  number: {{ build }}
   # s390x is missing bazel.
   skip: true  # [s390x or py<310]
+  skip: true  # [skip_cuda_prefect and (gpu_variant or "").startswith('cuda')]
+  string: cuda{{ cuda_compiler_version | replace('.', '') }}py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [(gpu_variant or "").startswith('cuda')]
+  string: cpu_py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [(gpu_variant or "").startswith('None')]
 
 requirements:
   build:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
+    - {{ compiler('cuda') }}  # [(gpu_variant or "").startswith('cuda')]
     - clang    # [win]
     - llvmdev  # [win]
     - lld      # [win]
@@ -32,6 +44,18 @@ requirements:
     - libgrpc {{ libgrpc }}
 
   host:
+    - cudnn {{ cudnn }}           # [(gpu_variant or "").startswith('cuda')]
+    - nccl  {{ nccl }}            # [(gpu_variant or "").startswith('cuda')]
+    - cuda-cupti-dev 12.4.127     # [(gpu_variant or "").startswith('cuda-12')]
+    - cuda-cudart-dev 12.4.127    # [(gpu_variant or "").startswith('cuda-12')]
+    - cuda-nvml-dev 12.4.127      # [(gpu_variant or "").startswith('cuda-12')]
+    - cuda-nvtx-dev 12.4.127      # [(gpu_variant or "").startswith('cuda-12')]
+    - cuda-nvcc-tools 12.4.131    # [(gpu_variant or "").startswith('cuda-12')]
+    - libcublas-dev 12.4.5.8      # [(gpu_variant or "").startswith('cuda-12')]
+    - libcusolver-dev 11.6.1.9    # [(gpu_variant or "").startswith('cuda-12')]
+    - libcurand-dev 10.3.5.147    # [(gpu_variant or "").startswith('cuda-12')]
+    - libcufft-dev 11.2.1.3       # [(gpu_variant or "").startswith('cuda-12')]
+    - libcusparse-dev 12.3.1.170  # [(gpu_variant or "").startswith('cuda-12')]
     - python
     - pip
     - wheel
@@ -52,10 +76,12 @@ requirements:
   run:
     - python
     - numpy >=1.24
-    - scipy >=1.10     # [py<312]
+    - scipy >=1.10    # [py<312]
     - scipy >=1.11.1  # [py>=312]
     - ml_dtypes >=0.2.0
     - {{ pin_compatible('double-conversion', max_pin='x.x') }}
+    - __cuda  # [(gpu_variant or "").startswith('cuda')]
+    - cuda-nvcc-tools  # [(gpu_variant or "").startswith('cuda-12')]
   run_constrained:
     - jax >={{ version }}
 
