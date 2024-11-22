@@ -17,8 +17,7 @@ source:
   patches:
     - patches/0001-Allow-for-custom-CUDA-build.patch
     - patches/0002-Consolidated-build-fixes-for-XLA.patch
-    - patches/0003-Fix-XLA_FFIR_REGISTER-macros.patch
-    - patches/0004-Add-missing-typename.patch
+    - patches/0003-Add-missing-typename.patch
 
 build:
   number: {{ build }}

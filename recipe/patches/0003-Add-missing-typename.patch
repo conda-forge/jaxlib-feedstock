@@ -1,0 +1,22 @@
+From 41e119a6a77b2ba173e7b159327785025bd0caba Mon Sep 17 00:00:00 2001
+From: "Uwe L. Korn" <uwe.korn@quantco.com>
+Date: Wed, 9 Oct 2024 09:39:46 +0000
+Subject: [PATCH 3/3] Add missing typename
+
+---
+ jaxlib/gpu/solver_kernels_ffi.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/jaxlib/gpu/solver_kernels_ffi.cc b/jaxlib/gpu/solver_kernels_ffi.cc
+index 32cd975..c90dfab 100644
+--- a/jaxlib/gpu/solver_kernels_ffi.cc
++++ b/jaxlib/gpu/solver_kernels_ffi.cc
+@@ -815,7 +815,7 @@ ffi::Error GesvdjImpl(int64_t batch, int64_t rows, int64_t cols,
+ 
+   auto a_data = static_cast<T*>(a.untyped_data());
+   auto out_data = static_cast<T*>(out->untyped_data());
+-  auto s_data = static_cast<solver::RealType<T>::value*>(s->untyped_data());
++  auto s_data = static_cast<typename solver::RealType<T>::value*>(s->untyped_data());
+   auto u_data = static_cast<T*>(u->untyped_data());
+   auto v_data = static_cast<T*>(v->untyped_data());
+   auto info_data = info->typed_data();

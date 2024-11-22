@@ -78,7 +78,7 @@ build --verbose_failures
 build --toolchain_resolution_debug
 build --define=PREFIX=${PREFIX}
 build --define=PROTOBUF_INCLUDE_PATH=${PREFIX}/include
-build --local_cpu_resources=120
+build --local_cpu_resources=${CPU_COUNT}
 build --define=with_cross_compiler_support=true
 EOF
 
