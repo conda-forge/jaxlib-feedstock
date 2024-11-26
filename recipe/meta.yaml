@@ -1,7 +1,7 @@
 {% set version = "0.4.35" %}
 {% set name = "jaxlib" %}
 
-{% set build = 1 %}
+{% set build = 2 %}
 
 {% if cuda_compiler_version != "None" %}
 {% set build = build + 200 %}
@@ -25,7 +25,7 @@ build:
   skip: true  # [s390x or py<310]
   skip: true  # [skip_cuda_prefect and (gpu_variant or "").startswith('cuda')]
   string: cuda{{ cuda_compiler_version | replace('.', '') }}py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [(gpu_variant or "").startswith('cuda')]
-  string: cpu_py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [(gpu_variant or "").startswith('None')]
+  string: cpu_py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [(gpu_variant or "").startswith('cpu')]
 
 requirements:
   build:
