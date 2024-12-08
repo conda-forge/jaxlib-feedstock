@@ -86,6 +86,13 @@ requirements:
     - ml_dtypes >=0.2.0
     - __cuda  # [cuda_compiler_version != "None"]
     - cuda-nvcc-tools  # [(cuda_compiler_version or "").startswith("12")]
+    # Workaround for https://github.com/conda-forge/jaxlib-feedstock/pull/288#issuecomment-2511925904
+    - libcublas-dev     # [(cuda_compiler_version or "").startswith("12")]
+    - libcusolver-dev   # [(cuda_compiler_version or "").startswith("12")]
+    - libcurand-dev     # [(cuda_compiler_version or "").startswith("12")]
+    - cuda-cupti-dev    # [(cuda_compiler_version or "").startswith("12")]
+    - libcufft-dev      # [(cuda_compiler_version or "").startswith("12")]
+    - libcusparse-dev   # [(cuda_compiler_version or "").startswith("12")]
   run_constrained:
     - jax >={{ version }}
 
