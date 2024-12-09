@@ -29,9 +29,9 @@ github_actions_labels:
 libabseil:
 - '20240722'
 libgrpc:
-- '1.65'
+- '1.67'
 libprotobuf:
-- 5.27.5
+- 5.28.2
 macos_machine:
 - x86_64-apple-darwin13.4.0
 numpy:
