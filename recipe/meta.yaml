@@ -1,5 +1,5 @@
 {% set version = "0.4.34" %}
-{% set build = 0 %}
+{% set build = 1 %}
 
 {% if cuda_compiler_version != "None" %}
 {% set build = build + 200 %}
@@ -17,8 +17,7 @@ source:
   patches:
     - patches/0001-Allow-for-custom-CUDA-build.patch
     - patches/0002-Consolidated-build-fixes-for-XLA.patch
-    - patches/0003-Fix-XLA_FFIR_REGISTER-macros.patch
-    - patches/0004-Add-missing-typename.patch
+    - patches/0003-Add-missing-typename.patch
 
 build:
   number: {{ build }}
@@ -87,6 +86,13 @@ requirements:
     - ml_dtypes >=0.2.0
     - __cuda  # [cuda_compiler_version != "None"]
     - cuda-nvcc-tools  # [(cuda_compiler_version or "").startswith("12")]
+    # Workaround for https://github.com/conda-forge/jaxlib-feedstock/pull/288#issuecomment-2511925904
+    - libcublas-dev     # [(cuda_compiler_version or "").startswith("12")]
+    - libcusolver-dev   # [(cuda_compiler_version or "").startswith("12")]
+    - libcurand-dev     # [(cuda_compiler_version or "").startswith("12")]
+    - cuda-cupti-dev    # [(cuda_compiler_version or "").startswith("12")]
+    - libcufft-dev      # [(cuda_compiler_version or "").startswith("12")]
+    - libcusparse-dev   # [(cuda_compiler_version or "").startswith("12")]
   run_constrained:
     - jax >={{ version }}
 
