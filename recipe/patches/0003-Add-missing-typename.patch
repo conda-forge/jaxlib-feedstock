@@ -1,4 +1,4 @@
-From fd329cb4cd76ed6221f9ef4f9edddd13fb77d2cf Mon Sep 17 00:00:00 2001
+From 317afc9ff9e2cb021bc81a278710a6a3f147c536 Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwe.korn@quantco.com>
 Date: Wed, 9 Oct 2024 09:39:46 +0000
 Subject: [PATCH 3/3] Add missing typename
@@ -8,10 +8,10 @@ Subject: [PATCH 3/3] Add missing typename
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/jaxlib/gpu/solver_kernels_ffi.cc b/jaxlib/gpu/solver_kernels_ffi.cc
-index 32cd975..c90dfab 100644
+index 7852da4..b5742b5 100644
 --- a/jaxlib/gpu/solver_kernels_ffi.cc
 +++ b/jaxlib/gpu/solver_kernels_ffi.cc
-@@ -815,7 +815,7 @@ ffi::Error GesvdjImpl(int64_t batch, int64_t rows, int64_t cols,
+@@ -915,7 +915,7 @@ ffi::Error GesvdjImpl(int64_t batch, int64_t rows, int64_t cols,
  
    auto a_data = static_cast<T*>(a.untyped_data());
    auto out_data = static_cast<T*>(out->untyped_data());
