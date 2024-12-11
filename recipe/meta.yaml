@@ -1,5 +1,5 @@
 {% set version = "0.4.34" %}
-{% set build = 1 %}
+{% set build = 2 %}
 
 {% if cuda_compiler_version != "None" %}
 {% set build = build + 200 %}
@@ -37,6 +37,7 @@ requirements:
     - python                                 # [build_platform != target_platform]
     - cross-python_{{ target_platform }}     # [build_platform != target_platform]
     - numpy                                  # [build_platform != target_platform]
+    - zlib                                   # [build_platform != target_platform]
     - unzip
     - rsync  # [(cuda_compiler_version or "").startswith("12")]
     # Keep bazel listed twice here to help the migrators track dependencies
