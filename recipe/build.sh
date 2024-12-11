@@ -72,6 +72,7 @@ fi
 source gen-bazel-toolchain
 
 cat >> .bazelrc <<EOF
+
 build --crosstool_top=//bazel_toolchain:toolchain
 build --logging=6
 build --verbose_failures
