@@ -109,9 +109,8 @@ fi
 if [[ "${target_platform}" == linux-* ]]; then
     EXTRA="${EXTRA} --nouse_clang"
 fi
-${PYTHON} build/build.py \
+${PYTHON} build/build.py build \
     --target_cpu_features default \
-    --enable_mkl_dnn \
     ${EXTRA}
 
 # Clean up to speedup postprocessing
