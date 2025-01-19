@@ -31,7 +31,7 @@ libabseil:
 libgrpc:
 - '1.67'
 libprotobuf:
-- 5.28.2
+- 5.28.3
 numpy:
 - '2.0'
 openssl:
