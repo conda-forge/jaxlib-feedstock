@@ -53,6 +53,7 @@ requirements:
     - flatbuffers <2.0.6
     # list libabseil here to ensure pinning correctly
     - libabseil
+    - sed
   host:
     - cudnn             # [cuda_compiler_version != "None"]
     - nccl              # [cuda_compiler_version != "None"]
