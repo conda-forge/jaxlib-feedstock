@@ -22,6 +22,7 @@ source:
     # legitimately with `+++` being misinterpreted as a hunk separator).
     # - patches/0007-xla-cpu-Fix-build-errors-from-ACL.patch
     - patches/0003-fix-member-access-to-packed-CUDA-struct.patch
+    - patches/0004-fix-an-ambiguous-type.patch
 
 build:
   number: {{ build }}
