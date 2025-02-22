@@ -26,6 +26,8 @@ source:
 build:
   number: {{ build }}
   skip: true  # [win or py<310]
+  # debug
+  skip: true  # [py!=312]
   # Currently the GPU kernels (and their abseil includes) are not compatible with GCC 11
   skip: true  # [cuda_compiler_version == "11.8"]
   string: cuda{{ cuda_compiler_version | replace('.', '') }}py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [cuda_compiler_version != "None"]
