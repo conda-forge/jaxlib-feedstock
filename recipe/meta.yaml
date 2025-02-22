@@ -17,6 +17,10 @@ source:
   patches:
     - patches/0001-Allow-for-custom-CUDA-build.patch
     - patches/0002-Consolidated-build-fixes-for-XLA.patch
+    # cannot absorb this into the overall jax patch, because patching three vendored projects
+    # deep breaks the application of the patch using `patch` (presumably due to lines starting
+    # legitimately with `+++` being misinterpreted as a hunk separator).
+    # - patches/0007-xla-cpu-Fix-build-errors-from-ACL.patch
 
 build:
   number: {{ build }}

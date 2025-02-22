@@ -1,6 +1,8 @@
 #!/bin/bash
-
 set -euxo pipefail
+
+# see comment in meta.yaml
+cp $RECIPE_DIR/patches/0007-xla-cpu-Fix-build-errors-from-ACL.patch $SRC_DIR/third_party/xla/
 
 export JAX_RELEASE=$PKG_VERSION
 

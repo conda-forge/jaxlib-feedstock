@@ -1,4 +1,4 @@
-From b1c1955f80774f6590ad72fef42221ff720c8bf5 Mon Sep 17 00:00:00 2001
+From a56d0a224f537e13570ddf60bb83300c30ce417b Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwe.korn@quantco.com>
 Date: Thu, 14 Dec 2023 17:06:15 +0100
 Subject: [PATCH 2/2] Consolidated build fixes for XLA
@@ -20,16 +20,14 @@ Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
  ...0004-Add-missing-bits-absl-systemlib.patch | 245 ++++++++++++++++++
  ...ther-absl-log-is-already-initialized.patch |  58 +++++
  .../xla/0006-Add-conda-cuda-path.patch        |  31 +++
- ...07-xla-cpu-Fix-build-errors-from-ACL.patch | 128 +++++++++
  third_party/xla/workspace.bzl                 |  10 +
- 8 files changed, 621 insertions(+)
+ 7 files changed, 493 insertions(+)
  create mode 100644 third_party/xla/0001-Support-third-party-build-of-boringssl.patch
  create mode 100644 third_party/xla/0002-Fix-abseil-headers.patch
  create mode 100644 third_party/xla/0003-Omit-usage-of-StrFormat.patch
  create mode 100644 third_party/xla/0004-Add-missing-bits-absl-systemlib.patch
  create mode 100644 third_party/xla/0005-Check-whether-absl-log-is-already-initialized.patch
  create mode 100644 third_party/xla/0006-Add-conda-cuda-path.patch
- create mode 100644 third_party/xla/0007-xla-cpu-Fix-build-errors-from-ACL.patch
 
 diff --git a/third_party/xla/0001-Support-third-party-build-of-boringssl.patch b/third_party/xla/0001-Support-third-party-build-of-boringssl.patch
 new file mode 100644
@@ -550,140 +548,6 @@ index 000000000..93999484f
 +   }
 + #endif  // defined(PLATFORM_POSIX) && !defined(__APPLE__)
 + 
-diff --git a/third_party/xla/0007-xla-cpu-Fix-build-errors-from-ACL.patch b/third_party/xla/0007-xla-cpu-Fix-build-errors-from-ACL.patch
-new file mode 100644
-index 000000000..40256f16f
---- /dev/null
-+++ b/third_party/xla/0007-xla-cpu-Fix-build-errors-from-ACL.patch
-@@ -0,0 +1,128 @@
-+From 2b81e35e9e89a13aac3bb08a21b91c76740fd74c Mon Sep 17 00:00:00 2001
-+From: Penporn Koanantakool <penporn@google.com>
-+Date: Fri, 24 Jan 2025 13:33:38 -0800
-+Subject: [PATCH 7/7] [xla:cpu] Fix build errors from ACL
-+
-+Reported in:
-+https://github.com/jax-ml/jax/issues/26062
-+
-+PiperOrigin-RevId: 719416696
-+---
-+ .../exclude_omp_scheduler.patch               | 23 +++++++++++++++++++
-+ .../compute_library/include_string.patch      | 12 ++++++++++
-+ .../exclude_omp_scheduler.patch               | 23 +++++++++++++++++++
-+ .../compute_library/include_string.patch      | 12 ++++++++++
-+ third_party/tsl/workspace2.bzl                |  2 ++
-+ 5 files changed, 72 insertions(+)
-+ create mode 100644 third_party/compute_library/exclude_omp_scheduler.patch
-+ create mode 100644 third_party/compute_library/include_string.patch
-+ create mode 100644 third_party/tsl/third_party/compute_library/exclude_omp_scheduler.patch
-+ create mode 100644 third_party/tsl/third_party/compute_library/include_string.patch
-+
-+diff --git a/third_party/compute_library/exclude_omp_scheduler.patch b/third_party/compute_library/exclude_omp_scheduler.patch
-+new file mode 100644
-+index 0000000000..7ccfebbd36
-+--- /dev/null
-++++ b/third_party/compute_library/exclude_omp_scheduler.patch
-+@@ -0,0 +1,23 @@
-++diff --git a/src/BUILD.bazel b/src/BUILD.bazel
-++index bf71e534e2..22377f1a32 100644
-++--- a/src/BUILD.bazel
-+++++ b/src/BUILD.bazel
-++@@ -971,7 +971,6 @@ filegroup(
-++ 	"runtime/NEON/functions/NETranspose.cpp",
-++ 	"runtime/NEON/functions/NEUnstack.cpp",
-++ 	"runtime/NEON/functions/NEWinogradConvolutionLayer.cpp",
-++-	"runtime/OMP/OMPScheduler.cpp",
-++ 	"runtime/OffsetLifetimeManager.cpp",
-++ 	"runtime/OffsetMemoryPool.cpp",
-++ 	"runtime/OperatorTensor.cpp",
-++@@ -984,6 +983,10 @@ filegroup(
-++ 	"runtime/Tensor.cpp",
-++ 	"runtime/TensorAllocator.cpp",
-++ 	"runtime/Utils.cpp"]  +
-+++    select({
-+++        "//:openmp_flag": ["runtime/OMP/OMPScheduler.cpp"],
-+++        "//conditions:default": [],
-+++    }) +
-++     glob(["**/*.h",
-++     "**/*.hpp",
-++     "**/*.inl"]),
-+diff --git a/third_party/compute_library/include_string.patch b/third_party/compute_library/include_string.patch
-+new file mode 100644
-+index 0000000000..709aeea621
-+--- /dev/null
-++++ b/third_party/compute_library/include_string.patch
-+@@ -0,0 +1,12 @@
-++diff --git a/arm_compute/core/utils/logging/IPrinter.h b/arm_compute/core/utils/logging/IPrinter.h
-++index 42dca58ea1..9c8b1598e8 100644
-++--- a/arm_compute/core/utils/logging/IPrinter.h
-+++++ b/arm_compute/core/utils/logging/IPrinter.h
-++@@ -25,6 +25,7 @@
-++ #define ARM_COMPUTE_LOGGING_PRINTER_H
-++ 
-++ #include "support/Mutex.h"
-+++#include <string>
-++ 
-++ namespace arm_compute
-++ {
-+diff --git a/third_party/tsl/third_party/compute_library/exclude_omp_scheduler.patch b/third_party/tsl/third_party/compute_library/exclude_omp_scheduler.patch
-+new file mode 100644
-+index 0000000000..7ccfebbd36
-+--- /dev/null
-++++ b/third_party/tsl/third_party/compute_library/exclude_omp_scheduler.patch
-+@@ -0,0 +1,23 @@
-++diff --git a/src/BUILD.bazel b/src/BUILD.bazel
-++index bf71e534e2..22377f1a32 100644
-++--- a/src/BUILD.bazel
-+++++ b/src/BUILD.bazel
-++@@ -971,7 +971,6 @@ filegroup(
-++ 	"runtime/NEON/functions/NETranspose.cpp",
-++ 	"runtime/NEON/functions/NEUnstack.cpp",
-++ 	"runtime/NEON/functions/NEWinogradConvolutionLayer.cpp",
-++-	"runtime/OMP/OMPScheduler.cpp",
-++ 	"runtime/OffsetLifetimeManager.cpp",
-++ 	"runtime/OffsetMemoryPool.cpp",
-++ 	"runtime/OperatorTensor.cpp",
-++@@ -984,6 +983,10 @@ filegroup(
-++ 	"runtime/Tensor.cpp",
-++ 	"runtime/TensorAllocator.cpp",
-++ 	"runtime/Utils.cpp"]  +
-+++    select({
-+++        "//:openmp_flag": ["runtime/OMP/OMPScheduler.cpp"],
-+++        "//conditions:default": [],
-+++    }) +
-++     glob(["**/*.h",
-++     "**/*.hpp",
-++     "**/*.inl"]),
-+diff --git a/third_party/tsl/third_party/compute_library/include_string.patch b/third_party/tsl/third_party/compute_library/include_string.patch
-+new file mode 100644
-+index 0000000000..709aeea621
-+--- /dev/null
-++++ b/third_party/tsl/third_party/compute_library/include_string.patch
-+@@ -0,0 +1,12 @@
-++diff --git a/arm_compute/core/utils/logging/IPrinter.h b/arm_compute/core/utils/logging/IPrinter.h
-++index 42dca58ea1..9c8b1598e8 100644
-++--- a/arm_compute/core/utils/logging/IPrinter.h
-+++++ b/arm_compute/core/utils/logging/IPrinter.h
-++@@ -25,6 +25,7 @@
-++ #define ARM_COMPUTE_LOGGING_PRINTER_H
-++ 
-++ #include "support/Mutex.h"
-+++#include <string>
-++ 
-++ namespace arm_compute
-++ {
-+diff --git a/third_party/tsl/workspace2.bzl b/third_party/tsl/workspace2.bzl
-+index 0b1bd5ee69..68d965f560 100644
-+--- a/third_party/tsl/workspace2.bzl
-++++ b/third_party/tsl/workspace2.bzl
-+@@ -179,6 +179,8 @@ def _tf_repositories():
-+         patch_file = [
-+             "//third_party/compute_library:compute_library.patch",
-+             "//third_party/compute_library:acl_thread_local_scheduler.patch",
-++            "//third_party/compute_library:exclude_omp_scheduler.patch",
-++            "//third_party/compute_library:include_string.patch",
-+         ],
-+         sha256 = "c4ca329a78da380163b2d86e91ba728349b6f0ee97d66e260a694ef37f0b0d93",
-+         strip_prefix = "ComputeLibrary-23.05.1",
 diff --git a/third_party/xla/workspace.bzl b/third_party/xla/workspace.bzl
 index d08d9bba9..4db026b92 100644
 --- a/third_party/xla/workspace.bzl
