@@ -48,10 +48,6 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
         export LOCAL_CUDA_PATH="${BUILD_PREFIX}/targets/${CF_CUDA_TARGET}"
         export LOCAL_CUDNN_PATH="${PREFIX}/targets/${CF_CUDA_TARGET}"
         export LOCAL_NCCL_PATH="${PREFIX}/targets/${CF_CUDA_TARGET}"
-        mkdir -p ${BUILD_PREFIX}/targets/x86_64-linux/bin
-        test -f ${BUILD_PREFIX}/targets/x86_64-linux/bin/ptxas || ln -s $(which ptxas) ${BUILD_PREFIX}/targets/x86_64-linux/bin/ptxas
-        test -f ${BUILD_PREFIX}/targets/x86_64-linux/bin/nvlink || ln -s $(which nvlink) ${BUILD_PREFIX}/targets/x86_64-linux/bin/nvlink
-        test -f ${BUILD_PREFIX}/targets/x86_64-linux/bin/fatbinary || ln -s $(which fatbinary) ${BUILD_PREFIX}/targets/x86_64-linux/bin/fatbinary
     else
         echo "unsupported cuda version."
         exit 1
