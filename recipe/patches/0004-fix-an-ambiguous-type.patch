@@ -1,7 +1,7 @@
 From 4dba4c17b8efc75832cf7cf17128541eb75cc510 Mon Sep 17 00:00:00 2001
 From: "H. Vetinari" <h.vetinari@gmx.com>
 Date: Sun, 23 Feb 2025 02:27:18 +1100
-Subject: [PATCH 4/4] fix an ambiguous type
+Subject: [PATCH 4/5] fix an ambiguous type
 
 ---
  jaxlib/mosaic/dialect/gpu/mosaic_gpu.cc | 2 +-

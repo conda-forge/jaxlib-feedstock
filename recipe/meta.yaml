@@ -23,6 +23,7 @@ source:
     # - patches/0007-xla-cpu-Fix-build-errors-from-ACL.patch
     - patches/0003-fix-member-access-to-packed-CUDA-struct.patch
     - patches/0004-fix-an-ambiguous-type.patch
+    - patches/0005-fix-getting-gcc-major-version.patch
 
 build:
   number: {{ build }}
