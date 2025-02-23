@@ -9,7 +9,7 @@ for xla to apply those patches.
 
 To maintain/rebase these patches, use a checkout of https://github.com/openxla/xla,
 and then rebase to the commit of xla being used by jax, which can be found in
-https://github.com/google/jax/blob/jax-v{{ version }}/third_party/xla/workspace.bzl
+https://github.com/jax-ml/jax/blob/jax-v{{ version }}/third_party/xla/workspace.bzl
 which is also where we're patching in the list of patches to apply to xla.
 
 Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>

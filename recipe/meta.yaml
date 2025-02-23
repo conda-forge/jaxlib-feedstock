@@ -12,7 +12,7 @@ package:
 
 source:
   # only pull sources after upstream PyPI release...
-  url: https://github.com/google/jax/archive/jax-v{{ version }}.tar.gz
+  url: https://github.com/jax-ml/jax/archive/jax-v{{ version }}.tar.gz
   sha256: 04cc2eeb2e7ce1916674cea03a7d75a59d583ddb779d5104e103a2798a283ce9
   patches:
     - patches/0001-Allow-for-custom-CUDA-build.patch
@@ -116,11 +116,11 @@ test:
     - test -f $SP_DIR/jaxlib-{{ version }}.dist-info/METADATA
 
 about:
-  home: http://github.com/google/jax
+  home: http://github.com/jax-ml/jax
   license: Apache-2.0
   license_file: LICENSE
   summary: 'Composable transformations of Python+NumPy programs: differentiate, vectorize, JIT to GPU/TPU, and more'
-  dev_url: http://github.com/google/jax
+  dev_url: http://github.com/jax-ml/jax
 
 extra:
   recipe-maintainers:
