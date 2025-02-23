@@ -21,8 +21,10 @@ source:
     # deep breaks the application of the patch using `patch` (presumably due to lines starting
     # legitimately with `+++` being misinterpreted as a hunk separator).
     # - patches/0007-xla-cpu-Fix-build-errors-from-ACL.patch
+    # backport https://github.com/jax-ml/jax/pull/26691
     - patches/0003-fix-member-access-to-packed-CUDA-struct.patch
     - patches/0004-fix-an-ambiguous-type.patch
+    # backport https://github.com/jax-ml/jax/pull/26690
     - patches/0005-fix-getting-gcc-major-version.patch
 
 build:
