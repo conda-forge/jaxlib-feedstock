@@ -1,4 +1,4 @@
-{% set version = "0.4.36" %}
+{% set version = "0.4.38" %}
 {% set build = 0 %}
 
 {% if cuda_compiler_version != "None" %}
@@ -13,10 +13,16 @@ package:
 source:
   # only pull sources after upstream PyPI release...
   url: https://github.com/google/jax/archive/jax-v{{ version }}.tar.gz
-  sha256: 442bfdf491b509995aa160361e23a9db488d5b97c87e6648cc733501b06eda77
+  sha256: ca1e63c488d505b9c92e81499e8b06cc1977319c50d64a0e58adbd2dae1a625c
   patches:
     - patches/0001-Allow-for-custom-CUDA-build.patch
     - patches/0002-Consolidated-build-fixes-for-XLA.patch
+    # cannot absorb this into the overall xla patch, because patching three vendored projects
+    # deep breaks the application of the patch using `patch` (presumably due to lines starting
+    # legitimately with `+++` being misinterpreted as a hunk separator).
+    # - patches/0007-xla-cpu-Fix-build-errors-from-ACL.patch
+    - patches/0003-fix-member-access-to-packed-CUDA-struct.patch
+    - patches/0004-fix-an-ambiguous-type.patch
 
 build:
   number: {{ build }}

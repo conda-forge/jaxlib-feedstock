@@ -1,0 +1,22 @@
+From 6e9cd86949724f046df92fc8b7348939f2fdc0be Mon Sep 17 00:00:00 2001
+From: "H. Vetinari" <h.vetinari@gmx.com>
+Date: Sun, 23 Feb 2025 02:27:18 +1100
+Subject: [PATCH 4/4] fix an ambiguous type
+
+---
+ jaxlib/mosaic/dialect/gpu/mosaic_gpu.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/jaxlib/mosaic/dialect/gpu/mosaic_gpu.cc b/jaxlib/mosaic/dialect/gpu/mosaic_gpu.cc
+index b21f56327..5efc1a39e 100644
+--- a/jaxlib/mosaic/dialect/gpu/mosaic_gpu.cc
++++ b/jaxlib/mosaic/dialect/gpu/mosaic_gpu.cc
+@@ -412,7 +412,7 @@ llvm::LogicalResult WGMMAOp::verify() {
+ 
+   int groups_m = 0;
+   auto a_shape = a_shaped_type.getShape();
+-  if (auto a_memref = dyn_cast<mlir::MemRefType>(getA().getType())) {
++  if (auto a_memref = mlir::dyn_cast<mlir::MemRefType>(getA().getType())) {
+     if (a_shape.size() != 4) {
+       return error("When `a` is a memref, it must have rank 4.");
+     }
