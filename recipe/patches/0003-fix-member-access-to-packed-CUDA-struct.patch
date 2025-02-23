@@ -1,4 +1,4 @@
-From be74d15a31142e7c19da9e787b148748cd4bae1d Mon Sep 17 00:00:00 2001
+From a7f66bd413f1c148652b6cf4a6ee00cf507e5e45 Mon Sep 17 00:00:00 2001
 From: "H. Vetinari" <h.vetinari@gmx.com>
 Date: Sat, 22 Feb 2025 16:39:41 +1100
 Subject: [PATCH 3/4] fix member access to packed CUDA struct
@@ -8,10 +8,10 @@ Subject: [PATCH 3/4] fix member access to packed CUDA struct
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/jaxlib/mosaic/gpu/mosaic_gpu_ext.cc b/jaxlib/mosaic/gpu/mosaic_gpu_ext.cc
-index 8889a4983..f56b62fd6 100644
+index e5c85ac58..0112a044d 100644
 --- a/jaxlib/mosaic/gpu/mosaic_gpu_ext.cc
 +++ b/jaxlib/mosaic/gpu/mosaic_gpu_ext.cc
-@@ -181,8 +181,9 @@ void callback_complete(CUcontext context, uint32_t streamId,
+@@ -183,8 +183,9 @@ void callback_complete(CUcontext context, uint32_t streamId,
          // Convert integer nanoseconds to floating point milliseconds to match
          // the interface of the events-based profiler.
          double duration_ms = (kernel->end - kernel->start) / 1e6;
