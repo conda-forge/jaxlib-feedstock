@@ -1,31 +1,31 @@
-From 47a24be649ae10c722a43f12dc7032b63d3c77b1 Mon Sep 17 00:00:00 2001
+From f8e41b61ce27bf6bc28a10703ddfceea39d650ed Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwelk@xhochy.com>
 Date: Sun, 8 Oct 2023 19:34:34 +0200
-Subject: [PATCH 1/4] Allow for custom CUDA build
+Subject: [PATCH 1/5] Allow for custom CUDA build
 
 ---
  build/build.py | 14 ++++++++++----
  1 file changed, 10 insertions(+), 4 deletions(-)
 
 diff --git a/build/build.py b/build/build.py
-index 5f43c2421..6939cc374 100755
+index d2f68f80e..4fbb675fc 100755
 --- a/build/build.py
 +++ b/build/build.py
-@@ -527,6 +527,13 @@ async def main():
+@@ -548,6 +548,13 @@ async def main():
  
-       if args.cuda_version:
-         logging.debug("Hermetic CUDA version: %s", args.cuda_version)
-+        # set GCC_HOST_COMPILER_PATH for toolchain with conda-forge
-+        wheel_build_command.append(
-+            f"--action_env=GCC_HOST_COMPILER_PATH=\"{os.environ['GCC']}\""
-+        )
-+        wheel_build_command.append(
-+            f"--action_env=GCC_HOST_COMPILER_PREFIX=\"{os.path.dirname(os.environ['GCC'])}\""
-+          )
-         wheel_build_command.append(
-             f"--repo_env=HERMETIC_CUDA_VERSION={args.cuda_version}"
-         )
-@@ -609,10 +616,9 @@ async def main():
+     if args.cuda_version:
+       logging.debug("Hermetic CUDA version: %s", args.cuda_version)
++      # set GCC_HOST_COMPILER_PATH for toolchain with conda-forge
++      wheel_build_command_base.append(
++          f"--action_env=GCC_HOST_COMPILER_PATH=\"{os.environ['GCC']}\""
++      )
++      wheel_build_command_base.append(
++          f"--action_env=GCC_HOST_COMPILER_PREFIX=\"{os.path.dirname(os.environ['GCC'])}\""
++      )
+       wheel_build_command_base.append(
+           f"--repo_env=HERMETIC_CUDA_VERSION={args.cuda_version}"
+       )
+@@ -653,10 +660,9 @@ async def main():
  
        wheel_build_command.append(f"--jaxlib_git_hash={git_hash}")
  

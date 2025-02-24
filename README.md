@@ -3,13 +3,13 @@ About jaxlib-feedstock
 
 Feedstock license: [BSD-3-Clause](https://github.com/conda-forge/jaxlib-feedstock/blob/main/LICENSE.txt)
 
-Home: http://github.com/google/jax
+Home: http://github.com/jax-ml/jax
 
 Package license: Apache-2.0
 
 Summary: Composable transformations of Python+NumPy programs: differentiate, vectorize, JIT to GPU/TPU, and more
 
-Development: http://github.com/google/jax
+Development: http://github.com/jax-ml/jax
 
 Current build status
 ====================
