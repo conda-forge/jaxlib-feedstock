@@ -116,7 +116,7 @@ else
     EXTRA="${CUDA_ARGS:-}"
 fi
 if [[ "${target_platform}" == linux-* ]]; then
-    EXTRA="${EXTRA} --use_clang false"
+    EXTRA="${EXTRA} --use_clang false --gcc_path $CC"
 
     # Remove incompatible argument from bazelrc
     sed -i '/Qunused-arguments/d' .bazelrc
