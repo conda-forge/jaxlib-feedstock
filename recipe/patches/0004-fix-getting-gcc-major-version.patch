@@ -1,4 +1,4 @@
-From 791e3dfa81da2625bdb5f5cad1a062b1dcccc51b Mon Sep 17 00:00:00 2001
+From 295e968fca6184dd4b412bf3be3a0402ab82e8cc Mon Sep 17 00:00:00 2001
 From: "H. Vetinari" <h.vetinari@gmx.com>
 Date: Mon, 24 Feb 2025 07:59:42 +1100
 Subject: [PATCH 4/4] fix getting gcc major version

@@ -1,4 +1,4 @@
-From 2ecd70d3ba07ade7cec11744a4d91ce90ce5b75c Mon Sep 17 00:00:00 2001
+From 094cf4d9cb2dc56c26ae984f7c31db0343c2a686 Mon Sep 17 00:00:00 2001
 From: "H. Vetinari" <h.vetinari@gmx.com>
 Date: Sat, 22 Feb 2025 16:39:41 +1100
 Subject: [PATCH 3/4] fix member access to packed CUDA struct

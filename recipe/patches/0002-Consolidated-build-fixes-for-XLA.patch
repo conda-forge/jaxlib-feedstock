@@ -1,4 +1,4 @@
-From ca9e12c5764b2fe41371f23548dececf2bfff28a Mon Sep 17 00:00:00 2001
+From 1dd800f6f64d0948feccef00840d74b5c61094e0 Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwe.korn@quantco.com>
 Date: Thu, 14 Dec 2023 17:06:15 +0100
 Subject: [PATCH 2/4] Consolidated build fixes for XLA
@@ -15,12 +15,12 @@ which is also where we're patching in the list of patches to apply to xla.
 Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
 ---
  ...pport-third-party-build-of-boringssl.patch |  51 ++++
- third_party/xla/0002-Fix-abseil-headers.patch |  73 ++++++
+ third_party/xla/0002-Fix-abseil-headers.patch |  73 +++++
  .../xla/0003-Omit-usage-of-StrFormat.patch    |  25 ++
- ...0004-Add-missing-bits-absl-systemlib.patch | 245 ++++++++++++++++++
- ...ther-absl-log-is-already-initialized.patch |  58 +++++
+ ...0004-Add-missing-bits-absl-systemlib.patch | 262 ++++++++++++++++++
+ ...ther-absl-log-is-already-initialized.patch |  58 ++++
  third_party/xla/workspace.bzl                 |   7 +
- 6 files changed, 459 insertions(+)
+ 6 files changed, 476 insertions(+)
  create mode 100644 third_party/xla/0001-Support-third-party-build-of-boringssl.patch
  create mode 100644 third_party/xla/0002-Fix-abseil-headers.patch
  create mode 100644 third_party/xla/0003-Omit-usage-of-StrFormat.patch
@@ -196,23 +196,23 @@ index 000000000..ac7be8f59
 + #include <vector>
 diff --git a/third_party/xla/0004-Add-missing-bits-absl-systemlib.patch b/third_party/xla/0004-Add-missing-bits-absl-systemlib.patch
 new file mode 100644
-index 000000000..dfd1f4707
+index 000000000..d1ffe736c
 --- /dev/null
 +++ b/third_party/xla/0004-Add-missing-bits-absl-systemlib.patch
-@@ -0,0 +1,245 @@
-+From 4508ecee9f7d9d805cbb5d31968d083fe5c7e5e2 Mon Sep 17 00:00:00 2001
+@@ -0,0 +1,262 @@
++From fa66d4f7f1597cd20962cae167c0a9f09080954b Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 4 Jul 2024 15:58:32 +0200
 +Subject: [PATCH 4/5] Add missing bits absl systemlib
 +
 +---
-+ .../third_party/absl/system.absl.base.BUILD   | 16 +++++
-+ .../third_party/absl/system.absl.crc.BUILD    | 70 +++++++++++++++++++
++ .../third_party/absl/system.absl.base.BUILD   | 16 ++++
++ .../third_party/absl/system.absl.crc.BUILD    | 70 +++++++++++++++++
 + .../third_party/absl/system.absl.flags.BUILD  |  2 +-
-+ .../third_party/absl/system.absl.log.BUILD    | 61 ++++++++++++++++
-+ .../absl/system.absl.strings.BUILD            | 12 ++++
++ .../third_party/absl/system.absl.log.BUILD    | 78 +++++++++++++++++++
++ .../absl/system.absl.strings.BUILD            | 12 +++
 + .../tsl/third_party/absl/workspace.bzl        |  2 +
-+ 6 files changed, 162 insertions(+), 1 deletion(-)
++ 6 files changed, 179 insertions(+), 1 deletion(-)
 + create mode 100644 third_party/tsl/third_party/absl/system.absl.crc.BUILD
 + create mode 100644 third_party/tsl/third_party/absl/system.absl.log.BUILD
 +
@@ -338,10 +338,10 @@ index 000000000..dfd1f4707
 +         ":flag_internal",
 +diff --git a/third_party/tsl/third_party/absl/system.absl.log.BUILD b/third_party/tsl/third_party/absl/system.absl.log.BUILD
 +new file mode 100644
-+index 0000000000..67350d613b
++index 0000000000..c23aa51acf
 +--- /dev/null
 ++++ b/third_party/tsl/third_party/absl/system.absl.log.BUILD
-+@@ -0,0 +1,61 @@
++@@ -0,0 +1,78 @@
 ++load("@rules_cc//cc:defs.bzl", "cc_library")
 ++
 ++package(default_visibility = ["//visibility:public"])
@@ -380,6 +380,23 @@ index 000000000..dfd1f4707
 ++        "-labsl_log_internal_check_op",
 ++        "-labsl_log_internal_message",
 ++        "-labsl_log_internal_nullguard",
+++    ],
+++)
+++
+++cc_library(
+++    name = "globals",
+++    linkopts = [
+++        "-labsl_log_globals",
+++        "-labsl_log_severity",
+++        "-labsl_raw_logging_internal",
+++        "-labsl_vlog_config_internal",
+++    ],
+++    deps = [
+++        ":log",
+++        "//absl/base:config",
+++        "//absl/base:core_headers",
+++        "//absl/hash",
+++        "//absl/strings",
 ++    ],
 ++)
 ++
@@ -447,11 +464,11 @@ index 000000000..dfd1f4707
 +         "numeric",
 diff --git a/third_party/xla/0005-Check-whether-absl-log-is-already-initialized.patch b/third_party/xla/0005-Check-whether-absl-log-is-already-initialized.patch
 new file mode 100644
-index 000000000..93e691ad8
+index 000000000..271a3ca1e
 --- /dev/null
 +++ b/third_party/xla/0005-Check-whether-absl-log-is-already-initialized.patch
 @@ -0,0 +1,58 @@
-+From 877605f447df3a0b789a8766f1324f061d3d84ee Mon Sep 17 00:00:00 2001
++From 9ebd25248eda049702cb781894ca0e097f6843b0 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Fri, 22 Nov 2024 10:51:18 +0100
 +Subject: [PATCH 5/5] Check whether absl log is already initialized
