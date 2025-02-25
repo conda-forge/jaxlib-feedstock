@@ -1,12 +1,4 @@
-# Otherwise __ZN4absl12lts_2024072212log_internal10LogMessagelsIPKvTnNSt3__19enable_ifIXntsr4absl16HasAbslStringifyIT_EE5valueEiE4typeELi0EEERS2_RKS8_ cannot be found
-# demangled: absl::lts_20240722::log_internal::LogMessage& absl::lts_20240722::log_internal::LogMessage::operator<<<void const*, 0>(void const* const&)
-c_compiler_version:        # [osx]
-- '17'                     # [osx]
-cxx_compiler_version:      # [osx]
-- '17'                     # [osx]
-MACOSX_SDK_VERSION:        # [osx and x86_64]
-- '10.14'                  # [osx and x86_64]
 c_stdlib_version:          # [osx and x86_64]
-- '10.14'                  # [osx and x86_64]
+- '10.15'                  # [osx and x86_64]
 github_actions_labels:
 - cirun-openstack-cpu-large
