@@ -1,7 +1,7 @@
-From b0cb237b915315590486cdb74c8500b42c22bddc Mon Sep 17 00:00:00 2001
+From ca9e12c5764b2fe41371f23548dececf2bfff28a Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwe.korn@quantco.com>
 Date: Thu, 14 Dec 2023 17:06:15 +0100
-Subject: [PATCH 2/5] Consolidated build fixes for XLA
+Subject: [PATCH 2/4] Consolidated build fixes for XLA
 
 jax vendors xla, but only populates the sources through bazel, so we cannot
 patch as usual through conda, but rather need to teach the bazel build file
@@ -19,26 +19,24 @@ Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
  .../xla/0003-Omit-usage-of-StrFormat.patch    |  25 ++
  ...0004-Add-missing-bits-absl-systemlib.patch | 245 ++++++++++++++++++
  ...ther-absl-log-is-already-initialized.patch |  58 +++++
- .../xla/0006-Add-conda-cuda-path.patch        |  31 +++
- third_party/xla/workspace.bzl                 |  10 +
- 7 files changed, 493 insertions(+)
+ third_party/xla/workspace.bzl                 |   7 +
+ 6 files changed, 459 insertions(+)
  create mode 100644 third_party/xla/0001-Support-third-party-build-of-boringssl.patch
  create mode 100644 third_party/xla/0002-Fix-abseil-headers.patch
  create mode 100644 third_party/xla/0003-Omit-usage-of-StrFormat.patch
  create mode 100644 third_party/xla/0004-Add-missing-bits-absl-systemlib.patch
  create mode 100644 third_party/xla/0005-Check-whether-absl-log-is-already-initialized.patch
- create mode 100644 third_party/xla/0006-Add-conda-cuda-path.patch
 
 diff --git a/third_party/xla/0001-Support-third-party-build-of-boringssl.patch b/third_party/xla/0001-Support-third-party-build-of-boringssl.patch
 new file mode 100644
-index 000000000..74b1c5310
+index 000000000..8554f5126
 --- /dev/null
 +++ b/third_party/xla/0001-Support-third-party-build-of-boringssl.patch
 @@ -0,0 +1,51 @@
-+From 163c1236a63376eb43be7c3b055f49607d3ff07d Mon Sep 17 00:00:00 2001
++From c6bf0f14e159dcbdc99c725823d23e1d26b73a04 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 14 Dec 2023 15:04:51 +0100
-+Subject: [PATCH 1/7] Support third-party build of boringssl
++Subject: [PATCH 1/5] Support third-party build of boringssl
 +
 +---
 + third_party/boringssl.BUILD | 21 +++++++++++++++++++++
@@ -74,7 +72,7 @@ index 000000000..74b1c5310
 ++    ],
 ++)
 +diff --git a/workspace2.bzl b/workspace2.bzl
-+index f8b1cf3764..a8a36cf364 100644
++index cded32c8ca..5fb10ca45f 100644
 +--- a/workspace2.bzl
 ++++ b/workspace2.bzl
 +@@ -108,7 +108,7 @@ def _tf_repositories():
@@ -88,14 +86,14 @@ index 000000000..74b1c5310
 + 
 diff --git a/third_party/xla/0002-Fix-abseil-headers.patch b/third_party/xla/0002-Fix-abseil-headers.patch
 new file mode 100644
-index 000000000..219d663e5
+index 000000000..7b2084d01
 --- /dev/null
 +++ b/third_party/xla/0002-Fix-abseil-headers.patch
 @@ -0,0 +1,73 @@
-+From 8bdb1195668d1ecef8c9bee70dc20bce11529a5d Mon Sep 17 00:00:00 2001
++From 1620a0eb9135e380b59583539080337853c130aa Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 23 May 2024 15:45:52 +0200
-+Subject: [PATCH 2/7] Fix abseil headers
++Subject: [PATCH 2/5] Fix abseil headers
 +
 +---
 + xla/python/ifrt_proxy/common/BUILD    | 3 +++
@@ -105,7 +103,7 @@ index 000000000..219d663e5
 + 4 files changed, 10 insertions(+)
 +
 +diff --git a/xla/python/ifrt_proxy/common/BUILD b/xla/python/ifrt_proxy/common/BUILD
-+index f994ff87ef..87033dec85 100644
++index 5da3b67ecb..c684b54d52 100644
 +--- a/xla/python/ifrt_proxy/common/BUILD
 ++++ b/xla/python/ifrt_proxy/common/BUILD
 +@@ -51,6 +51,9 @@ cc_library(
@@ -119,7 +117,7 @@ index 000000000..219d663e5
 +     ],
 +     alwayslink = True,
 +diff --git a/xla/tsl/distributed_runtime/rpc/BUILD b/xla/tsl/distributed_runtime/rpc/BUILD
-+index 383846735f..45d6314c5a 100644
++index 83aaccd1d9..dec829ddc7 100644
 +--- a/xla/tsl/distributed_runtime/rpc/BUILD
 ++++ b/xla/tsl/distributed_runtime/rpc/BUILD
 +@@ -39,6 +39,7 @@ cc_library(
@@ -144,7 +142,7 @@ index 000000000..219d663e5
 + )
 + 
 +diff --git a/xla/tsl/profiler/rpc/client/BUILD b/xla/tsl/profiler/rpc/client/BUILD
-+index 58144f683b..c571538247 100644
++index c2554c43cd..5430b49357 100644
 +--- a/xla/tsl/profiler/rpc/client/BUILD
 ++++ b/xla/tsl/profiler/rpc/client/BUILD
 +@@ -99,6 +99,8 @@ cc_library(
@@ -167,14 +165,14 @@ index 000000000..219d663e5
 +         "@com_google_absl//absl/time",
 diff --git a/third_party/xla/0003-Omit-usage-of-StrFormat.patch b/third_party/xla/0003-Omit-usage-of-StrFormat.patch
 new file mode 100644
-index 000000000..c82e6e469
+index 000000000..ac7be8f59
 --- /dev/null
 +++ b/third_party/xla/0003-Omit-usage-of-StrFormat.patch
 @@ -0,0 +1,25 @@
-+From bd00fc129d585e972712923f2458d315261d5f32 Mon Sep 17 00:00:00 2001
++From 7240379e230c6095e8e490aa8c00e9dc97c0c4f8 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 4 Jul 2024 10:36:03 +0200
-+Subject: [PATCH 3/7] Omit usage of StrFormat
++Subject: [PATCH 3/5] Omit usage of StrFormat
 +
 +---
 + xla/stream_executor/gpu/gpu_executor.h | 5 +++++
@@ -198,14 +196,14 @@ index 000000000..c82e6e469
 + #include <vector>
 diff --git a/third_party/xla/0004-Add-missing-bits-absl-systemlib.patch b/third_party/xla/0004-Add-missing-bits-absl-systemlib.patch
 new file mode 100644
-index 000000000..b23805861
+index 000000000..dfd1f4707
 --- /dev/null
 +++ b/third_party/xla/0004-Add-missing-bits-absl-systemlib.patch
 @@ -0,0 +1,245 @@
-+From 5856e6ee773620f29fe762b8c39d988d762e49e3 Mon Sep 17 00:00:00 2001
++From 4508ecee9f7d9d805cbb5d31968d083fe5c7e5e2 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 4 Jul 2024 15:58:32 +0200
-+Subject: [PATCH 4/7] Add missing bits absl systemlib
++Subject: [PATCH 4/5] Add missing bits absl systemlib
 +
 +---
 + .../third_party/absl/system.absl.base.BUILD   | 16 +++++
@@ -449,14 +447,14 @@ index 000000000..b23805861
 +         "numeric",
 diff --git a/third_party/xla/0005-Check-whether-absl-log-is-already-initialized.patch b/third_party/xla/0005-Check-whether-absl-log-is-already-initialized.patch
 new file mode 100644
-index 000000000..64b675274
+index 000000000..93e691ad8
 --- /dev/null
 +++ b/third_party/xla/0005-Check-whether-absl-log-is-already-initialized.patch
 @@ -0,0 +1,58 @@
-+From b79360dc6d626fbf368e7a61a846aad9af11863d Mon Sep 17 00:00:00 2001
++From 877605f447df3a0b789a8766f1324f061d3d84ee Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Fri, 22 Nov 2024 10:51:18 +0100
-+Subject: [PATCH 5/7] Check whether absl log is already initialized
++Subject: [PATCH 5/5] Check whether absl log is already initialized
 +
 +---
 + xla/pjrt/c/pjrt_c_api_gpu.cc | 7 ++++++-
@@ -511,48 +509,11 @@ index 000000000..64b675274
 ++}
 + 
 + }  // namespace xla
-diff --git a/third_party/xla/0006-Add-conda-cuda-path.patch b/third_party/xla/0006-Add-conda-cuda-path.patch
-new file mode 100644
-index 000000000..fdc5ee661
---- /dev/null
-+++ b/third_party/xla/0006-Add-conda-cuda-path.patch
-@@ -0,0 +1,31 @@
-+From 005ea05408a4331da63dc9d75a0bd146aec3eef2 Mon Sep 17 00:00:00 2001
-+From: Silvio Traversaro <silvio@traversaro.it>
-+Date: Tue, 10 Dec 2024 09:42:51 +0100
-+Subject: [PATCH 6/7] Add conda cuda path
-+
-+---
-+ xla/tsl/platform/default/cuda_root_path.cc | 11 +++++++++++
-+ 1 file changed, 11 insertions(+)
-+
-+diff --git a/xla/tsl/platform/default/cuda_root_path.cc b/xla/tsl/platform/default/cuda_root_path.cc
-+index 578d8b05c7..e6cdcda7fe 100644
-+--- a/xla/tsl/platform/default/cuda_root_path.cc
-++++ b/xla/tsl/platform/default/cuda_root_path.cc
-+@@ -76,6 +76,17 @@ std::vector<std::string> CandidateCudaRoots() {
-+     // Also add the path to the copy of libdevice.10.bc that we include within
-+     // the Python wheel.
-+     roots.emplace_back(io::JoinPath(dir, "cuda"));
-++
-++    // In case cuda was installed with nvidia's official conda packages, we also
-++    // include the root prefix of the environment in the candidate roots dir,
-++    // we assume that the lib binaries are either in the python package's root dir
-++    // or in a 'python' subdirectory, as done by the previous for.
-++    // python packages on non-Windows platforms are installed in
-++    // $CONDA_PREFIX/lib/python3.12/site-packages/pkg_name, so if we want
-++    // to add $CONDA_PREFIX to the candidate roots dirs we need to add
-++    // ../../../..
-++    for (auto path : {"../../../..", "../../../../.."})
-++      roots.emplace_back(io::JoinPath(dir, path));
-+   }
-+ #endif  // defined(PLATFORM_POSIX) && !defined(__APPLE__)
-+ 
 diff --git a/third_party/xla/workspace.bzl b/third_party/xla/workspace.bzl
-index a015d9427..4848b6986 100644
+index 185ee6a39..a7d083e08 100644
 --- a/third_party/xla/workspace.bzl
 +++ b/third_party/xla/workspace.bzl
-@@ -30,6 +30,16 @@ def repo():
+@@ -30,6 +30,13 @@ def repo():
          sha256 = XLA_SHA256,
          strip_prefix = "xla-{commit}".format(commit = XLA_COMMIT),
          urls = tf_mirror_urls("https://github.com/openxla/xla/archive/{commit}.tar.gz".format(commit = XLA_COMMIT)),
@@ -562,9 +523,6 @@ index a015d9427..4848b6986 100644
 +            "//third_party/xla:0003-Omit-usage-of-StrFormat.patch",
 +            "//third_party/xla:0004-Add-missing-bits-absl-systemlib.patch",
 +            "//third_party/xla:0005-Check-whether-absl-log-is-already-initialized.patch",
-+            "//third_party/xla:0006-Add-conda-cuda-path.patch",
-+            # backport https://github.com/openxla/xla/commit/14ba309d98db689ba5c185287483d555e3307b7f
-+            "//third_party/xla:0007-xla-cpu-Fix-build-errors-from-ACL.patch",
 +        ],
      )
  
