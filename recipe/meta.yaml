@@ -122,6 +122,7 @@ about:
 
 extra:
   recipe-maintainers:
+    - ehfd
     - ericmjl
     - xhochy
     - ngam
