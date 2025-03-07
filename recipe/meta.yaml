@@ -1,4 +1,4 @@
-{% set version = "0.5.1" %}
+{% set version = "0.5.2" %}
 {% set build = 0 %}
 
 {% if cuda_compiler_version != "None" %}
@@ -13,7 +13,7 @@ package:
 source:
   # only pull sources after upstream PyPI release...
   url: https://github.com/jax-ml/jax/archive/jax-v{{ version }}.tar.gz
-  sha256: e74b1209517682075933f757d646b73040d09fe39ee3e9e4cd398407dd0902d2
+  sha256: 8e9de1e012dd65fc4a9eec8af4aa2bf6782767130a5d8e1c1e342b7d658280fe
   patches:
     - patches/0001-Allow-for-custom-CUDA-build.patch
     - patches/0002-Consolidated-build-fixes-for-XLA.patch
