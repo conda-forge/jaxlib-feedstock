@@ -1,5 +1,5 @@
 {% set version = "0.5.2" %}
-{% set build = 0 %}
+{% set build = 1 %}
 
 {% if cuda_compiler_version != "None" %}
 {% set build = build + 200 %}
@@ -63,7 +63,7 @@ requirements:
     - cuda-cudart-dev   # [(cuda_compiler_version or "").startswith("12")]
     - cuda-nvml-dev     # [(cuda_compiler_version or "").startswith("12")]
     - cuda-nvtx-dev     # [(cuda_compiler_version or "").startswith("12")]
-    - cuda-nvcc-tools  # [(cuda_compiler_version or "").startswith("12")]
+    - cuda-nvcc-tools   # [(cuda_compiler_version or "").startswith("12")]
     - libcublas-dev     # [(cuda_compiler_version or "").startswith("12")]
     - libcusolver-dev   # [(cuda_compiler_version or "").startswith("12")]
     - libcurand-dev     # [(cuda_compiler_version or "").startswith("12")]
@@ -87,7 +87,7 @@ requirements:
     - scipy >=1.9
     - ml_dtypes >=0.2.0
     - __cuda  # [cuda_compiler_version != "None"]
-    - cuda-nvcc-tools  # [(cuda_compiler_version or "").startswith("12")]
+    - cuda-nvcc-tools   # [(cuda_compiler_version or "").startswith("12")]
     # Workaround for https://github.com/conda-forge/jaxlib-feedstock/pull/288#issuecomment-2511925904
     - libcublas-dev     # [(cuda_compiler_version or "").startswith("12")]
     - libcusolver-dev   # [(cuda_compiler_version or "").startswith("12")]
