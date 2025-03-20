@@ -17,10 +17,6 @@ source:
   patches:
     - patches/0001-Allow-for-custom-CUDA-build.patch
     - patches/0002-Consolidated-build-fixes-for-XLA.patch
-    # backport https://github.com/jax-ml/jax/pull/26691
-    - patches/0003-fix-member-access-to-packed-CUDA-struct.patch
-    # backport https://github.com/jax-ml/jax/pull/26690
-    - patches/0004-fix-getting-gcc-major-version.patch
 
 build:
   number: {{ build }}

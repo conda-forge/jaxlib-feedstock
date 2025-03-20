@@ -1,7 +1,7 @@
-From 1dd800f6f64d0948feccef00840d74b5c61094e0 Mon Sep 17 00:00:00 2001
+From a3b58e63437e9c2432e5704dbb4c97040fd49a81 Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwe.korn@quantco.com>
 Date: Thu, 14 Dec 2023 17:06:15 +0100
-Subject: [PATCH 2/4] Consolidated build fixes for XLA
+Subject: [PATCH 2/2] Consolidated build fixes for XLA
 
 jax vendors xla, but only populates the sources through bazel, so we cannot
 patch as usual through conda, but rather need to teach the bazel build file
@@ -29,11 +29,11 @@ Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
 
 diff --git a/third_party/xla/0001-Support-third-party-build-of-boringssl.patch b/third_party/xla/0001-Support-third-party-build-of-boringssl.patch
 new file mode 100644
-index 000000000..8554f5126
+index 000000000..a320c4b45
 --- /dev/null
 +++ b/third_party/xla/0001-Support-third-party-build-of-boringssl.patch
 @@ -0,0 +1,51 @@
-+From c6bf0f14e159dcbdc99c725823d23e1d26b73a04 Mon Sep 17 00:00:00 2001
++From 2b462dc604d15100ece5e942f29a8a2194459c62 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 14 Dec 2023 15:04:51 +0100
 +Subject: [PATCH 1/5] Support third-party build of boringssl
@@ -72,7 +72,7 @@ index 000000000..8554f5126
 ++    ],
 ++)
 +diff --git a/workspace2.bzl b/workspace2.bzl
-+index cded32c8ca..5fb10ca45f 100644
++index 8a0336e338..870a613377 100644
 +--- a/workspace2.bzl
 ++++ b/workspace2.bzl
 +@@ -108,7 +108,7 @@ def _tf_repositories():
@@ -86,11 +86,11 @@ index 000000000..8554f5126
 + 
 diff --git a/third_party/xla/0002-Fix-abseil-headers.patch b/third_party/xla/0002-Fix-abseil-headers.patch
 new file mode 100644
-index 000000000..7b2084d01
+index 000000000..14c782433
 --- /dev/null
 +++ b/third_party/xla/0002-Fix-abseil-headers.patch
 @@ -0,0 +1,73 @@
-+From 1620a0eb9135e380b59583539080337853c130aa Mon Sep 17 00:00:00 2001
++From a6d8f25aaa42bf52d40259be4300befc2abd7b20 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 23 May 2024 15:45:52 +0200
 +Subject: [PATCH 2/5] Fix abseil headers
@@ -103,7 +103,7 @@ index 000000000..7b2084d01
 + 4 files changed, 10 insertions(+)
 +
 +diff --git a/xla/python/ifrt_proxy/common/BUILD b/xla/python/ifrt_proxy/common/BUILD
-+index 5da3b67ecb..c684b54d52 100644
++index ce0c1b6910..9ee4427cc8 100644
 +--- a/xla/python/ifrt_proxy/common/BUILD
 ++++ b/xla/python/ifrt_proxy/common/BUILD
 +@@ -51,6 +51,9 @@ cc_library(
@@ -129,10 +129,10 @@ index 000000000..7b2084d01
 +         "@tsl//tsl/platform:protobuf",
 +         "@tsl//tsl/platform:stringpiece",
 +diff --git a/xla/tsl/platform/default/BUILD b/xla/tsl/platform/default/BUILD
-+index 829cef6d2a..ae97fe2b92 100644
++index 56e7914198..d72ddf5c7a 100644
 +--- a/xla/tsl/platform/default/BUILD
 ++++ b/xla/tsl/platform/default/BUILD
-+@@ -237,6 +237,8 @@ cc_library(
++@@ -238,6 +238,8 @@ cc_library(
 +     deps = [
 +         "//xla/tsl/platform:logging",
 +         "@com_google_absl//absl/log:check",
@@ -142,10 +142,10 @@ index 000000000..7b2084d01
 + )
 + 
 +diff --git a/xla/tsl/profiler/rpc/client/BUILD b/xla/tsl/profiler/rpc/client/BUILD
-+index c2554c43cd..5430b49357 100644
++index aed51b8521..c11a6096b1 100644
 +--- a/xla/tsl/profiler/rpc/client/BUILD
 ++++ b/xla/tsl/profiler/rpc/client/BUILD
-+@@ -99,6 +99,8 @@ cc_library(
++@@ -102,6 +102,8 @@ cc_library(
 +     deps = [
 +         ":profiler_client_impl",
 +         "//xla/tsl/platform:status",
@@ -154,7 +154,7 @@ index 000000000..7b2084d01
 +         "@com_google_absl//absl/strings",
 +         "@com_google_absl//absl/time",
 +         "@tsl//tsl/profiler/protobuf:profiler_analysis_cc_grpc_proto",
-+@@ -126,6 +128,8 @@ cc_library(
++@@ -130,6 +132,8 @@ cc_library(
 +         "//xla/tsl/platform:status",
 +         "//xla/tsl/platform:types",
 +         "//xla/tsl/protobuf:error_codes_proto_impl_cc",
@@ -165,11 +165,11 @@ index 000000000..7b2084d01
 +         "@com_google_absl//absl/time",
 diff --git a/third_party/xla/0003-Omit-usage-of-StrFormat.patch b/third_party/xla/0003-Omit-usage-of-StrFormat.patch
 new file mode 100644
-index 000000000..ac7be8f59
+index 000000000..dd1057aac
 --- /dev/null
 +++ b/third_party/xla/0003-Omit-usage-of-StrFormat.patch
 @@ -0,0 +1,25 @@
-+From 7240379e230c6095e8e490aa8c00e9dc97c0c4f8 Mon Sep 17 00:00:00 2001
++From 91f1fb8157992964d54ad5197247d36cb304151d Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 4 Jul 2024 10:36:03 +0200
 +Subject: [PATCH 3/5] Omit usage of StrFormat
@@ -196,30 +196,30 @@ index 000000000..ac7be8f59
 + #include <vector>
 diff --git a/third_party/xla/0004-Add-missing-bits-absl-systemlib.patch b/third_party/xla/0004-Add-missing-bits-absl-systemlib.patch
 new file mode 100644
-index 000000000..d1ffe736c
+index 000000000..e4380aa60
 --- /dev/null
 +++ b/third_party/xla/0004-Add-missing-bits-absl-systemlib.patch
 @@ -0,0 +1,262 @@
-+From fa66d4f7f1597cd20962cae167c0a9f09080954b Mon Sep 17 00:00:00 2001
++From 3249c3354be3e9ab9f22f9ba1bcff3900f3bffe6 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 4 Jul 2024 15:58:32 +0200
 +Subject: [PATCH 4/5] Add missing bits absl systemlib
 +
 +---
-+ .../third_party/absl/system.absl.base.BUILD   | 16 ++++
-+ .../third_party/absl/system.absl.crc.BUILD    | 70 +++++++++++++++++
-+ .../third_party/absl/system.absl.flags.BUILD  |  2 +-
-+ .../third_party/absl/system.absl.log.BUILD    | 78 +++++++++++++++++++
-+ .../absl/system.absl.strings.BUILD            | 12 +++
-+ .../tsl/third_party/absl/workspace.bzl        |  2 +
++ third_party/absl/system.absl.base.BUILD    | 16 +++++
++ third_party/absl/system.absl.crc.BUILD     | 70 +++++++++++++++++++
++ third_party/absl/system.absl.flags.BUILD   |  2 +-
++ third_party/absl/system.absl.log.BUILD     | 78 ++++++++++++++++++++++
++ third_party/absl/system.absl.strings.BUILD | 12 ++++
++ third_party/absl/workspace.bzl             |  2 +
 + 6 files changed, 179 insertions(+), 1 deletion(-)
-+ create mode 100644 third_party/tsl/third_party/absl/system.absl.crc.BUILD
-+ create mode 100644 third_party/tsl/third_party/absl/system.absl.log.BUILD
++ create mode 100644 third_party/absl/system.absl.crc.BUILD
++ create mode 100644 third_party/absl/system.absl.log.BUILD
 +
-+diff --git a/third_party/tsl/third_party/absl/system.absl.base.BUILD b/third_party/tsl/third_party/absl/system.absl.base.BUILD
++diff --git a/third_party/absl/system.absl.base.BUILD b/third_party/absl/system.absl.base.BUILD
 +index d6bf8748de..b77fe118e3 100644
-+--- a/third_party/tsl/third_party/absl/system.absl.base.BUILD
-++++ b/third_party/tsl/third_party/absl/system.absl.base.BUILD
++--- a/third_party/absl/system.absl.base.BUILD
+++++ b/third_party/absl/system.absl.base.BUILD
 +@@ -20,6 +20,14 @@ cc_library(
 +     linkopts = ["-labsl_log_severity"],
 + )
@@ -247,11 +247,11 @@ index 000000000..d1ffe736c
 ++        ":core_headers",
 ++    ],
 ++)
-+diff --git a/third_party/tsl/third_party/absl/system.absl.crc.BUILD b/third_party/tsl/third_party/absl/system.absl.crc.BUILD
++diff --git a/third_party/absl/system.absl.crc.BUILD b/third_party/absl/system.absl.crc.BUILD
 +new file mode 100644
 +index 0000000000..487c36ff45
 +--- /dev/null
-++++ b/third_party/tsl/third_party/absl/system.absl.crc.BUILD
+++++ b/third_party/absl/system.absl.crc.BUILD
 +@@ -0,0 +1,70 @@
 ++load("@rules_cc//cc:defs.bzl", "cc_library")
 ++
@@ -323,10 +323,10 @@ index 000000000..d1ffe736c
 ++        "//absl/base:config",
 ++    ],
 ++)
-+diff --git a/third_party/tsl/third_party/absl/system.absl.flags.BUILD b/third_party/tsl/third_party/absl/system.absl.flags.BUILD
++diff --git a/third_party/absl/system.absl.flags.BUILD b/third_party/absl/system.absl.flags.BUILD
 +index aff653c7e5..5f95b11dec 100644
-+--- a/third_party/tsl/third_party/absl/system.absl.flags.BUILD
-++++ b/third_party/tsl/third_party/absl/system.absl.flags.BUILD
++--- a/third_party/absl/system.absl.flags.BUILD
+++++ b/third_party/absl/system.absl.flags.BUILD
 +@@ -97,7 +97,7 @@ cc_library(
 + 
 + cc_library(
@@ -336,11 +336,11 @@ index 000000000..d1ffe736c
 +     deps = [
 +         ":config",
 +         ":flag_internal",
-+diff --git a/third_party/tsl/third_party/absl/system.absl.log.BUILD b/third_party/tsl/third_party/absl/system.absl.log.BUILD
++diff --git a/third_party/absl/system.absl.log.BUILD b/third_party/absl/system.absl.log.BUILD
 +new file mode 100644
 +index 0000000000..c23aa51acf
 +--- /dev/null
-++++ b/third_party/tsl/third_party/absl/system.absl.log.BUILD
+++++ b/third_party/absl/system.absl.log.BUILD
 +@@ -0,0 +1,78 @@
 ++load("@rules_cc//cc:defs.bzl", "cc_library")
 ++
@@ -420,10 +420,10 @@ index 000000000..d1ffe736c
 ++        "-labsl_log_internal_log_sink_set",
 ++    ],
 ++)
-+diff --git a/third_party/tsl/third_party/absl/system.absl.strings.BUILD b/third_party/tsl/third_party/absl/system.absl.strings.BUILD
++diff --git a/third_party/absl/system.absl.strings.BUILD b/third_party/absl/system.absl.strings.BUILD
 +index fa9a7a84f6..6a898a6d48 100644
-+--- a/third_party/tsl/third_party/absl/system.absl.strings.BUILD
-++++ b/third_party/tsl/third_party/absl/system.absl.strings.BUILD
++--- a/third_party/absl/system.absl.strings.BUILD
+++++ b/third_party/absl/system.absl.strings.BUILD
 +@@ -2,6 +2,18 @@ load("@rules_cc//cc:defs.bzl", "cc_library")
 + 
 + package(default_visibility = ["//visibility:public"])
@@ -443,10 +443,10 @@ index 000000000..d1ffe736c
 + cc_library(
 +     name = "strings",
 +     linkopts = ["-labsl_strings"],
-+diff --git a/third_party/tsl/third_party/absl/workspace.bzl b/third_party/tsl/third_party/absl/workspace.bzl
-+index d5973b13b3..0bb3fbbf07 100644
-+--- a/third_party/tsl/third_party/absl/workspace.bzl
-++++ b/third_party/tsl/third_party/absl/workspace.bzl
++diff --git a/third_party/absl/workspace.bzl b/third_party/absl/workspace.bzl
++index c7f4983081..71bab0e819 100644
++--- a/third_party/absl/workspace.bzl
+++++ b/third_party/absl/workspace.bzl
 +@@ -14,12 +14,14 @@ def repo():
 +     SYS_DIRS = [
 +         "algorithm",
@@ -464,11 +464,11 @@ index 000000000..d1ffe736c
 +         "numeric",
 diff --git a/third_party/xla/0005-Check-whether-absl-log-is-already-initialized.patch b/third_party/xla/0005-Check-whether-absl-log-is-already-initialized.patch
 new file mode 100644
-index 000000000..271a3ca1e
+index 000000000..9aa8fcc80
 --- /dev/null
 +++ b/third_party/xla/0005-Check-whether-absl-log-is-already-initialized.patch
 @@ -0,0 +1,58 @@
-+From 9ebd25248eda049702cb781894ca0e097f6843b0 Mon Sep 17 00:00:00 2001
++From fb526c7d4d46b9a7d9323f5b51c429edb0d0adee Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Fri, 22 Nov 2024 10:51:18 +0100
 +Subject: [PATCH 5/5] Check whether absl log is already initialized
@@ -527,7 +527,7 @@ index 000000000..271a3ca1e
 + 
 + }  // namespace xla
 diff --git a/third_party/xla/workspace.bzl b/third_party/xla/workspace.bzl
-index 185ee6a39..a7d083e08 100644
+index 73bf2eb38..a00de6486 100644
 --- a/third_party/xla/workspace.bzl
 +++ b/third_party/xla/workspace.bzl
 @@ -30,6 +30,13 @@ def repo():
