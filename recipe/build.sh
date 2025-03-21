@@ -118,6 +118,8 @@ if [[ "${target_platform}" == "osx-arm64" || "${target_platform}" != "${build_pl
 else
     EXTRA="${CUDA_ARGS:-}"
 fi
+# Never use the Appe toolchain
+sed -i '/local_config_apple/d' .bazelrc
 if [[ "${target_platform}" == linux-* ]]; then
     EXTRA="${EXTRA} --use_clang false --gcc_path $CC"
 
