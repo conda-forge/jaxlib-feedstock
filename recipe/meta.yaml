@@ -41,7 +41,7 @@ requirements:
     - rsync  # [(cuda_compiler_version or "").startswith("12")]
     # Keep bazel listed twice here to help the migrators track dependencies
     - bazel
-    - bazel >=7.5,<8.0a0
+    - bazel 6.*
     - bazel-toolchain >=0.1.10
     # need protoc
     - libprotobuf
