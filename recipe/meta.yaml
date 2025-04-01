@@ -68,7 +68,7 @@ requirements:
     - python
     - pip
     - numpy
-    - setuptools <75
+    - setuptools <75.0a0
     - wheel
     - cuda-version {{ cuda_compiler_version }}  # [cuda_compiler_version != "None"]
     - python-build
