@@ -12,6 +12,12 @@ if [[ "${target_platform}" == osx-* ]]; then
 else
   export LDFLAGS="${LDFLAGS} -lrt"
 fi
+if [[ "${target_platform}" == "linux-64" || "${target_platform}" == "linux-aarch64" ]]; then
+    # https://github.com/conda-forge/jaxlib-feedstock/issues/310
+    # Explicitly force non-executable stack to fix compatibility with glibc 2.41, due to:
+    # xla_extension.so: cannot enable executable stack as shared object requires: Invalid argument
+    LDFLAGS+=" -Wl,-z,noexecstack"
+fi
 export CFLAGS="${CFLAGS} -DNDEBUG"
 export CXXFLAGS="${CXXFLAGS} -DNDEBUG"
 
