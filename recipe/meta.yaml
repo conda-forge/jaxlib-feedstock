@@ -1,5 +1,5 @@
-{% set version = "0.5.2" %}
-{% set build = 2 %}
+{% set version = "0.5.3" %}
+{% set build = 0 %}
 
 {% if cuda_compiler_version != "None" %}
 {% set build = build + 200 %}
@@ -13,14 +13,10 @@ package:
 source:
   # only pull sources after upstream PyPI release...
   url: https://github.com/jax-ml/jax/archive/jax-v{{ version }}.tar.gz
-  sha256: 8e9de1e012dd65fc4a9eec8af4aa2bf6782767130a5d8e1c1e342b7d658280fe
+  sha256: 1094581a30ec069965f4e3e67d60262570cc3dd016adc62073bc24347b14270c
   patches:
     - patches/0001-Allow-for-custom-CUDA-build.patch
     - patches/0002-Consolidated-build-fixes-for-XLA.patch
-    # backport https://github.com/jax-ml/jax/pull/26691
-    - patches/0003-fix-member-access-to-packed-CUDA-struct.patch
-    # backport https://github.com/jax-ml/jax/pull/26690
-    - patches/0004-fix-getting-gcc-major-version.patch
 
 build:
   number: {{ build }}
@@ -45,8 +41,8 @@ requirements:
     - rsync  # [(cuda_compiler_version or "").startswith("12")]
     # Keep bazel listed twice here to help the migrators track dependencies
     - bazel
-    - bazel 6.*
-    - bazel-toolchain >=0.1.10
+    - bazel 7.*
+    - bazel-toolchain >=0.3.0
     # need protoc
     - libprotobuf
     # needs protoc-gen-grpc

@@ -102,11 +102,6 @@ fi
 # For debugging
 # CUSTOM_BAZEL_OPTIONS="${CUSTOM_BAZEL_OPTIONS} --bazel_options=--subcommands"
 
-if [[ "${target_platform}" == "osx-64" ]]; then
-  # Tensorflow doesn't cope yet with an explicit architecture (darwin_x86_64) on osx-64 yet.
-  TARGET_CPU=darwin
-fi
-
 # Force static linkage with protobuf to avoid definition collisions,
 # see https://github.com/conda-forge/jaxlib-feedstock/issues/89
 #
@@ -118,6 +113,8 @@ if [[ "${target_platform}" == "osx-arm64" || "${target_platform}" != "${build_pl
 else
     EXTRA="${CUDA_ARGS:-}"
 fi
+# Never use the Appe toolchain
+sed -i '/local_config_apple/d' .bazelrc
 if [[ "${target_platform}" == linux-* ]]; then
     EXTRA="${EXTRA} --use_clang false --gcc_path $CC"
 
