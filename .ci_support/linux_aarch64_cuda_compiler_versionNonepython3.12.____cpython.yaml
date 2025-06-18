@@ -15,7 +15,7 @@ channel_targets:
 cuda_compiler:
 - cuda-nvcc
 cuda_compiler_version:
-- '12.6'
+- None
 cudnn:
 - '9'
 cxx_compiler:
@@ -32,8 +32,6 @@ libgrpc:
 - '1.71'
 libprotobuf:
 - 5.29.3
-nccl:
-- '2'
 numpy:
 - '2'
 openssl:
@@ -43,16 +41,12 @@ pin_run_as_build:
     min_pin: x.x
     max_pin: x.x
 python:
-- 3.13.* *_cp313
+- 3.12.* *_cpython
 target_platform:
-- linux-64
+- linux-aarch64
 zip_keys:
 - - c_compiler_version
   - cxx_compiler_version
-  - cuda_compiler
   - cuda_compiler_version
-  - docker_image
-- - python
-  - numpy
 zlib:
 - '1'

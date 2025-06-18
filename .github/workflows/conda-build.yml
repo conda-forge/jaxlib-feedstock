@@ -21,65 +21,65 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - CONFIG: linux_64_c_compiler_version13cuda_compilerNonecuda_compiler_versionNonecxx_compiler_version13numpy2.0python3.10.____cpython
+          - CONFIG: linux_64_cuda_compiler_version12.6python3.10.____cpython
             UPLOAD_PACKAGES: True
             os: ubuntu
-            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_64_c_compiler_version13cuda_c_h697345ca33', 'linux', 'x64', 'self-hosted']
+            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_64_cuda_compiler_version12.6python_hcc941c96', 'linux', 'x64', 'self-hosted']
             DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
-          - CONFIG: linux_64_c_compiler_version13cuda_compilerNonecuda_compiler_versionNonecxx_compiler_version13numpy2.0python3.11.____cpython
+          - CONFIG: linux_64_cuda_compiler_version12.6python3.11.____cpython
             UPLOAD_PACKAGES: True
             os: ubuntu
-            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_64_c_compiler_version13cuda_c_h12617e838c', 'linux', 'x64', 'self-hosted']
+            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_64_cuda_compiler_version12.6python_hdc5b00bd', 'linux', 'x64', 'self-hosted']
             DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
-          - CONFIG: linux_64_c_compiler_version13cuda_compilerNonecuda_compiler_versionNonecxx_compiler_version13numpy2.0python3.12.____cpython
+          - CONFIG: linux_64_cuda_compiler_version12.6python3.12.____cpython
             UPLOAD_PACKAGES: True
             os: ubuntu
-            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_64_c_compiler_version13cuda_c_hc2f9c6092e', 'linux', 'x64', 'self-hosted']
+            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_64_cuda_compiler_version12.6python_h82ccd7e7', 'linux', 'x64', 'self-hosted']
             DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
-          - CONFIG: linux_64_c_compiler_version13cuda_compilerNonecuda_compiler_versionNonecxx_compiler_version13numpy2python3.13.____cp313
+          - CONFIG: linux_64_cuda_compiler_version12.6python3.13.____cp313
             UPLOAD_PACKAGES: True
             os: ubuntu
-            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_64_c_compiler_version13cuda_c_h66a6848ebf', 'linux', 'x64', 'self-hosted']
+            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_64_cuda_compiler_version12.6python_h4fb0f834', 'linux', 'x64', 'self-hosted']
             DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
-          - CONFIG: linux_64_c_compiler_version13cuda_compilercuda-nvcccuda_compiler_version12.6cxx_compiler_version13numpy2.0python3.10.____cpython
+          - CONFIG: linux_64_cuda_compiler_versionNonepython3.10.____cpython
             UPLOAD_PACKAGES: True
             os: ubuntu
-            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_64_c_compiler_version13cuda_c_h6a0d144e5a', 'linux', 'x64', 'self-hosted']
+            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_64_cuda_compiler_versionNonepython_hb6a3b480', 'linux', 'x64', 'self-hosted']
             DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
-          - CONFIG: linux_64_c_compiler_version13cuda_compilercuda-nvcccuda_compiler_version12.6cxx_compiler_version13numpy2.0python3.11.____cpython
+          - CONFIG: linux_64_cuda_compiler_versionNonepython3.11.____cpython
             UPLOAD_PACKAGES: True
             os: ubuntu
-            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_64_c_compiler_version13cuda_c_h542b04b397', 'linux', 'x64', 'self-hosted']
+            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_64_cuda_compiler_versionNonepython_h3c1a96fc', 'linux', 'x64', 'self-hosted']
             DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
-          - CONFIG: linux_64_c_compiler_version13cuda_compilercuda-nvcccuda_compiler_version12.6cxx_compiler_version13numpy2.0python3.12.____cpython
+          - CONFIG: linux_64_cuda_compiler_versionNonepython3.12.____cpython
             UPLOAD_PACKAGES: True
             os: ubuntu
-            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_64_c_compiler_version13cuda_c_hf74eac7fa6', 'linux', 'x64', 'self-hosted']
+            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_64_cuda_compiler_versionNonepython_h7883cd14', 'linux', 'x64', 'self-hosted']
             DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
-          - CONFIG: linux_64_c_compiler_version13cuda_compilercuda-nvcccuda_compiler_version12.6cxx_compiler_version13numpy2python3.13.____cp313
+          - CONFIG: linux_64_cuda_compiler_versionNonepython3.13.____cp313
             UPLOAD_PACKAGES: True
             os: ubuntu
-            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_64_c_compiler_version13cuda_c_hf868fe5aa9', 'linux', 'x64', 'self-hosted']
+            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_64_cuda_compiler_versionNonepython_h46731b07', 'linux', 'x64', 'self-hosted']
             DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
-          - CONFIG: linux_aarch64_c_compiler_version13cuda_compilerNonecuda_compiler_versionNonecxx_compiler_version13numpy2.0python3.10.____cpython
+          - CONFIG: linux_aarch64_cuda_compiler_versionNonepython3.10.____cpython
             UPLOAD_PACKAGES: True
             os: ubuntu
-            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_aarch64_c_compiler_version13c_h49b6982d17', 'linux', 'x64', 'self-hosted']
+            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_aarch64_cuda_compiler_versionNonep_h9166da89', 'linux', 'x64', 'self-hosted']
             DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
-          - CONFIG: linux_aarch64_c_compiler_version13cuda_compilerNonecuda_compiler_versionNonecxx_compiler_version13numpy2.0python3.11.____cpython
+          - CONFIG: linux_aarch64_cuda_compiler_versionNonepython3.11.____cpython
             UPLOAD_PACKAGES: True
             os: ubuntu
-            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_aarch64_c_compiler_version13c_h6699b9139c', 'linux', 'x64', 'self-hosted']
+            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_aarch64_cuda_compiler_versionNonep_h61f3f778', 'linux', 'x64', 'self-hosted']
             DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
-          - CONFIG: linux_aarch64_c_compiler_version13cuda_compilerNonecuda_compiler_versionNonecxx_compiler_version13numpy2.0python3.12.____cpython
+          - CONFIG: linux_aarch64_cuda_compiler_versionNonepython3.12.____cpython
             UPLOAD_PACKAGES: True
             os: ubuntu
-            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_aarch64_c_compiler_version13c_h455afdee75', 'linux', 'x64', 'self-hosted']
+            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_aarch64_cuda_compiler_versionNonep_h72ca1b73', 'linux', 'x64', 'self-hosted']
             DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
-          - CONFIG: linux_aarch64_c_compiler_version13cuda_compilerNonecuda_compiler_versionNonecxx_compiler_version13numpy2python3.13.____cp313
+          - CONFIG: linux_aarch64_cuda_compiler_versionNonepython3.13.____cp313
             UPLOAD_PACKAGES: True
             os: ubuntu
-            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_aarch64_c_compiler_version13c_hb68522573b', 'linux', 'x64', 'self-hosted']
+            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_aarch64_cuda_compiler_versionNonep_h35b9d921', 'linux', 'x64', 'self-hosted']
             DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
     steps:
 
@@ -99,8 +99,10 @@ jobs:
         STAGING_BINSTAR_TOKEN: ${{ secrets.STAGING_BINSTAR_TOKEN }}
       shell: bash
       run: |
-        echo "::group::Configure binfmt_misc"
-        docker run --rm --privileged multiarch/qemu-user-static:register --reset --credential yes
+        if [[ "$(uname -m)" == "x86_64" ]]; then
+          echo "::group::Configure binfmt_misc"
+          docker run --rm --privileged multiarch/qemu-user-static:register --reset --credential yes
+        fi
         export flow_run_id="github_$GITHUB_RUN_ID"
         export remote_url="https://github.com/$GITHUB_REPOSITORY"
         export sha="$GITHUB_SHA"
