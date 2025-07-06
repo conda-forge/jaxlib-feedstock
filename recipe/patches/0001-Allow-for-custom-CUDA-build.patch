@@ -1,4 +1,4 @@
-From 951148f8aef8b7881634a5b6bdf4ee6139b74ef7 Mon Sep 17 00:00:00 2001
+From b791b2fdab5133542cae9352f5eac3c55dae2657 Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwelk@xhochy.com>
 Date: Sun, 8 Oct 2023 19:34:34 +0200
 Subject: [PATCH 1/2] Allow for custom CUDA build
@@ -8,7 +8,7 @@ Subject: [PATCH 1/2] Allow for custom CUDA build
  1 file changed, 10 insertions(+), 4 deletions(-)
 
 diff --git a/build/build.py b/build/build.py
-index 40e02a1..d741260 100755
+index 40e02a100..d74126010 100755
 --- a/build/build.py
 +++ b/build/build.py
 @@ -589,6 +589,13 @@ async def main():
