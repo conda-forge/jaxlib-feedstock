@@ -1,4 +1,4 @@
-From ed156c5ddd49a240b9ec1d9dea1681c60c948c86 Mon Sep 17 00:00:00 2001
+From aa9090e18be64c322dc506d35a22ba7901440a6b Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwe.korn@quantco.com>
 Date: Thu, 14 Dec 2023 17:06:15 +0100
 Subject: [PATCH 2/3] Consolidated build fixes for XLA
@@ -21,8 +21,9 @@ Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
  .../xla/0004-Re-enable-system-abseil.patch    | 352 ++++++++++++++++++
  ...ther-absl-log-is-already-initialized.patch |  58 +++
  third_party/xla/0006-Unbundle-grpc.patch      | 166 +++++++++
- third_party/xla/workspace.bzl                 |  10 +-
- 8 files changed, 832 insertions(+), 1 deletion(-)
+ ...al-variant-_access-is-now-header-onl.patch |  29 ++
+ third_party/xla/workspace.bzl                 |   9 +
+ 9 files changed, 861 insertions(+)
  create mode 100644 third_party/grpc_systemlib.BUILD
  create mode 100644 third_party/xla/0001-Support-third-party-build-of-boringssl.patch
  create mode 100644 third_party/xla/0002-Fix-abseil-headers.patch
@@ -30,10 +31,11 @@ Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
  create mode 100644 third_party/xla/0004-Re-enable-system-abseil.patch
  create mode 100644 third_party/xla/0005-Check-whether-absl-log-is-already-initialized.patch
  create mode 100644 third_party/xla/0006-Unbundle-grpc.patch
+ create mode 100644 third_party/xla/0007-absl_bad_-optional-variant-_access-is-now-header-onl.patch
 
 diff --git a/third_party/grpc_systemlib.BUILD b/third_party/grpc_systemlib.BUILD
 new file mode 100644
-index 0000000..0e4e862
+index 000000000..0e4e862ce
 --- /dev/null
 +++ b/third_party/grpc_systemlib.BUILD
 @@ -0,0 +1,71 @@
@@ -110,14 +112,14 @@ index 0000000..0e4e862
 +)
 diff --git a/third_party/xla/0001-Support-third-party-build-of-boringssl.patch b/third_party/xla/0001-Support-third-party-build-of-boringssl.patch
 new file mode 100644
-index 0000000..392f97f
+index 000000000..794670a80
 --- /dev/null
 +++ b/third_party/xla/0001-Support-third-party-build-of-boringssl.patch
 @@ -0,0 +1,50 @@
-+From e0b110e94788c4514d352e8d050d8cbb9a555032 Mon Sep 17 00:00:00 2001
++From e178bef80e058520b40d8b0c8b57706f4575cbbc Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 14 Dec 2023 15:04:51 +0100
-+Subject: [PATCH 1/6] Support third-party build of boringssl
++Subject: [PATCH 1/7] Support third-party build of boringssl
 +
 +---
 + third_party/boringssl.BUILD | 21 +++++++++++++++++++++
@@ -166,14 +168,14 @@ index 0000000..392f97f
 + 
 diff --git a/third_party/xla/0002-Fix-abseil-headers.patch b/third_party/xla/0002-Fix-abseil-headers.patch
 new file mode 100644
-index 0000000..ff76a1d
+index 000000000..dcbb2cc66
 --- /dev/null
 +++ b/third_party/xla/0002-Fix-abseil-headers.patch
 @@ -0,0 +1,101 @@
-+From d2d7157bbb60839ee78a5126a6d7a661c799b447 Mon Sep 17 00:00:00 2001
++From 0fdb4d792ddedd869d2da8c44f26b60d09e6d178 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 23 May 2024 15:45:52 +0200
-+Subject: [PATCH 2/6] Fix abseil headers
++Subject: [PATCH 2/7] Fix abseil headers
 +
 +---
 + xla/backends/cpu/codegen/ir_compiler.cc               | 2 +-
@@ -273,14 +275,14 @@ index 0000000..ff76a1d
 +         "@com_google_absl//absl/time",
 diff --git a/third_party/xla/0003-Omit-usage-of-StrFormat.patch b/third_party/xla/0003-Omit-usage-of-StrFormat.patch
 new file mode 100644
-index 0000000..b6172a6
+index 000000000..1e4965597
 --- /dev/null
 +++ b/third_party/xla/0003-Omit-usage-of-StrFormat.patch
 @@ -0,0 +1,25 @@
-+From 1a82f5ea2ad15fb0cf7513eb9296085001d6ca9a Mon Sep 17 00:00:00 2001
++From 612dad39370c934e27cfe74ef38190e373d94d5e Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 4 Jul 2024 10:36:03 +0200
-+Subject: [PATCH 3/6] Omit usage of StrFormat
++Subject: [PATCH 3/7] Omit usage of StrFormat
 +
 +---
 + xla/stream_executor/gpu/gpu_executor.h | 5 +++++
@@ -304,14 +306,14 @@ index 0000000..b6172a6
 + #include <vector>
 diff --git a/third_party/xla/0004-Re-enable-system-abseil.patch b/third_party/xla/0004-Re-enable-system-abseil.patch
 new file mode 100644
-index 0000000..666ba39
+index 000000000..ebce429f3
 --- /dev/null
 +++ b/third_party/xla/0004-Re-enable-system-abseil.patch
 @@ -0,0 +1,352 @@
-+From b4bf17edc72105f47b02a67b52ae1b9943e30248 Mon Sep 17 00:00:00 2001
++From bc22315a4e68a7d440ec85dd40a9784a55b1c915 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 4 Jul 2024 15:58:32 +0200
-+Subject: [PATCH 4/6] Re-enable system abseil
++Subject: [PATCH 4/7] Re-enable system abseil
 +
 +partially revert https://github.com/openxla/xla/commit/1fc2a846d259d3c896a6177485abcc68d97627a9
 +and add missing pieces
@@ -662,14 +664,14 @@ index 0000000..666ba39
 +         patch_file = [
 diff --git a/third_party/xla/0005-Check-whether-absl-log-is-already-initialized.patch b/third_party/xla/0005-Check-whether-absl-log-is-already-initialized.patch
 new file mode 100644
-index 0000000..e5ad440
+index 000000000..6e480f2dc
 --- /dev/null
 +++ b/third_party/xla/0005-Check-whether-absl-log-is-already-initialized.patch
 @@ -0,0 +1,58 @@
-+From 11d61802de923b2f7452c86b55267d69841ba9eb Mon Sep 17 00:00:00 2001
++From de6eafe7db91e6c0ec027762cdd8cbc93af850e9 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Fri, 22 Nov 2024 10:51:18 +0100
-+Subject: [PATCH 5/6] Check whether absl log is already initialized
++Subject: [PATCH 5/7] Check whether absl log is already initialized
 +
 +---
 + xla/pjrt/c/pjrt_c_api_gpu.cc | 7 ++++++-
@@ -726,14 +728,14 @@ index 0000000..e5ad440
 + }  // namespace xla
 diff --git a/third_party/xla/0006-Unbundle-grpc.patch b/third_party/xla/0006-Unbundle-grpc.patch
 new file mode 100644
-index 0000000..3e3c81a
+index 000000000..6eedb99a8
 --- /dev/null
 +++ b/third_party/xla/0006-Unbundle-grpc.patch
 @@ -0,0 +1,166 @@
-+From d4aeb2446232a84c862b0d5bedbfefc3d09c74b5 Mon Sep 17 00:00:00 2001
++From 6e637800062debfc74d968c3b6d29fa12a4b429f Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Wed, 23 Jul 2025 13:19:52 +0200
-+Subject: [PATCH 6/6] Unbundle grpc
++Subject: [PATCH 6/7] Unbundle grpc
 +
 +---
 + third_party/zlib.BUILD | 37 +------------------------------------
@@ -896,11 +898,46 @@ index 0000000..3e3c81a
 +     )
 + 
 +     # Load the raw llvm-project.  llvm does not have build rules set up by default,
+diff --git a/third_party/xla/0007-absl_bad_-optional-variant-_access-is-now-header-onl.patch b/third_party/xla/0007-absl_bad_-optional-variant-_access-is-now-header-onl.patch
+new file mode 100644
+index 000000000..e393229b0
+--- /dev/null
++++ b/third_party/xla/0007-absl_bad_-optional-variant-_access-is-now-header-onl.patch
+@@ -0,0 +1,29 @@
++From 24e4511315949346e3b8f73f3ef6a8a8f37ee49d Mon Sep 17 00:00:00 2001
++From: "H. Vetinari" <h.vetinari@gmx.com>
++Date: Sun, 6 Jul 2025 18:02:21 +1100
++Subject: [PATCH 7/7] absl_bad_{optional,variant}_access is now header-only
++
++---
++ third_party/absl/system.absl.types.BUILD | 2 --
++ 1 file changed, 2 deletions(-)
++
++diff --git a/third_party/absl/system.absl.types.BUILD b/third_party/absl/system.absl.types.BUILD
++index db94fc9918..623c0e9612 100644
++--- a/third_party/absl/system.absl.types.BUILD
+++++ b/third_party/absl/system.absl.types.BUILD
++@@ -30,7 +30,6 @@ cc_library(
++ 
++ cc_library(
++     name = "bad_optional_access",
++-    linkopts = ["-labsl_bad_optional_access"],
++     deps = [
++         "//absl/base:raw_logging_internal",
++     ],
++@@ -38,7 +37,6 @@ cc_library(
++ 
++ cc_library(
++     name = "bad_variant_access",
++-    linkopts = ["-labsl_bad_variant_access"],
++     deps = [
++         "//absl/base:raw_logging_internal",
++     ],
 diff --git a/third_party/xla/workspace.bzl b/third_party/xla/workspace.bzl
-index 286aa16..fe97e89 100644
+index 286aa167c..5a6f95f65 100644
 --- a/third_party/xla/workspace.bzl
 +++ b/third_party/xla/workspace.bzl
-@@ -22,6 +22,14 @@ def repo():
+@@ -22,6 +22,15 @@ def repo():
          sha256 = XLA_SHA256,
          strip_prefix = "xla-{commit}".format(commit = XLA_COMMIT),
          urls = tf_mirror_urls("https://github.com/openxla/xla/archive/{commit}.tar.gz".format(commit = XLA_COMMIT)),
@@ -910,14 +947,9 @@ index 286aa16..fe97e89 100644
 +            "//third_party/xla:0003-Omit-usage-of-StrFormat.patch",
 +            "//third_party/xla:0004-Re-enable-system-abseil.patch",
 +            "//third_party/xla:0005-Check-whether-absl-log-is-already-initialized.patch",
-+	    "//third_party/xla:0006-Unbundle-grpc.patch",
++            "//third_party/xla:0006-Unbundle-grpc.patch",
++            "//third_party/xla:0007-absl_bad_-optional-variant-_access-is-now-header-onl.patch",
 +       ],
      )
  
      # For development, one often wants to make changes to the TF repository as well
-@@ -35,4 +43,4 @@ def repo():
-     # local_repository(
-     #    name = "xla",
-     #    path = "/path/to/xla",
--    # )
-+   # )
