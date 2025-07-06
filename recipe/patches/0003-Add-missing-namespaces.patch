@@ -1,4 +1,4 @@
-From b0dffee870660555768e534adec4098882a680ca Mon Sep 17 00:00:00 2001
+From 698aa78ffbb277873a0b0ce8007390459508902e Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwe.korn@quantco.com>
 Date: Fri, 25 Jul 2025 13:42:40 +0200
 Subject: [PATCH 3/3] Add missing namespaces
@@ -9,7 +9,7 @@ Subject: [PATCH 3/3] Add missing namespaces
  2 files changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/jaxlib/mlir/_mlir_libs/jax_mlir_ext.cc b/jaxlib/mlir/_mlir_libs/jax_mlir_ext.cc
-index 7a6b038..1bc7592 100644
+index 7a6b038..7648364 100644
 --- a/jaxlib/mlir/_mlir_libs/jax_mlir_ext.cc
 +++ b/jaxlib/mlir/_mlir_libs/jax_mlir_ext.cc
 @@ -69,8 +69,8 @@ namespace {
