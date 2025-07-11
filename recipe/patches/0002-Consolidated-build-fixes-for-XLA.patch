@@ -1,4 +1,4 @@
-From a3b58e63437e9c2432e5704dbb4c97040fd49a81 Mon Sep 17 00:00:00 2001
+From 80857e7f10a699bac53873a016ace8f7a32840f7 Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwe.korn@quantco.com>
 Date: Thu, 14 Dec 2023 17:06:15 +0100
 Subject: [PATCH 2/2] Consolidated build fixes for XLA
@@ -19,24 +19,26 @@ Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
  .../xla/0003-Omit-usage-of-StrFormat.patch    |  25 ++
  ...0004-Add-missing-bits-absl-systemlib.patch | 262 ++++++++++++++++++
  ...ther-absl-log-is-already-initialized.patch |  58 ++++
- third_party/xla/workspace.bzl                 |   7 +
- 6 files changed, 476 insertions(+)
+ ...d_optional_access-is-now-header-only.patch |  29 ++
+ third_party/xla/workspace.bzl                 |  10 +-
+ 7 files changed, 507 insertions(+), 1 deletion(-)
  create mode 100644 third_party/xla/0001-Support-third-party-build-of-boringssl.patch
  create mode 100644 third_party/xla/0002-Fix-abseil-headers.patch
  create mode 100644 third_party/xla/0003-Omit-usage-of-StrFormat.patch
  create mode 100644 third_party/xla/0004-Add-missing-bits-absl-systemlib.patch
  create mode 100644 third_party/xla/0005-Check-whether-absl-log-is-already-initialized.patch
+ create mode 100644 third_party/xla/0006-absl_bad_optional_access-is-now-header-only.patch
 
 diff --git a/third_party/xla/0001-Support-third-party-build-of-boringssl.patch b/third_party/xla/0001-Support-third-party-build-of-boringssl.patch
 new file mode 100644
-index 000000000..a320c4b45
+index 0000000..443ab4a
 --- /dev/null
 +++ b/third_party/xla/0001-Support-third-party-build-of-boringssl.patch
 @@ -0,0 +1,51 @@
-+From 2b462dc604d15100ece5e942f29a8a2194459c62 Mon Sep 17 00:00:00 2001
++From a81ee819cb836356e7c1157eabb442a87ea47308 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 14 Dec 2023 15:04:51 +0100
-+Subject: [PATCH 1/5] Support third-party build of boringssl
++Subject: [PATCH 1/6] Support third-party build of boringssl
 +
 +---
 + third_party/boringssl.BUILD | 21 +++++++++++++++++++++
@@ -72,7 +74,7 @@ index 000000000..a320c4b45
 ++    ],
 ++)
 +diff --git a/workspace2.bzl b/workspace2.bzl
-+index 8a0336e338..870a613377 100644
++index 1a376d9b29..eaddfee2c0 100644
 +--- a/workspace2.bzl
 ++++ b/workspace2.bzl
 +@@ -108,7 +108,7 @@ def _tf_repositories():
@@ -86,14 +88,14 @@ index 000000000..a320c4b45
 + 
 diff --git a/third_party/xla/0002-Fix-abseil-headers.patch b/third_party/xla/0002-Fix-abseil-headers.patch
 new file mode 100644
-index 000000000..14c782433
+index 0000000..cb22e3e
 --- /dev/null
 +++ b/third_party/xla/0002-Fix-abseil-headers.patch
 @@ -0,0 +1,73 @@
-+From a6d8f25aaa42bf52d40259be4300befc2abd7b20 Mon Sep 17 00:00:00 2001
++From 436117b48f17b56abb70167a5192f95ac5c52360 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 23 May 2024 15:45:52 +0200
-+Subject: [PATCH 2/5] Fix abseil headers
++Subject: [PATCH 2/6] Fix abseil headers
 +
 +---
 + xla/python/ifrt_proxy/common/BUILD    | 3 +++
@@ -103,7 +105,7 @@ index 000000000..14c782433
 + 4 files changed, 10 insertions(+)
 +
 +diff --git a/xla/python/ifrt_proxy/common/BUILD b/xla/python/ifrt_proxy/common/BUILD
-+index ce0c1b6910..9ee4427cc8 100644
++index 5b23663db3..5229ee5087 100644
 +--- a/xla/python/ifrt_proxy/common/BUILD
 ++++ b/xla/python/ifrt_proxy/common/BUILD
 +@@ -51,6 +51,9 @@ cc_library(
@@ -117,7 +119,7 @@ index 000000000..14c782433
 +     ],
 +     alwayslink = True,
 +diff --git a/xla/tsl/distributed_runtime/rpc/BUILD b/xla/tsl/distributed_runtime/rpc/BUILD
-+index 83aaccd1d9..dec829ddc7 100644
++index 073a198a60..22381e348b 100644
 +--- a/xla/tsl/distributed_runtime/rpc/BUILD
 ++++ b/xla/tsl/distributed_runtime/rpc/BUILD
 +@@ -39,6 +39,7 @@ cc_library(
@@ -129,10 +131,10 @@ index 000000000..14c782433
 +         "@tsl//tsl/platform:protobuf",
 +         "@tsl//tsl/platform:stringpiece",
 +diff --git a/xla/tsl/platform/default/BUILD b/xla/tsl/platform/default/BUILD
-+index 56e7914198..d72ddf5c7a 100644
++index fed3f1cdc5..7863e810a4 100644
 +--- a/xla/tsl/platform/default/BUILD
 ++++ b/xla/tsl/platform/default/BUILD
-+@@ -238,6 +238,8 @@ cc_library(
++@@ -244,6 +244,8 @@ cc_library(
 +     deps = [
 +         "//xla/tsl/platform:logging",
 +         "@com_google_absl//absl/log:check",
@@ -142,7 +144,7 @@ index 000000000..14c782433
 + )
 + 
 +diff --git a/xla/tsl/profiler/rpc/client/BUILD b/xla/tsl/profiler/rpc/client/BUILD
-+index aed51b8521..c11a6096b1 100644
++index ce37e1624b..b0ea3c03f3 100644
 +--- a/xla/tsl/profiler/rpc/client/BUILD
 ++++ b/xla/tsl/profiler/rpc/client/BUILD
 +@@ -102,6 +102,8 @@ cc_library(
@@ -165,14 +167,14 @@ index 000000000..14c782433
 +         "@com_google_absl//absl/time",
 diff --git a/third_party/xla/0003-Omit-usage-of-StrFormat.patch b/third_party/xla/0003-Omit-usage-of-StrFormat.patch
 new file mode 100644
-index 000000000..dd1057aac
+index 0000000..21c6c31
 --- /dev/null
 +++ b/third_party/xla/0003-Omit-usage-of-StrFormat.patch
 @@ -0,0 +1,25 @@
-+From 91f1fb8157992964d54ad5197247d36cb304151d Mon Sep 17 00:00:00 2001
++From 623128973631d6faafbae898ad38bef61596236b Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 4 Jul 2024 10:36:03 +0200
-+Subject: [PATCH 3/5] Omit usage of StrFormat
++Subject: [PATCH 3/6] Omit usage of StrFormat
 +
 +---
 + xla/stream_executor/gpu/gpu_executor.h | 5 +++++
@@ -196,14 +198,14 @@ index 000000000..dd1057aac
 + #include <vector>
 diff --git a/third_party/xla/0004-Add-missing-bits-absl-systemlib.patch b/third_party/xla/0004-Add-missing-bits-absl-systemlib.patch
 new file mode 100644
-index 000000000..e4380aa60
+index 0000000..0c627ba
 --- /dev/null
 +++ b/third_party/xla/0004-Add-missing-bits-absl-systemlib.patch
 @@ -0,0 +1,262 @@
-+From 3249c3354be3e9ab9f22f9ba1bcff3900f3bffe6 Mon Sep 17 00:00:00 2001
++From 8239c79f1202059a921f0ac9b173ebc54015eab0 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 4 Jul 2024 15:58:32 +0200
-+Subject: [PATCH 4/5] Add missing bits absl systemlib
++Subject: [PATCH 4/6] Add missing bits absl systemlib
 +
 +---
 + third_party/absl/system.absl.base.BUILD    | 16 +++++
@@ -444,7 +446,7 @@ index 000000000..e4380aa60
 +     name = "strings",
 +     linkopts = ["-labsl_strings"],
 +diff --git a/third_party/absl/workspace.bzl b/third_party/absl/workspace.bzl
-+index c7f4983081..71bab0e819 100644
++index d44bd155dd..e2ecfcde1e 100644
 +--- a/third_party/absl/workspace.bzl
 ++++ b/third_party/absl/workspace.bzl
 +@@ -14,12 +14,14 @@ def repo():
@@ -464,14 +466,14 @@ index 000000000..e4380aa60
 +         "numeric",
 diff --git a/third_party/xla/0005-Check-whether-absl-log-is-already-initialized.patch b/third_party/xla/0005-Check-whether-absl-log-is-already-initialized.patch
 new file mode 100644
-index 000000000..9aa8fcc80
+index 0000000..5edc929
 --- /dev/null
 +++ b/third_party/xla/0005-Check-whether-absl-log-is-already-initialized.patch
 @@ -0,0 +1,58 @@
-+From fb526c7d4d46b9a7d9323f5b51c429edb0d0adee Mon Sep 17 00:00:00 2001
++From da814460e4578038c7d503b96c7e70fa6476f7f4 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Fri, 22 Nov 2024 10:51:18 +0100
-+Subject: [PATCH 5/5] Check whether absl log is already initialized
++Subject: [PATCH 5/6] Check whether absl log is already initialized
 +
 +---
 + xla/pjrt/c/pjrt_c_api_gpu.cc | 7 ++++++-
@@ -526,20 +528,58 @@ index 000000000..9aa8fcc80
 ++}
 + 
 + }  // namespace xla
+diff --git a/third_party/xla/0006-absl_bad_optional_access-is-now-header-only.patch b/third_party/xla/0006-absl_bad_optional_access-is-now-header-only.patch
+new file mode 100644
+index 0000000..05ce2d3
+--- /dev/null
++++ b/third_party/xla/0006-absl_bad_optional_access-is-now-header-only.patch
+@@ -0,0 +1,29 @@
++From e2e583a5d7e2983323a0c7bf637e04f1bd742e1c Mon Sep 17 00:00:00 2001
++From: "H. Vetinari" <h.vetinari@gmx.com>
++Date: Fri, 11 Jul 2025 20:53:52 +0200
++Subject: [PATCH 6/6] absl_bad_optional_access is now header-only
++
++---
++ third_party/absl/system.absl.types.BUILD | 2 --
++ 1 file changed, 2 deletions(-)
++
++diff --git a/third_party/absl/system.absl.types.BUILD b/third_party/absl/system.absl.types.BUILD
++index db94fc9918..623c0e9612 100644
++--- a/third_party/absl/system.absl.types.BUILD
+++++ b/third_party/absl/system.absl.types.BUILD
++@@ -30,7 +30,6 @@ cc_library(
++ 
++ cc_library(
++     name = "bad_optional_access",
++-    linkopts = ["-labsl_bad_optional_access"],
++     deps = [
++         "//absl/base:raw_logging_internal",
++     ],
++@@ -38,7 +37,6 @@ cc_library(
++ 
++ cc_library(
++     name = "bad_variant_access",
++-    linkopts = ["-labsl_bad_variant_access"],
++     deps = [
++         "//absl/base:raw_logging_internal",
++     ],
 diff --git a/third_party/xla/workspace.bzl b/third_party/xla/workspace.bzl
-index 73bf2eb38..a00de6486 100644
+index 76ea227..fa62a63 100644
 --- a/third_party/xla/workspace.bzl
 +++ b/third_party/xla/workspace.bzl
-@@ -30,6 +30,13 @@ def repo():
+@@ -30,7 +30,15 @@ def repo():
          sha256 = XLA_SHA256,
          strip_prefix = "xla-{commit}".format(commit = XLA_COMMIT),
          urls = tf_mirror_urls("https://github.com/openxla/xla/archive/{commit}.tar.gz".format(commit = XLA_COMMIT)),
+-        patch_file = ["//third_party/xla:llvm_fix.patch"],
 +        patch_file = [
++            "//third_party/xla:llvm_fix.patch",
 +            "//third_party/xla:0001-Support-third-party-build-of-boringssl.patch",
 +            "//third_party/xla:0002-Fix-abseil-headers.patch",
 +            "//third_party/xla:0003-Omit-usage-of-StrFormat.patch",
 +            "//third_party/xla:0004-Add-missing-bits-absl-systemlib.patch",
 +            "//third_party/xla:0005-Check-whether-absl-log-is-already-initialized.patch",
++            "//third_party/xla:0006-absl_bad_optional_access-is-now-header-only.patch",
 +        ],
      )
  
