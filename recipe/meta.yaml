@@ -20,6 +20,7 @@ source:
 
 build:
   number: {{ build }}
+  skip: true  # just to skip CI
   skip: true  # [win or py<310]
   skip: true  # [cuda_compiler_version != "None" and aarch64]
   # Currently the GPU kernels (and their abseil includes) are not compatible with GCC 11
