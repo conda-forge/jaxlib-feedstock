@@ -19,7 +19,7 @@ if [[ "${target_platform}" == "linux-64" || "${target_platform}" == "linux-aarch
     LDFLAGS+=" -Wl,-z,noexecstack"
 fi
 export CFLAGS="${CFLAGS} -DNDEBUG"
-export CXXFLAGS="${CXXFLAGS} -DNDEBUG"
+export CXXFLAGS="${CXXFLAGS} -DNDEBUG -Dabsl_nullable=_Nullable -Dabsl_nonnull=_Nonnull"
 
 if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
     if [[ ${cuda_compiler_version} == 11.8 ]]; then
