@@ -18,8 +18,8 @@ if [[ "${target_platform}" == "linux-64" || "${target_platform}" == "linux-aarch
     # xla_extension.so: cannot enable executable stack as shared object requires: Invalid argument
     LDFLAGS+=" -Wl,-z,noexecstack"
 fi
-export CFLAGS="${CFLAGS} -DNDEBUG"
-export CXXFLAGS="${CXXFLAGS} -DNDEBUG -Dabsl_nullable=_Nullable -Dabsl_nonnull=_Nonnull"
+export CFLAGS="${CFLAGS} -DNDEBUG -Dabsl_nullable= -Dabsl_nonnull="
+export CXXFLAGS="${CXXFLAGS} -DNDEBUG -Dabsl_nullable= -Dabsl_nonnull="
 
 if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
     if [[ ${cuda_compiler_version} == 11.8 ]]; then
