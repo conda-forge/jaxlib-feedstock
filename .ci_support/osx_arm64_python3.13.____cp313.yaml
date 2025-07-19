@@ -1,13 +1,15 @@
+MACOSX_DEPLOYMENT_TARGET:
+- '11.0'
+MACOSX_SDK_VERSION:
+- '11.0'
 c_compiler:
-- gcc
+- clang
 c_compiler_version:
-- '13'
+- '19'
 c_stdlib:
-- sysroot
+- macosx_deployment_target
 c_stdlib_version:
-- '2.17'
-cdt_name:
-- conda
+- '11.0'
 channel_sources:
 - conda-forge
 channel_targets:
@@ -15,15 +17,13 @@ channel_targets:
 cuda_compiler:
 - cuda-nvcc
 cuda_compiler_version:
-- '12.6'
+- None
 cudnn:
 - '9'
 cxx_compiler:
-- gxx
+- clangxx
 cxx_compiler_version:
-- '13'
-docker_image:
-- quay.io/condaforge/linux-anvil-x86_64:alma9
+- '19'
 github_actions_labels:
 - cirun-openstack-cpu-large
 libabseil:
@@ -32,8 +32,8 @@ libgrpc:
 - '1.71'
 libprotobuf:
 - 5.29.3
-nccl:
-- '2'
+macos_machine:
+- arm64-apple-darwin20.0.0
 numpy:
 - '2'
 openssl:
@@ -45,14 +45,9 @@ pin_run_as_build:
 python:
 - 3.13.* *_cp313
 target_platform:
-- linux-64
+- osx-arm64
 zip_keys:
 - - c_compiler_version
   - cxx_compiler_version
-  - cuda_compiler
-  - cuda_compiler_version
-  - docker_image
-- - python
-  - numpy
 zlib:
 - '1'
