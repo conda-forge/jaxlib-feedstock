@@ -18,8 +18,8 @@ if [[ "${target_platform}" == "linux-64" || "${target_platform}" == "linux-aarch
     # xla_extension.so: cannot enable executable stack as shared object requires: Invalid argument
     LDFLAGS+=" -Wl,-z,noexecstack"
 fi
-export CFLAGS="${CFLAGS} -DNDEBUG"
-export CXXFLAGS="${CXXFLAGS} -DNDEBUG"
+export CFLAGS="${CFLAGS} -DNDEBUG -Dabsl_nullable= -Dabsl_nonnull="
+export CXXFLAGS="${CXXFLAGS} -DNDEBUG -Dabsl_nullable= -Dabsl_nonnull="
 
 if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
     if [[ ${cuda_compiler_version} == 11.8 ]]; then
@@ -42,7 +42,9 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
         cp -r ${PREFIX}/targets/x86_64-linux/include ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cuda/
         cp -r ${PREFIX}/targets/x86_64-linux/include ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cuda/extras/CUPTI/
         mkdir -p ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cudnn
-	cp ${PREFIX}/include/cudnn*.h ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cudnn/
+        cp ${PREFIX}/include/cudnn*.h ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cudnn/
+        mkdir -p ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/nccl
+        cp ${PREFIX}/include/nccl*.h ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/nccl/
         export LOCAL_CUDA_PATH="${BUILD_PREFIX}/targets/x86_64-linux"
         export LOCAL_CUDNN_PATH="${PREFIX}/targets/x86_64-linux"
         export LOCAL_NCCL_PATH="${PREFIX}/targets/x86_64-linux"
