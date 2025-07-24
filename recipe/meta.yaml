@@ -1,5 +1,5 @@
 {% set version = "0.6.2" %}
-{% set build = 0 %}
+{% set build = 1 %}
 
 {% if cuda_compiler_version != "None" %}
 {% set build = build + 200 %}
@@ -22,8 +22,6 @@ build:
   number: {{ build }}
   skip: true  # [win or py<310]
   skip: true  # [cuda_compiler_version != "None" and aarch64]
-  # Currently the GPU kernels (and their abseil includes) are not compatible with GCC 11
-  skip: true  # [cuda_compiler_version == "11.8"]
   string: cuda{{ cuda_compiler_version | replace('.', '') }}py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [cuda_compiler_version != "None"]
   string: cpu_py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [cuda_compiler_version == "None"]
 
@@ -33,12 +31,12 @@ requirements:
     - {{ stdlib("c") }}
     - {{ compiler('cxx') }}
     - {{ compiler('cuda') }}                 # [cuda_compiler_version != "None"]
+    - rsync                                  # [cuda_compiler_version != "None"]
     - python                                 # [build_platform != target_platform]
     - cross-python_{{ target_platform }}     # [build_platform != target_platform]
     - numpy                                  # [build_platform != target_platform]
     - zlib                                   # [build_platform != target_platform]
     - unzip
-    - rsync  # [(cuda_compiler_version or "").startswith("12")]
     # Keep bazel listed twice here to help the migrators track dependencies
     - bazel
     - bazel 7.*
@@ -53,24 +51,26 @@ requirements:
     - libabseil
     - sed
   host:
-    - cudnn             # [cuda_compiler_version != "None"]
-    - nccl              # [cuda_compiler_version != "None"]
-    - cuda-cupti-dev    # [(cuda_compiler_version or "").startswith("12")]
-    - cuda-cudart-dev   # [(cuda_compiler_version or "").startswith("12")]
-    - cuda-nvml-dev     # [(cuda_compiler_version or "").startswith("12")]
-    - cuda-nvtx-dev     # [(cuda_compiler_version or "").startswith("12")]
-    - cuda-nvcc-tools   # [(cuda_compiler_version or "").startswith("12")]
-    - libcublas-dev     # [(cuda_compiler_version or "").startswith("12")]
-    - libcusolver-dev   # [(cuda_compiler_version or "").startswith("12")]
-    - libcurand-dev     # [(cuda_compiler_version or "").startswith("12")]
-    - libcufft-dev      # [(cuda_compiler_version or "").startswith("12")]
-    - libcusparse-dev   # [(cuda_compiler_version or "").startswith("12")]
+    {% if cuda_compiler_version != "None" %}
+    - cuda-cudart-dev
+    - cuda-cupti-dev
+    - cuda-nvcc-tools
+    - cuda-nvml-dev
+    - cuda-nvtx-dev
+    - cuda-version {{ cuda_compiler_version }}
+    - cudnn
+    - libcublas-dev
+    - libcufft-dev
+    - libcurand-dev
+    - libcusolver-dev
+    - libcusparse-dev
+    - nccl
+    {% endif %}
     - python
     - pip
     - numpy
     - setuptools
     - wheel
-    - cuda-version {{ cuda_compiler_version }}  # [cuda_compiler_version != "None"]
     - python-build
     # list libabseil here to ensure pinning correctly
     - libabseil
@@ -82,15 +82,17 @@ requirements:
     - python
     - scipy >=1.9
     - ml_dtypes >=0.2.0
-    - __cuda  # [cuda_compiler_version != "None"]
-    - cuda-nvcc-tools   # [(cuda_compiler_version or "").startswith("12")]
+    {% if cuda_compiler_version != "None" %}
+    - __cuda
+    - cuda-nvcc-tools
     # Workaround for https://github.com/conda-forge/jaxlib-feedstock/pull/288#issuecomment-2511925904
-    - libcublas-dev     # [(cuda_compiler_version or "").startswith("12")]
-    - libcusolver-dev   # [(cuda_compiler_version or "").startswith("12")]
-    - libcurand-dev     # [(cuda_compiler_version or "").startswith("12")]
-    - cuda-cupti-dev    # [(cuda_compiler_version or "").startswith("12")]
-    - libcufft-dev      # [(cuda_compiler_version or "").startswith("12")]
-    - libcusparse-dev   # [(cuda_compiler_version or "").startswith("12")]
+    - cuda-cupti-dev
+    - libcublas-dev
+    - libcufft-dev
+    - libcurand-dev
+    - libcusolver-dev
+    - libcusparse-dev
+    {% endif %}
   run_constrained:
     - jax >={{ version }}
 
