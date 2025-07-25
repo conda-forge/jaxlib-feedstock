@@ -1,7 +1,7 @@
-From 26c7cb9dfb021ccafb1e492a5c82cbeb9118a7c4 Mon Sep 17 00:00:00 2001
+From ed156c5ddd49a240b9ec1d9dea1681c60c948c86 Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwe.korn@quantco.com>
 Date: Thu, 14 Dec 2023 17:06:15 +0100
-Subject: [PATCH 2/2] Consolidated build fixes for XLA
+Subject: [PATCH 2/3] Consolidated build fixes for XLA
 
 jax vendors xla, but only populates the sources through bazel, so we cannot
 patch as usual through conda, but rather need to teach the bazel build file
@@ -16,13 +16,13 @@ Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
 ---
  third_party/grpc_systemlib.BUILD              |  71 ++++
  ...pport-third-party-build-of-boringssl.patch |  50 +++
- third_party/xla/0002-Fix-abseil-headers.patch | 101 ++++++
+ third_party/xla/0002-Fix-abseil-headers.patch | 101 +++++
  .../xla/0003-Omit-usage-of-StrFormat.patch    |  25 ++
- .../xla/0004-Re-enable-system-abseil.patch    | 330 ++++++++++++++++++
+ .../xla/0004-Re-enable-system-abseil.patch    | 352 ++++++++++++++++++
  ...ther-absl-log-is-already-initialized.patch |  58 +++
  third_party/xla/0006-Unbundle-grpc.patch      | 166 +++++++++
  third_party/xla/workspace.bzl                 |  10 +-
- 8 files changed, 810 insertions(+), 1 deletion(-)
+ 8 files changed, 832 insertions(+), 1 deletion(-)
  create mode 100644 third_party/grpc_systemlib.BUILD
  create mode 100644 third_party/xla/0001-Support-third-party-build-of-boringssl.patch
  create mode 100644 third_party/xla/0002-Fix-abseil-headers.patch
@@ -304,11 +304,11 @@ index 0000000..b6172a6
 + #include <vector>
 diff --git a/third_party/xla/0004-Re-enable-system-abseil.patch b/third_party/xla/0004-Re-enable-system-abseil.patch
 new file mode 100644
-index 0000000..ed244f2
+index 0000000..666ba39
 --- /dev/null
 +++ b/third_party/xla/0004-Re-enable-system-abseil.patch
-@@ -0,0 +1,330 @@
-+From 009309cf0223879cd992484cdf1af74c1b4d3c74 Mon Sep 17 00:00:00 2001
+@@ -0,0 +1,352 @@
++From b4bf17edc72105f47b02a67b52ae1b9943e30248 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 4 Jul 2024 15:58:32 +0200
 +Subject: [PATCH 4/6] Re-enable system abseil
@@ -318,14 +318,15 @@ index 0000000..ed244f2
 +
 +Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
 +---
-+ third_party/absl/system.absl.base.BUILD    | 24 ++++++
-+ third_party/absl/system.absl.crc.BUILD     | 70 ++++++++++++++++
-+ third_party/absl/system.absl.flags.BUILD   |  2 +-
-+ third_party/absl/system.absl.log.BUILD     | 95 ++++++++++++++++++++++
-+ third_party/absl/system.absl.strings.BUILD | 12 +++
-+ third_party/absl/system.absl.utility.BUILD |  5 ++
-+ third_party/absl/workspace.bzl             | 30 +++++++
-+ 7 files changed, 237 insertions(+), 1 deletion(-)
++ third_party/absl/system.absl.base.BUILD       | 24 +++++
++ third_party/absl/system.absl.crc.BUILD        | 70 ++++++++++++++
++ third_party/absl/system.absl.flags.BUILD      |  2 +-
++ third_party/absl/system.absl.functional.BUILD |  4 +
++ third_party/absl/system.absl.log.BUILD        | 95 +++++++++++++++++++
++ third_party/absl/system.absl.strings.BUILD    | 14 ++-
++ third_party/absl/system.absl.utility.BUILD    |  5 +
++ third_party/absl/workspace.bzl                | 30 ++++++
++ 8 files changed, 242 insertions(+), 2 deletions(-)
 + create mode 100644 third_party/absl/system.absl.crc.BUILD
 + create mode 100644 third_party/absl/system.absl.log.BUILD
 +
@@ -457,6 +458,18 @@ index 0000000..ed244f2
 +     deps = [
 +         ":config",
 +         ":flag_internal",
++diff --git a/third_party/absl/system.absl.functional.BUILD b/third_party/absl/system.absl.functional.BUILD
++index 9439bd0ba2..70ef675f73 100644
++--- a/third_party/absl/system.absl.functional.BUILD
+++++ b/third_party/absl/system.absl.functional.BUILD
++@@ -13,3 +13,7 @@ cc_library(
++ cc_library(
++     name = "function_ref",
++ )
+++
+++cc_library(
+++    name = "overload",
+++)
 +diff --git a/third_party/absl/system.absl.log.BUILD b/third_party/absl/system.absl.log.BUILD
 +new file mode 100644
 +index 0000000000..9ddc8c4079
@@ -559,7 +572,7 @@ index 0000000..ed244f2
 ++    ],
 ++)
 +diff --git a/third_party/absl/system.absl.strings.BUILD b/third_party/absl/system.absl.strings.BUILD
-+index fa9a7a84f6..6a898a6d48 100644
++index fa9a7a84f6..d80b617b86 100644
 +--- a/third_party/absl/system.absl.strings.BUILD
 ++++ b/third_party/absl/system.absl.strings.BUILD
 +@@ -2,6 +2,18 @@ load("@rules_cc//cc:defs.bzl", "cc_library")
@@ -581,6 +594,15 @@ index 0000000..ed244f2
 + cc_library(
 +     name = "strings",
 +     linkopts = ["-labsl_strings"],
++@@ -26,7 +38,7 @@ cc_library(
++ 
++ cc_library(
++     name = "cord",
++-    linkopts = ["-labsl_cord"],
+++    linkopts = ["-labsl_cord", "-labsl_cord_internal"],
++     deps = [
++         ":str_format",
++         "//absl/container:compressed_tuple",
 +diff --git a/third_party/absl/system.absl.utility.BUILD b/third_party/absl/system.absl.utility.BUILD
 +index e15049e261..013f44289e 100644
 +--- a/third_party/absl/system.absl.utility.BUILD
@@ -640,11 +662,11 @@ index 0000000..ed244f2
 +         patch_file = [
 diff --git a/third_party/xla/0005-Check-whether-absl-log-is-already-initialized.patch b/third_party/xla/0005-Check-whether-absl-log-is-already-initialized.patch
 new file mode 100644
-index 0000000..1ae990b
+index 0000000..e5ad440
 --- /dev/null
 +++ b/third_party/xla/0005-Check-whether-absl-log-is-already-initialized.patch
 @@ -0,0 +1,58 @@
-+From 04e64c8a84bfdeff38a4ed04fd92c4832f148f1d Mon Sep 17 00:00:00 2001
++From 11d61802de923b2f7452c86b55267d69841ba9eb Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Fri, 22 Nov 2024 10:51:18 +0100
 +Subject: [PATCH 5/6] Check whether absl log is already initialized
@@ -704,11 +726,11 @@ index 0000000..1ae990b
 + }  // namespace xla
 diff --git a/third_party/xla/0006-Unbundle-grpc.patch b/third_party/xla/0006-Unbundle-grpc.patch
 new file mode 100644
-index 0000000..cdc2f62
+index 0000000..3e3c81a
 --- /dev/null
 +++ b/third_party/xla/0006-Unbundle-grpc.patch
 @@ -0,0 +1,166 @@
-+From f82404bcaea9327ee6d5de5d6e46d61d12caaa7e Mon Sep 17 00:00:00 2001
++From d4aeb2446232a84c862b0d5bedbfefc3d09c74b5 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Wed, 23 Jul 2025 13:19:52 +0200
 +Subject: [PATCH 6/6] Unbundle grpc
