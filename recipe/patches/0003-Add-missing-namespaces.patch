@@ -1,7 +1,7 @@
-From 7fb6d43b4cfd14ece2d82eee542ee74a52eb40e0 Mon Sep 17 00:00:00 2001
+From ba68f53e24f7bf47685734c4ed7dec031b3cf1a7 Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwe.korn@quantco.com>
 Date: Fri, 25 Jul 2025 13:42:40 +0200
-Subject: [PATCH 3/3] Add missing namespaces
+Subject: [PATCH 3/4] Add missing namespaces
 
 ---
  jaxlib/mlir/_mlir_libs/jax_mlir_ext.cc  | 6 +++---
