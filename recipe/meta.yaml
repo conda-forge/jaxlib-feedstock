@@ -1,5 +1,5 @@
-{% set version = "0.6.2" %}
-{% set build = 1 %}
+{% set version = "0.7.0" %}
+{% set build = 0 %}
 
 {% if cuda_compiler_version != "None" %}
 {% set build = build + 200 %}
@@ -13,14 +13,15 @@ package:
 source:
   # only pull sources after upstream PyPI release...
   url: https://github.com/jax-ml/jax/archive/jax-v{{ version }}.tar.gz
-  sha256: d46cb98795f2c1ccdf2b081e02d9d74b659063679a80beb001ad17d482a60e17
+  sha256: 518966801e4402667e77915c2dc7cf1a178a80e22ff253204a837f207a87fcde
   patches:
     - patches/0001-Allow-for-custom-CUDA-build.patch
     - patches/0002-Consolidated-build-fixes-for-XLA.patch
+    - patches/0003-Add-missing-namespaces.patch
 
 build:
   number: {{ build }}
-  skip: true  # [win or py<310]
+  skip: true  # [win or py<311]
   skip: true  # [cuda_compiler_version != "None" and aarch64]
   string: cuda{{ cuda_compiler_version | replace('.', '') }}py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [cuda_compiler_version != "None"]
   string: cpu_py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [cuda_compiler_version == "None"]
@@ -75,6 +76,7 @@ requirements:
     # list libabseil here to ensure pinning correctly
     - libabseil
     - flatbuffers <2.0.6
+    - grpc-bazel-rules
     - libgrpc
     - openssl
     - zlib

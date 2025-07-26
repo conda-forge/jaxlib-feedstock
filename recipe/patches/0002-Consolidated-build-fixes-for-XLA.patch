@@ -1,7 +1,7 @@
-From ab08d84d22874df4070577ad896d5cf1462a8c57 Mon Sep 17 00:00:00 2001
+From ed156c5ddd49a240b9ec1d9dea1681c60c948c86 Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwe.korn@quantco.com>
 Date: Thu, 14 Dec 2023 17:06:15 +0100
-Subject: [PATCH 2/2] Consolidated build fixes for XLA
+Subject: [PATCH 2/3] Consolidated build fixes for XLA
 
 jax vendors xla, but only populates the sources through bazel, so we cannot
 patch as usual through conda, but rather need to teach the bazel build file
@@ -9,39 +9,120 @@ for xla to apply those patches.
 
 To maintain/rebase these patches, use a checkout of https://github.com/openxla/xla,
 and then rebase to the commit of xla being used by jax, which can be found in
-https://github.com/jax-ml/jax/blob/jax-v{{ version }}/third_party/xla/workspace.bzl
+https://github.com/jax-ml/jax/blob/jax-v{{ version }}/third_party/xla/revision.bzl
 which is also where we're patching in the list of patches to apply to xla.
 
 Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
 ---
- ...pport-third-party-build-of-boringssl.patch |  51 ++++
- third_party/xla/0002-Fix-abseil-headers.patch | 101 +++++++
+ third_party/grpc_systemlib.BUILD              |  71 ++++
+ ...pport-third-party-build-of-boringssl.patch |  50 +++
+ third_party/xla/0002-Fix-abseil-headers.patch | 101 +++++
  .../xla/0003-Omit-usage-of-StrFormat.patch    |  25 ++
- ...0004-Add-missing-bits-absl-systemlib.patch | 262 ++++++++++++++++++
- ...ther-absl-log-is-already-initialized.patch |  58 ++++
- third_party/xla/workspace.bzl                 |  11 +-
- 6 files changed, 506 insertions(+), 2 deletions(-)
+ .../xla/0004-Re-enable-system-abseil.patch    | 352 ++++++++++++++++++
+ ...ther-absl-log-is-already-initialized.patch |  58 +++
+ third_party/xla/0006-Unbundle-grpc.patch      | 166 +++++++++
+ third_party/xla/workspace.bzl                 |  10 +-
+ 8 files changed, 832 insertions(+), 1 deletion(-)
+ create mode 100644 third_party/grpc_systemlib.BUILD
  create mode 100644 third_party/xla/0001-Support-third-party-build-of-boringssl.patch
  create mode 100644 third_party/xla/0002-Fix-abseil-headers.patch
  create mode 100644 third_party/xla/0003-Omit-usage-of-StrFormat.patch
- create mode 100644 third_party/xla/0004-Add-missing-bits-absl-systemlib.patch
+ create mode 100644 third_party/xla/0004-Re-enable-system-abseil.patch
  create mode 100644 third_party/xla/0005-Check-whether-absl-log-is-already-initialized.patch
+ create mode 100644 third_party/xla/0006-Unbundle-grpc.patch
 
+diff --git a/third_party/grpc_systemlib.BUILD b/third_party/grpc_systemlib.BUILD
+new file mode 100644
+index 0000000..0e4e862
+--- /dev/null
++++ b/third_party/grpc_systemlib.BUILD
+@@ -0,0 +1,71 @@
++licenses(["notice"])  # Apache v2
++
++filegroup(
++    name = "LICENSE",
++    visibility = ["//visibility:public"],
++)
++
++cc_library(
++    name = "grpc",
++    linkopts = [
++        "-lgrpc",
++        "-lgpr",
++    ],
++    visibility = ["//visibility:public"],
++)
++
++cc_library(
++    name = "grpc++",
++    linkopts = [
++        "-lgrpc++",
++        "-lgpr",
++    ],
++    visibility = ["//visibility:public"],
++)
++
++cc_library(
++    name = "grpc++_codegen_proto",
++    visibility = ["//visibility:public"],
++)
++
++cc_library(
++    name = "grpc_unsecure",
++    linkopts = [
++        "-lgrpc_unsecure",
++        "-lgpr",
++    ],
++    visibility = ["//visibility:public"],
++)
++
++cc_library(
++    name = "grpc++_unsecure",
++    linkopts = [
++        "-lgrpc++_unsecure",
++        "-lgpr",
++    ],
++    visibility = ["//visibility:public"],
++)
++
++genrule(
++    name = "ln_grpc_cpp_plugin",
++    outs = ["grpc_cpp_plugin.bin"],
++    cmd = "ln -s $$(which grpc_cpp_plugin) $@",
++)
++
++sh_binary(
++    name = "grpc_cpp_plugin",
++    srcs = ["grpc_cpp_plugin.bin"],
++    visibility = ["//visibility:public"],
++)
++
++genrule(
++    name = "ln_grpc_python_plugin",
++    outs = ["grpc_python_plugin.bin"],
++    cmd = "ln -s $$(which grpc_python_plugin) $@",
++)
++
++sh_binary(
++    name = "grpc_python_plugin",
++    srcs = ["grpc_python_plugin.bin"],
++    visibility = ["//visibility:public"],
++)
 diff --git a/third_party/xla/0001-Support-third-party-build-of-boringssl.patch b/third_party/xla/0001-Support-third-party-build-of-boringssl.patch
 new file mode 100644
-index 0000000..443ab4a
+index 0000000..392f97f
 --- /dev/null
 +++ b/third_party/xla/0001-Support-third-party-build-of-boringssl.patch
-@@ -0,0 +1,51 @@
-+From a81ee819cb836356e7c1157eabb442a87ea47308 Mon Sep 17 00:00:00 2001
+@@ -0,0 +1,50 @@
++From e0b110e94788c4514d352e8d050d8cbb9a555032 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 14 Dec 2023 15:04:51 +0100
 +Subject: [PATCH 1/6] Support third-party build of boringssl
 +
 +---
 + third_party/boringssl.BUILD | 21 +++++++++++++++++++++
-+ workspace2.bzl              |  2 +-
-+ 2 files changed, 22 insertions(+), 1 deletion(-)
++ workspace2.bzl              |  1 +
++ 2 files changed, 22 insertions(+)
 + create mode 100644 third_party/boringssl.BUILD
 +
 +diff --git a/third_party/boringssl.BUILD b/third_party/boringssl.BUILD
@@ -72,25 +153,24 @@ index 0000000..443ab4a
 ++    ],
 ++)
 +diff --git a/workspace2.bzl b/workspace2.bzl
-+index 1a376d9b29..eaddfee2c0 100644
++index 774548daa5..2776657e7e 100644
 +--- a/workspace2.bzl
 ++++ b/workspace2.bzl
-+@@ -108,7 +108,7 @@ def _tf_repositories():
++@@ -457,6 +457,7 @@ def _tf_repositories():
 +         name = "boringssl",
 +         sha256 = "9dc53f851107eaf87b391136d13b815df97ec8f76dadb487b58b2fc45e624d2c",
 +         strip_prefix = "boringssl-c00d7ca810e93780bd0c8ee4eea28f4f2ea4bcdc",
-+-        system_build_file = "//third_party/systemlibs:boringssl.BUILD",
 ++        system_build_file = "//third_party:boringssl.BUILD",
 +         urls = tf_mirror_urls("https://github.com/google/boringssl/archive/c00d7ca810e93780bd0c8ee4eea28f4f2ea4bcdc.tar.gz"),
 +     )
 + 
 diff --git a/third_party/xla/0002-Fix-abseil-headers.patch b/third_party/xla/0002-Fix-abseil-headers.patch
 new file mode 100644
-index 0000000..cae5652
+index 0000000..ff76a1d
 --- /dev/null
 +++ b/third_party/xla/0002-Fix-abseil-headers.patch
 @@ -0,0 +1,101 @@
-+From 07ae38f2dd09e67479cbe9c3cf1d955c0afb8668 Mon Sep 17 00:00:00 2001
++From d2d7157bbb60839ee78a5126a6d7a661c799b447 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 23 May 2024 15:45:52 +0200
 +Subject: [PATCH 2/6] Fix abseil headers
@@ -105,10 +185,10 @@ index 0000000..cae5652
 + 6 files changed, 12 insertions(+), 2 deletions(-)
 +
 +diff --git a/xla/backends/cpu/codegen/ir_compiler.cc b/xla/backends/cpu/codegen/ir_compiler.cc
-+index b4e4127ab0..22ec45075f 100644
++index 662d9ab336..7797325504 100644
 +--- a/xla/backends/cpu/codegen/ir_compiler.cc
 ++++ b/xla/backends/cpu/codegen/ir_compiler.cc
-+@@ -129,7 +129,7 @@ static std::unique_ptr<HloModuleConfig> ParseXlaBackendExtraOptions(
++@@ -133,7 +133,7 @@ static std::unique_ptr<HloModuleConfig> ParseXlaBackendExtraOptions(
 + // of the proto should be ignored since they're just the default values.
 + // We could instead return an unordered_map<str, str>, but we already have
 + // helpers that expect a DebugOptions, so this ends up being simpler.
@@ -131,7 +211,7 @@ index 0000000..cae5652
 +   // Helper function for HandleReduce. Replaces a reduce with a broadcast of the
 +   // init values if the reduce is operating on a zero-element array or the
 +diff --git a/xla/python/ifrt_proxy/common/BUILD b/xla/python/ifrt_proxy/common/BUILD
-+index 5b23663db3..5229ee5087 100644
++index 226666ebc0..fe09f41250 100644
 +--- a/xla/python/ifrt_proxy/common/BUILD
 ++++ b/xla/python/ifrt_proxy/common/BUILD
 +@@ -51,6 +51,9 @@ cc_library(
@@ -157,7 +237,7 @@ index 0000000..cae5652
 +         "@tsl//tsl/platform:protobuf",
 +         "@tsl//tsl/platform:stringpiece",
 +diff --git a/xla/tsl/platform/default/BUILD b/xla/tsl/platform/default/BUILD
-+index fed3f1cdc5..7863e810a4 100644
++index ab44f110ee..c2a6a9cc4c 100644
 +--- a/xla/tsl/platform/default/BUILD
 ++++ b/xla/tsl/platform/default/BUILD
 +@@ -244,6 +244,8 @@ cc_library(
@@ -193,11 +273,11 @@ index 0000000..cae5652
 +         "@com_google_absl//absl/time",
 diff --git a/third_party/xla/0003-Omit-usage-of-StrFormat.patch b/third_party/xla/0003-Omit-usage-of-StrFormat.patch
 new file mode 100644
-index 0000000..4d331ba
+index 0000000..b6172a6
 --- /dev/null
 +++ b/third_party/xla/0003-Omit-usage-of-StrFormat.patch
 @@ -0,0 +1,25 @@
-+From 1da6fda63c23245c419c40db269e5aa807710f76 Mon Sep 17 00:00:00 2001
++From 1a82f5ea2ad15fb0cf7513eb9296085001d6ca9a Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 4 Jul 2024 10:36:03 +0200
 +Subject: [PATCH 3/6] Omit usage of StrFormat
@@ -222,30 +302,36 @@ index 0000000..4d331ba
 + #include <utility>
 + #include <variant>
 + #include <vector>
-diff --git a/third_party/xla/0004-Add-missing-bits-absl-systemlib.patch b/third_party/xla/0004-Add-missing-bits-absl-systemlib.patch
+diff --git a/third_party/xla/0004-Re-enable-system-abseil.patch b/third_party/xla/0004-Re-enable-system-abseil.patch
 new file mode 100644
-index 0000000..7a81a03
+index 0000000..666ba39
 --- /dev/null
-+++ b/third_party/xla/0004-Add-missing-bits-absl-systemlib.patch
-@@ -0,0 +1,262 @@
-+From 8520b52faa00b8cb1bddf642c253c696ff488537 Mon Sep 17 00:00:00 2001
++++ b/third_party/xla/0004-Re-enable-system-abseil.patch
+@@ -0,0 +1,352 @@
++From b4bf17edc72105f47b02a67b52ae1b9943e30248 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 4 Jul 2024 15:58:32 +0200
-+Subject: [PATCH 4/6] Add missing bits absl systemlib
++Subject: [PATCH 4/6] Re-enable system abseil
 +
++partially revert https://github.com/openxla/xla/commit/1fc2a846d259d3c896a6177485abcc68d97627a9
++and add missing pieces
++
++Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
 +---
-+ third_party/absl/system.absl.base.BUILD    | 16 +++++
-+ third_party/absl/system.absl.crc.BUILD     | 70 +++++++++++++++++++
-+ third_party/absl/system.absl.flags.BUILD   |  2 +-
-+ third_party/absl/system.absl.log.BUILD     | 78 ++++++++++++++++++++++
-+ third_party/absl/system.absl.strings.BUILD | 12 ++++
-+ third_party/absl/workspace.bzl             |  2 +
-+ 6 files changed, 179 insertions(+), 1 deletion(-)
++ third_party/absl/system.absl.base.BUILD       | 24 +++++
++ third_party/absl/system.absl.crc.BUILD        | 70 ++++++++++++++
++ third_party/absl/system.absl.flags.BUILD      |  2 +-
++ third_party/absl/system.absl.functional.BUILD |  4 +
++ third_party/absl/system.absl.log.BUILD        | 95 +++++++++++++++++++
++ third_party/absl/system.absl.strings.BUILD    | 14 ++-
++ third_party/absl/system.absl.utility.BUILD    |  5 +
++ third_party/absl/workspace.bzl                | 30 ++++++
++ 8 files changed, 242 insertions(+), 2 deletions(-)
 + create mode 100644 third_party/absl/system.absl.crc.BUILD
 + create mode 100644 third_party/absl/system.absl.log.BUILD
 +
 +diff --git a/third_party/absl/system.absl.base.BUILD b/third_party/absl/system.absl.base.BUILD
-+index d6bf8748de..b77fe118e3 100644
++index d6bf8748de..02602690db 100644
 +--- a/third_party/absl/system.absl.base.BUILD
 ++++ b/third_party/absl/system.absl.base.BUILD
 +@@ -20,6 +20,14 @@ cc_library(
@@ -263,7 +349,7 @@ index 0000000..7a81a03
 + cc_library(
 +     name = "raw_logging_internal",
 +     linkopts = ["-labsl_raw_logging_internal"],
-+@@ -105,3 +113,11 @@ cc_library(
++@@ -105,3 +113,19 @@ cc_library(
 +         "//absl:__subpackages__",
 +     ],
 + )
@@ -273,6 +359,14 @@ index 0000000..7a81a03
 ++    deps = [
 ++        ":config",
 ++        ":core_headers",
+++    ],
+++)
+++
+++cc_library(
+++    name = "no_destructor",
+++    deps = [
+++        ":config",
+++        ":nullability",
 ++    ],
 ++)
 +diff --git a/third_party/absl/system.absl.crc.BUILD b/third_party/absl/system.absl.crc.BUILD
@@ -364,12 +458,24 @@ index 0000000..7a81a03
 +     deps = [
 +         ":config",
 +         ":flag_internal",
++diff --git a/third_party/absl/system.absl.functional.BUILD b/third_party/absl/system.absl.functional.BUILD
++index 9439bd0ba2..70ef675f73 100644
++--- a/third_party/absl/system.absl.functional.BUILD
+++++ b/third_party/absl/system.absl.functional.BUILD
++@@ -13,3 +13,7 @@ cc_library(
++ cc_library(
++     name = "function_ref",
++ )
+++
+++cc_library(
+++    name = "overload",
+++)
 +diff --git a/third_party/absl/system.absl.log.BUILD b/third_party/absl/system.absl.log.BUILD
 +new file mode 100644
-+index 0000000000..c23aa51acf
++index 0000000000..9ddc8c4079
 +--- /dev/null
 ++++ b/third_party/absl/system.absl.log.BUILD
-+@@ -0,0 +1,78 @@
++@@ -0,0 +1,95 @@
 ++load("@rules_cc//cc:defs.bzl", "cc_library")
 ++
 ++package(default_visibility = ["//visibility:public"])
@@ -399,6 +505,13 @@ index 0000000..7a81a03
 ++        "-labsl_cordz_functions",
 ++        "-labsl_log_internal_globals"
 ++    ],
+++)
+++
+++cc_library(
+++    name = "absl_log",
+++    deps = [
+++        ":log",
+++    ]
 ++)
 ++
 ++cc_library(
@@ -448,8 +561,18 @@ index 0000000..7a81a03
 ++        "-labsl_log_internal_log_sink_set",
 ++    ],
 ++)
+++
+++cc_library(
+++    name = "absl_check",
+++    linkopts = [
+++        "-labsl_vlog_config_internal",
+++        "-labsl_log_internal_check_op",
+++        "-labsl_log_internal_message",
+++        "-labsl_log_internal_nullguard",
+++    ],
+++)
 +diff --git a/third_party/absl/system.absl.strings.BUILD b/third_party/absl/system.absl.strings.BUILD
-+index fa9a7a84f6..6a898a6d48 100644
++index fa9a7a84f6..d80b617b86 100644
 +--- a/third_party/absl/system.absl.strings.BUILD
 ++++ b/third_party/absl/system.absl.strings.BUILD
 +@@ -2,6 +2,18 @@ load("@rules_cc//cc:defs.bzl", "cc_library")
@@ -471,32 +594,79 @@ index 0000000..7a81a03
 + cc_library(
 +     name = "strings",
 +     linkopts = ["-labsl_strings"],
++@@ -26,7 +38,7 @@ cc_library(
++ 
++ cc_library(
++     name = "cord",
++-    linkopts = ["-labsl_cord"],
+++    linkopts = ["-labsl_cord", "-labsl_cord_internal"],
++     deps = [
++         ":str_format",
++         "//absl/container:compressed_tuple",
++diff --git a/third_party/absl/system.absl.utility.BUILD b/third_party/absl/system.absl.utility.BUILD
++index e15049e261..013f44289e 100644
++--- a/third_party/absl/system.absl.utility.BUILD
+++++ b/third_party/absl/system.absl.utility.BUILD
++@@ -4,3 +4,8 @@ cc_library(
++     name = "utility",
++     visibility = ["//visibility:public"],
++ )
+++
+++cc_library(
+++    name = "if_constexpr",
+++    visibility = ["//visibility:public"],
+++)
 +diff --git a/third_party/absl/workspace.bzl b/third_party/absl/workspace.bzl
-+index d44bd155dd..e2ecfcde1e 100644
++index 9144c5bd5b..6243f35123 100644
 +--- a/third_party/absl/workspace.bzl
 ++++ b/third_party/absl/workspace.bzl
-+@@ -14,12 +14,14 @@ def repo():
-+     SYS_DIRS = [
-+         "algorithm",
-+         "base",
++@@ -11,9 +11,39 @@ def repo():
++     ABSL_SHA256 = "c397cd9cca3f71724a8ddf183e7fa71c19196eaafd1dc2a3c86d3a572613a807"
++     # LINT.ThenChange(//tensorflow/lite/tools/cmake/modules/abseil-cpp.cmake)
++ 
+++    SYS_DIRS = [
+++        "algorithm",
+++        "base",
 ++        "crc",
-+         "cleanup",
-+         "container",
-+         "debugging",
-+         "flags",
-+         "functional",
-+         "hash",
+++        "cleanup",
+++        "container",
+++        "debugging",
+++        "flags",
+++        "functional",
+++        "hash",
 ++        "log",
-+         "memory",
-+         "meta",
-+         "numeric",
+++        "memory",
+++        "meta",
+++        "numeric",
+++        "random",
+++        "status",
+++        "strings",
+++        "synchronization",
+++        "time",
+++        "types",
+++        "utility",
+++    ]
+++    SYS_LINKS = {
+++        "//third_party/absl:system.absl.{name}.BUILD".format(name = n): "absl/{name}/BUILD.bazel".format(name = n)
+++        for n in SYS_DIRS
+++    }
+++
++     tf_http_archive(
++         name = "com_google_absl",
++         sha256 = ABSL_SHA256,
+++        build_file = "//third_party/absl:com_google_absl.BUILD",
+++        system_build_file = "//third_party/absl:system.BUILD",
+++        system_link_files = SYS_LINKS,
++         strip_prefix = "abseil-cpp-{commit}".format(commit = ABSL_COMMIT),
++         urls = tf_mirror_urls("https://github.com/abseil/abseil-cpp/archive/{commit}.tar.gz".format(commit = ABSL_COMMIT)),
++         patch_file = [
 diff --git a/third_party/xla/0005-Check-whether-absl-log-is-already-initialized.patch b/third_party/xla/0005-Check-whether-absl-log-is-already-initialized.patch
 new file mode 100644
-index 0000000..e04f710
+index 0000000..e5ad440
 --- /dev/null
 +++ b/third_party/xla/0005-Check-whether-absl-log-is-already-initialized.patch
 @@ -0,0 +1,58 @@
-+From b70fcfc3f4d85371c9efc3cbd15ec524fe8990dd Mon Sep 17 00:00:00 2001
++From 11d61802de923b2f7452c86b55267d69841ba9eb Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Fri, 22 Nov 2024 10:51:18 +0100
 +Subject: [PATCH 5/6] Check whether absl log is already initialized
@@ -554,27 +724,198 @@ index 0000000..e04f710
 ++}
 + 
 + }  // namespace xla
+diff --git a/third_party/xla/0006-Unbundle-grpc.patch b/third_party/xla/0006-Unbundle-grpc.patch
+new file mode 100644
+index 0000000..3e3c81a
+--- /dev/null
++++ b/third_party/xla/0006-Unbundle-grpc.patch
+@@ -0,0 +1,166 @@
++From d4aeb2446232a84c862b0d5bedbfefc3d09c74b5 Mon Sep 17 00:00:00 2001
++From: "Uwe L. Korn" <uwe.korn@quantco.com>
++Date: Wed, 23 Jul 2025 13:19:52 +0200
++Subject: [PATCH 6/6] Unbundle grpc
++
++---
++ third_party/zlib.BUILD | 37 +------------------------------------
++ workspace0.bzl         |  5 +----
++ workspace1.bzl         |  3 ---
++ workspace2.bzl         | 38 +++++++++++++++++++++++++++++++-------
++ 4 files changed, 33 insertions(+), 50 deletions(-)
++
++diff --git a/third_party/zlib.BUILD b/third_party/zlib.BUILD
++index b8464cf2db..99cf443f8a 100644
++--- a/third_party/zlib.BUILD
+++++ b/third_party/zlib.BUILD
++@@ -4,40 +4,5 @@ licenses(["notice"])  # BSD/MIT-like license (for zlib)
++ 
++ cc_library(
++     name = "zlib",
++-    srcs = [
++-        "adler32.c",
++-        "compress.c",
++-        "crc32.c",
++-        "crc32.h",
++-        "deflate.c",
++-        "deflate.h",
++-        "gzclose.c",
++-        "gzguts.h",
++-        "gzlib.c",
++-        "gzread.c",
++-        "gzwrite.c",
++-        "infback.c",
++-        "inffast.c",
++-        "inffast.h",
++-        "inffixed.h",
++-        "inflate.c",
++-        "inflate.h",
++-        "inftrees.c",
++-        "inftrees.h",
++-        "trees.c",
++-        "trees.h",
++-        "uncompr.c",
++-        "zconf.h",
++-        "zutil.c",
++-        "zutil.h",
++-    ],
++-    hdrs = ["zlib.h"],
++-    copts = select({
++-        "@xla//xla/tsl:windows": [],
++-        "//conditions:default": [
++-            "-Wno-shift-negative-value",
++-            "-DZ_HAVE_UNISTD_H",
++-        ],
++-    }),
++-    includes = ["."],
+++    linkopts = ["-lz"],
++ )
++diff --git a/workspace0.bzl b/workspace0.bzl
++index 25db007e51..1eb3179764 100644
++--- a/workspace0.bzl
+++++ b/workspace0.bzl
++@@ -5,7 +5,6 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
++ load("@build_bazel_apple_support//lib:repositories.bzl", "apple_support_dependencies")
++ load("@build_bazel_rules_apple//apple:repositories.bzl", "apple_rules_dependencies")
++ load("@build_bazel_rules_swift//swift:repositories.bzl", "swift_rules_dependencies")
++-load("@com_github_grpc_grpc//bazel:grpc_extra_deps.bzl", "grpc_extra_deps")
++ load("@com_google_benchmark//:bazel/benchmark_deps.bzl", "benchmark_deps")
++ 
++ def _tf_bind():
++@@ -20,7 +19,7 @@ def _tf_bind():
++     # Needed by Protobuf
++     native.bind(
++         name = "grpc_cpp_plugin",
++-        actual = "@com_github_grpc_grpc//src/compiler:grpc_cpp_plugin",
+++        actual = "@com_github_grpc_grpc//:grpc_cpp_plugin",
++     )
++     native.bind(
++         name = "grpc_python_plugin",
++@@ -149,8 +148,6 @@ def workspace():
++     # at the end of the WORKSPACE file.
++     _tf_bind()
++ 
++-    grpc_extra_deps()
++-
++ # Alias so it can be loaded without assigning to a different symbol to prevent
++ # shadowing previous loads and trigger a buildifier warning.
++ xla_workspace0 = workspace
++diff --git a/workspace1.bzl b/workspace1.bzl
++index 05121708fc..efb2042936 100644
++--- a/workspace1.bzl
+++++ b/workspace1.bzl
++@@ -1,7 +1,6 @@
++ """TensorFlow workspace initialization. Consult the WORKSPACE on how to use it."""
++ 
++ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
++-load("@com_github_grpc_grpc//bazel:grpc_deps.bzl", "grpc_deps")
++ load("@io_bazel_rules_closure//closure:defs.bzl", "closure_repositories")
++ load("@rules_pkg//:deps.bzl", "rules_pkg_dependencies")
++ load("//third_party/llvm:setup.bzl", "llvm_setup")
++@@ -25,8 +24,6 @@ def workspace():
++         ],
++     )
++ 
++-    grpc_deps()
++-
++ # Alias so it can be loaded without assigning to a different symbol to prevent
++ # shadowing previous loads and trigger a buildifier warning.
++ xla_workspace1 = workspace
++diff --git a/workspace2.bzl b/workspace2.bzl
++index 2776657e7e..045a8970da 100644
++--- a/workspace2.bzl
+++++ b/workspace2.bzl
++@@ -121,6 +121,23 @@ def _tf_toolchains():
++         aarch64_repo = "../aarch64_linux_toolchain",
++         armhf_repo = "../armhf_linux_toolchain",
++     )
+++    
+++def _grpc_impl(ctx):
+++  path = ctx.os.environ["GRPC_BAZEL_DIR"]
+++  ctx.execute(["cp", "-r", path, "."])
+++
+++  syslib_label = ctx.attr.systemlib
+++  syslib_path = ctx.path(syslib_label)
+++  ctx.execute(["cp", syslib_path, "BUILD"])
+++  ctx.report_progress("Copied systemlib.BUILD")
+++
+++grpc_bazel_repo = repository_rule(
+++    implementation = _grpc_impl,
+++    environ        = ["GRPC_BAZEL_DIR"],
+++    attrs = {
+++        "systemlib": attr.label(mandatory=True),
+++    },
+++)
++ 
++ # Define all external repositories required by TensorFlow
++ def _tf_repositories():
++@@ -364,14 +381,21 @@ def _tf_repositories():
++     )
++ 
++     # WARNING: make sure ncteisen@ and vpai@ are cc-ed on any CL to change the below rule
++-    tf_http_archive(
+++    # tf_http_archive(
+++    #     name = "com_github_grpc_grpc",
+++    #     sha256 = "afbc5d78d6ba6d509cc6e264de0d49dcd7304db435cbf2d630385bacf49e066c",
+++    #     strip_prefix = "grpc-1.68.2",
+++    #     patch_file = [
+++    #         "//third_party/grpc:grpc.patch",
+++    #     ],
+++    #     system_build_file = "//third_party/grpc:systemlib.BUILD",
+++    #     new_local_repository
+++    #     urls = tf_mirror_urls("https://github.com/grpc/grpc/archive/refs/tags/v1.68.2.tar.gz"),
+++    # )
+++
+++    grpc_bazel_repo(
++         name = "com_github_grpc_grpc",
++-        sha256 = "afbc5d78d6ba6d509cc6e264de0d49dcd7304db435cbf2d630385bacf49e066c",
++-        strip_prefix = "grpc-1.68.2",
++-        patch_file = [
++-            "//third_party/grpc:grpc.patch",
++-        ],
++-        urls = tf_mirror_urls("https://github.com/grpc/grpc/archive/refs/tags/v1.68.2.tar.gz"),
+++        systemlib = "//third_party:grpc_systemlib.BUILD",
++     )
++ 
++     # Load the raw llvm-project.  llvm does not have build rules set up by default,
 diff --git a/third_party/xla/workspace.bzl b/third_party/xla/workspace.bzl
-index 76ea227..83ca9e7 100644
+index 286aa16..fe97e89 100644
 --- a/third_party/xla/workspace.bzl
 +++ b/third_party/xla/workspace.bzl
-@@ -30,7 +30,14 @@ def repo():
+@@ -22,6 +22,14 @@ def repo():
          sha256 = XLA_SHA256,
          strip_prefix = "xla-{commit}".format(commit = XLA_COMMIT),
          urls = tf_mirror_urls("https://github.com/openxla/xla/archive/{commit}.tar.gz".format(commit = XLA_COMMIT)),
--        patch_file = ["//third_party/xla:llvm_fix.patch"],
 +        patch_file = [
-+            "//third_party/xla:llvm_fix.patch",
 +            "//third_party/xla:0001-Support-third-party-build-of-boringssl.patch",
 +            "//third_party/xla:0002-Fix-abseil-headers.patch",
 +            "//third_party/xla:0003-Omit-usage-of-StrFormat.patch",
-+            "//third_party/xla:0004-Add-missing-bits-absl-systemlib.patch",
++            "//third_party/xla:0004-Re-enable-system-abseil.patch",
 +            "//third_party/xla:0005-Check-whether-absl-log-is-already-initialized.patch",
++	    "//third_party/xla:0006-Unbundle-grpc.patch",
 +       ],
      )
  
      # For development, one often wants to make changes to the TF repository as well
-@@ -44,4 +51,4 @@ def repo():
+@@ -35,4 +43,4 @@ def repo():
      # local_repository(
      #    name = "xla",
      #    path = "/path/to/xla",
