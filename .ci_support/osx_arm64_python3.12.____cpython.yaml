@@ -34,6 +34,8 @@ libprotobuf:
 - 5.29.3
 macos_machine:
 - arm64-apple-darwin20.0.0
+nccl:
+- '2'
 numpy:
 - '2'
 openssl:
