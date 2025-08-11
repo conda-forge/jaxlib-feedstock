@@ -1,7 +1,7 @@
 {% set version = "0.4.35" %}
 {% set name = "jaxlib" %}
 
-{% set build = 2 %}
+{% set build = 3 %}
 
 {% if cuda_compiler_version != "None" %}
 {% set build = build + 200 %}
@@ -67,7 +67,7 @@ requirements:
     - nsync 1.24.0  # [not win]
     - snappy 1.2.1  # [not win]
     - double-conversion 3.1.5  # [not win]
-    - jsoncpp 1.9.4  # [not win]
+    - jsoncpp 1.9.6  # [not win]
     - pybind11 2.13.6  # [not win]
     - libgrpc {{ libgrpc }}  # [not win]
     - libcurl {{ libcurl }}  # [not win]
