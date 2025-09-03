@@ -138,9 +138,24 @@ popd
 pushd $SP_DIR
 pip install $SRC_DIR/dist/jaxlib-*.whl
 
+# Add INSTALLER file and remove RECORD, workaround for
+# https://github.com/conda-forge/jaxlib-feedstock/issues/293
+JAXLIB_DIST_INFO_DIR="${SP_DIR}/jaxlib-${PKG_VERSION}.dist-info"
+echo "conda" > "${JAXLIB_DIST_INFO_DIR}/INSTALLER"
+rm -f "${JAXLIB_DIST_INFO_DIR}/RECORD"
+
 if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
   pip install $SRC_DIR/dist/jax_cuda*_plugin*.whl
   pip install $SRC_DIR/dist/jax_cuda*_pjrt*.whl
+
+  # Add INSTALLER file and remove RECORD, workaround for
+  # https://github.com/conda-forge/jaxlib-feedstock/issues/293
+  JAX_CUDA_PJRT_DIST_INFO_DIR="${SP_DIR}/jax_cuda${CUDA_COMPILER_MAJOR_VERSION}_pjrt-${PKG_VERSION}.dist-info"
+  echo "conda" > "${JAX_CUDA_PJRT_DIST_INFO_DIR}/INSTALLER"
+  rm -f "${JAX_CUDA_PJRT_DIST_INFO_DIR}/RECORD"
+  JAX_CUDA_PLUGIN_DIST_INFO_DIR="${SP_DIR}/jax_cuda${CUDA_COMPILER_MAJOR_VERSION}_plugin-${PKG_VERSION}.dist-info"
+  echo "conda" > "${JAX_CUDA_PLUGIN_DIST_INFO_DIR}/INSTALLER"
+  rm -f "${JAX_CUDA_PLUGIN_DIST_INFO_DIR}/RECORD"
 
   # Regression test for https://github.com/conda-forge/jaxlib-feedstock/issues/320
   if [[ "${target_platform}" == linux-* ]]; then
