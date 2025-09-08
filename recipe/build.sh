@@ -136,12 +136,65 @@ bazel clean
 popd
 
 pushd $SP_DIR
-# pip doesn't want to install cleanly in all cases, so we use the fact that we can unzip it.
-unzip $SRC_DIR/dist/jaxlib-*.whl
+pip install $SRC_DIR/dist/jaxlib-*.whl
+
+# Add INSTALLER file and remove RECORD, workaround for
+# https://github.com/conda-forge/jaxlib-feedstock/issues/293
+JAXLIB_DIST_INFO_DIR="${SP_DIR}/jaxlib-${PKG_VERSION}.dist-info"
+echo "conda" > "${JAXLIB_DIST_INFO_DIR}/INSTALLER"
+rm -f "${JAXLIB_DIST_INFO_DIR}/RECORD"
 
 if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
-  unzip $SRC_DIR/dist/jax_cuda*_plugin*.whl
-  unzip $SRC_DIR/dist/jax_cuda*_pjrt*.whl
+  pip install $SRC_DIR/dist/jax_cuda*_plugin*.whl
+  pip install $SRC_DIR/dist/jax_cuda*_pjrt*.whl
+
+  # Add INSTALLER file and remove RECORD, workaround for
+  # https://github.com/conda-forge/jaxlib-feedstock/issues/293
+  JAX_CUDA_PJRT_DIST_INFO_DIR="${SP_DIR}/jax_cuda${CUDA_COMPILER_MAJOR_VERSION}_pjrt-${PKG_VERSION}.dist-info"
+  echo "conda" > "${JAX_CUDA_PJRT_DIST_INFO_DIR}/INSTALLER"
+  rm -f "${JAX_CUDA_PJRT_DIST_INFO_DIR}/RECORD"
+  JAX_CUDA_PLUGIN_DIST_INFO_DIR="${SP_DIR}/jax_cuda${CUDA_COMPILER_MAJOR_VERSION}_plugin-${PKG_VERSION}.dist-info"
+  echo "conda" > "${JAX_CUDA_PLUGIN_DIST_INFO_DIR}/INSTALLER"
+  rm -f "${JAX_CUDA_PLUGIN_DIST_INFO_DIR}/RECORD"
+
+  # Regression test for https://github.com/conda-forge/jaxlib-feedstock/issues/320
+  if [[ "${target_platform}" == linux-* ]]; then
+    # Scan all .so files in both plugin directories and error if any FLAGS_* symbols are present.
+    declare -a PLUGIN_DIRS=(
+      "${SP_DIR}/jax_plugins/xla_cuda${CUDA_COMPILER_MAJOR_VERSION}"
+      "${SP_DIR}/jax_cuda${CUDA_COMPILER_MAJOR_VERSION}_plugin"
+    )
+    echo "Scanning CUDA plugin directories for .so files and FLAGS_* symbols:"
+    for DIR in "${PLUGIN_DIRS[@]}"; do
+      if [[ -d "${DIR}" ]]; then
+        echo " - ${DIR}"
+        mapfile -t SO_FILES < <(find "${DIR}" -type f -name '*.so' -print | sort)
+        if (( ${#SO_FILES[@]} == 0 )); then
+          echo "   (no .so files found)"
+          continue
+        fi
+        echo "   .so files:"
+        for SO in "${SO_FILES[@]}"; do
+          echo "     * ${SO}"
+        done
+        # Prefer nm -s as requested; fall back to plain nm if -s is unsupported to avoid hard failure.
+        # Fail the build if any symbol starting with FLAGS_ is present.
+        for SO in "${SO_FILES[@]}"; do
+          SYMBOLS_OUTPUT=$(nm -s "${SO}" 2>/dev/null || nm "${SO}")
+          if echo "${SYMBOLS_OUTPUT}" | grep -E '(^|[^A-Za-z0-9_])FLAGS_[A-Za-z0-9_]+' >/dev/null; then
+            echo "Error: Unexpected FLAGS_* symbols found in ${SO}:" >&2
+            echo "----------------------------------------" >&2
+            echo "${SYMBOLS_OUTPUT}" | grep -E '(^|[^A-Za-z0-9_])FLAGS_[A-Za-z0-9_]+' >&2 || true
+            echo "----------------------------------------" >&2
+            exit 1
+          fi
+        done
+      else
+        echo "Warning: ${DIR} not found; skipping" >&2
+      fi
+    done
+    echo "No FLAGS_* symbols found in the CUDA plugin directory, the test was successul"
+  fi
 fi
 
 popd

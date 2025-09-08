@@ -30,6 +30,7 @@ Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
  create mode 100644 third_party/xla/0004-Re-enable-system-abseil.patch
  create mode 100644 third_party/xla/0005-Check-whether-absl-log-is-already-initialized.patch
  create mode 100644 third_party/xla/0006-Unbundle-grpc.patch
+ create mode 100644 third_party/xla/0007-Disable-coordination_agent_recoverable-flag.patch
 
 diff --git a/third_party/grpc_systemlib.BUILD b/third_party/grpc_systemlib.BUILD
 new file mode 100644
@@ -117,7 +118,7 @@ index 0000000..392f97f
 +From e0b110e94788c4514d352e8d050d8cbb9a555032 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 14 Dec 2023 15:04:51 +0100
-+Subject: [PATCH 1/6] Support third-party build of boringssl
++Subject: [PATCH 1/7] Support third-party build of boringssl
 +
 +---
 + third_party/boringssl.BUILD | 21 +++++++++++++++++++++
@@ -173,7 +174,7 @@ index 0000000..ff76a1d
 +From d2d7157bbb60839ee78a5126a6d7a661c799b447 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 23 May 2024 15:45:52 +0200
-+Subject: [PATCH 2/6] Fix abseil headers
++Subject: [PATCH 2/7] Fix abseil headers
 +
 +---
 + xla/backends/cpu/codegen/ir_compiler.cc               | 2 +-
@@ -280,7 +281,7 @@ index 0000000..b6172a6
 +From 1a82f5ea2ad15fb0cf7513eb9296085001d6ca9a Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 4 Jul 2024 10:36:03 +0200
-+Subject: [PATCH 3/6] Omit usage of StrFormat
++Subject: [PATCH 3/7] Omit usage of StrFormat
 +
 +---
 + xla/stream_executor/gpu/gpu_executor.h | 5 +++++
@@ -311,7 +312,7 @@ index 0000000..666ba39
 +From b4bf17edc72105f47b02a67b52ae1b9943e30248 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 4 Jul 2024 15:58:32 +0200
-+Subject: [PATCH 4/6] Re-enable system abseil
++Subject: [PATCH 4/7] Re-enable system abseil
 +
 +partially revert https://github.com/openxla/xla/commit/1fc2a846d259d3c896a6177485abcc68d97627a9
 +and add missing pieces
@@ -669,7 +670,7 @@ index 0000000..e5ad440
 +From 11d61802de923b2f7452c86b55267d69841ba9eb Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Fri, 22 Nov 2024 10:51:18 +0100
-+Subject: [PATCH 5/6] Check whether absl log is already initialized
++Subject: [PATCH 5/7] Check whether absl log is already initialized
 +
 +---
 + xla/pjrt/c/pjrt_c_api_gpu.cc | 7 ++++++-
@@ -733,7 +734,7 @@ index 0000000..3e3c81a
 +From d4aeb2446232a84c862b0d5bedbfefc3d09c74b5 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Wed, 23 Jul 2025 13:19:52 +0200
-+Subject: [PATCH 6/6] Unbundle grpc
++Subject: [PATCH 6/7] Unbundle grpc
 +
 +---
 + third_party/zlib.BUILD | 37 +------------------------------------
@@ -896,11 +897,32 @@ index 0000000..3e3c81a
 +     )
 + 
 +     # Load the raw llvm-project.  llvm does not have build rules set up by default,
+diff --git a/third_party/xla/0007-Disable-coordination_agent_recoverable-flag.patch b/third_party/xla/0007-Disable-coordination_agent_recoverable-flag.patch
+new file mode 100644
+index 0000000..3e3c81a
+--- /dev/null
++++ b/third_party/xla/0007-Disable-coordination_agent_recoverable-flag.patch
+@@ -0,0 +1,15 @@
++diff --git a/xla/tsl/distributed_runtime/coordination/coordination_service_agent.cc b/xla/tsl/distributed_runtime/coordination/coordination_service_agent.cc
++index ada9b9a8ebc6e..dbf64b7956a0b 100644
++--- a/xla/tsl/distributed_runtime/coordination/coordination_service_agent.cc
+++++ b/xla/tsl/distributed_runtime/coordination/coordination_service_agent.cc
++@@ -57,4 +57,4 @@ limitations under the License.
++ // TODO(b/342448688): Expose via config and API instead of flag.
++-ABSL_FLAG(
++-    bool, coordination_agent_recoverable, false,
++-    "If true, allow it to silently reconnect to the service after a restart.");
+++//ABSL_FLAG(
+++//    bool, coordination_agent_recoverable, false,
+++//    "If true, allow it to silently reconnect to the service after a restart.");
++@@ -101,1 +101,1 @@ absl::Status CoordinationServiceAgent::Initialize(
++-  if (recoverable || absl::GetFlag(FLAGS_coordination_agent_recoverable)) {
+++  if (recoverable) {
 diff --git a/third_party/xla/workspace.bzl b/third_party/xla/workspace.bzl
 index 286aa16..fe97e89 100644
 --- a/third_party/xla/workspace.bzl
 +++ b/third_party/xla/workspace.bzl
-@@ -22,6 +22,14 @@ def repo():
+@@ -22,6 +22,15 @@ def repo():
          sha256 = XLA_SHA256,
          strip_prefix = "xla-{commit}".format(commit = XLA_COMMIT),
          urls = tf_mirror_urls("https://github.com/openxla/xla/archive/{commit}.tar.gz".format(commit = XLA_COMMIT)),
@@ -910,8 +932,9 @@ index 286aa16..fe97e89 100644
 +            "//third_party/xla:0003-Omit-usage-of-StrFormat.patch",
 +            "//third_party/xla:0004-Re-enable-system-abseil.patch",
 +            "//third_party/xla:0005-Check-whether-absl-log-is-already-initialized.patch",
-+	    "//third_party/xla:0006-Unbundle-grpc.patch",
-+       ],
++            "//third_party/xla:0006-Unbundle-grpc.patch",
++            "//third_party/xla:0007-Disable-coordination_agent_recoverable-flag.patch",
++        ],
      )
  
      # For development, one often wants to make changes to the TF repository as well
