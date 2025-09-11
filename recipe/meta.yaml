@@ -17,7 +17,7 @@ source:
   patches:
     - patches/0001-Allow-for-custom-CUDA-build.patch
     - patches/0002-Consolidated-build-fixes-for-XLA.patch
-    - patches/0003-Add-missing-namespaces.patch
+    - patches/0003-avoid-mirror-that-doesn-t-seem-to-have-current-xla-a.patch
 
 build:
   number: {{ build }}
