@@ -23,6 +23,8 @@ build:
   number: {{ build }}
   skip: true  # [win or py<311]
   skip: true  # [cuda_compiler_version != "None" and aarch64]
+  # debug
+  skip: true  # [not (cuda_compiler_version == "13.0" and py==313)]
   string: cuda{{ cuda_compiler_version | replace('.', '') }}py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [cuda_compiler_version != "None"]
   string: cpu_py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [cuda_compiler_version == "None"]
 
