@@ -1,4 +1,4 @@
-From 7983b3c252251adb52078d521c7cf8715dce4af7 Mon Sep 17 00:00:00 2001
+From 3b38e927e03c6e3f9b9705b2e6c2d8309416209a Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwe.korn@quantco.com>
 Date: Thu, 14 Dec 2023 17:06:15 +0100
 Subject: [PATCH 2/3] Consolidated build fixes for XLA
@@ -18,13 +18,14 @@ Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
  ...pport-third-party-build-of-boringssl.patch |  50 +++
  third_party/xla/0002-Fix-abseil-headers.patch | 101 +++++
  .../xla/0003-Omit-usage-of-StrFormat.patch    |  25 ++
- .../xla/0004-Re-enable-system-abseil.patch    | 352 ++++++++++++++++++
+ .../xla/0004-Re-enable-system-abseil.patch    | 381 ++++++++++++++++++
  ...ther-absl-log-is-already-initialized.patch |  58 +++
- third_party/xla/0006-Unbundle-grpc.patch      | 152 ++++++++
+ third_party/xla/0006-Unbundle-grpc.patch      | 152 +++++++
  ...-coordination_agent_recoverable-flag.patch |  35 ++
  ...al-variant-_access-is-now-header-onl.patch |  29 ++
- third_party/xla/workspace.bzl                 |  12 +-
- 10 files changed, 884 insertions(+), 1 deletion(-)
+ ...d-dependency-on-proto_bazel_features.patch |  72 ++++
+ third_party/xla/workspace.bzl                 |  13 +-
+ 11 files changed, 986 insertions(+), 1 deletion(-)
  create mode 100644 third_party/grpc_systemlib.BUILD
  create mode 100644 third_party/xla/0001-Support-third-party-build-of-boringssl.patch
  create mode 100644 third_party/xla/0002-Fix-abseil-headers.patch
@@ -34,6 +35,7 @@ Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
  create mode 100644 third_party/xla/0006-Unbundle-grpc.patch
  create mode 100644 third_party/xla/0007-Disable-coordination_agent_recoverable-flag.patch
  create mode 100644 third_party/xla/0008-absl_bad_-optional-variant-_access-is-now-header-onl.patch
+ create mode 100644 third_party/xla/0009-Add-dependency-on-proto_bazel_features.patch
 
 diff --git a/third_party/grpc_systemlib.BUILD b/third_party/grpc_systemlib.BUILD
 new file mode 100644
@@ -114,14 +116,14 @@ index 0000000..0e4e862
 +)
 diff --git a/third_party/xla/0001-Support-third-party-build-of-boringssl.patch b/third_party/xla/0001-Support-third-party-build-of-boringssl.patch
 new file mode 100644
-index 0000000..112f196
+index 0000000..dbb7533
 --- /dev/null
 +++ b/third_party/xla/0001-Support-third-party-build-of-boringssl.patch
 @@ -0,0 +1,50 @@
 +From 9e36f9c76c398a780bbd423a68b4664d5debcacc Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 14 Dec 2023 15:04:51 +0100
-+Subject: [PATCH 1/8] Support third-party build of boringssl
++Subject: [PATCH 1/9] Support third-party build of boringssl
 +
 +---
 + third_party/boringssl.BUILD | 21 +++++++++++++++++++++
@@ -170,14 +172,14 @@ index 0000000..112f196
 + 
 diff --git a/third_party/xla/0002-Fix-abseil-headers.patch b/third_party/xla/0002-Fix-abseil-headers.patch
 new file mode 100644
-index 0000000..1c380ac
+index 0000000..dae2d53
 --- /dev/null
 +++ b/third_party/xla/0002-Fix-abseil-headers.patch
 @@ -0,0 +1,101 @@
 +From 1da555a199232b773db499dda4d8a4a70cf13d35 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 23 May 2024 15:45:52 +0200
-+Subject: [PATCH 2/8] Fix abseil headers
++Subject: [PATCH 2/9] Fix abseil headers
 +
 +---
 + xla/backends/cpu/codegen/ir_compiler.cc               | 2 +-
@@ -277,14 +279,14 @@ index 0000000..1c380ac
 +         "@com_google_absl//absl/time",
 diff --git a/third_party/xla/0003-Omit-usage-of-StrFormat.patch b/third_party/xla/0003-Omit-usage-of-StrFormat.patch
 new file mode 100644
-index 0000000..f1f6f67
+index 0000000..8bb46c2
 --- /dev/null
 +++ b/third_party/xla/0003-Omit-usage-of-StrFormat.patch
 @@ -0,0 +1,25 @@
 +From 66e3266f9bcd78ee3943614e2b0e15de09b99448 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 4 Jul 2024 10:36:03 +0200
-+Subject: [PATCH 3/8] Omit usage of StrFormat
++Subject: [PATCH 3/9] Omit usage of StrFormat
 +
 +---
 + xla/stream_executor/gpu/gpu_executor.h | 5 +++++
@@ -308,14 +310,14 @@ index 0000000..f1f6f67
 + #include <vector>
 diff --git a/third_party/xla/0004-Re-enable-system-abseil.patch b/third_party/xla/0004-Re-enable-system-abseil.patch
 new file mode 100644
-index 0000000..201af26
+index 0000000..b93c2b3
 --- /dev/null
 +++ b/third_party/xla/0004-Re-enable-system-abseil.patch
-@@ -0,0 +1,352 @@
-+From 7c793a717c6dd75b469b51d04abc10f31ab40ef9 Mon Sep 17 00:00:00 2001
+@@ -0,0 +1,381 @@
++From 49809e363be9747cc0317665df584b948d9b4da1 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 4 Jul 2024 15:58:32 +0200
-+Subject: [PATCH 4/8] Re-enable system abseil
++Subject: [PATCH 4/9] Re-enable system abseil
 +
 +partially revert https://github.com/openxla/xla/commit/1fc2a846d259d3c896a6177485abcc68d97627a9
 +and add missing pieces
@@ -323,14 +325,15 @@ index 0000000..201af26
 +Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
 +---
 + third_party/absl/system.absl.base.BUILD       | 24 +++++
++ third_party/absl/system.absl.container.BUILD  |  8 ++
 + third_party/absl/system.absl.crc.BUILD        | 70 ++++++++++++++
 + third_party/absl/system.absl.flags.BUILD      |  2 +-
 + third_party/absl/system.absl.functional.BUILD |  4 +
 + third_party/absl/system.absl.log.BUILD        | 95 +++++++++++++++++++
-+ third_party/absl/system.absl.strings.BUILD    | 14 ++-
++ third_party/absl/system.absl.strings.BUILD    | 23 ++++-
 + third_party/absl/system.absl.utility.BUILD    |  5 +
 + third_party/absl/workspace.bzl                | 30 ++++++
-+ 8 files changed, 242 insertions(+), 2 deletions(-)
++ 9 files changed, 259 insertions(+), 2 deletions(-)
 + create mode 100644 third_party/absl/system.absl.crc.BUILD
 + create mode 100644 third_party/absl/system.absl.log.BUILD
 +
@@ -373,6 +376,25 @@ index 0000000..201af26
 ++        ":nullability",
 ++    ],
 ++)
++diff --git a/third_party/absl/system.absl.container.BUILD b/third_party/absl/system.absl.container.BUILD
++index 95c1626043..0d1343cee3 100644
++--- a/third_party/absl/system.absl.container.BUILD
+++++ b/third_party/absl/system.absl.container.BUILD
++@@ -100,6 +100,14 @@ cc_library(
++     ],
++ )
++ 
+++cc_library(
+++    name = "hash_container_defaults",
+++    deps = [
+++        "//absl/base:config",
+++        "//absl/hash",
+++    ],
+++)
+++
++ cc_library(
++     name = "hash_function_defaults",
++     deps = [
 +diff --git a/third_party/absl/system.absl.crc.BUILD b/third_party/absl/system.absl.crc.BUILD
 +new file mode 100644
 +index 0000000000..487c36ff45
@@ -576,10 +598,10 @@ index 0000000..201af26
 ++    ],
 ++)
 +diff --git a/third_party/absl/system.absl.strings.BUILD b/third_party/absl/system.absl.strings.BUILD
-+index fa9a7a84f6..d80b617b86 100644
++index fa9a7a84f6..55b15f9a4f 100644
 +--- a/third_party/absl/system.absl.strings.BUILD
 ++++ b/third_party/absl/system.absl.strings.BUILD
-+@@ -2,6 +2,18 @@ load("@rules_cc//cc:defs.bzl", "cc_library")
++@@ -2,6 +2,27 @@ load("@rules_cc//cc:defs.bzl", "cc_library")
 + 
 + package(default_visibility = ["//visibility:public"])
 + 
@@ -595,10 +617,19 @@ index 0000000..201af26
 ++    ],
 ++)
 ++
+++cc_library(
+++    name = "charset",
+++    deps = [
+++        ":string_view",
+++        "//absl/base",
+++        "//absl/base:config",
+++    ],
+++)
+++
 + cc_library(
 +     name = "strings",
 +     linkopts = ["-labsl_strings"],
-+@@ -26,7 +38,7 @@ cc_library(
++@@ -26,7 +47,7 @@ cc_library(
 + 
 + cc_library(
 +     name = "cord",
@@ -666,14 +697,14 @@ index 0000000..201af26
 +         patch_file = [
 diff --git a/third_party/xla/0005-Check-whether-absl-log-is-already-initialized.patch b/third_party/xla/0005-Check-whether-absl-log-is-already-initialized.patch
 new file mode 100644
-index 0000000..6eb2742
+index 0000000..8bf11e2
 --- /dev/null
 +++ b/third_party/xla/0005-Check-whether-absl-log-is-already-initialized.patch
 @@ -0,0 +1,58 @@
-+From f5ee7534cad6bb5dcbd234337cbac9f45b10d15c Mon Sep 17 00:00:00 2001
++From 94e0eadc4e6febd0b8db84241423b29b1082f013 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Fri, 22 Nov 2024 10:51:18 +0100
-+Subject: [PATCH 5/8] Check whether absl log is already initialized
++Subject: [PATCH 5/9] Check whether absl log is already initialized
 +
 +---
 + xla/pjrt/c/pjrt_c_api_gpu.cc | 7 ++++++-
@@ -730,14 +761,14 @@ index 0000000..6eb2742
 + }  // namespace xla
 diff --git a/third_party/xla/0006-Unbundle-grpc.patch b/third_party/xla/0006-Unbundle-grpc.patch
 new file mode 100644
-index 0000000..c0a704c
+index 0000000..af755e1
 --- /dev/null
 +++ b/third_party/xla/0006-Unbundle-grpc.patch
 @@ -0,0 +1,152 @@
-+From 696312a39b554d97263d58e243c8b5da4e6293b2 Mon Sep 17 00:00:00 2001
++From 2cb1a8def99028d9442581159647559464868beb Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Wed, 23 Jul 2025 13:19:52 +0200
-+Subject: [PATCH 6/8] Unbundle grpc
++Subject: [PATCH 6/9] Unbundle grpc
 +
 +---
 + third_party/zlib.BUILD | 37 +------------------------------------
@@ -888,14 +919,14 @@ index 0000000..c0a704c
 +     # Load the raw llvm-project.  llvm does not have build rules set up by default,
 diff --git a/third_party/xla/0007-Disable-coordination_agent_recoverable-flag.patch b/third_party/xla/0007-Disable-coordination_agent_recoverable-flag.patch
 new file mode 100644
-index 0000000..1c49e4f
+index 0000000..53fdbfe
 --- /dev/null
 +++ b/third_party/xla/0007-Disable-coordination_agent_recoverable-flag.patch
 @@ -0,0 +1,35 @@
-+From a25ab1d77574fcbb77b1e98b36d182c9f7486795 Mon Sep 17 00:00:00 2001
++From 212e08653c9230283496e58485bdbde23fbf895a Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 11 Sep 2025 21:30:50 +0200
-+Subject: [PATCH 7/8] Disable coordination_agent_recoverable flag
++Subject: [PATCH 7/9] Disable coordination_agent_recoverable flag
 +
 +---
 + .../coordination/coordination_service_agent.cc            | 8 ++++----
@@ -929,14 +960,14 @@ index 0000000..1c49e4f
 +            "barrier will only block non-recoverable tasks. If a synchronized "
 diff --git a/third_party/xla/0008-absl_bad_-optional-variant-_access-is-now-header-onl.patch b/third_party/xla/0008-absl_bad_-optional-variant-_access-is-now-header-onl.patch
 new file mode 100644
-index 0000000..7d3fbde
+index 0000000..e4cbd36
 --- /dev/null
 +++ b/third_party/xla/0008-absl_bad_-optional-variant-_access-is-now-header-onl.patch
 @@ -0,0 +1,29 @@
-+From dab6770944c420abecefe2da143921f31298798e Mon Sep 17 00:00:00 2001
++From db6244a2749d632418386b568593d9d271975d52 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 11 Sep 2025 21:33:07 +0200
-+Subject: [PATCH 8/8] absl_bad_{optional,variant}_access is now header-only
++Subject: [PATCH 8/9] absl_bad_{optional,variant}_access is now header-only
 +
 +---
 + third_party/absl/system.absl.types.BUILD | 2 --
@@ -962,11 +993,89 @@ index 0000000..7d3fbde
 +     deps = [
 +         "//absl/base:raw_logging_internal",
 +     ],
+diff --git a/third_party/xla/0009-Add-dependency-on-proto_bazel_features.patch b/third_party/xla/0009-Add-dependency-on-proto_bazel_features.patch
+new file mode 100644
+index 0000000..02ae96d
+--- /dev/null
++++ b/third_party/xla/0009-Add-dependency-on-proto_bazel_features.patch
+@@ -0,0 +1,72 @@
++From e3c34ee1447ab275d891a44760d87efb3da28674 Mon Sep 17 00:00:00 2001
++From: "Uwe L. Korn" <uwe.korn@quantco.com>
++Date: Fri, 12 Sep 2025 16:06:30 +0200
++Subject: [PATCH 9/9] Add dependency on proto_bazel_features
++
++---
++ workspace2.bzl |  4 +++-
++ workspace3.bzl | 17 ++++++++++++++++-
++ 2 files changed, 19 insertions(+), 2 deletions(-)
++
++diff --git a/workspace2.bzl b/workspace2.bzl
++index 3c50d15d5d..400b2187f8 100644
++--- a/workspace2.bzl
+++++ b/workspace2.bzl
++@@ -1,6 +1,7 @@
++ """TensorFlow workspace initialization. Consult the WORKSPACE on how to use it."""
++ 
++ load("@bazel_features//:deps.bzl", "bazel_features_deps")
+++load("@proto_bazel_features//:deps.bzl", proto_bazel_features_deps = "bazel_features_deps")
++ load("@bazel_skylib//lib:versions.bzl", "versions")
++ load("@bazel_tools//tools/build_defs/repo:java.bzl", "java_import_external")
++ load("@io_bazel_rules_closure//closure:defs.bzl", "filegroup_external")
++@@ -728,7 +729,8 @@ def workspace():
++     # written according to common practice to query native.existing_rule()).
++     _tf_repositories()
++ 
++-    bazel_features_deps()
+++    # bazel_features_deps()
+++    proto_bazel_features_deps()
++ 
++ # Alias so it can be loaded without assigning to a different symbol to prevent
++ # shadowing previous loads and trigger a buildifier warning.
++diff --git a/workspace3.bzl b/workspace3.bzl
++index feee699160..3167c567ff 100644
++--- a/workspace3.bzl
+++++ b/workspace3.bzl
++@@ -25,6 +25,14 @@ def workspace():
++         ],
++     )
++ 
+++    http_archive(
+++        name = "rules_java",
+++        urls = [
+++            "https://github.com/bazelbuild/rules_java/releases/download/7.12.5/rules_java-7.12.5.tar.gz",
+++        ],
+++        sha256 = "17b18cb4f92ab7b94aa343ce78531b73960b1bed2ba166e5b02c9fdf0b0ac270",
+++    )
+++
++     http_archive(
++         name = "rules_license",
++         urls = [
++@@ -44,12 +52,19 @@ def workspace():
++     )
++ 
++     http_archive(
++-        name = "bazel_features",
+++        name = "proto_bazel_features",
++         sha256 = "4fd9922d464686820ffd8fcefa28ccffa147f7cdc6b6ac0d8b07fde565c65d66",
++         strip_prefix = "bazel_features-1.25.0",
++         url = "https://github.com/bazel-contrib/bazel_features/releases/download/v1.25.0/bazel_features-v1.25.0.tar.gz",
++     )
++ 
+++    http_archive(
+++        name = "bazel_features",
+++        sha256 = "c41853e3b636c533b86bf5ab4658064e6cc9db0a3bce52cbff0629e094344ca9",
+++        strip_prefix = "bazel_features-1.33.0",
+++        url = "https://github.com/bazel-contrib/bazel_features/releases/download/v1.33.0/bazel_features-v1.33.0.tar.gz",
+++    )
+++
++     # Maven dependencies.
++     RULES_JVM_EXTERNAL_TAG = "4.3"
++     http_archive(
 diff --git a/third_party/xla/workspace.bzl b/third_party/xla/workspace.bzl
-index be345f8..40eb98c 100644
+index be345f8..82f0825 100644
 --- a/third_party/xla/workspace.bzl
 +++ b/third_party/xla/workspace.bzl
-@@ -26,6 +26,16 @@ def repo():
+@@ -26,6 +26,17 @@ def repo():
          # web links (`/archive/`) links so we use the GitHub API endpoint to get the tarball
          # instead.
          urls = tf_mirror_urls("https://api.github.com/repos/openxla/xla/tarball/{commit}".format(commit = XLA_COMMIT)),
@@ -979,11 +1088,12 @@ index be345f8..40eb98c 100644
 +            "//third_party/xla:0006-Unbundle-grpc.patch",
 +            "//third_party/xla:0007-Disable-coordination_agent_recoverable-flag.patch",
 +            "//third_party/xla:0008-absl_bad_-optional-variant-_access-is-now-header-onl.patch",
++            "//third_party/xla:0009-Add-dependency-on-proto_bazel_features.patch",
 +        ],
      )
  
      # For development, one often wants to make changes to the TF repository as well
-@@ -39,4 +49,4 @@ def repo():
+@@ -39,4 +50,4 @@ def repo():
      # local_repository(
      #    name = "xla",
      #    path = "/path/to/xla",

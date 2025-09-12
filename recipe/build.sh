@@ -113,6 +113,10 @@ if [[ "${target_platform}" == "osx-arm64" || "${target_platform}" != "${build_pl
 else
     EXTRA="${CUDA_ARGS:-}"
 fi
+
+# Mark as a release build
+EXTRA="--bazel_options=--repo_env=ML_WHEEL_TYPE=release ${EXTRA}"
+
 # Never use the Appe toolchain
 sed -i '/local_config_apple/d' .bazelrc
 if [[ "${target_platform}" == linux-* ]]; then
