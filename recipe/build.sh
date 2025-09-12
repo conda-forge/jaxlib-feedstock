@@ -28,35 +28,34 @@ export CXXFLAGS="${CXXFLAGS} -DNDEBUG -Dabsl_nullable= -Dabsl_nonnull="
 if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
     if [[ ${cuda_compiler_version} == 12* ]]; then
         export HERMETIC_CUDA_COMPUTE_CAPABILITIES=sm_60,sm_70,sm_75,sm_80,sm_86,sm_89,sm_90,sm_100,sm_120,compute_120
-        export CUDA_HOME="${BUILD_PREFIX}/targets/x86_64-linux"
-        export TF_CUDA_PATHS="${BUILD_PREFIX}/targets/x86_64-linux,${PREFIX}/targets/x86_64-linux"
-        # Needed for some nvcc binaries
-        export PATH=$PATH:${BUILD_PREFIX}/nvvm/bin
-        # XLA can only cope with a single cuda header include directory, merge both
-        rsync -a ${PREFIX}/targets/x86_64-linux/include/ ${BUILD_PREFIX}/targets/x86_64-linux/include/
-
-        # Although XLA supports a non-hermetic build, it still tries to find headers in the hermetic locations.
-        # We do this in the BUILD_PREFIX to not have any impact on the resulting jaxlib package.
-        # Otherwise, these copied files would be included in the package.
-        rm -rf ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party
-        mkdir -p ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cuda/extras/CUPTI
-        cp -r ${PREFIX}/targets/x86_64-linux/include ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cuda/
-        cp -r ${PREFIX}/targets/x86_64-linux/include ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cuda/extras/CUPTI/
-        mkdir -p ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cudnn
-        cp ${PREFIX}/include/cudnn*.h ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cudnn/
-        mkdir -p ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/nccl
-        cp ${PREFIX}/include/nccl*.h ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/nccl/
-        export LOCAL_CUDA_PATH="${BUILD_PREFIX}/targets/x86_64-linux"
-        export LOCAL_CUDNN_PATH="${PREFIX}/targets/x86_64-linux"
-        export LOCAL_NCCL_PATH="${PREFIX}/targets/x86_64-linux"
-        mkdir -p ${BUILD_PREFIX}/targets/x86_64-linux/bin
-        test -f ${BUILD_PREFIX}/targets/x86_64-linux/bin/ptxas || ln -s $(which ptxas) ${BUILD_PREFIX}/targets/x86_64-linux/bin/ptxas
-        test -f ${BUILD_PREFIX}/targets/x86_64-linux/bin/nvlink || ln -s $(which nvlink) ${BUILD_PREFIX}/targets/x86_64-linux/bin/nvlink
-        test -f ${BUILD_PREFIX}/targets/x86_64-linux/bin/fatbinary || ln -s $(which fatbinary) ${BUILD_PREFIX}/targets/x86_64-linux/bin/fatbinary
     else
-        echo "unsupported cuda version."
-        exit 1
+        export HERMETIC_CUDA_COMPUTE_CAPABILITIES=sm_75,sm_80,sm_86,sm_89,sm_90,sm_100,sm_110,sm_120,compute_120
     fi
+    export CUDA_HOME="${BUILD_PREFIX}/targets/x86_64-linux"
+    export TF_CUDA_PATHS="${BUILD_PREFIX}/targets/x86_64-linux,${PREFIX}/targets/x86_64-linux"
+    # Needed for some nvcc binaries
+    export PATH=$PATH:${BUILD_PREFIX}/nvvm/bin
+    # XLA can only cope with a single cuda header include directory, merge both
+    rsync -a ${PREFIX}/targets/x86_64-linux/include/ ${BUILD_PREFIX}/targets/x86_64-linux/include/
+
+    # Although XLA supports a non-hermetic build, it still tries to find headers in the hermetic locations.
+    # We do this in the BUILD_PREFIX to not have any impact on the resulting jaxlib package.
+    # Otherwise, these copied files would be included in the package.
+    rm -rf ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party
+    mkdir -p ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cuda/extras/CUPTI
+    cp -r ${PREFIX}/targets/x86_64-linux/include ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cuda/
+    cp -r ${PREFIX}/targets/x86_64-linux/include ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cuda/extras/CUPTI/
+    mkdir -p ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cudnn
+    cp ${PREFIX}/include/cudnn*.h ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cudnn/
+    mkdir -p ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/nccl
+    cp ${PREFIX}/include/nccl*.h ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/nccl/
+    export LOCAL_CUDA_PATH="${BUILD_PREFIX}/targets/x86_64-linux"
+    export LOCAL_CUDNN_PATH="${PREFIX}/targets/x86_64-linux"
+    export LOCAL_NCCL_PATH="${PREFIX}/targets/x86_64-linux"
+    mkdir -p ${BUILD_PREFIX}/targets/x86_64-linux/bin
+    test -f ${BUILD_PREFIX}/targets/x86_64-linux/bin/ptxas || ln -s $(which ptxas) ${BUILD_PREFIX}/targets/x86_64-linux/bin/ptxas
+    test -f ${BUILD_PREFIX}/targets/x86_64-linux/bin/nvlink || ln -s $(which nvlink) ${BUILD_PREFIX}/targets/x86_64-linux/bin/nvlink
+    test -f ${BUILD_PREFIX}/targets/x86_64-linux/bin/fatbinary || ln -s $(which fatbinary) ${BUILD_PREFIX}/targets/x86_64-linux/bin/fatbinary
 
     export TF_CUDA_VERSION="${cuda_compiler_version}"
     export TF_CUDNN_VERSION="${cudnn}"
