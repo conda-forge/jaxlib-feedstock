@@ -1,3 +1,20 @@
+# jaxlib wants clang on all platforms
+c_compiler:
+- clang
+- clang  # [linux]
+c_compiler_version:
+- '19'
+- '19'  # [linux]
+cxx_compiler:
+- clangxx
+- clangxx  # [linux]
+cxx_compiler_version:
+- '19'
+- '19'  # [linux]
+c_stdlib_version:  # [linux]
+- '2.17'  # [linux]
+- '2.17'  # [linux]
+
 github_actions_labels:
 - cirun-openstack-cpu-large
 
