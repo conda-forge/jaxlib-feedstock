@@ -1,7 +1,7 @@
 c_compiler:
-- gcc
+- clang
 c_compiler_version:
-- '14'
+- '19'
 c_stdlib:
 - sysroot
 c_stdlib_version:
@@ -15,13 +15,13 @@ channel_targets:
 cuda_compiler:
 - cuda-nvcc
 cuda_compiler_version:
-- '12.9'
+- None
 cudnn:
 - '9'
 cxx_compiler:
-- gxx
+- clangxx
 cxx_compiler_version:
-- '14'
+- '19'
 docker_image:
 - quay.io/condaforge/linux-anvil-x86_64:alma9
 github_actions_labels:

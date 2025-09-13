@@ -1,5 +1,5 @@
 c_compiler:
-- gcc
+- clang
 c_compiler_version:
 - '14'
 c_stdlib:
@@ -15,11 +15,11 @@ channel_targets:
 cuda_compiler:
 - cuda-nvcc
 cuda_compiler_version:
-- None
+- '12.9'
 cudnn:
 - '9'
 cxx_compiler:
-- gxx
+- clangxx
 cxx_compiler_version:
 - '14'
 docker_image:
