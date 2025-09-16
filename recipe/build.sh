@@ -11,6 +11,10 @@ if [[ "${target_platform}" == osx-* ]]; then
   export CXXFLAGS=${CXXFLAGS/-stdlib=libc++}
 else
   export LDFLAGS="${LDFLAGS} -lrt"
+
+  # See https://github.com/llvm/llvm-project/issues/85656
+  # Otherwise, this will cause linkage errors with a GCC-built abseil
+  export CXXFLAGS="${CXXFLAGS} -fclang-abi-compat=17"
 fi
 if [[ "${target_platform}" == "linux-64" || "${target_platform}" == "linux-aarch64" ]]; then
     # https://github.com/conda-forge/jaxlib-feedstock/issues/310

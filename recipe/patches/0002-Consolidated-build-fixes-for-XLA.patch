@@ -1,4 +1,4 @@
-From 81b7eb40ab726ccdd492628ad74bf32c3705aff0 Mon Sep 17 00:00:00 2001
+From 992a1ea60e07b002f33429f14a1f126ad05adc1e Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwe.korn@quantco.com>
 Date: Thu, 14 Dec 2023 17:06:15 +0100
 Subject: [PATCH 2/3] Consolidated build fixes for XLA
@@ -18,7 +18,7 @@ Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
  ...pport-third-party-build-of-boringssl.patch |  50 +++
  third_party/xla/0002-Fix-abseil-headers.patch | 101 +++++
  .../xla/0003-Omit-usage-of-StrFormat.patch    |  25 ++
- .../xla/0004-Re-enable-system-abseil.patch    | 381 ++++++++++++++++++
+ .../xla/0004-Re-enable-system-abseil.patch    | 394 ++++++++++++++++++
  ...ther-absl-log-is-already-initialized.patch |  58 +++
  third_party/xla/0006-Unbundle-grpc.patch      | 152 +++++++
  ...-coordination_agent_recoverable-flag.patch |  35 ++
@@ -26,7 +26,7 @@ Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
  ...d-dependency-on-proto_bazel_features.patch |  72 ++++
  .../xla/0010-Update-gloo-version.patch        |  24 ++
  third_party/xla/workspace.bzl                 |  14 +-
- 12 files changed, 1011 insertions(+), 1 deletion(-)
+ 12 files changed, 1024 insertions(+), 1 deletion(-)
  create mode 100644 third_party/grpc_systemlib.BUILD
  create mode 100644 third_party/xla/0001-Support-third-party-build-of-boringssl.patch
  create mode 100644 third_party/xla/0002-Fix-abseil-headers.patch
@@ -312,11 +312,11 @@ index 0000000..00fb6cd
 + #include <vector>
 diff --git a/third_party/xla/0004-Re-enable-system-abseil.patch b/third_party/xla/0004-Re-enable-system-abseil.patch
 new file mode 100644
-index 0000000..1a9de50
+index 0000000..e27f657
 --- /dev/null
 +++ b/third_party/xla/0004-Re-enable-system-abseil.patch
-@@ -0,0 +1,381 @@
-+From 49809e363be9747cc0317665df584b948d9b4da1 Mon Sep 17 00:00:00 2001
+@@ -0,0 +1,394 @@
++From 22c70dc51f5b37994936a8c40d1e1e949854a0aa Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 4 Jul 2024 15:58:32 +0200
 +Subject: [PATCH 04/10] Re-enable system abseil
@@ -332,10 +332,11 @@ index 0000000..1a9de50
 + third_party/absl/system.absl.flags.BUILD      |  2 +-
 + third_party/absl/system.absl.functional.BUILD |  4 +
 + third_party/absl/system.absl.log.BUILD        | 95 +++++++++++++++++++
++ third_party/absl/system.absl.random.BUILD     |  1 -
 + third_party/absl/system.absl.strings.BUILD    | 23 ++++-
 + third_party/absl/system.absl.utility.BUILD    |  5 +
 + third_party/absl/workspace.bzl                | 30 ++++++
-+ 9 files changed, 259 insertions(+), 2 deletions(-)
++ 10 files changed, 259 insertions(+), 3 deletions(-)
 + create mode 100644 third_party/absl/system.absl.crc.BUILD
 + create mode 100644 third_party/absl/system.absl.log.BUILD
 +
@@ -599,6 +600,18 @@ index 0000000..1a9de50
 ++        "-labsl_log_internal_nullguard",
 ++    ],
 ++)
++diff --git a/third_party/absl/system.absl.random.BUILD b/third_party/absl/system.absl.random.BUILD
++index ac17ce6343..71aaa9a1cd 100644
++--- a/third_party/absl/system.absl.random.BUILD
+++++ b/third_party/absl/system.absl.random.BUILD
++@@ -30,7 +30,6 @@ cc_library(
++     name = "seed_sequences",
++     linkopts = [
++         "-labsl_random_internal_platform",
++-        "-labsl_random_internal_pool_urbg",
++         "-labsl_random_internal_randen",
++         "-labsl_random_internal_randen_hwaes",
++         "-labsl_random_internal_randen_hwaes_impl",
 +diff --git a/third_party/absl/system.absl.strings.BUILD b/third_party/absl/system.absl.strings.BUILD
 +index fa9a7a84f6..55b15f9a4f 100644
 +--- a/third_party/absl/system.absl.strings.BUILD
@@ -699,11 +712,11 @@ index 0000000..1a9de50
 +         patch_file = [
 diff --git a/third_party/xla/0005-Check-whether-absl-log-is-already-initialized.patch b/third_party/xla/0005-Check-whether-absl-log-is-already-initialized.patch
 new file mode 100644
-index 0000000..1a1d21d
+index 0000000..48219e6
 --- /dev/null
 +++ b/third_party/xla/0005-Check-whether-absl-log-is-already-initialized.patch
 @@ -0,0 +1,58 @@
-+From 94e0eadc4e6febd0b8db84241423b29b1082f013 Mon Sep 17 00:00:00 2001
++From 5f5c77dd7a923919306cca22ab37eae08989b98b Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Fri, 22 Nov 2024 10:51:18 +0100
 +Subject: [PATCH 05/10] Check whether absl log is already initialized
@@ -763,11 +776,11 @@ index 0000000..1a1d21d
 + }  // namespace xla
 diff --git a/third_party/xla/0006-Unbundle-grpc.patch b/third_party/xla/0006-Unbundle-grpc.patch
 new file mode 100644
-index 0000000..8fc6e35
+index 0000000..3030752
 --- /dev/null
 +++ b/third_party/xla/0006-Unbundle-grpc.patch
 @@ -0,0 +1,152 @@
-+From 2cb1a8def99028d9442581159647559464868beb Mon Sep 17 00:00:00 2001
++From 7c56cbf6be02b5ac16a20cc320eaa5d025fe32f8 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Wed, 23 Jul 2025 13:19:52 +0200
 +Subject: [PATCH 06/10] Unbundle grpc
@@ -921,11 +934,11 @@ index 0000000..8fc6e35
 +     # Load the raw llvm-project.  llvm does not have build rules set up by default,
 diff --git a/third_party/xla/0007-Disable-coordination_agent_recoverable-flag.patch b/third_party/xla/0007-Disable-coordination_agent_recoverable-flag.patch
 new file mode 100644
-index 0000000..597f164
+index 0000000..16cef68
 --- /dev/null
 +++ b/third_party/xla/0007-Disable-coordination_agent_recoverable-flag.patch
 @@ -0,0 +1,35 @@
-+From 212e08653c9230283496e58485bdbde23fbf895a Mon Sep 17 00:00:00 2001
++From 41d3ea03f7a1d831ebefc2b849b9daf5fbe79ced Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 11 Sep 2025 21:30:50 +0200
 +Subject: [PATCH 07/10] Disable coordination_agent_recoverable flag
@@ -962,11 +975,11 @@ index 0000000..597f164
 +            "barrier will only block non-recoverable tasks. If a synchronized "
 diff --git a/third_party/xla/0008-absl_bad_-optional-variant-_access-is-now-header-onl.patch b/third_party/xla/0008-absl_bad_-optional-variant-_access-is-now-header-onl.patch
 new file mode 100644
-index 0000000..81df57b
+index 0000000..f492880
 --- /dev/null
 +++ b/third_party/xla/0008-absl_bad_-optional-variant-_access-is-now-header-onl.patch
 @@ -0,0 +1,29 @@
-+From db6244a2749d632418386b568593d9d271975d52 Mon Sep 17 00:00:00 2001
++From aadd15f2636e5cfb43193055a35af234beba868f Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 11 Sep 2025 21:33:07 +0200
 +Subject: [PATCH 08/10] absl_bad_{optional,variant}_access is now header-only
@@ -997,11 +1010,11 @@ index 0000000..81df57b
 +     ],
 diff --git a/third_party/xla/0009-Add-dependency-on-proto_bazel_features.patch b/third_party/xla/0009-Add-dependency-on-proto_bazel_features.patch
 new file mode 100644
-index 0000000..c8f148d
+index 0000000..9dd536e
 --- /dev/null
 +++ b/third_party/xla/0009-Add-dependency-on-proto_bazel_features.patch
 @@ -0,0 +1,72 @@
-+From e3c34ee1447ab275d891a44760d87efb3da28674 Mon Sep 17 00:00:00 2001
++From 62f66fb637898932d7138800ff51c7eab1cdf16e Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Fri, 12 Sep 2025 16:06:30 +0200
 +Subject: [PATCH 09/10] Add dependency on proto_bazel_features
@@ -1075,11 +1088,11 @@ index 0000000..c8f148d
 +     http_archive(
 diff --git a/third_party/xla/0010-Update-gloo-version.patch b/third_party/xla/0010-Update-gloo-version.patch
 new file mode 100644
-index 0000000..7c1f723
+index 0000000..2c68d62
 --- /dev/null
 +++ b/third_party/xla/0010-Update-gloo-version.patch
 @@ -0,0 +1,24 @@
-+From 5be70746f2b578bfdcee929b83bdfda165bb32e1 Mon Sep 17 00:00:00 2001
++From e5541921e1cd7cd17a93b04c55c7f26c98eed3ae Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Mon, 15 Sep 2025 13:08:44 +0200
 +Subject: [PATCH 10/10] Update gloo version
