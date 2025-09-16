@@ -1,7 +1,7 @@
 c_compiler:
 - clang
 c_compiler_version:
-- '21'
+- '20'
 c_stdlib:
 - sysroot
 c_stdlib_version:
@@ -21,7 +21,7 @@ cudnn:
 cxx_compiler:
 - clangxx
 cxx_compiler_version:
-- '21'
+- '20'
 docker_image:
 - quay.io/condaforge/linux-anvil-x86_64:alma9
 github_actions_labels:
