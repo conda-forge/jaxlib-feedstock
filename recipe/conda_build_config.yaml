@@ -17,12 +17,3 @@ c_stdlib_version:  # [linux]
 
 github_actions_labels:
 - cirun-openstack-cpu-large
-
-# vendored xnnpack has a problem that's surfaced by GCC 14:
-# https://github.com/google/XNNPACK/issues/7726
-c_compiler_version:     # [aarch64]
-  - '13'                # [aarch64]
-  - '13'                # [aarch64]
-cxx_compiler_version:   # [aarch64]
-  - '13'                # [aarch64]
-  - '13'                # [aarch64]
