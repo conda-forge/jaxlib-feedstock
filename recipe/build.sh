@@ -70,7 +70,8 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
                --cuda_compute_capabilities=$HERMETIC_CUDA_COMPUTE_CAPABILITIES \
                --cuda_major_version=${CUDA_COMPILER_MAJOR_VERSION} \
                --cuda_version=$TF_CUDA_VERSION \
-               --cudnn_version=$TF_CUDNN_VERSION"
+               --cudnn_version=$TF_CUDNN_VERSION \
+               --build_cuda_with_clang"
 fi
 
 if [[ "${CI:-}" == "github_actions" ]]; then
@@ -91,7 +92,7 @@ build --verbose_failures
 build --toolchain_resolution_debug
 build --define=PREFIX=${PREFIX}
 build --define=PROTOBUF_INCLUDE_PATH=${PREFIX}/include
-build --local_cpu_resources=${CPU_COUNT}
+build --local_resources=cpu=${CPU_COUNT}
 build --define=with_cross_compiler_support=true
 build --repo_env=GRPC_BAZEL_DIR=${PREFIX}/share/bazel/grpc/bazel
 
@@ -124,7 +125,7 @@ EXTRA="--bazel_options=--repo_env=ML_WHEEL_TYPE=release ${EXTRA}"
 # Never use the Appe toolchain
 sed -i '/local_config_apple/d' .bazelrc
 if [[ "${target_platform}" == linux-* ]]; then
-    EXTRA="${EXTRA} --use_clang false --gcc_path $CC"
+    EXTRA="${EXTRA} --clang_path $CC"
 
     # Remove incompatible argument from bazelrc
     sed -i '/Qunused-arguments/d' .bazelrc
@@ -144,7 +145,7 @@ bazel clean
 popd
 
 pushd $SP_DIR
-pip install $SRC_DIR/dist/jaxlib-*.whl
+python -m pip install $SRC_DIR/dist/jaxlib-*.whl
 
 # Add INSTALLER file and remove RECORD, workaround for
 # https://github.com/conda-forge/jaxlib-feedstock/issues/293
@@ -153,8 +154,8 @@ echo "conda" > "${JAXLIB_DIST_INFO_DIR}/INSTALLER"
 rm -f "${JAXLIB_DIST_INFO_DIR}/RECORD"
 
 if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
-  pip install $SRC_DIR/dist/jax_cuda*_plugin*.whl
-  pip install $SRC_DIR/dist/jax_cuda*_pjrt*.whl
+  python -m pip install $SRC_DIR/dist/jax_cuda*_plugin*.whl
+  python -m pip install $SRC_DIR/dist/jax_cuda*_pjrt*.whl
 
   # Add INSTALLER file and remove RECORD, workaround for
   # https://github.com/conda-forge/jaxlib-feedstock/issues/293
