@@ -22,7 +22,6 @@ source:
 build:
   number: {{ build }}
   # debug
-  skip: true  # [py!=312]
   skip: true  # [win or py<311]
   skip: true  # [cuda_compiler_version != "None" and aarch64]
   string: cuda{{ cuda_compiler_version | replace('.', '') }}py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [cuda_compiler_version != "None"]
