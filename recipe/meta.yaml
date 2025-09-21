@@ -1,5 +1,5 @@
-{% set version = "0.7.0" %}
-{% set build = 1 %}
+{% set version = "0.7.1" %}
+{% set build = 0 %}
 
 {% if cuda_compiler_version != "None" %}
 {% set build = build + 200 %}
@@ -13,14 +13,15 @@ package:
 source:
   # only pull sources after upstream PyPI release...
   url: https://github.com/jax-ml/jax/archive/jax-v{{ version }}.tar.gz
-  sha256: 518966801e4402667e77915c2dc7cf1a178a80e22ff253204a837f207a87fcde
+  sha256: 8b866b775106c712a0c5532775a00941d293a4807cffae8dbcca1e03f54ce1ff
   patches:
     - patches/0001-Allow-for-custom-CUDA-build.patch
     - patches/0002-Consolidated-build-fixes-for-XLA.patch
-    - patches/0003-Add-missing-namespaces.patch
+    - patches/0003-avoid-mirror-that-doesn-t-seem-to-have-current-xla-a.patch
 
 build:
   number: {{ build }}
+  # debug
   skip: true  # [win or py<311]
   skip: true  # [cuda_compiler_version != "None" and aarch64]
   string: cuda{{ cuda_compiler_version | replace('.', '') }}py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [cuda_compiler_version != "None"]

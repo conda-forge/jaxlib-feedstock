@@ -1,0 +1,44 @@
+From eee7e61ae6a7b17af5522a5d01b60a05f41d64d7 Mon Sep 17 00:00:00 2001
+From: "H. Vetinari" <h.vetinari@gmx.com>
+Date: Sun, 27 Jul 2025 10:42:28 +1100
+Subject: [PATCH 3/3] avoid mirror that doesn't seem to have current xla
+ anymore (or yet)
+
+and tell tf_http_archive to shut up about it
+---
+ third_party/repo.bzl | 15 ---------------
+ 1 file changed, 15 deletions(-)
+
+diff --git a/third_party/repo.bzl b/third_party/repo.bzl
+index 185c5a4..ae971cf 100644
+--- a/third_party/repo.bzl
++++ b/third_party/repo.bzl
+@@ -23,7 +23,6 @@ def tf_mirror_urls(url):
+     if not url.startswith("https://"):
+         return [url]
+     return [
+-        "https://storage.googleapis.com/mirror.tensorflow.org/%s" % url[8:],
+         url,
+     ]
+ 
+@@ -120,20 +119,6 @@ def tf_http_archive(name, sha256, urls, **kwargs):
+       urls: list of mirror URLs
+       **kwargs: additional arguments to _tf_http_archive
+     """
+-    if len(urls) < 2:
+-        fail("tf_http_archive(urls) must have redundant URLs.")
+-
+-    if not any([mirror in urls[0] for mirror in (
+-        "mirror.tensorflow.org",
+-        "mirror.bazel.build",
+-        "storage.googleapis.com",
+-    )]):
+-        fail("The first entry of tf_http_archive(urls) must be a mirror " +
+-             "URL, preferably mirror.tensorflow.org. Even if you don't have " +
+-             "permission to mirror the file, please put the correctly " +
+-             "formatted mirror URL there anyway, because someone will come " +
+-             "along shortly thereafter and mirror the file.")
+-
+     if native.existing_rule(name):
+         print("\n\033[1;33mWarning:\033[0m skipping import of repository '" +
+               name + "' because it already exists.\n")  # buildifier: disable=print

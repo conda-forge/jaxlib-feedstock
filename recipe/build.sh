@@ -8,9 +8,13 @@ $RECIPE_DIR/add_py_toolchain.sh
 if [[ "${target_platform}" == osx-* ]]; then
   export LDFLAGS="${LDFLAGS} -lz -framework CoreFoundation -Xlinker -undefined -Xlinker dynamic_lookup"
   # Remove stdlib=libc++; this is the default and errors on C sources.
-  export CXXFLAGS=${CXXFLAGS/-stdlib=libc++}
+  export CXXFLAGS="${CXXFLAGS/-stdlib=libc++} -D_LIBCPP_DISABLE_AVAILABILITY"
 else
   export LDFLAGS="${LDFLAGS} -lrt"
+
+  # See https://github.com/llvm/llvm-project/issues/85656
+  # Otherwise, this will cause linkage errors with a GCC-built abseil
+  export CXXFLAGS="${CXXFLAGS} -fclang-abi-compat=17"
 fi
 if [[ "${target_platform}" == "linux-64" || "${target_platform}" == "linux-aarch64" ]]; then
     # https://github.com/conda-forge/jaxlib-feedstock/issues/310
@@ -66,7 +70,8 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
                --cuda_compute_capabilities=$HERMETIC_CUDA_COMPUTE_CAPABILITIES \
                --cuda_major_version=${CUDA_COMPILER_MAJOR_VERSION} \
                --cuda_version=$TF_CUDA_VERSION \
-               --cudnn_version=$TF_CUDNN_VERSION"
+               --cudnn_version=$TF_CUDNN_VERSION \
+               --build_cuda_with_clang"
 fi
 
 if [[ "${CI:-}" == "github_actions" ]]; then
@@ -87,7 +92,7 @@ build --verbose_failures
 build --toolchain_resolution_debug
 build --define=PREFIX=${PREFIX}
 build --define=PROTOBUF_INCLUDE_PATH=${PREFIX}/include
-build --local_cpu_resources=${CPU_COUNT}
+build --local_resources=cpu=${CPU_COUNT}
 build --define=with_cross_compiler_support=true
 build --repo_env=GRPC_BAZEL_DIR=${PREFIX}/share/bazel/grpc/bazel
 
@@ -113,10 +118,14 @@ if [[ "${target_platform}" == "osx-arm64" || "${target_platform}" != "${build_pl
 else
     EXTRA="${CUDA_ARGS:-}"
 fi
+
+# Mark as a release build
+EXTRA="--bazel_options=--repo_env=ML_WHEEL_TYPE=release ${EXTRA}"
+
 # Never use the Appe toolchain
 sed -i '/local_config_apple/d' .bazelrc
 if [[ "${target_platform}" == linux-* ]]; then
-    EXTRA="${EXTRA} --use_clang false --gcc_path $CC"
+    EXTRA="${EXTRA} --clang_path $CC"
 
     # Remove incompatible argument from bazelrc
     sed -i '/Qunused-arguments/d' .bazelrc
@@ -136,7 +145,7 @@ bazel clean
 popd
 
 pushd $SP_DIR
-pip install $SRC_DIR/dist/jaxlib-*.whl
+python -m pip install $SRC_DIR/dist/jaxlib-*.whl
 
 # Add INSTALLER file and remove RECORD, workaround for
 # https://github.com/conda-forge/jaxlib-feedstock/issues/293
@@ -145,8 +154,8 @@ echo "conda" > "${JAXLIB_DIST_INFO_DIR}/INSTALLER"
 rm -f "${JAXLIB_DIST_INFO_DIR}/RECORD"
 
 if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
-  pip install $SRC_DIR/dist/jax_cuda*_plugin*.whl
-  pip install $SRC_DIR/dist/jax_cuda*_pjrt*.whl
+  python -m pip install $SRC_DIR/dist/jax_cuda*_plugin*.whl
+  python -m pip install $SRC_DIR/dist/jax_cuda*_pjrt*.whl
 
   # Add INSTALLER file and remove RECORD, workaround for
   # https://github.com/conda-forge/jaxlib-feedstock/issues/293

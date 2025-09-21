@@ -1,7 +1,7 @@
 c_compiler:
-- gcc
+- clang
 c_compiler_version:
-- '14'
+- '20'
 c_stdlib:
 - sysroot
 c_stdlib_version:
@@ -19,19 +19,19 @@ cuda_compiler_version:
 cudnn:
 - '9'
 cxx_compiler:
-- gxx
+- clangxx
 cxx_compiler_version:
-- '14'
+- '20'
 docker_image:
 - quay.io/condaforge/linux-anvil-x86_64:alma9
 github_actions_labels:
 - cirun-openstack-cpu-large
 libabseil:
-- '20250127'
+- '20250512'
 libgrpc:
-- '1.71'
+- '1.73'
 libprotobuf:
-- 5.29.3
+- 6.31.1
 nccl:
 - '2'
 numpy:
