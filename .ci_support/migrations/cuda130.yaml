@@ -10,6 +10,8 @@ __migrator:
     - cuda_compiler_stub
   check_solvable: false
   primary_key: cuda_compiler_version
+  # local override because we switch to clang
+  use_local: true
   ordering:
     cuda_compiler_version:
       - 12.4
@@ -53,10 +55,10 @@ c_stdlib_version:              # [(linux and (x86_64 or aarch64)) and os.environ
   - 2.28                       # [(linux and (x86_64 or aarch64)) and os.environ.get("CF_CUDA_ENABLED", "False") == "True"]
 
 c_compiler_version:            # [(linux and (x86_64 or aarch64)) and os.environ.get("CF_CUDA_ENABLED", "False") == "True"]
-  - 14                         # [(linux and (x86_64 or aarch64)) and os.environ.get("CF_CUDA_ENABLED", "False") == "True"]
+  - 20                         # [(linux and (x86_64 or aarch64)) and os.environ.get("CF_CUDA_ENABLED", "False") == "True"]
 
 cxx_compiler_version:          # [(linux and (x86_64 or aarch64)) and os.environ.get("CF_CUDA_ENABLED", "False") == "True"]
-  - 14                         # [(linux and (x86_64 or aarch64)) and os.environ.get("CF_CUDA_ENABLED", "False") == "True"]
+  - 20                         # [(linux and (x86_64 or aarch64)) and os.environ.get("CF_CUDA_ENABLED", "False") == "True"]
 
 fortran_compiler_version:      # [(linux and (x86_64 or aarch64)) and os.environ.get("CF_CUDA_ENABLED", "False") == "True"]
-  - 14                         # [(linux and (x86_64 or aarch64)) and os.environ.get("CF_CUDA_ENABLED", "False") == "True"]
+  - 20                         # [(linux and (x86_64 or aarch64)) and os.environ.get("CF_CUDA_ENABLED", "False") == "True"]
