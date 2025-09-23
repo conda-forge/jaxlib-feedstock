@@ -1,4 +1,4 @@
-From 9862f623a0efc504a64fb79a410d26980f210f84 Mon Sep 17 00:00:00 2001
+From 606788234318e2fa5b78d039ef2145d7dcb186a0 Mon Sep 17 00:00:00 2001
 From: "H. Vetinari" <h.vetinari@gmx.com>
 Date: Sun, 31 Aug 2025 13:28:45 +1100
 Subject: [PATCH 4/4] re-enable use_fast_cpp_protos=true
@@ -8,7 +8,7 @@ Subject: [PATCH 4/4] re-enable use_fast_cpp_protos=true
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/.bazelrc b/.bazelrc
-index b34956410..882145c45 100644
+index b349564..882145c 100644
 --- a/.bazelrc
 +++ b/.bazelrc
 @@ -121,7 +121,7 @@ build --repo_env=RULES_PYTHON_ENABLE_PYSTAR=0
