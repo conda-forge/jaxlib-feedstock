@@ -21,7 +21,7 @@ source:
 build:
   number: ${{ build if cuda_compiler_version == "None" else build + 200 }}
   string: ${{ 'cpu_py${{ CONDA_PY }}h${{ PKG_HASH }}_${{ PKG_BUILDNUM }}' if cuda_compiler_version == "None" else "cuda${{ cuda_compiler_version | replace('.', '') }}py${{ CONDA_PY }}h${{ PKG_HASH }}_${{ PKG_BUILDNUM }}" if cuda_compiler_version != "None" else '' }}
-  skip: match(python, ">=3.13") or win
+  skip: match(python, "<3.13") or win
 
 requirements:
   build:
