@@ -18,3 +18,5 @@ github_actions:
 provider:
   linux_64: github_actions
 test: native_and_emulated
+conda_install_tool: pixi
+conda_build_tool: rattler-build
