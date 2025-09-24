@@ -20,7 +20,7 @@ source:
 
 build:
   number: ${{ build if cuda_compiler_version == "None" else build + 200 }}
-  string: ${{ 'cpu_py${{ CONDA_PY }}h${{ PKG_HASH }}_${{ PKG_BUILDNUM }}' if cuda_compiler_version == "None" else "cuda${{ cuda_compiler_version | replace('.', '') }}py${{ CONDA_PY }}h${{ PKG_HASH }}_${{ PKG_BUILDNUM }}" if cuda_compiler_version != "None" else '' }}
+  string: ${{ "cpu" if cuda_compiler_version == "None" else "cuda" + (cuda_compiler_version | replace('.', '')) }}_py${{ python | version_to_buildstring }}h${{ hash }}_${{ build if cuda_compiler_version == "None" else build + 200 }}
   skip: match(python, "<3.13") or win
 
 requirements:
@@ -104,16 +104,15 @@ tests:
       imports:
         - jaxlib
         - jaxlib.xla_client
+      pip_check: true
+  - package_contents:
+      site_packages:
+        - jaxlib-${{ version}}.dist-info/METADATA
   - files:
       recipe:
         - test_jaxlib.py
-    requirements:
-      run:
-        - pip
     script:
-      - pip check
       - python test_jaxlib.py
-      - test -f $SP_DIR/jaxlib-${{ version }}.dist-info/METADATA
 
 about:
   license: Apache-2.0
