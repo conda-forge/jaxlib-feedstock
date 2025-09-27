@@ -109,7 +109,7 @@ tests:
       pip_check: true
   - package_contents:
       site_packages:
-        - jaxlib-${{ version}}.dist-info/METADATA
+        - jaxlib-${{ version }}.dist-info/METADATA
   - files:
       recipe:
         - test_jaxlib.py

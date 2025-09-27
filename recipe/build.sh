@@ -3,6 +3,9 @@ set -euxo pipefail
 
 export JAX_RELEASE=$PKG_VERSION
 
+# Workaround a timestamp issue in rattler-build
+touch -m -t 203001010101 $(find $BUILD_PREFIX/share/bazel/install -type f)
+
 $RECIPE_DIR/add_py_toolchain.sh
 
 if [[ "${target_platform}" == osx-* ]]; then
