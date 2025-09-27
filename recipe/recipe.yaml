@@ -81,6 +81,8 @@ requirements:
     - libgrpc
     - openssl
     - zlib
+    - if: osx and x86_64
+      then: onednn
   run:
     - python
     - scipy >=1.9
@@ -128,4 +130,3 @@ extra:
     - xhochy
     - ngam
     - h-vetinari
-

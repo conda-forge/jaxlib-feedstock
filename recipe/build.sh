@@ -112,6 +112,10 @@ fi
 # Thus: don't add com_google_protobuf here.
 export TF_SYSTEM_LIBS="boringssl,com_github_googlecloudplatform_google_cloud_cpp,com_github_grpc_grpc,flatbuffers,zlib,com_google_absl"
 
+if [[ "${target_platform}" == "osx-64" ]]; then
+    export TF_SYSTEM_LIBS="${TF_SYSTEM_LIBS},onednn"
+fi
+
 if [[ "${target_platform}" == "osx-arm64" || "${target_platform}" != "${build_platform}" ]]; then
     EXTRA="--target_cpu ${TARGET_CPU}"
 else
