@@ -1,4 +1,4 @@
-From c84c5a63bff88bdc820f6735f516ecf583cbc9a3 Mon Sep 17 00:00:00 2001
+From 8dbab2b1165a13a3d047dcb879f8b2d5f0448445 Mon Sep 17 00:00:00 2001
 From: "H. Vetinari" <h.vetinari@gmx.com>
 Date: Sun, 31 Aug 2025 13:28:45 +1100
 Subject: [PATCH 4/4] re-enable use_fast_cpp_protos=true

@@ -35,31 +35,39 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
     else
         export HERMETIC_CUDA_COMPUTE_CAPABILITIES=sm_75,sm_80,sm_86,sm_89,sm_90,sm_100,sm_110,sm_120,compute_120
     fi
-    export CUDA_HOME="${BUILD_PREFIX}/targets/x86_64-linux"
-    export TF_CUDA_PATHS="${BUILD_PREFIX}/targets/x86_64-linux,${PREFIX}/targets/x86_64-linux"
+    if [[ "${target_platform}" == "linux-64" ]]; then
+        export CUDA_ARCH="x86_64-linux"
+    elif [[ "${target_platform}" == "linux-aarch64" ]]; then
+	export CUDA_ARCH="sbsa-linux"
+    else
+	echo "Unknown architecture for CUDA"
+	exit 1
+    fi
+    export CUDA_HOME="${BUILD_PREFIX}/targets/${CUDA_ARCH}"
+    export TF_CUDA_PATHS="${BUILD_PREFIX}/targets/${CUDA_ARCH},${PREFIX}/targets/${CUDA_ARCH}"
     # Needed for some nvcc binaries
     export PATH=$PATH:${BUILD_PREFIX}/nvvm/bin
     # XLA can only cope with a single cuda header include directory, merge both
-    rsync -a ${PREFIX}/targets/x86_64-linux/include/ ${BUILD_PREFIX}/targets/x86_64-linux/include/
+    rsync -a ${PREFIX}/targets/${CUDA_ARCH}/include/ ${BUILD_PREFIX}/targets/${CUDA_ARCH}/include/
 
     # Although XLA supports a non-hermetic build, it still tries to find headers in the hermetic locations.
     # We do this in the BUILD_PREFIX to not have any impact on the resulting jaxlib package.
     # Otherwise, these copied files would be included in the package.
-    rm -rf ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party
-    mkdir -p ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cuda/extras/CUPTI
-    cp -r ${PREFIX}/targets/x86_64-linux/include ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cuda/
-    cp -r ${PREFIX}/targets/x86_64-linux/include ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cuda/extras/CUPTI/
-    mkdir -p ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cudnn
-    cp ${PREFIX}/include/cudnn*.h ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/gpus/cudnn/
-    mkdir -p ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/nccl
-    cp ${PREFIX}/include/nccl*.h ${BUILD_PREFIX}/targets/x86_64-linux/include/third_party/nccl/
-    export LOCAL_CUDA_PATH="${BUILD_PREFIX}/targets/x86_64-linux"
-    export LOCAL_CUDNN_PATH="${PREFIX}/targets/x86_64-linux"
-    export LOCAL_NCCL_PATH="${PREFIX}/targets/x86_64-linux"
-    mkdir -p ${BUILD_PREFIX}/targets/x86_64-linux/bin
-    test -f ${BUILD_PREFIX}/targets/x86_64-linux/bin/ptxas || ln -s $(which ptxas) ${BUILD_PREFIX}/targets/x86_64-linux/bin/ptxas
-    test -f ${BUILD_PREFIX}/targets/x86_64-linux/bin/nvlink || ln -s $(which nvlink) ${BUILD_PREFIX}/targets/x86_64-linux/bin/nvlink
-    test -f ${BUILD_PREFIX}/targets/x86_64-linux/bin/fatbinary || ln -s $(which fatbinary) ${BUILD_PREFIX}/targets/x86_64-linux/bin/fatbinary
+    rm -rf ${BUILD_PREFIX}/targets/${CUDA_ARCH}/include/third_party
+    mkdir -p ${BUILD_PREFIX}/targets/${CUDA_ARCH}/include/third_party/gpus/cuda/extras/CUPTI
+    cp -r ${PREFIX}/targets/${CUDA_ARCH}/include ${BUILD_PREFIX}/targets/${CUDA_ARCH}/include/third_party/gpus/cuda/
+    cp -r ${PREFIX}/targets/${CUDA_ARCH}/include ${BUILD_PREFIX}/targets/${CUDA_ARCH}/include/third_party/gpus/cuda/extras/CUPTI/
+    mkdir -p ${BUILD_PREFIX}/targets/${CUDA_ARCH}/include/third_party/gpus/cudnn
+    cp ${PREFIX}/include/cudnn*.h ${BUILD_PREFIX}/targets/${CUDA_ARCH}/include/third_party/gpus/cudnn/
+    mkdir -p ${BUILD_PREFIX}/targets/${CUDA_ARCH}/include/third_party/nccl
+    cp ${PREFIX}/include/nccl*.h ${BUILD_PREFIX}/targets/${CUDA_ARCH}/include/third_party/nccl/
+    export LOCAL_CUDA_PATH="${BUILD_PREFIX}/targets/${CUDA_ARCH}"
+    export LOCAL_CUDNN_PATH="${PREFIX}/targets/${CUDA_ARCH}"
+    export LOCAL_NCCL_PATH="${PREFIX}/targets/${CUDA_ARCH}"
+    mkdir -p ${BUILD_PREFIX}/targets/${CUDA_ARCH}/bin
+    test -f ${BUILD_PREFIX}/targets/${CUDA_ARCH}/bin/ptxas || ln -s $(which ptxas) ${BUILD_PREFIX}/targets/${CUDA_ARCH}/bin/ptxas
+    test -f ${BUILD_PREFIX}/targets/${CUDA_ARCH}/bin/nvlink || ln -s $(which nvlink) ${BUILD_PREFIX}/targets/${CUDA_ARCH}/bin/nvlink
+    test -f ${BUILD_PREFIX}/targets/${CUDA_ARCH}/bin/fatbinary || ln -s $(which fatbinary) ${BUILD_PREFIX}/targets/${CUDA_ARCH}/bin/fatbinary
 
     export TF_CUDA_VERSION="${cuda_compiler_version}"
     export TF_CUDNN_VERSION="${cudnn}"
@@ -120,14 +128,12 @@ if [[ "${target_platform}" == "osx-64" ]]; then
     export TF_SYSTEM_LIBS="${TF_SYSTEM_LIBS},onednn"
 fi
 
-if [[ "${target_platform}" == "osx-arm64" || "${target_platform}" != "${build_platform}" ]]; then
-    EXTRA="--target_cpu ${TARGET_CPU}"
-else
-    EXTRA="${CUDA_ARGS:-}"
-fi
-
 # Mark as a release build
-EXTRA="--bazel_options=--repo_env=ML_WHEEL_TYPE=release ${EXTRA}"
+EXTRA="--bazel_options=--repo_env=ML_WHEEL_TYPE=release ${CUDA_ARGS:-}"
+
+if [[ "${target_platform}" == "osx-arm64" || "${target_platform}" != "${build_platform}" ]]; then
+    EXTRA="${EXTRA} --target_cpu ${TARGET_CPU}"
+fi
 
 # Never use the Appe toolchain
 sed -i '/local_config_apple/d' .bazelrc
