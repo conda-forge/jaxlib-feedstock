@@ -18,8 +18,6 @@ cuda_compiler:
 - cuda-nvcc
 cuda_compiler_version:
 - None
-cudnn:
-- '9'
 cxx_compiler:
 - clangxx
 cxx_compiler_version:
@@ -34,8 +32,6 @@ libprotobuf:
 - 6.31.1
 macos_machine:
 - x86_64-apple-darwin13.4.0
-nccl:
-- '2'
 numpy:
 - '2'
 openssl:

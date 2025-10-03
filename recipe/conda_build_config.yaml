@@ -1,19 +1,19 @@
 # jaxlib wants clang on all platforms
 c_compiler:
 - clang
-- clang  # [linux]
-c_compiler_version:
-- '20'
-- '20'  # [linux]
 cxx_compiler:
 - clangxx
-- clangxx  # [linux]
+# in the global pinning on linux, {c,cxx}_compiler_version
+# is mixed with CUDA and zipped with c_stdlib_version
+c_compiler_version:
+- '20'
+- '20'                  # [linux]
 cxx_compiler_version:
 - '20'
-- '20'  # [linux]
-c_stdlib_version:  # [linux]
-- '2.17'  # [linux]
-- '2.17'  # [linux]
+- '20'                  # [linux]
+c_stdlib_version:       # [linux]
+- '2.17'                # [linux]
+- '2.17'                # [linux]
 
 github_actions_labels:
 - cirun-openstack-cpu-large

@@ -1,0 +1,132 @@
+schema_version: 1
+
+context:
+  version: 0.7.2
+  build: 0
+
+package:
+  name: jaxlib
+  version: ${{ version }}
+
+source:
+  # only pull sources after upstream PyPI release...
+  url: https://github.com/jax-ml/jax/archive/jax-v${{ version }}.tar.gz
+  sha256: 56d92604f1bb60bb3dbd7dc7c7dc21502d10b3474b8b905ce29ce06db6a26e45
+  patches:
+    - patches/0001-Allow-for-custom-CUDA-build.patch
+    - patches/0002-Consolidated-build-fixes-for-XLA.patch
+    - patches/0003-avoid-mirror-that-doesn-t-seem-to-have-current-xla-a.patch
+    - patches/0004-re-enable-use_fast_cpp_protos-true.patch
+
+build:
+  number: ${{ build if cuda_compiler_version == "None" else build + 200 }}
+  string: ${{ "cpu" if cuda_compiler_version == "None" else "cuda" + (cuda_compiler_version | replace('.', '')) }}_py${{ python | version_to_buildstring }}h${{ hash }}_${{ build if cuda_compiler_version == "None" else build + 200 }}
+  skip: match(python, "<3.11") or win
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ stdlib("c") }}
+    - ${{ compiler('cxx') }}
+    - if: cuda_compiler_version != "None"
+      then:
+        - ${{ compiler('cuda') }}
+        - rsync
+    - if: build_platform != target_platform
+      then:
+        - python
+        - cross-python_${{ target_platform }}
+        - numpy
+        - zlib
+    - unzip
+    # Keep bazel listed twice here to help the migrators track dependencies
+    - bazel
+    - bazel 7.*
+    - bazel-toolchain >=0.4.1
+    # need protoc
+    - libprotobuf
+    # needs protoc-gen-grpc
+    - libgrpc
+    # needs flatc
+    - flatbuffers <2.0.6
+    # list libabseil here to ensure pinning correctly
+    - libabseil
+    - sed
+  host:
+    - if: cuda_compiler_version != "None"
+      then:
+        - cuda-cudart-dev
+        - cuda-cupti-dev
+        - cuda-nvcc-tools
+        - cuda-nvml-dev
+        - cuda-nvtx-dev
+        - cuda-version ${{ cuda_compiler_version }}.*
+        - cudnn
+        - libcublas-dev
+        - libcufft-dev
+        - libcurand-dev
+        - libcusolver-dev
+        - libcusparse-dev
+        - nccl
+    - python
+    - pip
+    - numpy
+    - setuptools
+    - wheel
+    - python-build
+    # list libabseil here to ensure pinning correctly
+    - libabseil
+    - flatbuffers <2.0.6
+    - grpc-bazel-rules
+    - libgrpc
+    - openssl
+    - zlib
+    - if: osx and x86_64
+      then: onednn
+  run:
+    - python
+    - scipy >=1.9
+    - ml_dtypes >=0.2.0
+    - if: cuda_compiler_version != "None"
+      then:
+        - __cuda
+        - cuda-nvcc-tools
+        # Workaround for https://github.com/conda-forge/jaxlib-feedstock/pull/288#issuecomment-2511925904
+        - cuda-cupti-dev
+        - libcublas-dev
+        - libcufft-dev
+        - libcurand-dev
+        - libcusolver-dev
+        - libcusparse-dev
+  run_constraints:
+    - jax >=${{ version }}
+
+tests:
+  - python:
+      imports:
+        - jaxlib
+        - jaxlib.xla_client
+      pip_check: true
+  - package_contents:
+      site_packages:
+        - jaxlib-${{ version }}.dist-info/METADATA
+  - files:
+      recipe:
+        - test_jaxlib.py
+    script:
+      - python test_jaxlib.py
+
+about:
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: "Composable transformations of Python+NumPy programs: differentiate, vectorize, JIT to GPU/TPU, and more"
+  homepage: http://github.com/jax-ml/jax
+  repository: http://github.com/jax-ml/jax
+
+extra:
+  recipe-maintainers:
+    - ehfd
+    - ericmjl
+    - xhochy
+    - ngam
+    - h-vetinari

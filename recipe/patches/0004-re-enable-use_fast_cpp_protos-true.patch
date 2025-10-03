@@ -1,0 +1,22 @@
+From 8dbab2b1165a13a3d047dcb879f8b2d5f0448445 Mon Sep 17 00:00:00 2001
+From: "H. Vetinari" <h.vetinari@gmx.com>
+Date: Sun, 31 Aug 2025 13:28:45 +1100
+Subject: [PATCH 4/4] re-enable use_fast_cpp_protos=true
+
+---
+ .bazelrc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/.bazelrc b/.bazelrc
+index b349564..882145c 100644
+--- a/.bazelrc
++++ b/.bazelrc
+@@ -121,7 +121,7 @@ build --repo_env=RULES_PYTHON_ENABLE_PYSTAR=0
+ # of cc_binary shared libraries artifacts, which will mess with how we link 
+ # protobuf dependencies ourselves. By default this value is false, but some 
+ # projects enable it, which we don't want here.
+-# build --define=use_fast_cpp_protos=true
++build --define=use_fast_cpp_protos=true
+ 
+ build:nonccl --define=no_nccl_support=true
+ 
