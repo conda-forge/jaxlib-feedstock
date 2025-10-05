@@ -11,26 +11,8 @@ jobs:
       osx_64_channel_sourcesconda-forgeconda-forgelabelpython_rcpython3.14.____cp314:
         CONFIG: osx_64_channel_sourcesconda-forgeconda-forgelabelpython_rcpython3.14.____cp314
         UPLOAD_PACKAGES: 'True'
-      osx_64_channel_sourcesconda-forgepython3.11.____cpython:
-        CONFIG: osx_64_channel_sourcesconda-forgepython3.11.____cpython
-        UPLOAD_PACKAGES: 'True'
-      osx_64_channel_sourcesconda-forgepython3.12.____cpython:
-        CONFIG: osx_64_channel_sourcesconda-forgepython3.12.____cpython
-        UPLOAD_PACKAGES: 'True'
-      osx_64_channel_sourcesconda-forgepython3.13.____cp313:
-        CONFIG: osx_64_channel_sourcesconda-forgepython3.13.____cp313
-        UPLOAD_PACKAGES: 'True'
       osx_arm64_channel_sourcesconda-forgeconda-forgelabelpython_rcpython3.14.____cp314:
         CONFIG: osx_arm64_channel_sourcesconda-forgeconda-forgelabelpython_rcpython3.14.____cp314
-        UPLOAD_PACKAGES: 'True'
-      osx_arm64_channel_sourcesconda-forgepython3.11.____cpython:
-        CONFIG: osx_arm64_channel_sourcesconda-forgepython3.11.____cpython
-        UPLOAD_PACKAGES: 'True'
-      osx_arm64_channel_sourcesconda-forgepython3.12.____cpython:
-        CONFIG: osx_arm64_channel_sourcesconda-forgepython3.12.____cpython
-        UPLOAD_PACKAGES: 'True'
-      osx_arm64_channel_sourcesconda-forgepython3.13.____cp313:
-        CONFIG: osx_arm64_channel_sourcesconda-forgepython3.13.____cp313
         UPLOAD_PACKAGES: 'True'
   timeoutInMinutes: 360
   variables: {}
