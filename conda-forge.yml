@@ -5,7 +5,9 @@ build_platform:
   osx_arm64: osx_64
 conda_build:
   pkg_format: '2'
+conda_build_tool: rattler-build
 conda_forge_output_validation: true
+conda_install_tool: pixi
 github:
   branch_name: main
   tooling_branch_name: main
@@ -18,5 +20,3 @@ github_actions:
 provider:
   linux_64: github_actions
 test: native_and_emulated
-conda_install_tool: pixi
-conda_build_tool: rattler-build
