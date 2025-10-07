@@ -1,4 +1,8 @@
 @echo on
+
+echo "build --repo_env=GRPC_BAZEL_DIR=%PREFIX%/share/bazel/grpc/bazel" >> .bazelrc
+if %ERRORLEVEL% neq 0 exit 1
+
 %PYTHON% build/build.py build --target_cpu_features default --wheels=jaxlib
 if %ERRORLEVEL% neq 0 exit 1
 
