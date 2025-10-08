@@ -21,7 +21,7 @@ source:
 build:
   number: ${{ build if cuda_compiler_version == "None" else build + 200 }}
   string: ${{ "cpu" if cuda_compiler_version == "None" else "cuda" + (cuda_compiler_version | replace('.', '')) }}_py${{ python | version_to_buildstring }}h${{ hash }}_${{ build if cuda_compiler_version == "None" else build + 200 }}
-  skip: match(python, "<3.11") or win
+  skip: match(python, "<3.14") or unix
 
 requirements:
   build:
@@ -31,18 +31,22 @@ requirements:
     - if: cuda_compiler_version != "None"
       then:
         - ${{ compiler('cuda') }}
-        - rsync
+        - if: unix
+          then: rsync
     - if: build_platform != target_platform
       then:
         - python
         - cross-python_${{ target_platform }}
         - numpy
         - zlib
-    - unzip
+    - if: unix
+      then:
+        - unzip
+        - sed
+        - bazel-toolchain >=0.4.1
     # Keep bazel listed twice here to help the migrators track dependencies
     - bazel
     - bazel 7.*
-    - bazel-toolchain >=0.4.1
     # need protoc
     - libprotobuf
     # needs protoc-gen-grpc
@@ -51,7 +55,6 @@ requirements:
     - flatbuffers <2.0.6
     # list libabseil here to ensure pinning correctly
     - libabseil
-    - sed
   host:
     - if: cuda_compiler_version != "None"
       then:
