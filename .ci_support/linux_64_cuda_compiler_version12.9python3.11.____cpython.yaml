@@ -13,7 +13,7 @@ channel_targets:
 cuda_compiler:
 - cuda-nvcc
 cuda_compiler_version:
-- None
+- '12.9'
 cudnn:
 - '9'
 cxx_compiler:
@@ -49,7 +49,5 @@ zip_keys:
   - cxx_compiler_version
   - c_stdlib_version
   - cuda_compiler_version
-- - python
-  - channel_sources
 zlib:
 - '1'

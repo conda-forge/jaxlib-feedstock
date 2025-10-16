@@ -7,7 +7,7 @@ c_stdlib:
 c_stdlib_version:
 - '2.17'
 channel_sources:
-- conda-forge,conda-forge/label/python_rc
+- conda-forge
 channel_targets:
 - conda-forge main
 cuda_compiler:
@@ -43,13 +43,11 @@ pin_run_as_build:
 python:
 - 3.14.* *_cp314
 target_platform:
-- linux-64
+- linux-aarch64
 zip_keys:
 - - c_compiler_version
   - cxx_compiler_version
   - c_stdlib_version
   - cuda_compiler_version
-- - python
-  - channel_sources
 zlib:
 - '1'
