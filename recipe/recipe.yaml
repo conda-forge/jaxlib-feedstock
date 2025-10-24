@@ -2,7 +2,7 @@ schema_version: 1
 
 context:
   version: 0.7.2
-  build: 1
+  build: 2
 
 package:
   name: jaxlib
@@ -61,7 +61,11 @@ requirements:
         - cuda-nvml-dev
         - cuda-nvtx-dev
         - cuda-version ${{ cuda_compiler_version }}.*
-        - cudnn
+        # Workaround for https://github.com/conda-forge/cudnn-feedstock/issues/124
+        # This is necessary to ensure that jaxlib on CUDA 12 can be used with a cudnn
+        # that supports all the compute architectures supported by CUDA 12, on CUDA 13
+        # migration remember to apply this pin only for CUDA 12
+        - cudnn 9.10.*
         - libcublas-dev
         - libcufft-dev
         - libcurand-dev
@@ -98,6 +102,10 @@ requirements:
         - libcurand-dev
         - libcusolver-dev
         - libcusparse-dev
+        # Workaround for https://github.com/conda-forge/cudnn-feedstock/issues/124,
+        # see the comment in the host section. We can't simply rely on cudnn run_exports,
+        # as that would allow cudnn>=9.11 that has no support for <= sm_70
+        - cudnn 9.10.*
   run_constraints:
     - jax >=${{ version }}
 
