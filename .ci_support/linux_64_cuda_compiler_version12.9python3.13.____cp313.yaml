@@ -13,9 +13,9 @@ channel_targets:
 cuda_compiler:
 - cuda-nvcc
 cuda_compiler_version:
-- None
+- '12.9'
 cudnn:
-- '9'
+- '9.10'
 cxx_compiler:
 - clangxx
 cxx_compiler_version:
@@ -35,7 +35,7 @@ nccl:
 numpy:
 - '2'
 openssl:
-- '3'
+- '3.5'
 pin_run_as_build:
   python:
     min_pin: x.x
@@ -43,13 +43,11 @@ pin_run_as_build:
 python:
 - 3.13.* *_cp313
 target_platform:
-- linux-aarch64
+- linux-64
 zip_keys:
 - - c_compiler_version
   - cxx_compiler_version
   - c_stdlib_version
   - cuda_compiler_version
-- - python
-  - channel_sources
 zlib:
 - '1'

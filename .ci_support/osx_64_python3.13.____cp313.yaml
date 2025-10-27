@@ -31,11 +31,11 @@ libgrpc:
 libprotobuf:
 - 6.31.1
 macos_machine:
-- arm64-apple-darwin20.0.0
+- x86_64-apple-darwin13.4.0
 numpy:
 - '2'
 openssl:
-- '3'
+- '3.5'
 pin_run_as_build:
   python:
     min_pin: x.x
@@ -43,11 +43,9 @@ pin_run_as_build:
 python:
 - 3.13.* *_cp313
 target_platform:
-- osx-arm64
+- osx-64
 zip_keys:
 - - c_compiler_version
   - cxx_compiler_version
-- - python
-  - channel_sources
 zlib:
 - '1'
