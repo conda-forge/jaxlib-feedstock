@@ -15,5 +15,8 @@ c_stdlib_version:       # [linux]
 - '2.17'                # [linux]
 - '2.17'                # [linux]
 
+cudnn:
+  - 9.10
+
 github_actions_labels:
 - cirun-openstack-cpu-large
