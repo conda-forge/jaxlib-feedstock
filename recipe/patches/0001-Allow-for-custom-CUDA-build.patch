@@ -1,4 +1,4 @@
-From c850b31214595ff30a3612f9f95369685f6f0bb5 Mon Sep 17 00:00:00 2001
+From 7d18804efba300f3236c0d642f921004ebe1833f Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwelk@xhochy.com>
 Date: Sun, 8 Oct 2023 19:34:34 +0200
 Subject: [PATCH 1/4] Allow for custom CUDA build
@@ -8,11 +8,11 @@ Subject: [PATCH 1/4] Allow for custom CUDA build
  1 file changed, 3 insertions(+), 4 deletions(-)
 
 diff --git a/build/build.py b/build/build.py
-index 2b4f71d..653204c 100755
+index 70e9bc225..c432f2117 100755
 --- a/build/build.py
 +++ b/build/build.py
-@@ -701,10 +701,9 @@ async def main():
-       if wheel =="jax":
+@@ -703,10 +703,9 @@ async def main():
+       if wheel == "jax":
          wheel_build_command.append("--//jax:build_jaxlib=false")
  
 -      result = await executor.run(wheel_build_command.get_command_as_string(), args.dry_run, args.detailed_timestamped_log)
