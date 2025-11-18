@@ -5,7 +5,7 @@
 
 [workspace]
 name = "jaxlib-feedstock"
-version = "3.52.4.dev18+g275dd5c78"  # conda-smithy version used to generate this file
+version = "3.53.1"  # conda-smithy version used to generate this file
 description = "Pixi configuration for conda-forge/jaxlib-feedstock"
 authors = ["@conda-forge/jaxlib"]
 channels = ["conda-forge"]
