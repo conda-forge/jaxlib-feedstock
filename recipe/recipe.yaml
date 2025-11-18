@@ -1,7 +1,7 @@
 schema_version: 1
 
 context:
-  version: "0.8.0"
+  version: "0.8.1"
   build: 0
 
 package:
@@ -11,7 +11,7 @@ package:
 source:
   # only pull sources after upstream PyPI release...
   url: https://github.com/jax-ml/jax/archive/jax-v${{ version }}.tar.gz
-  sha256: 864aa46b5a4475c70195bd3728d32224f5b5ae1c7dd9c70646ef1387b4b0b04b
+  sha256: 38882602112dadfd49a2c74868a0722574ae88e04646a96f32f8c36a7893c548
   patches:
     - patches/0001-Allow-for-custom-CUDA-build.patch
     - patches/0002-Consolidated-build-fixes-for-XLA.patch
