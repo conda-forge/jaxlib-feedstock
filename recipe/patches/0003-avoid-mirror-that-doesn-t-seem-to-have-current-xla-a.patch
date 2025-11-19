@@ -1,4 +1,4 @@
-From 3d45c7e1f6615b54ff8f23bc94f3872d511f0027 Mon Sep 17 00:00:00 2001
+From 8294ab42032f4ee58dbffcaac7d6686cc46141ae Mon Sep 17 00:00:00 2001
 From: "H. Vetinari" <h.vetinari@gmx.com>
 Date: Sun, 27 Jul 2025 10:42:28 +1100
 Subject: [PATCH 3/4] avoid mirror that doesn't seem to have current xla
@@ -10,7 +10,7 @@ and tell tf_http_archive to shut up about it
  1 file changed, 15 deletions(-)
 
 diff --git a/third_party/repo.bzl b/third_party/repo.bzl
-index 185c5a4..ae971cf 100644
+index f09875140..98dc0c1af 100644
 --- a/third_party/repo.bzl
 +++ b/third_party/repo.bzl
 @@ -23,7 +23,6 @@ def tf_mirror_urls(url):

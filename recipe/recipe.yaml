@@ -1,8 +1,8 @@
 schema_version: 1
 
 context:
-  version: 0.7.2
-  build: 2
+  version: "0.8.1"
+  build: 0
 
 package:
   name: jaxlib
@@ -11,7 +11,7 @@ package:
 source:
   # only pull sources after upstream PyPI release...
   url: https://github.com/jax-ml/jax/archive/jax-v${{ version }}.tar.gz
-  sha256: 56d92604f1bb60bb3dbd7dc7c7dc21502d10b3474b8b905ce29ce06db6a26e45
+  sha256: 38882602112dadfd49a2c74868a0722574ae88e04646a96f32f8c36a7893c548
   patches:
     - patches/0001-Allow-for-custom-CUDA-build.patch
     - patches/0002-Consolidated-build-fixes-for-XLA.patch
@@ -21,7 +21,7 @@ source:
 build:
   number: ${{ build if cuda_compiler_version == "None" else build + 200 }}
   string: ${{ "cpu" if cuda_compiler_version == "None" else "cuda" + (cuda_compiler_version | replace('.', '')) }}_py${{ python | version_to_buildstring }}h${{ hash }}_${{ build if cuda_compiler_version == "None" else build + 200 }}
-  skip: match(python, "<3.11") or win
+  skip: match(python, "!=3.13") or win
 
 requirements:
   build:

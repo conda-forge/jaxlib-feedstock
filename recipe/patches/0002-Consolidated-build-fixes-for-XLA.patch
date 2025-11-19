@@ -1,4 +1,4 @@
-From 225a60e4fdf661415d95bf6a01296fb9e732ad80 Mon Sep 17 00:00:00 2001
+From cb297660d8c75939ee132395500ebdcb8d2c7e95 Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwe.korn@quantco.com>
 Date: Thu, 14 Dec 2023 17:06:15 +0100
 Subject: [PATCH 2/4] Consolidated build fixes for XLA
@@ -15,37 +15,31 @@ which is also where we're patching in the list of patches to apply to xla.
 Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
 ---
  third_party/grpc_systemlib.BUILD              |  71 +++
- ...pport-third-party-build-of-boringssl.patch |  50 +++
- third_party/xla/0002-Fix-abseil-headers.patch | 101 +++++
- .../xla/0003-Omit-usage-of-StrFormat.patch    |  25 ++
- .../xla/0004-Re-enable-system-abseil.patch    | 411 ++++++++++++++++++
+ third_party/xla/0001-Fix-abseil-headers.patch | 101 +++++
+ .../xla/0002-Re-enable-system-abseil.patch    | 411 ++++++++++++++++++
  ...ther-absl-log-is-already-initialized.patch |  58 +++
- third_party/xla/0006-Unbundle-grpc.patch      | 152 +++++++
+ third_party/xla/0004-Unbundle-grpc.patch      | 152 +++++++
  ...-coordination_agent_recoverable-flag.patch |  35 ++
  ...al-variant-_access-is-now-header-onl.patch |  29 ++
  ...d-dependency-on-proto_bazel_features.patch |  72 +++
- .../xla/0010-Update-gloo-version.patch        |  24 +
- .../0011-Add-macos_x86_64-to-mkl_deps.patch   |  21 +
- .../xla/0012-Add-systemlib-for-oneDNN.patch   |  35 ++
- third_party/xla/workspace.bzl                 |  16 +-
- 14 files changed, 1099 insertions(+), 1 deletion(-)
+ .../0008-Add-macos_x86_64-to-mkl_deps.patch   |  21 +
+ .../xla/0009-Add-systemlib-for-oneDNN.patch   |  35 ++
+ third_party/xla/workspace.bzl                 |  11 +
+ 11 files changed, 996 insertions(+)
  create mode 100644 third_party/grpc_systemlib.BUILD
- create mode 100644 third_party/xla/0001-Support-third-party-build-of-boringssl.patch
- create mode 100644 third_party/xla/0002-Fix-abseil-headers.patch
- create mode 100644 third_party/xla/0003-Omit-usage-of-StrFormat.patch
- create mode 100644 third_party/xla/0004-Re-enable-system-abseil.patch
- create mode 100644 third_party/xla/0005-Check-whether-absl-log-is-already-initialized.patch
- create mode 100644 third_party/xla/0006-Unbundle-grpc.patch
- create mode 100644 third_party/xla/0007-Disable-coordination_agent_recoverable-flag.patch
- create mode 100644 third_party/xla/0008-absl_bad_-optional-variant-_access-is-now-header-onl.patch
- create mode 100644 third_party/xla/0009-Add-dependency-on-proto_bazel_features.patch
- create mode 100644 third_party/xla/0010-Update-gloo-version.patch
- create mode 100644 third_party/xla/0011-Add-macos_x86_64-to-mkl_deps.patch
- create mode 100644 third_party/xla/0012-Add-systemlib-for-oneDNN.patch
+ create mode 100644 third_party/xla/0001-Fix-abseil-headers.patch
+ create mode 100644 third_party/xla/0002-Re-enable-system-abseil.patch
+ create mode 100644 third_party/xla/0003-Check-whether-absl-log-is-already-initialized.patch
+ create mode 100644 third_party/xla/0004-Unbundle-grpc.patch
+ create mode 100644 third_party/xla/0005-Disable-coordination_agent_recoverable-flag.patch
+ create mode 100644 third_party/xla/0006-absl_bad_-optional-variant-_access-is-now-header-onl.patch
+ create mode 100644 third_party/xla/0007-Add-dependency-on-proto_bazel_features.patch
+ create mode 100644 third_party/xla/0008-Add-macos_x86_64-to-mkl_deps.patch
+ create mode 100644 third_party/xla/0009-Add-systemlib-for-oneDNN.patch
 
 diff --git a/third_party/grpc_systemlib.BUILD b/third_party/grpc_systemlib.BUILD
 new file mode 100644
-index 0000000..0e4e862
+index 000000000..0e4e862ce
 --- /dev/null
 +++ b/third_party/grpc_systemlib.BUILD
 @@ -0,0 +1,71 @@
@@ -120,72 +114,16 @@ index 0000000..0e4e862
 +    srcs = ["grpc_python_plugin.bin"],
 +    visibility = ["//visibility:public"],
 +)
-diff --git a/third_party/xla/0001-Support-third-party-build-of-boringssl.patch b/third_party/xla/0001-Support-third-party-build-of-boringssl.patch
+diff --git a/third_party/xla/0001-Fix-abseil-headers.patch b/third_party/xla/0001-Fix-abseil-headers.patch
 new file mode 100644
-index 0000000..2e4b647
+index 000000000..8925f8d90
 --- /dev/null
-+++ b/third_party/xla/0001-Support-third-party-build-of-boringssl.patch
-@@ -0,0 +1,50 @@
-+From a2851a49bb15b571ad78bbb0aef805bd1016e26c Mon Sep 17 00:00:00 2001
-+From: "Uwe L. Korn" <uwe.korn@quantco.com>
-+Date: Thu, 14 Dec 2023 15:04:51 +0100
-+Subject: [PATCH 01/12] Support third-party build of boringssl
-+
-+---
-+ third_party/boringssl.BUILD | 21 +++++++++++++++++++++
-+ workspace2.bzl              |  1 +
-+ 2 files changed, 22 insertions(+)
-+ create mode 100644 third_party/boringssl.BUILD
-+
-+diff --git a/third_party/boringssl.BUILD b/third_party/boringssl.BUILD
-+new file mode 100644
-+index 0000000000..bc4c533403
-+--- /dev/null
-++++ b/third_party/boringssl.BUILD
-+@@ -0,0 +1,21 @@
-++licenses(["notice"])
-++
-++filegroup(
-++    name = "LICENSE",
-++    visibility = ["//visibility:public"],
-++)
-++
-++cc_library(
-++    name = "crypto",
-++    linkopts = ["-lcrypto"],
-++    visibility = ["//visibility:public"],
-++)
-++
-++cc_library(
-++    name = "ssl",
-++    linkopts = ["-lssl"],
-++    visibility = ["//visibility:public"],
-++    deps = [
-++        ":crypto",
-++    ],
-++)
-+diff --git a/workspace2.bzl b/workspace2.bzl
-+index f0196f12c2..17458789c4 100644
-+--- a/workspace2.bzl
-++++ b/workspace2.bzl
-+@@ -456,6 +456,7 @@ def _tf_repositories():
-+         name = "boringssl",
-+         sha256 = "9dc53f851107eaf87b391136d13b815df97ec8f76dadb487b58b2fc45e624d2c",
-+         strip_prefix = "boringssl-c00d7ca810e93780bd0c8ee4eea28f4f2ea4bcdc",
-++        system_build_file = "//third_party:boringssl.BUILD",
-+         urls = tf_mirror_urls("https://github.com/google/boringssl/archive/c00d7ca810e93780bd0c8ee4eea28f4f2ea4bcdc.tar.gz"),
-+     )
-+ 
-diff --git a/third_party/xla/0002-Fix-abseil-headers.patch b/third_party/xla/0002-Fix-abseil-headers.patch
-new file mode 100644
-index 0000000..5a74714
---- /dev/null
-+++ b/third_party/xla/0002-Fix-abseil-headers.patch
++++ b/third_party/xla/0001-Fix-abseil-headers.patch
 @@ -0,0 +1,101 @@
-+From aae46f4c56e5e426d3d1c9516d343f94484e4b78 Mon Sep 17 00:00:00 2001
++From 1fd30d714b05873bee385f089a4e5cd52a2cf29b Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 23 May 2024 15:45:52 +0200
-+Subject: [PATCH 02/12] Fix abseil headers
++Subject: [PATCH 1/9] Fix abseil headers
 +
 +---
 + xla/backends/cpu/codegen/ir_compiler.cc               | 2 +-
@@ -197,7 +135,7 @@ index 0000000..5a74714
 + 6 files changed, 12 insertions(+), 2 deletions(-)
 +
 +diff --git a/xla/backends/cpu/codegen/ir_compiler.cc b/xla/backends/cpu/codegen/ir_compiler.cc
-+index 288d5e6ce7..66adf57ad6 100644
++index dae7375bbb..b04288edb5 100644
 +--- a/xla/backends/cpu/codegen/ir_compiler.cc
 ++++ b/xla/backends/cpu/codegen/ir_compiler.cc
 +@@ -139,7 +139,7 @@ static std::unique_ptr<HloModuleConfig> ParseXlaBackendExtraOptions(
@@ -210,10 +148,10 @@ index 0000000..5a74714
 +   llvm::Metadata* md = llvm_module.getModuleFlag("xla_backend_extra_options");
 +   if (md == nullptr) return nullptr;
 +diff --git a/xla/hlo/transforms/simplifiers/algebraic_simplifier.h b/xla/hlo/transforms/simplifiers/algebraic_simplifier.h
-+index d55d927cd1..54d9e69ab2 100644
++index 37c9215218..82a779d937 100644
 +--- a/xla/hlo/transforms/simplifiers/algebraic_simplifier.h
 ++++ b/xla/hlo/transforms/simplifiers/algebraic_simplifier.h
-+@@ -825,7 +825,7 @@ class AlgebraicSimplifierVisitor : public DfsHloRewriteVisitor {
++@@ -829,7 +829,7 @@ class AlgebraicSimplifierVisitor : public DfsHloRewriteVisitor {
 +   // slice instruction is replaced).
 +   // - For example in slices=([0:X:X]), where X == dimension
 +   absl::StatusOr<bool> RemoveRedundantStride(
@@ -223,7 +161,7 @@ index 0000000..5a74714
 +   // Helper function for HandleReduce. Replaces a reduce with a broadcast of the
 +   // init values if the reduce is operating on a zero-element array or the
 +diff --git a/xla/python/ifrt_proxy/common/BUILD b/xla/python/ifrt_proxy/common/BUILD
-+index 432b4db904..cb0fa67a62 100644
++index b547cea85d..7b2eeaaed2 100644
 +--- a/xla/python/ifrt_proxy/common/BUILD
 ++++ b/xla/python/ifrt_proxy/common/BUILD
 +@@ -51,6 +51,9 @@ cc_library(
@@ -249,10 +187,10 @@ index 0000000..5a74714
 +         "@tsl//tsl/platform:protobuf",
 +         "@tsl//tsl/platform:stringpiece",
 +diff --git a/xla/tsl/platform/default/BUILD b/xla/tsl/platform/default/BUILD
-+index c118b2f877..5ef81fcdd5 100644
++index efb64fd2b3..4c579d9609 100644
 +--- a/xla/tsl/platform/default/BUILD
 ++++ b/xla/tsl/platform/default/BUILD
-+@@ -251,6 +251,8 @@ cc_library(
++@@ -253,6 +253,8 @@ cc_library(
 +     deps = [
 +         "//xla/tsl/platform:logging",
 +         "@com_google_absl//absl/log:check",
@@ -262,10 +200,10 @@ index 0000000..5a74714
 + )
 + 
 +diff --git a/xla/tsl/profiler/rpc/client/BUILD b/xla/tsl/profiler/rpc/client/BUILD
-+index ce37e1624b..b0ea3c03f3 100644
++index f672ce2240..cd38232e71 100644
 +--- a/xla/tsl/profiler/rpc/client/BUILD
 ++++ b/xla/tsl/profiler/rpc/client/BUILD
-+@@ -102,6 +102,8 @@ cc_library(
++@@ -103,6 +103,8 @@ cc_library(
 +     deps = [
 +         ":profiler_client_impl",
 +         "//xla/tsl/platform:status",
@@ -274,7 +212,7 @@ index 0000000..5a74714
 +         "@com_google_absl//absl/strings",
 +         "@com_google_absl//absl/time",
 +         "@tsl//tsl/profiler/protobuf:profiler_analysis_cc_grpc_proto",
-+@@ -130,6 +132,8 @@ cc_library(
++@@ -131,6 +133,8 @@ cc_library(
 +         "//xla/tsl/platform:status",
 +         "//xla/tsl/platform:types",
 +         "//xla/tsl/protobuf:error_codes_proto_impl_cc",
@@ -283,47 +221,16 @@ index 0000000..5a74714
 +         "@com_google_absl//absl/memory",
 +         "@com_google_absl//absl/strings",
 +         "@com_google_absl//absl/time",
-diff --git a/third_party/xla/0003-Omit-usage-of-StrFormat.patch b/third_party/xla/0003-Omit-usage-of-StrFormat.patch
+diff --git a/third_party/xla/0002-Re-enable-system-abseil.patch b/third_party/xla/0002-Re-enable-system-abseil.patch
 new file mode 100644
-index 0000000..fc03f77
+index 000000000..4c8c63b93
 --- /dev/null
-+++ b/third_party/xla/0003-Omit-usage-of-StrFormat.patch
-@@ -0,0 +1,25 @@
-+From 2a76daeb6f08cd8987c9e3ceda6d493479fecae1 Mon Sep 17 00:00:00 2001
-+From: "Uwe L. Korn" <uwe.korn@quantco.com>
-+Date: Thu, 4 Jul 2024 10:36:03 +0200
-+Subject: [PATCH 03/12] Omit usage of StrFormat
-+
-+---
-+ xla/stream_executor/gpu/gpu_executor.h | 5 +++++
-+ 1 file changed, 5 insertions(+)
-+
-+diff --git a/xla/stream_executor/gpu/gpu_executor.h b/xla/stream_executor/gpu/gpu_executor.h
-+index ad9b10e3aa..a261c3071d 100644
-+--- a/xla/stream_executor/gpu/gpu_executor.h
-++++ b/xla/stream_executor/gpu/gpu_executor.h
-+@@ -17,6 +17,11 @@ limitations under the License.
-+ #define XLA_STREAM_EXECUTOR_GPU_GPU_EXECUTOR_H_
-+ 
-+ #include <cstdint>
-++#include <memory>
-++#include <optional>
-++#include <string>
-++#include <sstream>
-++#include <unordered_map>
-+ #include <utility>
-+ #include <variant>
-+ #include <vector>
-diff --git a/third_party/xla/0004-Re-enable-system-abseil.patch b/third_party/xla/0004-Re-enable-system-abseil.patch
-new file mode 100644
-index 0000000..7b8db67
---- /dev/null
-+++ b/third_party/xla/0004-Re-enable-system-abseil.patch
++++ b/third_party/xla/0002-Re-enable-system-abseil.patch
 @@ -0,0 +1,411 @@
-+From ffbd2bf30c2cb7448418abdd017d6cf0e16f5a12 Mon Sep 17 00:00:00 2001
++From b02f6c77cb6ba3ca701b05463dd2751641d70e9f Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 4 Jul 2024 15:58:32 +0200
-+Subject: [PATCH 04/12] Re-enable system abseil
++Subject: [PATCH 2/9] Re-enable system abseil
 +
 +partially revert https://github.com/openxla/xla/commit/1fc2a846d259d3c896a6177485abcc68d97627a9
 +and add missing pieces
@@ -688,11 +595,11 @@ index 0000000..7b8db67
 ++    visibility = ["//visibility:public"],
 ++)
 +diff --git a/third_party/absl/workspace.bzl b/third_party/absl/workspace.bzl
-+index 6599b00908..bf22e44e97 100644
++index 3538e8b3f1..5707abf373 100644
 +--- a/third_party/absl/workspace.bzl
 ++++ b/third_party/absl/workspace.bzl
 +@@ -11,9 +11,39 @@ def repo():
-+     ABSL_SHA256 = "ed8f7d9f39139c449e79fd19765e23c96fdb774172d32d191323d3e3ea06e5ff"
++     ABSL_SHA256 = "f56086f4cdb0ab9b7c3ac46831b1faba3753248d0f06f8bca4c917a1de2a560a"
 +     # LINT.ThenChange(//tensorflow/lite/tools/cmake/modules/abseil-cpp.cmake)
 + 
 ++    SYS_DIRS = [
@@ -731,16 +638,16 @@ index 0000000..7b8db67
 +         strip_prefix = "abseil-cpp-{commit}".format(commit = ABSL_COMMIT),
 +         urls = tf_mirror_urls("https://github.com/abseil/abseil-cpp/archive/{commit}.tar.gz".format(commit = ABSL_COMMIT)),
 +         patch_file = [
-diff --git a/third_party/xla/0005-Check-whether-absl-log-is-already-initialized.patch b/third_party/xla/0005-Check-whether-absl-log-is-already-initialized.patch
+diff --git a/third_party/xla/0003-Check-whether-absl-log-is-already-initialized.patch b/third_party/xla/0003-Check-whether-absl-log-is-already-initialized.patch
 new file mode 100644
-index 0000000..a42504a
+index 000000000..140aed4e2
 --- /dev/null
-+++ b/third_party/xla/0005-Check-whether-absl-log-is-already-initialized.patch
++++ b/third_party/xla/0003-Check-whether-absl-log-is-already-initialized.patch
 @@ -0,0 +1,58 @@
-+From 34736e8d0b80576b7280ee2677d63377f2f38860 Mon Sep 17 00:00:00 2001
++From 2dc15f528169e80c7135c1a0fe1e1b2bbbab8eaf Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Fri, 22 Nov 2024 10:51:18 +0100
-+Subject: [PATCH 05/12] Check whether absl log is already initialized
++Subject: [PATCH 3/9] Check whether absl log is already initialized
 +
 +---
 + xla/pjrt/c/pjrt_c_api_gpu.cc | 7 ++++++-
@@ -795,16 +702,16 @@ index 0000000..a42504a
 ++}
 + 
 + }  // namespace xla
-diff --git a/third_party/xla/0006-Unbundle-grpc.patch b/third_party/xla/0006-Unbundle-grpc.patch
+diff --git a/third_party/xla/0004-Unbundle-grpc.patch b/third_party/xla/0004-Unbundle-grpc.patch
 new file mode 100644
-index 0000000..6128f25
+index 000000000..31b3ee417
 --- /dev/null
-+++ b/third_party/xla/0006-Unbundle-grpc.patch
++++ b/third_party/xla/0004-Unbundle-grpc.patch
 @@ -0,0 +1,152 @@
-+From 24d5bcd89c961e0e1394ff89e622b75c6279776d Mon Sep 17 00:00:00 2001
++From da7c1f750780a56c8abe9ff2633b1dc0dd46082f Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Wed, 23 Jul 2025 13:19:52 +0200
-+Subject: [PATCH 06/12] Unbundle grpc
++Subject: [PATCH 4/9] Unbundle grpc
 +
 +---
 + third_party/zlib.BUILD | 37 +------------------------------------
@@ -860,7 +767,7 @@ index 0000000..6128f25
 ++    linkopts = ["-lz"],
 + )
 +diff --git a/workspace0.bzl b/workspace0.bzl
-+index 4d7dd87430..eef1a162f9 100644
++index aff3deeb46..9fd299ff46 100644
 +--- a/workspace0.bzl
 ++++ b/workspace0.bzl
 +@@ -5,7 +5,6 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
@@ -911,10 +818,10 @@ index 0000000..6128f25
 + # shadowing previous loads and trigger a buildifier warning.
 + xla_workspace1 = workspace
 +diff --git a/workspace2.bzl b/workspace2.bzl
-+index 17458789c4..a577783d44 100644
++index 5a4ff6e3fd..cb0f3b8d29 100644
 +--- a/workspace2.bzl
 ++++ b/workspace2.bzl
-+@@ -125,6 +125,23 @@ def _tf_toolchains():
++@@ -148,6 +148,23 @@ def _tf_toolchains():
 +         aarch64_repo = "../aarch64_linux_toolchain",
 +         armhf_repo = "../armhf_linux_toolchain",
 +     )
@@ -938,7 +845,7 @@ index 0000000..6128f25
 + 
 + # Define all external repositories required by TensorFlow
 + def _tf_repositories():
-+@@ -365,12 +382,9 @@ def _tf_repositories():
++@@ -351,12 +368,9 @@ def _tf_repositories():
 +         urls = tf_mirror_urls("https://curl.se/download/curl-8.11.0.tar.gz"),
 +     )
 + 
@@ -953,23 +860,23 @@ index 0000000..6128f25
 +     )
 + 
 +     # Load the raw llvm-project.  llvm does not have build rules set up by default,
-diff --git a/third_party/xla/0007-Disable-coordination_agent_recoverable-flag.patch b/third_party/xla/0007-Disable-coordination_agent_recoverable-flag.patch
+diff --git a/third_party/xla/0005-Disable-coordination_agent_recoverable-flag.patch b/third_party/xla/0005-Disable-coordination_agent_recoverable-flag.patch
 new file mode 100644
-index 0000000..c223006
+index 000000000..18080f945
 --- /dev/null
-+++ b/third_party/xla/0007-Disable-coordination_agent_recoverable-flag.patch
++++ b/third_party/xla/0005-Disable-coordination_agent_recoverable-flag.patch
 @@ -0,0 +1,35 @@
-+From e629f844604a26a5faf9fe5a343715e38c4f84e0 Mon Sep 17 00:00:00 2001
++From 1411f152226f63ce7027e3a8228b9b749b2be99d Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 11 Sep 2025 21:30:50 +0200
-+Subject: [PATCH 07/12] Disable coordination_agent_recoverable flag
++Subject: [PATCH 5/9] Disable coordination_agent_recoverable flag
 +
 +---
 + .../coordination/coordination_service_agent.cc            | 8 ++++----
 + 1 file changed, 4 insertions(+), 4 deletions(-)
 +
 +diff --git a/xla/tsl/distributed_runtime/coordination/coordination_service_agent.cc b/xla/tsl/distributed_runtime/coordination/coordination_service_agent.cc
-+index 58fca32ed1..7dc305e058 100644
++index e2738cb230..411497bf7a 100644
 +--- a/xla/tsl/distributed_runtime/coordination/coordination_service_agent.cc
 ++++ b/xla/tsl/distributed_runtime/coordination/coordination_service_agent.cc
 +@@ -57,9 +57,9 @@ limitations under the License.
@@ -994,16 +901,16 @@ index 0000000..c223006
 +     LOG(WARNING)
 +         << "Using experimental recoverable task feature. The default shutdown "
 +            "barrier will only block non-recoverable tasks. If a synchronized "
-diff --git a/third_party/xla/0008-absl_bad_-optional-variant-_access-is-now-header-onl.patch b/third_party/xla/0008-absl_bad_-optional-variant-_access-is-now-header-onl.patch
+diff --git a/third_party/xla/0006-absl_bad_-optional-variant-_access-is-now-header-onl.patch b/third_party/xla/0006-absl_bad_-optional-variant-_access-is-now-header-onl.patch
 new file mode 100644
-index 0000000..433938e
+index 000000000..fea764464
 --- /dev/null
-+++ b/third_party/xla/0008-absl_bad_-optional-variant-_access-is-now-header-onl.patch
++++ b/third_party/xla/0006-absl_bad_-optional-variant-_access-is-now-header-onl.patch
 @@ -0,0 +1,29 @@
-+From c11358c6345d2727d0d0e6643660c548a9d2d32b Mon Sep 17 00:00:00 2001
++From 7a4d0158a8e0d0135c892d872ba9c5d0afd27f76 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 11 Sep 2025 21:33:07 +0200
-+Subject: [PATCH 08/12] absl_bad_{optional,variant}_access is now header-only
++Subject: [PATCH 6/9] absl_bad_{optional,variant}_access is now header-only
 +
 +---
 + third_party/absl/system.absl.types.BUILD | 2 --
@@ -1029,16 +936,16 @@ index 0000000..433938e
 +     deps = [
 +         "//absl/base:raw_logging_internal",
 +     ],
-diff --git a/third_party/xla/0009-Add-dependency-on-proto_bazel_features.patch b/third_party/xla/0009-Add-dependency-on-proto_bazel_features.patch
+diff --git a/third_party/xla/0007-Add-dependency-on-proto_bazel_features.patch b/third_party/xla/0007-Add-dependency-on-proto_bazel_features.patch
 new file mode 100644
-index 0000000..cc0bb70
+index 000000000..23c74af1a
 --- /dev/null
-+++ b/third_party/xla/0009-Add-dependency-on-proto_bazel_features.patch
++++ b/third_party/xla/0007-Add-dependency-on-proto_bazel_features.patch
 @@ -0,0 +1,72 @@
-+From 3178784d768554de923e1be09bd47a8c8dfa5926 Mon Sep 17 00:00:00 2001
++From 30ee382514229da60479ab02387741935ac94e2d Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Fri, 12 Sep 2025 16:06:30 +0200
-+Subject: [PATCH 09/12] Add dependency on proto_bazel_features
++Subject: [PATCH 7/9] Add dependency on proto_bazel_features
 +
 +---
 + workspace2.bzl |  4 +++-
@@ -1046,7 +953,7 @@ index 0000000..cc0bb70
 + 2 files changed, 19 insertions(+), 2 deletions(-)
 +
 +diff --git a/workspace2.bzl b/workspace2.bzl
-+index a577783d44..6c70188ace 100644
++index cb0f3b8d29..08dcd79f44 100644
 +--- a/workspace2.bzl
 ++++ b/workspace2.bzl
 +@@ -1,6 +1,7 @@
@@ -1056,8 +963,8 @@ index 0000000..cc0bb70
 ++load("@proto_bazel_features//:deps.bzl", proto_bazel_features_deps = "bazel_features_deps")
 + load("@bazel_skylib//lib:versions.bzl", "versions")
 + load("@bazel_tools//tools/build_defs/repo:java.bzl", "java_import_external")
-+ load("@io_bazel_rules_closure//closure:defs.bzl", "filegroup_external")
-+@@ -723,7 +724,8 @@ def workspace():
++ load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
++@@ -690,7 +691,8 @@ def workspace():
 +     # written according to common practice to query native.existing_rule()).
 +     _tf_repositories()
 + 
@@ -1107,73 +1014,43 @@ index 0000000..cc0bb70
 +     # Maven dependencies.
 +     RULES_JVM_EXTERNAL_TAG = "4.3"
 +     http_archive(
-diff --git a/third_party/xla/0010-Update-gloo-version.patch b/third_party/xla/0010-Update-gloo-version.patch
+diff --git a/third_party/xla/0008-Add-macos_x86_64-to-mkl_deps.patch b/third_party/xla/0008-Add-macos_x86_64-to-mkl_deps.patch
 new file mode 100644
-index 0000000..6657c48
+index 000000000..31892b79c
 --- /dev/null
-+++ b/third_party/xla/0010-Update-gloo-version.patch
-@@ -0,0 +1,24 @@
-+From 2264ea2571f99a33056c81e2632ffde344201cf5 Mon Sep 17 00:00:00 2001
-+From: "Uwe L. Korn" <uwe.korn@quantco.com>
-+Date: Mon, 15 Sep 2025 13:08:44 +0200
-+Subject: [PATCH 10/12] Update gloo version
-+
-+---
-+ third_party/gloo/workspace.bzl | 4 ++--
-+ 1 file changed, 2 insertions(+), 2 deletions(-)
-+
-+diff --git a/third_party/gloo/workspace.bzl b/third_party/gloo/workspace.bzl
-+index ede168395a..64041780cd 100644
-+--- a/third_party/gloo/workspace.bzl
-++++ b/third_party/gloo/workspace.bzl
-+@@ -5,8 +5,8 @@ load("//third_party:repo.bzl", "tf_http_archive", "tf_mirror_urls")
-+ def repo():
-+     """Imports Gloo."""
-+ 
-+-    GLOO_COMMIT = "5354032ea08eadd7fc4456477f7f7c6308818509"
-+-    GLOO_SHA256 = "5759a06e6c8863c58e8ceadeb56f7c701fec89b2559ba33a103a447207bf69c7"
-++    GLOO_COMMIT = "54cbae0d3a67fa890b4c3d9ee162b7860315e341"
-++    GLOO_SHA256 = "61089361dbdbc9d6f75e297148369b13f615a3e6b78de1be56cce74ca2f64940"
-+ 
-+     tf_http_archive(
-+         name = "gloo",
-diff --git a/third_party/xla/0011-Add-macos_x86_64-to-mkl_deps.patch b/third_party/xla/0011-Add-macos_x86_64-to-mkl_deps.patch
-new file mode 100644
-index 0000000..0907f79
---- /dev/null
-+++ b/third_party/xla/0011-Add-macos_x86_64-to-mkl_deps.patch
++++ b/third_party/xla/0008-Add-macos_x86_64-to-mkl_deps.patch
 @@ -0,0 +1,21 @@
-+From 9eb91fcb7bcdeb14962fd5dfb91a3f1fb37a3c00 Mon Sep 17 00:00:00 2001
++From 4ebcd460cf800a14c73fc93244eb832ec2aeb04a Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Sat, 20 Sep 2025 08:15:14 +0200
-+Subject: [PATCH 11/12] Add macos_x86_64 to mkl_deps
++Subject: [PATCH 8/9] Add macos_x86_64 to mkl_deps
 +
 +---
 + xla/tsl/mkl/build_defs.bzl | 1 +
 + 1 file changed, 1 insertion(+)
 +
 +diff --git a/xla/tsl/mkl/build_defs.bzl b/xla/tsl/mkl/build_defs.bzl
-+index d247197d46..bea4f8fc2e 100644
++index cf6c2ac5b4..68da27fa65 100644
 +--- a/xla/tsl/mkl/build_defs.bzl
 ++++ b/xla/tsl/mkl/build_defs.bzl
-+@@ -107,6 +107,7 @@ def mkl_deps():
-+         "@xla//xla/tsl/mkl:build_with_mkl_aarch64": ["@mkl_dnn_acl_compatible//:mkl_dnn_acl"],
-+         "@xla//xla/tsl:linux_x86_64_with_onednn_async": ["@onednn_async//:mkl_dnn"],
-+         "@xla//xla/tsl:linux_x86_64": ["@onednn//:mkl_dnn"],
-++        "@xla//xla/tsl:macos_x86_64": ["@onednn//:mkl_dnn"],
-+         "@xla//xla/tsl:windows": ["@onednn//:mkl_dnn"],
++@@ -111,6 +111,7 @@ def mkl_deps():
++         Label("//xla/tsl/mkl:build_with_mkl_aarch64"): ["@mkl_dnn_acl_compatible//:mkl_dnn_acl"],
++         Label("//xla/tsl:linux_x86_64_with_onednn_async"): ["@onednn_async//:mkl_dnn"],
++         Label("//xla/tsl:linux_x86_64"): ["@onednn//:mkl_dnn"],
+++        Label("//xla/tsl:macos_x86_64"): ["@onednn//:mkl_dnn"],
++         Label("//xla/tsl:windows"): ["@onednn//:mkl_dnn"],
 +         "//conditions:default": [],
 +     })
-diff --git a/third_party/xla/0012-Add-systemlib-for-oneDNN.patch b/third_party/xla/0012-Add-systemlib-for-oneDNN.patch
+diff --git a/third_party/xla/0009-Add-systemlib-for-oneDNN.patch b/third_party/xla/0009-Add-systemlib-for-oneDNN.patch
 new file mode 100644
-index 0000000..a2a69d4
+index 000000000..ce11ce0bf
 --- /dev/null
-+++ b/third_party/xla/0012-Add-systemlib-for-oneDNN.patch
++++ b/third_party/xla/0009-Add-systemlib-for-oneDNN.patch
 @@ -0,0 +1,35 @@
-+From c524ab99bb701ff0169818a02049332da51dd359 Mon Sep 17 00:00:00 2001
++From 5ec14582e90af874df94a448ac202ca91dab247f Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Fri, 26 Sep 2025 17:23:37 +0200
-+Subject: [PATCH 12/12] Add systemlib for oneDNN
++Subject: [PATCH 9/9] Add systemlib for oneDNN
 +
 +---
 + third_party/mkl_dnn/mkldnn_system.BUILD | 6 ++++++
@@ -1194,45 +1071,36 @@ index 0000000..a2a69d4
 ++)
 ++
 +diff --git a/workspace2.bzl b/workspace2.bzl
-+index 6c70188ace..c30c4f7033 100644
++index 08dcd79f44..f455ab1a69 100644
 +--- a/workspace2.bzl
 ++++ b/workspace2.bzl
-+@@ -195,6 +195,7 @@ def _tf_repositories():
-+         name = "onednn",
++@@ -188,6 +188,7 @@ def _tf_repositories():
++         name = "onednn_async",
 +         build_file = "//third_party/mkl_dnn:mkldnn_v1.BUILD",
 +         patch_file = ["//third_party/mkl_dnn:setting_init.patch"],
 ++        system_build_file = "//third_party/mkl_dnn:mkldnn_system.BUILD",
-+         sha256 = "071f289dc961b43a3b7c8cbe8a305290a7c5d308ec4b2f586397749abdc88296",
-+         strip_prefix = "oneDNN-3.7.3",
-+         urls = tf_mirror_urls("https://github.com/oneapi-src/oneDNN/archive/refs/tags/v3.7.3.tar.gz"),
++         sha256 = "1cfa18fad65b4c3b46ef701a83c64b87411d63e79c8549cdb37f8c1fc10e2398",
++         strip_prefix = "oneDNN-dev-v3.7-thunk-preview",
++         urls = tf_mirror_urls("https://github.com/oneapi-src/oneDNN/archive/refs/heads/dev-v3.7-thunk-preview.tar.gz"),
 diff --git a/third_party/xla/workspace.bzl b/third_party/xla/workspace.bzl
-index be345f8..f2c0bf0 100644
+index be345f8c6..a51431f3f 100644
 --- a/third_party/xla/workspace.bzl
 +++ b/third_party/xla/workspace.bzl
-@@ -26,6 +26,20 @@ def repo():
+@@ -26,6 +26,17 @@ def repo():
          # web links (`/archive/`) links so we use the GitHub API endpoint to get the tarball
          # instead.
          urls = tf_mirror_urls("https://api.github.com/repos/openxla/xla/tarball/{commit}".format(commit = XLA_COMMIT)),
 +        patch_file = [
-+            "//third_party/xla:0001-Support-third-party-build-of-boringssl.patch",
-+            "//third_party/xla:0002-Fix-abseil-headers.patch",
-+            "//third_party/xla:0003-Omit-usage-of-StrFormat.patch",
-+            "//third_party/xla:0004-Re-enable-system-abseil.patch",
-+            "//third_party/xla:0005-Check-whether-absl-log-is-already-initialized.patch",
-+            "//third_party/xla:0006-Unbundle-grpc.patch",
-+            "//third_party/xla:0007-Disable-coordination_agent_recoverable-flag.patch",
-+            "//third_party/xla:0008-absl_bad_-optional-variant-_access-is-now-header-onl.patch",
-+            "//third_party/xla:0009-Add-dependency-on-proto_bazel_features.patch",
-+            "//third_party/xla:0010-Update-gloo-version.patch",
-+            "//third_party/xla:0011-Add-macos_x86_64-to-mkl_deps.patch",
-+            "//third_party/xla:0012-Add-systemlib-for-oneDNN.patch",
++            "//third_party/xla:0001-Fix-abseil-headers.patch",
++            "//third_party/xla:0002-Re-enable-system-abseil.patch",
++            "//third_party/xla:0003-Check-whether-absl-log-is-already-initialized.patch",
++            "//third_party/xla:0004-Unbundle-grpc.patch",
++            "//third_party/xla:0005-Disable-coordination_agent_recoverable-flag.patch",
++            "//third_party/xla:0006-absl_bad_-optional-variant-_access-is-now-header-onl.patch",
++            "//third_party/xla:0007-Add-dependency-on-proto_bazel_features.patch",
++            "//third_party/xla:0008-Add-macos_x86_64-to-mkl_deps.patch",
++            "//third_party/xla:0009-Add-systemlib-for-oneDNN.patch",
 +        ],
      )
  
      # For development, one often wants to make changes to the TF repository as well
-@@ -39,4 +53,4 @@ def repo():
-     # local_repository(
-     #    name = "xla",
-     #    path = "/path/to/xla",
--    # )
-+   # )
