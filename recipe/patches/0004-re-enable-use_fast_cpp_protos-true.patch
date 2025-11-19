@@ -1,4 +1,4 @@
-From f067df3c2e9fad8175167c14e668047d9ef45d3b Mon Sep 17 00:00:00 2001
+From a92944adb6b47cc06730a100dfd6009cc0fad040 Mon Sep 17 00:00:00 2001
 From: "H. Vetinari" <h.vetinari@gmx.com>
 Date: Sun, 31 Aug 2025 13:28:45 +1100
 Subject: [PATCH 4/4] re-enable use_fast_cpp_protos=true
@@ -8,10 +8,10 @@ Subject: [PATCH 4/4] re-enable use_fast_cpp_protos=true
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/.bazelrc b/.bazelrc
-index 0d79226bd..4c4b44db0 100644
+index c5ef46f4e..61e7d7852 100644
 --- a/.bazelrc
 +++ b/.bazelrc
-@@ -126,7 +126,7 @@ common --@rules_python//python/config_settings:precompile=force_disabled
+@@ -134,7 +134,7 @@ common --@rules_python//python/config_settings:precompile=force_disabled
  # of cc_binary shared libraries artifacts, which will mess with how we link 
  # protobuf dependencies ourselves. By default this value is false, but some 
  # projects enable it, which we don't want here.
