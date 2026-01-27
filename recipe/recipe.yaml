@@ -28,6 +28,8 @@ requirements:
     - ${{ compiler('c') }}
     - ${{ stdlib("c") }}
     - ${{ compiler('cxx') }}
+    # build tries to find bare `clang++` binary
+    - clangxx
     - if: cuda_compiler_version != "None"
       then:
         - ${{ compiler('cuda') }}
