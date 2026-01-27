@@ -1,4 +1,4 @@
-From f7e4a5acc52215dbfc3118759dc3769dca77a038 Mon Sep 17 00:00:00 2001
+From aa3337dfa1a2b2cc38e0be6fa5253402dcc7c392 Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwe.korn@quantco.com>
 Date: Thu, 14 Dec 2023 17:06:15 +0100
 Subject: [PATCH 2/4] Consolidated build fixes for XLA
@@ -24,9 +24,9 @@ Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
  ...d-dependency-on-proto_bazel_features.patch |  72 +++
  .../0008-Add-macos_x86_64-to-mkl_deps.patch   |  21 +
  .../xla/0009-Add-systemlib-for-oneDNN.patch   |  35 ++
- ...e-pointless-error-in-tf_http_archive.patch |  34 ++
+ ...e-pointless-error-in-tf_http_archive.patch |  49 +++
  third_party/xla/workspace.bzl                 |  12 +
- 12 files changed, 1030 insertions(+)
+ 12 files changed, 1045 insertions(+)
  create mode 100644 third_party/grpc_systemlib.BUILD
  create mode 100644 third_party/xla/0001-Fix-abseil-headers.patch
  create mode 100644 third_party/xla/0002-Re-enable-system-abseil.patch
@@ -1085,18 +1085,20 @@ index 000000000..f8cb7504c
 +         urls = tf_mirror_urls("https://github.com/oneapi-src/oneDNN/archive/refs/heads/dev-v3.7-thunk-preview.tar.gz"),
 diff --git a/third_party/xla/0010-silence-pointless-error-in-tf_http_archive.patch b/third_party/xla/0010-silence-pointless-error-in-tf_http_archive.patch
 new file mode 100644
-index 000000000..5a98ca5c6
+index 000000000..5607e4781
 --- /dev/null
 +++ b/third_party/xla/0010-silence-pointless-error-in-tf_http_archive.patch
-@@ -0,0 +1,34 @@
-+From e3a0e1a99d2a80747cfbd1d4e8e02789807cca3c Mon Sep 17 00:00:00 2001
+@@ -0,0 +1,49 @@
++From 61e170c0b2386fca5752e0afee41636a22463eb9 Mon Sep 17 00:00:00 2001
 +From: "H. Vetinari" <h.vetinari@gmx.com>
 +Date: Tue, 27 Jan 2026 16:03:03 +1100
 +Subject: [PATCH 10/10] silence pointless error in tf_http_archive
 +
++and fix typo in invocation of it for bazel_features
 +---
 + third_party/repo.bzl | 14 --------------
-+ 1 file changed, 14 deletions(-)
++ workspace3.bzl       |  2 +-
++ 2 files changed, 1 insertion(+), 15 deletions(-)
 +
 +diff --git a/third_party/repo.bzl b/third_party/repo.bzl
 +index 326276e11d..601d1bcd0a 100644
@@ -1123,6 +1125,19 @@ index 000000000..5a98ca5c6
 +     if native.existing_rule(name):
 +         return
 + 
++diff --git a/workspace3.bzl b/workspace3.bzl
++index 4ee266c676..e9ee4763ae 100644
++--- a/workspace3.bzl
+++++ b/workspace3.bzl
++@@ -58,7 +58,7 @@ def workspace():
++         name = "bazel_features",
++         sha256 = "c41853e3b636c533b86bf5ab4658064e6cc9db0a3bce52cbff0629e094344ca9",
++         strip_prefix = "bazel_features-1.33.0",
++-        url = "https://github.com/bazel-contrib/bazel_features/releases/download/v1.33.0/bazel_features-v1.33.0.tar.gz",
+++        urls = "https://github.com/bazel-contrib/bazel_features/releases/download/v1.33.0/bazel_features-v1.33.0.tar.gz",
++     )
++ 
++     # Maven dependencies.
 diff --git a/third_party/xla/workspace.bzl b/third_party/xla/workspace.bzl
 index be345f8c6..c9c241a81 100644
 --- a/third_party/xla/workspace.bzl
