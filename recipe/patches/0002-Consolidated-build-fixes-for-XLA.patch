@@ -1,4 +1,4 @@
-From aa3337dfa1a2b2cc38e0be6fa5253402dcc7c392 Mon Sep 17 00:00:00 2001
+From 0380a0f249aa912642be2fd8dcf2977f416b2717 Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwe.korn@quantco.com>
 Date: Thu, 14 Dec 2023 17:06:15 +0100
 Subject: [PATCH 2/4] Consolidated build fixes for XLA
@@ -1085,16 +1085,16 @@ index 000000000..f8cb7504c
 +         urls = tf_mirror_urls("https://github.com/oneapi-src/oneDNN/archive/refs/heads/dev-v3.7-thunk-preview.tar.gz"),
 diff --git a/third_party/xla/0010-silence-pointless-error-in-tf_http_archive.patch b/third_party/xla/0010-silence-pointless-error-in-tf_http_archive.patch
 new file mode 100644
-index 000000000..5607e4781
+index 000000000..f3724059e
 --- /dev/null
 +++ b/third_party/xla/0010-silence-pointless-error-in-tf_http_archive.patch
 @@ -0,0 +1,49 @@
-+From 61e170c0b2386fca5752e0afee41636a22463eb9 Mon Sep 17 00:00:00 2001
++From 8c80db40cc0e75ee8d23fb5701cd928c5ef70938 Mon Sep 17 00:00:00 2001
 +From: "H. Vetinari" <h.vetinari@gmx.com>
 +Date: Tue, 27 Jan 2026 16:03:03 +1100
 +Subject: [PATCH 10/10] silence pointless error in tf_http_archive
 +
-+and fix typo in invocation of it for bazel_features
++and fix invocation of it for bazel_features
 +---
 + third_party/repo.bzl | 14 --------------
 + workspace3.bzl       |  2 +-
@@ -1126,7 +1126,7 @@ index 000000000..5607e4781
 +         return
 + 
 +diff --git a/workspace3.bzl b/workspace3.bzl
-+index 4ee266c676..e9ee4763ae 100644
++index 4ee266c676..8653b2f797 100644
 +--- a/workspace3.bzl
 ++++ b/workspace3.bzl
 +@@ -58,7 +58,7 @@ def workspace():
@@ -1134,7 +1134,7 @@ index 000000000..5607e4781
 +         sha256 = "c41853e3b636c533b86bf5ab4658064e6cc9db0a3bce52cbff0629e094344ca9",
 +         strip_prefix = "bazel_features-1.33.0",
 +-        url = "https://github.com/bazel-contrib/bazel_features/releases/download/v1.33.0/bazel_features-v1.33.0.tar.gz",
-++        urls = "https://github.com/bazel-contrib/bazel_features/releases/download/v1.33.0/bazel_features-v1.33.0.tar.gz",
+++        urls = tf_mirror_urls("https://github.com/bazel-contrib/bazel_features/releases/download/v1.33.0/bazel_features-v1.33.0.tar.gz"),
 +     )
 + 
 +     # Maven dependencies.
