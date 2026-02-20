@@ -9,7 +9,7 @@ touch -m -t 203510100101 $(find $BUILD_PREFIX/share/bazel/install -type f)
 
 $RECIPE_DIR/add_py_toolchain.sh
 
-if [[ "${target_platform}" == osx-* ]]; then
+if [[ "${host_platform}" == osx-* ]]; then
   export LDFLAGS="${LDFLAGS} -lz -framework CoreFoundation -Xlinker -undefined -Xlinker dynamic_lookup"
   # Remove stdlib=libc++; this is the default and errors on C sources.
   export CXXFLAGS="${CXXFLAGS/-stdlib=libc++} -D_LIBCPP_DISABLE_AVAILABILITY"
@@ -20,7 +20,7 @@ else
   # Otherwise, this will cause linkage errors with a GCC-built abseil
   export CXXFLAGS="${CXXFLAGS} -fclang-abi-compat=17"
 fi
-if [[ "${target_platform}" == "linux-64" || "${target_platform}" == "linux-aarch64" ]]; then
+if [[ "${host_platform}" == "linux-64" || "${host_platform}" == "linux-aarch64" ]]; then
     # https://github.com/conda-forge/jaxlib-feedstock/issues/310
     # Explicitly force non-executable stack to fix compatibility with glibc 2.41, due to:
     # xla_extension.so: cannot enable executable stack as shared object requires: Invalid argument
@@ -35,9 +35,9 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
     else
         export HERMETIC_CUDA_COMPUTE_CAPABILITIES=sm_75,sm_80,sm_86,sm_89,sm_90,sm_100,sm_110,sm_120,compute_120
     fi
-    if [[ "${target_platform}" == "linux-64" ]]; then
+    if [[ "${host_platform}" == "linux-64" ]]; then
         export CUDA_ARCH="x86_64-linux"
-    elif [[ "${target_platform}" == "linux-aarch64" ]]; then
+    elif [[ "${host_platform}" == "linux-aarch64" ]]; then
 	export CUDA_ARCH="sbsa-linux"
     else
 	echo "Unknown architecture for CUDA"
@@ -71,7 +71,7 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
 
     export TF_CUDA_VERSION="${cuda_compiler_version}"
     export TF_CUDNN_VERSION="${cudnn}"
-    if [[ "${target_platform}" == "linux-aarch64" ]]; then
+    if [[ "${host_platform}" == "linux-aarch64" ]]; then
         export TF_CUDA_PATHS="${CUDA_HOME}/targets/sbsa-linux,${TF_CUDA_PATHS}"
     fi
     export TF_NEED_CUDA=1
@@ -109,7 +109,7 @@ build --repo_env=GRPC_BAZEL_DIR=${PREFIX}/share/bazel/grpc/bazel
 build:build_cuda_with_nvcc --action_env=CONDA_USE_NVCC=1
 EOF
 
-if [[ "${target_platform}" == "osx-arm64" || "${target_platform}" != "${build_platform}" ]]; then
+if [[ "${host_platform}" == "osx-arm64" || "${host_platform}" != "${build_platform}" ]]; then
   echo "build --cpu=${TARGET_CPU}" >> .bazelrc
 fi
 
@@ -122,20 +122,20 @@ fi
 # Thus: don't add com_google_protobuf here.
 export TF_SYSTEM_LIBS="boringssl,com_github_googlecloudplatform_google_cloud_cpp,com_github_grpc_grpc,flatbuffers,zlib,com_google_absl"
 
-if [[ "${target_platform}" == "osx-64" ]]; then
+if [[ "${host_platform}" == "osx-64" ]]; then
     export TF_SYSTEM_LIBS="${TF_SYSTEM_LIBS},onednn"
 fi
 
 # Mark as a release build
 EXTRA="--bazel_options=--repo_env=ML_WHEEL_TYPE=release ${CUDA_ARGS:-}"
 
-if [[ "${target_platform}" == "osx-arm64" || "${target_platform}" != "${build_platform}" ]]; then
+if [[ "${host_platform}" == "osx-arm64" || "${host_platform}" != "${build_platform}" ]]; then
     EXTRA="${EXTRA} --target_cpu ${TARGET_CPU}"
 fi
 
 # Never use the Appe toolchain
 sed -i '/local_config_apple/d' .bazelrc
-if [[ "${target_platform}" == linux-* ]]; then
+if [[ "${host_platform}" == linux-* ]]; then
     EXTRA="${EXTRA} --clang_path $(command -v ${CC})"
 
     # Remove incompatible argument from bazelrc
@@ -178,7 +178,7 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
   rm -f "${JAX_CUDA_PLUGIN_DIST_INFO_DIR}/RECORD"
 
   # Regression test for https://github.com/conda-forge/jaxlib-feedstock/issues/320
-  if [[ "${target_platform}" == linux-* ]]; then
+  if [[ "${host_platform}" == linux-* ]]; then
     # Scan all .so files in both plugin directories and error if any FLAGS_* symbols are present.
     declare -a PLUGIN_DIRS=(
       "${SP_DIR}/jax_plugins/xla_cuda${CUDA_COMPILER_MAJOR_VERSION}"

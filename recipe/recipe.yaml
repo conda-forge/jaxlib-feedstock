@@ -32,10 +32,10 @@ requirements:
       then:
         - ${{ compiler('cuda') }}
         - rsync
-    - if: build_platform != target_platform
+    - if: build_platform != host_platform
       then:
         - python
-        - cross-python_${{ target_platform }}
+        - cross-python_${{ host_platform }}
         - numpy
         - zlib
     - if: unix
