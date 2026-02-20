@@ -148,7 +148,7 @@ fi
 # Never use the Appe toolchain
 sed -i '/local_config_apple/d' .bazelrc
 if [[ "${target_platform}" == linux-* ]]; then
-    EXTRA="${EXTRA} --clang_path $CC"
+    EXTRA="${EXTRA} --clang_path $(command -v ${CC})"
 
     # Remove incompatible argument from bazelrc
     sed -i '/Qunused-arguments/d' .bazelrc
