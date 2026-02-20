@@ -7,6 +7,11 @@ export JAX_RELEASE=$PKG_VERSION
 # https://github.com/prefix-dev/rattler-build/issues/1865
 touch -m -t 203510100101 $(find $BUILD_PREFIX/share/bazel/install -type f)
 
+# canonicalization leads to files in $BUILD_PREFIX, remove those as they are not necessary for the build.
+pushd $BUILD_PREFIX/include/
+  rm -rf absl google grpc grpcpp openssl
+popd
+
 $RECIPE_DIR/add_py_toolchain.sh
 
 if [[ "${target_platform}" == osx-* ]]; then
@@ -98,9 +103,7 @@ build --platforms=//bazel_toolchain:target_platform
 build --host_platform=//bazel_toolchain:build_platform
 build --extra_toolchains=//bazel_toolchain:cc_cf_toolchain
 build --extra_toolchains=//bazel_toolchain:cc_cf_host_toolchain
-build --logging=6
 build --verbose_failures
-build --toolchain_resolution_debug
 build --define=PREFIX=${PREFIX}
 build --define=PROTOBUF_INCLUDE_PATH=${PREFIX}/include
 build --local_resources=cpu=${CPU_COUNT}
