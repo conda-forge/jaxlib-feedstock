@@ -7,10 +7,17 @@ export JAX_RELEASE=$PKG_VERSION
 # https://github.com/prefix-dev/rattler-build/issues/1865
 touch -m -t 203510100101 $(find $BUILD_PREFIX/share/bazel/install -type f)
 
-# canonicalization leads to files in $BUILD_PREFIX, remove those as they are not necessary for the build.
-pushd $BUILD_PREFIX/include/
-  rm -rf absl google grpc grpcpp openssl
-popd
+# Canonicalize header resolution to HOST includes.
+# Conda clang config files inject "<CFGDIR>/../include" (BUILD_PREFIX/include),
+# which causes Bazel absolute include checks to report build_env paths.
+if [[ "${target_platform}" == osx-* ]]; then
+  for cfg in "${BUILD_PREFIX}"/bin/*-apple-darwin-clang.cfg \
+             "${BUILD_PREFIX}"/bin/*-apple-darwin-clang++.cfg \
+             "${BUILD_PREFIX}"/bin/*-apple-darwin-clang-cpp.cfg; do
+    [[ -f "${cfg}" ]] || continue
+    sed -i "s|^-isystem <CFGDIR>/../include$|-isystem ${PREFIX}/include|" "${cfg}"
+  done
+fi
 
 $RECIPE_DIR/add_py_toolchain.sh
 
