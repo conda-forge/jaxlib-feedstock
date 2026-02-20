@@ -222,6 +222,19 @@ diff --git a/xla/service/spmd/shardy/sdy_round_trip/shard_map_import.cc b/xla/se
 +          kGlobalToLocalShapeCallTargetName);
 EOF
 fi
+if ! grep -q "localToGlobalShape.getCallTargetName" "${XLA_ABSEIL_PATCH}"; then
+cat >> "${XLA_ABSEIL_PATCH}" <<'EOF'
+
+diff --git a/xla/service/spmd/shardy/sdy_round_trip/shard_map_import.cc b/xla/service/spmd/shardy/sdy_round_trip/shard_map_import.cc
+--- a/xla/service/spmd/shardy/sdy_round_trip/shard_map_import.cc
++++ b/xla/service/spmd/shardy/sdy_round_trip/shard_map_import.cc
+@@ -125,2 +125,2 @@
+-    CHECK_EQ(localToGlobalShape.getCallTargetName(),
+-             kLocalToGlobalShapeCallTargetName);
++    CHECK(localToGlobalShape.getCallTargetName() ==
++          kLocalToGlobalShapeCallTargetName);
+EOF
+fi
 if ! grep -q "dot_handler.cc" "${XLA_ABSEIL_PATCH}"; then
 cat >> "${XLA_ABSEIL_PATCH}" <<'EOF'
 
