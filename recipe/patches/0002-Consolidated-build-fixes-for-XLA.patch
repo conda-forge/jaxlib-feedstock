@@ -121,7 +121,7 @@ new file mode 100644
 index 000000000..23a4c486e
 --- /dev/null
 +++ b/third_party/xla/0001-Fix-abseil-headers.patch
-@@ -0,0 +1,99 @@
+@@ -0,0 +1,121 @@
 +From 5cc573c289895d659a5a05670f8650b357dc5424 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 23 May 2024 15:45:52 +0200
@@ -129,12 +129,14 @@ index 000000000..23a4c486e
 +
 +---
 + xla/backends/cpu/codegen/ir_compiler.cc               | 2 +-
++ xla/backends/cpu/runtime/rng_state_lib.cc             | 2 +-
 + xla/hlo/transforms/simplifiers/algebraic_simplifier.h | 2 +-
 + xla/python/ifrt_proxy/common/BUILD                    | 3 +++
++ xla/service/llvm_ir/llvm_command_line_options.cc      | 4 ++--
 + xla/tsl/distributed_runtime/rpc/BUILD                 | 1 +
 + xla/tsl/platform/default/BUILD                        | 2 ++
 + xla/tsl/profiler/rpc/client/BUILD                     | 2 ++
-+ 6 files changed, 10 insertions(+), 2 deletions(-)
++ 8 files changed, 13 insertions(+), 5 deletions(-)
 +
 +diff --git a/xla/backends/cpu/codegen/ir_compiler.cc b/xla/backends/cpu/codegen/ir_compiler.cc
 +index a532b353ce..091fe73f1f 100644
@@ -149,6 +151,26 @@ index 000000000..23a4c486e
 +     const llvm::Module& llvm_module) {
 +   llvm::Metadata* md = llvm_module.getModuleFlag("xla_backend_extra_options");
 +   if (md == nullptr) return nullptr;
++diff --git a/xla/backends/cpu/runtime/rng_state_lib.cc b/xla/backends/cpu/runtime/rng_state_lib.cc
++--- a/xla/backends/cpu/runtime/rng_state_lib.cc
+++++ b/xla/backends/cpu/runtime/rng_state_lib.cc
++@@ -33,6 +33,6 @@ RngState::RngState(int64_t delta)
++     : delta_(delta), state_(kRngStateInitialValue) {}
++
++ void RngState::GetAndUpdateState(uint64_t* data) {
++-  absl::MutexLock lock(mu_);
+++  absl::MutexLock lock(&mu_);
++
++   uint64_t low = absl::Int128Low64(state_);
++diff --git a/xla/service/llvm_ir/llvm_command_line_options.cc b/xla/service/llvm_ir/llvm_command_line_options.cc
++--- a/xla/service/llvm_ir/llvm_command_line_options.cc
+++++ b/xla/service/llvm_ir/llvm_command_line_options.cc
++@@ -83,1 +83,1 @@
++-  lock_.unlock();
+++  lock_.Unlock();
++@@ -87,1 +87,1 @@ LLVMCommandLineOptionsLock::~LLVMCommandLineOptionsLock() {
++-  absl::MutexLock lock(lock_);
+++  absl::MutexLock lock(&lock_);
 +diff --git a/xla/hlo/transforms/simplifiers/algebraic_simplifier.h b/xla/hlo/transforms/simplifiers/algebraic_simplifier.h
 +index da0eb0f861..dcefad1bd3 100644
 +--- a/xla/hlo/transforms/simplifiers/algebraic_simplifier.h
