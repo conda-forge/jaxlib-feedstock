@@ -17,7 +17,12 @@ if [[ "${target_platform}" == osx-* ]]; then
     [[ -f "${cfg}" ]] || continue
     sed -i "s|^-isystem <CFGDIR>/../include$|-isystem ${PREFIX}/include|" "${cfg}"
   done
+elif [[ "${target_platform}" == linux-* ]]; then
+  sed -i '/^-isystem <CFGDIR>\/..\/include$/d' \
+    "${BUILD_PREFIX}/bin/${CONDA_TOOLCHAIN_HOST}-clang.cfg" \
+    "${BUILD_PREFIX}/bin/${CONDA_TOOLCHAIN_HOST}-clang++.cfg"
 fi
+
 
 $RECIPE_DIR/add_py_toolchain.sh
 

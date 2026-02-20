@@ -42,7 +42,7 @@ requirements:
     # Keep bazel listed twice here to help the migrators track dependencies
     - bazel
     - bazel 7.*
-    - bazel-toolchain >=0.5.3
+    - bazel-toolchain >=0.5.5
     # need protoc
     - libprotobuf
     # needs protoc-gen-grpc
