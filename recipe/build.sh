@@ -89,7 +89,62 @@ if [[ "${CI:-}" == "github_actions" ]]; then
   export CPU_COUNT=2
 fi
 
-source gen-bazel-toolchain
+# Newer toolchains can expose multiple GCC header versions (e.g. 13.x and 15.x),
+# which makes the upstream script emit a multiline value that breaks sed.
+GEN_BAZEL_TOOLCHAIN="$(command -v gen-bazel-toolchain || true)"
+if [[ -z "${GEN_BAZEL_TOOLCHAIN}" ]]; then
+  echo "Unable to find gen-bazel-toolchain in PATH"
+  exit 1
+fi
+cp "${GEN_BAZEL_TOOLCHAIN}" ./gen-bazel-toolchain.local
+sed -i 's@^[[:space:]]*export GCC_HEADER_VERSION=.*@    export GCC_HEADER_VERSION="$(for d in ${BUILD_PREFIX}/lib/gcc/${CONDA_TOOLCHAIN_HOST}/*; do if [ -d "${d}/include/c++" ]; then basename "${d}"; fi; done | sort -V | tail -n1)"@' ./gen-bazel-toolchain.local
+sed -i 's@^[[:space:]]*export BUILD_GCC_HEADER_VERSION=.*@    export BUILD_GCC_HEADER_VERSION="$(for d in ${BUILD_PREFIX}/lib/gcc/${CONDA_TOOLCHAIN_BUILD}/*; do if [ -d "${d}/include/c++" ]; then basename "${d}"; fi; done | sort -V | tail -n1)"@' ./gen-bazel-toolchain.local
+source ./gen-bazel-toolchain.local
+
+# Make build-prefix headers visible to Bazel's include scanner as toolchain builtins.
+for CFG in bazel_toolchain/cc_toolchain_config.bzl bazel_toolchain/cc_toolchain_build_config.bzl; do
+  sed -i "/cxx_builtin_include_directories = \\[/a\\            \"${BUILD_PREFIX}/include\"," "${CFG}"
+done
+
+# The generated Bazel toolchain uses relative tool names (e.g. x86_64-conda-linux-gnu-clang).
+# Ensure those names exist in bazel_toolchain/ by symlinking to real binaries.
+if [[ "${target_platform}" == linux-* ]]; then
+  for TOOL in "${CC}" "${LD}" "${NM}" "${STRIP}"; do
+    TOOL_BIN="$(command -v "${TOOL}" || true)"
+    if [[ -n "${TOOL_BIN}" ]]; then
+      ln -sf "${TOOL_BIN}" "bazel_toolchain/$(basename "${TOOL}")"
+    fi
+  done
+
+  # clang-20 used by some Bazel tool builds does not discover libstdc++ headers.
+  # Point it to the GCC C++ headers explicitly.
+  GCC_CXX_HEADER_VERSION="$(
+    for d in "${BUILD_PREFIX}/lib/gcc/${CONDA_TOOLCHAIN_HOST}"/*; do
+      if [[ -d "${d}/include/c++" ]]; then
+        basename "${d}"
+      fi
+    done | sort -V | tail -n1
+  )"
+  if [[ -n "${GCC_CXX_HEADER_VERSION}" ]]; then
+    GCC_CXX_INCLUDE_BASE="${BUILD_PREFIX}/lib/gcc/${CONDA_TOOLCHAIN_HOST}/${GCC_CXX_HEADER_VERSION}/include/c++"
+    export CPLUS_INCLUDE_PATH="${PREFIX}/include:${BUILD_PREFIX}/include:${GCC_CXX_INCLUDE_BASE}:${GCC_CXX_INCLUDE_BASE}/${CONDA_TOOLCHAIN_HOST}:${GCC_CXX_INCLUDE_BASE}/backward${CPLUS_INCLUDE_PATH:+:${CPLUS_INCLUDE_PATH}}"
+  fi
+  export LIBRARY_PATH="${PREFIX}/lib:${BUILD_PREFIX}/lib${LIBRARY_PATH:+:${LIBRARY_PATH}}"
+
+  # Add small source-compatible aliases directly in the build env headers.
+  ABSL_MUTEX_HEADER="${BUILD_PREFIX}/include/absl/synchronization/mutex.h"
+  if [[ -f "${ABSL_MUTEX_HEADER}" ]] && ! grep -q "XLA_ABSL_MUTEX_COMPAT" "${ABSL_MUTEX_HEADER}"; then
+    perl -0pi -e 's|void Unlock\(\) ABSL_UNLOCK_FUNCTION\(\);\n|void Unlock() ABSL_UNLOCK_FUNCTION();\n\n  // XLA_ABSL_MUTEX_COMPAT\n  void lock() ABSL_EXCLUSIVE_LOCK_FUNCTION() { Lock(); }\n  void unlock() ABSL_UNLOCK_FUNCTION() { Unlock(); }\n  [[nodiscard]] bool try_lock() ABSL_EXCLUSIVE_TRYLOCK_FUNCTION(true) { return TryLock(); }\n  void lock_shared() ABSL_SHARED_LOCK_FUNCTION() { ReaderLock(); }\n  void unlock_shared() ABSL_UNLOCK_FUNCTION() { ReaderUnlock(); }\n  [[nodiscard]] bool try_lock_shared() ABSL_SHARED_TRYLOCK_FUNCTION(true) { return ReaderTryLock(); }\n|s' "${ABSL_MUTEX_HEADER}"
+    perl -0pi -e 's|explicit MutexLock\(Mutex\* absl_nonnull mu\) ABSL_EXCLUSIVE_LOCK_FUNCTION\(mu\)\n      : mu_\(mu\) \{\n    this->mu_->Lock\(\);\n  \}\n|explicit MutexLock(Mutex* absl_nonnull mu) ABSL_EXCLUSIVE_LOCK_FUNCTION(mu)\n      : mu_(mu) {\n    this->mu_->Lock();\n  }\n\n  // XLA_ABSL_MUTEX_COMPAT\n  explicit MutexLock(Mutex& mu) : MutexLock(&mu) {}\n|s' "${ABSL_MUTEX_HEADER}"
+    perl -0pi -e 's|explicit MutexLock\(Mutex& mu\) : MutexLock\(&mu\) \{\}\n|explicit MutexLock(Mutex& mu) : MutexLock(&mu) {}\n  explicit MutexLock(Mutex& mu, const Condition& cond) : MutexLock(&mu, cond) {}\n|s' "${ABSL_MUTEX_HEADER}"
+    perl -0pi -e 's|explicit ReaderMutexLock\(Mutex\* absl_nonnull mu\) ABSL_SHARED_LOCK_FUNCTION\(mu\)\n      : mu_\(mu\) \{\n    mu->ReaderLock\(\);\n  \}\n|explicit ReaderMutexLock(Mutex* absl_nonnull mu) ABSL_SHARED_LOCK_FUNCTION(mu)\n      : mu_(mu) {\n    mu->ReaderLock();\n  }\n\n  // XLA_ABSL_MUTEX_COMPAT\n  explicit ReaderMutexLock(Mutex& mu) : ReaderMutexLock(&mu) {}\n|s' "${ABSL_MUTEX_HEADER}"
+    perl -0pi -e 's|explicit ReaderMutexLock\(Mutex& mu\) : ReaderMutexLock\(&mu\) \{\}\n|explicit ReaderMutexLock(Mutex& mu) : ReaderMutexLock(&mu) {}\n  explicit ReaderMutexLock(Mutex& mu, const Condition& cond) : ReaderMutexLock(&mu, cond) {}\n|s' "${ABSL_MUTEX_HEADER}"
+    perl -0pi -e 's|explicit WriterMutexLock\(Mutex\* absl_nonnull mu\)\n      ABSL_EXCLUSIVE_LOCK_FUNCTION\(mu\)\n      : mu_\(mu\) \{\n    mu->WriterLock\(\);\n  \}\n|explicit WriterMutexLock(Mutex* absl_nonnull mu)\n      ABSL_EXCLUSIVE_LOCK_FUNCTION(mu)\n      : mu_(mu) {\n    mu->WriterLock();\n  }\n\n  // XLA_ABSL_MUTEX_COMPAT\n  explicit WriterMutexLock(Mutex& mu) : WriterMutexLock(&mu) {}\n|s' "${ABSL_MUTEX_HEADER}"
+    perl -0pi -e 's|explicit WriterMutexLock\(Mutex& mu\) : WriterMutexLock\(&mu\) \{\}\n|explicit WriterMutexLock(Mutex& mu) : WriterMutexLock(&mu) {}\n  explicit WriterMutexLock(Mutex& mu, const Condition& cond) : WriterMutexLock(&mu, cond) {}\n|s' "${ABSL_MUTEX_HEADER}"
+    perl -0pi -e 's|explicit ReleasableMutexLock\(Mutex\* absl_nonnull mu\)\n      ABSL_EXCLUSIVE_LOCK_FUNCTION\(mu\)\n      : mu_\(mu\) \{\n    this->mu_->Lock\(\);\n  \}\n|explicit ReleasableMutexLock(Mutex* absl_nonnull mu)\n      ABSL_EXCLUSIVE_LOCK_FUNCTION(mu)\n      : mu_(mu) {\n    this->mu_->Lock();\n  }\n\n  // XLA_ABSL_MUTEX_COMPAT\n  explicit ReleasableMutexLock(Mutex& mu) : ReleasableMutexLock(&mu) {}\n|s' "${ABSL_MUTEX_HEADER}"
+    perl -0pi -e 's|explicit ReleasableMutexLock\(Mutex& mu\) : ReleasableMutexLock\(&mu\) \{\}\n|explicit ReleasableMutexLock(Mutex& mu) : ReleasableMutexLock(&mu) {}\n  explicit ReleasableMutexLock(Mutex& mu, const Condition& cond) : ReleasableMutexLock(&mu, cond) {}\n|s' "${ABSL_MUTEX_HEADER}"
+  fi
+fi
 
 cat >> .bazelrc <<EOF
 
@@ -128,6 +183,58 @@ if [[ "${target_platform}" == "osx-64" ]]; then
     export TF_SYSTEM_LIBS="${TF_SYSTEM_LIBS},onednn"
 fi
 
+# jax-v0.8.2 can still emit CHECK_EQ on std::unique_ptr in XLA, which no longer
+# type-checks with newer Abseil check-op internals.
+XLA_ABSEIL_PATCH="third_party/xla/0001-Fix-abseil-headers.patch"
+if [[ -f "${XLA_ABSEIL_PATCH}" ]]; then
+if ! grep -q "hlo_module_group.cc" "${XLA_ABSEIL_PATCH}"; then
+cat >> "${XLA_ABSEIL_PATCH}" <<'EOF'
+
+diff --git a/xla/hlo/ir/hlo_module_group.cc b/xla/hlo/ir/hlo_module_group.cc
+--- a/xla/hlo/ir/hlo_module_group.cc
++++ b/xla/hlo/ir/hlo_module_group.cc
+@@ -91,1 +91,1 @@
+-  CHECK_EQ(module_, nullptr);
++  CHECK(module_ == nullptr);
+EOF
+fi
+if ! grep -q "xfeed_manager.cc" "${XLA_ABSEIL_PATCH}"; then
+cat >> "${XLA_ABSEIL_PATCH}" <<'EOF'
+
+diff --git a/xla/backends/cpu/runtime/xfeed_manager.cc b/xla/backends/cpu/runtime/xfeed_manager.cc
+--- a/xla/backends/cpu/runtime/xfeed_manager.cc
++++ b/xla/backends/cpu/runtime/xfeed_manager.cc
+@@ -60,1 +60,1 @@
+-  absl::MutexLock l(mu_, absl::Condition(&available_buffer));
++  absl::MutexLock l(&mu_, absl::Condition(&available_buffer));
+EOF
+fi
+if ! grep -q "shard_map_import.cc" "${XLA_ABSEIL_PATCH}"; then
+cat >> "${XLA_ABSEIL_PATCH}" <<'EOF'
+
+diff --git a/xla/service/spmd/shardy/sdy_round_trip/shard_map_import.cc b/xla/service/spmd/shardy/sdy_round_trip/shard_map_import.cc
+--- a/xla/service/spmd/shardy/sdy_round_trip/shard_map_import.cc
++++ b/xla/service/spmd/shardy/sdy_round_trip/shard_map_import.cc
+@@ -106,2 +106,2 @@
+-    CHECK_EQ(globalToLocalShape.getCallTargetName(),
+-             kGlobalToLocalShapeCallTargetName);
++    CHECK(globalToLocalShape.getCallTargetName() ==
++          kGlobalToLocalShapeCallTargetName);
+EOF
+fi
+if ! grep -q "dot_handler.cc" "${XLA_ABSEIL_PATCH}"; then
+cat >> "${XLA_ABSEIL_PATCH}" <<'EOF'
+
+diff --git a/xla/service/spmd/dot_handler.cc b/xla/service/spmd/dot_handler.cc
+--- a/xla/service/spmd/dot_handler.cc
++++ b/xla/service/spmd/dot_handler.cc
+@@ -1973,1 +1973,1 @@
+-        CHECK_EQ(e_config->windowed_op, WindowedEinsumOperand::LHS);
++        CHECK(e_config->windowed_op == WindowedEinsumOperand::LHS);
+EOF
+fi
+fi
+
 # Mark as a release build
 EXTRA="--bazel_options=--repo_env=ML_WHEEL_TYPE=release ${CUDA_ARGS:-}"
 
@@ -138,7 +245,8 @@ fi
 # Never use the Appe toolchain
 sed -i '/local_config_apple/d' .bazelrc
 if [[ "${target_platform}" == linux-* ]]; then
-    EXTRA="${EXTRA} --clang_path $CC"
+    CLANG_PATH="$(command -v "${CC}" || true)"
+    EXTRA="${EXTRA} --clang_path ${CLANG_PATH:-${CC}}"
 
     # Remove incompatible argument from bazelrc
     sed -i '/Qunused-arguments/d' .bazelrc
@@ -146,6 +254,16 @@ if [[ "${target_platform}" == linux-* ]]; then
     sed -i '/TF_NVCC_CLANG/{N;d}' .bazelrc
     # Keep using our toolchain
     sed -i '/--crosstool_top=@local_config_cuda/d' .bazelrc
+
+    # Ensure host/tool C++ actions can resolve both stdlib and system headers.
+    if [[ -n "${CPLUS_INCLUDE_PATH:-}" ]]; then
+        echo "build --action_env=CPLUS_INCLUDE_PATH=${CPLUS_INCLUDE_PATH}" >> .bazelrc
+        echo "build --host_action_env=CPLUS_INCLUDE_PATH=${CPLUS_INCLUDE_PATH}" >> .bazelrc
+    fi
+    if [[ -n "${LIBRARY_PATH:-}" ]]; then
+        echo "build --action_env=LIBRARY_PATH=${LIBRARY_PATH}" >> .bazelrc
+        echo "build --host_action_env=LIBRARY_PATH=${LIBRARY_PATH}" >> .bazelrc
+    fi
 fi
 
 ${PYTHON} build/build.py build \
