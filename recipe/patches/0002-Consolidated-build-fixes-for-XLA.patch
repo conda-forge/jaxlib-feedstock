@@ -156,11 +156,11 @@ index 000000000..23a4c486e
 ++++ b/xla/backends/cpu/runtime/rng_state_lib.cc
 +@@ -33,6 +33,6 @@ RngState::RngState(int64_t delta)
 +     : delta_(delta), state_(kRngStateInitialValue) {}
-+
++ 
 + void RngState::GetAndUpdateState(uint64_t* data) {
 +-  absl::MutexLock lock(mu_);
 ++  absl::MutexLock lock(&mu_);
-+
++ 
 +   uint64_t low = absl::Int128Low64(state_);
 +diff --git a/xla/service/llvm_ir/llvm_command_line_options.cc b/xla/service/llvm_ir/llvm_command_line_options.cc
 +--- a/xla/service/llvm_ir/llvm_command_line_options.cc
@@ -198,6 +198,15 @@ index 000000000..23a4c486e
 +         "@tsl//tsl/platform",
 +     ],
 +     alwayslink = True,
++@@ -69,6 +72,8 @@ cc_library(
++         ":grpc_credentials",
++         "@com_github_grpc_grpc//:grpc++",
++         "@com_google_absl//absl/log",
+++        "@com_google_absl//absl/log:absl_check",
+++        "@com_google_absl//absl/log:absl_log",
++         "@tsl//tsl/platform",
++     ],
++ )
 +diff --git a/xla/tsl/distributed_runtime/rpc/BUILD b/xla/tsl/distributed_runtime/rpc/BUILD
 +index 31deb7b8e5..3bc72f2294 100644
 +--- a/xla/tsl/distributed_runtime/rpc/BUILD
