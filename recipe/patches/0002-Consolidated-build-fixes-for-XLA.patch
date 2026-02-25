@@ -1,4 +1,4 @@
-From 413a470e8984fd79cf9a9421240057fcfa139fdc Mon Sep 17 00:00:00 2001
+From dacc228348e200ca2b6bf0f672fbf9bb58017a5a Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwe.korn@quantco.com>
 Date: Thu, 14 Dec 2023 17:06:15 +0100
 Subject: [PATCH 2/4] Consolidated build fixes for XLA
@@ -14667,18 +14667,18 @@ index 0000000..4a08c2b
 +     })
 diff --git a/third_party/xla/0010-Add-systemlib-for-oneDNN.patch b/third_party/xla/0010-Add-systemlib-for-oneDNN.patch
 new file mode 100644
-index 0000000..9c1ee80
+index 0000000..a7ad5fb
 --- /dev/null
 +++ b/third_party/xla/0010-Add-systemlib-for-oneDNN.patch
 @@ -0,0 +1,35 @@
-+From d3e1b7e92814f39c3e421c8df8c251db2d22c281 Mon Sep 17 00:00:00 2001
++From fc13f6db3dcfd5443cbe333afafb5d2a1c2d78c8 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Fri, 26 Sep 2025 17:23:37 +0200
 +Subject: [PATCH 10/10] Add systemlib for oneDNN
 +
 +---
 + third_party/mkl_dnn/mkldnn_system.BUILD | 6 ++++++
-+ workspace2.bzl                          | 1 +
++ third_party/mkl_dnn/workspace.bzl       | 1 +
 + 2 files changed, 7 insertions(+)
 + create mode 100644 third_party/mkl_dnn/mkldnn_system.BUILD
 +
@@ -14694,18 +14694,18 @@ index 0000000..9c1ee80
 ++    visibility = ["//visibility:public"],
 ++)
 ++
-+diff --git a/workspace2.bzl b/workspace2.bzl
-+index 720dcf9153..f3f413f17c 100644
-+--- a/workspace2.bzl
-++++ b/workspace2.bzl
-+@@ -194,6 +194,7 @@ def _tf_repositories():
-+         name = "onednn_async",
++diff --git a/third_party/mkl_dnn/workspace.bzl b/third_party/mkl_dnn/workspace.bzl
++index c12a859821..949d51545e 100644
++--- a/third_party/mkl_dnn/workspace.bzl
+++++ b/third_party/mkl_dnn/workspace.bzl
++@@ -7,6 +7,7 @@ def repo():
++         name = "onednn",
 +         build_file = "//third_party/mkl_dnn:mkldnn_v1.BUILD",
 +         patch_file = ["//third_party/mkl_dnn:setting_init.patch"],
 ++        system_build_file = "//third_party/mkl_dnn:mkldnn_system.BUILD",
-+         sha256 = "1cfa18fad65b4c3b46ef701a83c64b87411d63e79c8549cdb37f8c1fc10e2398",
-+         strip_prefix = "oneDNN-dev-v3.7-thunk-preview",
-+         urls = tf_mirror_urls("https://github.com/oneapi-src/oneDNN/archive/refs/heads/dev-v3.7-thunk-preview.tar.gz"),
++         sha256 = "071f289dc961b43a3b7c8cbe8a305290a7c5d308ec4b2f586397749abdc88296",
++         strip_prefix = "oneDNN-3.7.3",
++         urls = tf_mirror_urls("https://github.com/oneapi-src/oneDNN/archive/refs/tags/v3.7.3.tar.gz"),
 diff --git a/third_party/xla/workspace.bzl b/third_party/xla/workspace.bzl
 index be345f8..8695ab3 100644
 --- a/third_party/xla/workspace.bzl

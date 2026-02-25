@@ -1,4 +1,4 @@
-From 68f152ceac8502ea4a7e7a7516001efe60cee9f0 Mon Sep 17 00:00:00 2001
+From 8ce04af442fb8b20506c3cbc5a6af5bf48f0e7d5 Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwelk@xhochy.com>
 Date: Sun, 8 Oct 2023 19:34:34 +0200
 Subject: [PATCH 1/4] Allow for custom CUDA build
