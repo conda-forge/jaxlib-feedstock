@@ -34,8 +34,15 @@ export CXXFLAGS="${CXXFLAGS} -DNDEBUG -Dabsl_nullable= -Dabsl_nonnull="
 if [[ -f "jaxlib/weakref_lru_cache.cc" ]]; then
   perl -0pi -e 's/\bmu_\.lock\(\)/mu_.Lock()/g; s/\bmu_\.unlock\(\)/mu_.Unlock()/g' jaxlib/weakref_lru_cache.cc
 fi
-if [[ -f "third_party/xla/xla/python/ifrt_proxy/common/test_utils.h" ]]; then
-  perl -0pi -e 's/\babsl::MutexLock l\(mu_\);/absl::MutexLock l\(&mu_\);/g' third_party/xla/xla/python/ifrt_proxy/common/test_utils.h
+if [[ -f "third_party/xla/xla/python/ifrt_proxy/common/test_utils.cc" ]]; then
+  perl -0pi -e 's/\babsl::MutexLock l\(mu_\);/absl::MutexLock l\(&mu_\);/g' third_party/xla/xla/python/ifrt_proxy/common/test_utils.cc
+fi
+if [[ -f "third_party/xla/xla/tsl/lib/io/zlib_compression_options.h" ]]; then
+  perl -0pi -e 's/\babsl::(MutexLock|ReaderMutexLock|WriterMutexLock|ReleasableMutexLock)\s+([A-Za-z_][A-Za-z0-9_]*)\((mu_|mutex_)\);/absl::$1 $2\(&${3}\);/g' third_party/xla/xla/tsl/lib/io/zlib_compression_options.h
+fi
+if [[ -d "third_party/xla" ]]; then
+  find third_party/xla -type f \( -name '*.h' -o -name '*.cc' -o -name '*.cuh' \) \
+    -exec perl -0pi -e 's/\babsl::(MutexLock|ReaderMutexLock|WriterMutexLock|ReleasableMutexLock)\s+([A-Za-z_][A-Za-z0-9_]*)\(\s*(mu_|mutex_|lock_)(\s*[,\)])/absl::$1 $2\(&${3}$4/g' {} +
 fi
 
 if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
