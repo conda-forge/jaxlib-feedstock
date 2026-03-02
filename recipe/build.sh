@@ -34,6 +34,9 @@ export CXXFLAGS="${CXXFLAGS} -DNDEBUG -Dabsl_nullable= -Dabsl_nonnull="
 if [[ -f "jaxlib/weakref_lru_cache.cc" ]]; then
   perl -0pi -e 's/\bmu_\.lock\(\)/mu_.Lock()/g; s/\bmu_\.unlock\(\)/mu_.Unlock()/g' jaxlib/weakref_lru_cache.cc
 fi
+if [[ -f "third_party/xla/xla/python/ifrt_proxy/common/test_utils.h" ]]; then
+  perl -0pi -e 's/\babsl::MutexLock l\(mu_\);/absl::MutexLock l\(&mu_\);/g' third_party/xla/xla/python/ifrt_proxy/common/test_utils.h
+fi
 
 if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
     if [[ ${cuda_compiler_version} == 12* ]]; then
