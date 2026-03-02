@@ -69,6 +69,32 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
     test -f ${BUILD_PREFIX}/targets/${CUDA_ARCH}/bin/nvlink || ln -s $(which nvlink) ${BUILD_PREFIX}/targets/${CUDA_ARCH}/bin/nvlink
     test -f ${BUILD_PREFIX}/targets/${CUDA_ARCH}/bin/fatbinary || ln -s $(which fatbinary) ${BUILD_PREFIX}/targets/${CUDA_ARCH}/bin/fatbinary
 
+    # CUDA's host_defines.h defines __noinline__ for __CUDACC__, which clashes
+    # with libstdc++ headers under clang -x cuda.
+    for CUDA_HOST_DEFINES in \
+        "${PREFIX}/targets/${CUDA_ARCH}/include/crt/host_defines.h" \
+        "${BUILD_PREFIX}/targets/${CUDA_ARCH}/include/crt/host_defines.h" \
+        "${BUILD_PREFIX}/targets/${CUDA_ARCH}/include/third_party/gpus/cuda/include/crt/host_defines.h"; do
+      if [[ -f "${CUDA_HOST_DEFINES}" ]] && ! grep -q "XLA_CUDA_NOINLINE_FIX" "${CUDA_HOST_DEFINES}"; then
+        sed -i 's@#if defined(__CUDACC__) || defined(__CUDA_ARCH__) || defined(__CUDA_LIBDEVICE__)@#if (defined(__CUDACC__) || defined(__CUDA_ARCH__) || defined(__CUDA_LIBDEVICE__)) \&\& !defined(__clang__) /* XLA_CUDA_NOINLINE_FIX */@' "${CUDA_HOST_DEFINES}"
+      fi
+    done
+
+    # CUB uses placement-new in block_load.cuh but CUDA 12.9 headers may not
+    # pull in <new> transitively for clang CUDA builds.
+    for CUB_BLOCK_LOAD in \
+        "${PREFIX}/targets/${CUDA_ARCH}/include/cub/block/block_load.cuh" \
+        "${BUILD_PREFIX}/targets/${CUDA_ARCH}/include/cub/block/block_load.cuh" \
+        "${BUILD_PREFIX}/targets/${CUDA_ARCH}/include/third_party/gpus/cuda/include/cub/block/block_load.cuh"; do
+      if [[ -f "${CUB_BLOCK_LOAD}" ]] && ! grep -q "XLA_CUDA_PLACEMENT_NEW_FIX" "${CUB_BLOCK_LOAD}"; then
+        sed -i '/#include <cub\/config.cuh>/a #include <new>  // XLA_CUDA_PLACEMENT_NEW_FIX' "${CUB_BLOCK_LOAD}"
+      fi
+      if [[ -f "${CUB_BLOCK_LOAD}" ]]; then
+        # clang CUDA fails to resolve placement new in these CUB paths with this toolchain.
+        sed -i 's@new (&dst_items\[i\]) T(@dst_items[i] = T(@g' "${CUB_BLOCK_LOAD}"
+      fi
+    done
+
     export TF_CUDA_VERSION="${cuda_compiler_version}"
     export TF_CUDNN_VERSION="${cudnn}"
     if [[ "${target_platform}" == "linux-aarch64" ]]; then
@@ -97,8 +123,33 @@ if [[ -z "${GEN_BAZEL_TOOLCHAIN}" ]]; then
   exit 1
 fi
 cp "${GEN_BAZEL_TOOLCHAIN}" ./gen-bazel-toolchain.local
-sed -i 's@^[[:space:]]*export GCC_HEADER_VERSION=.*@    export GCC_HEADER_VERSION="$(for d in ${BUILD_PREFIX}/lib/gcc/${CONDA_TOOLCHAIN_HOST}/*; do if [ -d "${d}/include/c++" ]; then basename "${d}"; fi; done | sort -V | tail -n1)"@' ./gen-bazel-toolchain.local
-sed -i 's@^[[:space:]]*export BUILD_GCC_HEADER_VERSION=.*@    export BUILD_GCC_HEADER_VERSION="$(for d in ${BUILD_PREFIX}/lib/gcc/${CONDA_TOOLCHAIN_BUILD}/*; do if [ -d "${d}/include/c++" ]; then basename "${d}"; fi; done | sort -V | tail -n1)"@' ./gen-bazel-toolchain.local
+awk '
+  BEGIN { skip = "" }
+  skip == "" && $0 ~ /^[[:space:]]*export GCC_HEADER_VERSION="\$\(/ {
+    print "    export GCC_HEADER_VERSION=\"$(for d in ${BUILD_PREFIX}/lib/gcc/${CONDA_TOOLCHAIN_HOST}/*; do if [ -d \\\"${d}/include/c++\\\" ]; then basename \\\"${d}\\\"; fi; done | sort -V | tail -n1)\""
+    skip = "gcc"
+    next
+  }
+  skip == "gcc" {
+    if ($0 ~ /^[[:space:]]*[)]"$/) {
+      skip = ""
+    }
+    next
+  }
+  skip == "" && $0 ~ /^[[:space:]]*export BUILD_GCC_HEADER_VERSION="\$\(/ {
+    print "    export BUILD_GCC_HEADER_VERSION=\"$(for d in ${BUILD_PREFIX}/lib/gcc/${CONDA_TOOLCHAIN_BUILD}/*; do if [ -d \\\"${d}/include/c++\\\" ]; then basename \\\"${d}\\\"; fi; done | sort -V | tail -n1)\""
+    skip = "build"
+    next
+  }
+  skip == "build" {
+    if ($0 ~ /^[[:space:]]*[)]"$/) {
+      skip = ""
+    }
+    next
+  }
+  { print }
+' ./gen-bazel-toolchain.local > ./gen-bazel-toolchain.local.tmp
+mv ./gen-bazel-toolchain.local.tmp ./gen-bazel-toolchain.local
 source ./gen-bazel-toolchain.local
 
 # Make build-prefix headers visible to Bazel's include scanner as toolchain builtins.
@@ -117,7 +168,7 @@ if [[ "${target_platform}" == linux-* ]]; then
   done
 
   # clang-20 used by some Bazel tool builds does not discover libstdc++ headers.
-  # Point it to the GCC C++ headers explicitly.
+  # Register GCC C++ headers as toolchain built-ins.
   GCC_CXX_HEADER_VERSION="$(
     for d in "${BUILD_PREFIX}/lib/gcc/${CONDA_TOOLCHAIN_HOST}"/*; do
       if [[ -d "${d}/include/c++" ]]; then
@@ -127,7 +178,14 @@ if [[ "${target_platform}" == linux-* ]]; then
   )"
   if [[ -n "${GCC_CXX_HEADER_VERSION}" ]]; then
     GCC_CXX_INCLUDE_BASE="${BUILD_PREFIX}/lib/gcc/${CONDA_TOOLCHAIN_HOST}/${GCC_CXX_HEADER_VERSION}/include/c++"
-    export CPLUS_INCLUDE_PATH="${PREFIX}/include:${BUILD_PREFIX}/include:${GCC_CXX_INCLUDE_BASE}:${GCC_CXX_INCLUDE_BASE}/${CONDA_TOOLCHAIN_HOST}:${GCC_CXX_INCLUDE_BASE}/backward${CPLUS_INCLUDE_PATH:+:${CPLUS_INCLUDE_PATH}}"
+    GCC_CXX_INCLUDE_TARGET="${GCC_CXX_INCLUDE_BASE}/${CONDA_TOOLCHAIN_HOST}"
+    GCC_CXX_INCLUDE_BACKWARD="${GCC_CXX_INCLUDE_BASE}/backward"
+    for CFG in bazel_toolchain/cc_toolchain_config.bzl bazel_toolchain/cc_toolchain_build_config.bzl; do
+      sed -i "/cxx_builtin_include_directories = \\[/a\\            \"${GCC_CXX_INCLUDE_BACKWARD}\"," "${CFG}"
+      sed -i "/cxx_builtin_include_directories = \\[/a\\            \"${GCC_CXX_INCLUDE_TARGET}\"," "${CFG}"
+      sed -i "/cxx_builtin_include_directories = \\[/a\\            \"${GCC_CXX_INCLUDE_BASE}\"," "${CFG}"
+    done
+    export CPLUS_INCLUDE_PATH="${PREFIX}/include:${BUILD_PREFIX}/include:${GCC_CXX_INCLUDE_BASE}:${GCC_CXX_INCLUDE_TARGET}:${GCC_CXX_INCLUDE_BACKWARD}${CPLUS_INCLUDE_PATH:+:${CPLUS_INCLUDE_PATH}}"
   fi
   export LIBRARY_PATH="${PREFIX}/lib:${BUILD_PREFIX}/lib${LIBRARY_PATH:+:${LIBRARY_PATH}}"
 
@@ -187,6 +245,20 @@ fi
 # type-checks with newer Abseil check-op internals.
 XLA_ABSEIL_PATCH="third_party/xla/0001-Fix-abseil-headers.patch"
 if [[ -f "${XLA_ABSEIL_PATCH}" ]]; then
+if grep -q "xla/tsl/profiler/rpc/client/BUILD" "${XLA_ABSEIL_PATCH}"; then
+awk '
+  BEGIN { skip = 0 }
+  /^diff --git a\/xla\/tsl\/profiler\/rpc\/client\/BUILD b\/xla\/tsl\/profiler\/rpc\/client\/BUILD$/ {
+    skip = 1
+    next
+  }
+  skip && /^diff --git / {
+    skip = 0
+  }
+  !skip { print }
+' "${XLA_ABSEIL_PATCH}" > "${XLA_ABSEIL_PATCH}.tmp"
+mv "${XLA_ABSEIL_PATCH}.tmp" "${XLA_ABSEIL_PATCH}"
+fi
 if ! grep -q "hlo_module_group.cc" "${XLA_ABSEIL_PATCH}"; then
 cat >> "${XLA_ABSEIL_PATCH}" <<'EOF'
 
@@ -246,6 +318,40 @@ diff --git a/xla/service/spmd/dot_handler.cc b/xla/service/spmd/dot_handler.cc
 +        CHECK(e_config->windowed_op == WindowedEinsumOperand::LHS);
 EOF
 fi
+if ! grep -q "async_events_unique_id" "${XLA_ABSEIL_PATCH}"; then
+cat >> "${XLA_ABSEIL_PATCH}" <<'EOF'
+
+diff --git a/xla/backends/gpu/runtime/host_execute_thunk.cc b/xla/backends/gpu/runtime/host_execute_thunk.cc
+--- a/xla/backends/gpu/runtime/host_execute_thunk.cc
++++ b/xla/backends/gpu/runtime/host_execute_thunk.cc
+@@ -467,1 +467,1 @@
+-  CHECK_NE(async_events_unique_id, std::nullopt);
++  CHECK(async_events_unique_id != std::nullopt);
+EOF
+fi
+if [[ "$(grep -c "CHECK(async_events_unique_id != std::nullopt);" "${XLA_ABSEIL_PATCH}" || true)" -lt 2 ]]; then
+cat >> "${XLA_ABSEIL_PATCH}" <<'EOF'
+
+diff --git a/xla/backends/gpu/runtime/host_execute_thunk.cc b/xla/backends/gpu/runtime/host_execute_thunk.cc
+--- a/xla/backends/gpu/runtime/host_execute_thunk.cc
++++ b/xla/backends/gpu/runtime/host_execute_thunk.cc
+@@ -650,1 +650,1 @@
+-  CHECK_NE(async_events_unique_id, std::nullopt);
++  CHECK(async_events_unique_id != std::nullopt);
+EOF
+fi
+if ! grep -q "conditional_thunk.cc" "${XLA_ABSEIL_PATCH}"; then
+cat >> "${XLA_ABSEIL_PATCH}" <<'EOF'
+
+diff --git a/xla/backends/gpu/runtime/conditional_thunk.cc b/xla/backends/gpu/runtime/conditional_thunk.cc
+--- a/xla/backends/gpu/runtime/conditional_thunk.cc
++++ b/xla/backends/gpu/runtime/conditional_thunk.cc
+@@ -61,2 +61,1 @@
+-  CHECK_EQ(branch_index_buffer_index.shape.dimensions(),
+-           std::vector<int64_t>{});
++  CHECK(branch_index_buffer_index.shape.dimensions().empty());
+EOF
+fi
 fi
 
 # Mark as a release build
@@ -281,11 +387,14 @@ fi
 
 ${PYTHON} build/build.py build \
     --target_cpu_features default \
+    ${JAX_BAZEL_STARTUP_OPTIONS:+--bazel_startup_options=${JAX_BAZEL_STARTUP_OPTIONS}} \
     ${EXTRA}
 
 # Clean up to speedup postprocessing
 pushd build
-bazel clean
+# Bazel server mode can crash in this environment (Netty event loop issue).
+# Cleanup is best-effort only and should not fail a successful build.
+bazel --batch clean || true
 popd
 
 pushd $SP_DIR
