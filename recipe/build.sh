@@ -318,6 +318,20 @@ diff --git a/xla/service/spmd/dot_handler.cc b/xla/service/spmd/dot_handler.cc
 +        CHECK(e_config->windowed_op == WindowedEinsumOperand::LHS);
 EOF
 fi
+if ! grep -q "user_context_registry.cc" "${XLA_ABSEIL_PATCH}"; then
+cat >> "${XLA_ABSEIL_PATCH}" <<'EOF'
+
+diff --git a/xla/python/ifrt/user_context_registry.cc b/xla/python/ifrt/user_context_registry.cc
+--- a/xla/python/ifrt/user_context_registry.cc
++++ b/xla/python/ifrt/user_context_registry.cc
+@@ -114,1 +114,1 @@
+-  absl::WriterMutexLock lock(mu_);
++  absl::WriterMutexLock lock(&mu_);
+@@ -122,1 +122,1 @@
+-  absl::ReaderMutexLock lock(mu_);
++  absl::ReaderMutexLock lock(&mu_);
+EOF
+fi
 if ! grep -q "async_events_unique_id" "${XLA_ABSEIL_PATCH}"; then
 cat >> "${XLA_ABSEIL_PATCH}" <<'EOF'
 
