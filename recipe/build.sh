@@ -29,6 +29,12 @@ fi
 export CFLAGS="${CFLAGS} -DNDEBUG -Dabsl_nullable= -Dabsl_nonnull="
 export CXXFLAGS="${CXXFLAGS} -DNDEBUG -Dabsl_nullable= -Dabsl_nonnull="
 
+# Keep the source tree compatible with newer Abseil even if the static patch
+# was not applied in the unpacked workdir for this build.
+if [[ -f "jaxlib/weakref_lru_cache.cc" ]]; then
+  perl -0pi -e 's/\bmu_\.lock\(\)/mu_.Lock()/g; s/\bmu_\.unlock\(\)/mu_.Unlock()/g' jaxlib/weakref_lru_cache.cc
+fi
+
 if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
     if [[ ${cuda_compiler_version} == 12* ]]; then
         export HERMETIC_CUDA_COMPUTE_CAPABILITIES=sm_60,sm_70,sm_75,sm_80,sm_86,sm_89,sm_90,sm_100,sm_120,compute_120
