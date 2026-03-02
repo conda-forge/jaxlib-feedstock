@@ -332,6 +332,17 @@ diff --git a/xla/python/ifrt/user_context_registry.cc b/xla/python/ifrt/user_con
 +  absl::ReaderMutexLock lock(&mu_);
 EOF
 fi
+if ! grep -q "concurrent_vector.h" "${XLA_ABSEIL_PATCH}"; then
+cat >> "${XLA_ABSEIL_PATCH}" <<'EOF'
+
+diff --git a/xla/tsl/concurrency/concurrent_vector.h b/xla/tsl/concurrency/concurrent_vector.h
+--- a/xla/tsl/concurrency/concurrent_vector.h
++++ b/xla/tsl/concurrency/concurrent_vector.h
+@@ -98,1 +98,1 @@
+-    absl::MutexLock lock(mutex_);
++    absl::MutexLock lock(&mutex_);
+EOF
+fi
 if ! grep -q "async_events_unique_id" "${XLA_ABSEIL_PATCH}"; then
 cat >> "${XLA_ABSEIL_PATCH}" <<'EOF'
 
