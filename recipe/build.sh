@@ -34,8 +34,12 @@ export CXXFLAGS="${CXXFLAGS} -DNDEBUG -Dabsl_nullable= -Dabsl_nonnull="
 if [[ -f "jaxlib/weakref_lru_cache.cc" ]]; then
   perl -0pi -e 's/\bmu_\.lock\(\)/mu_.Lock()/g; s/\bmu_\.unlock\(\)/mu_.Unlock()/g' jaxlib/weakref_lru_cache.cc
 fi
-if [[ -f "third_party/xla/xla/python/ifrt_proxy/common/test_utils.cc" ]]; then
-  perl -0pi -e 's/\babsl::MutexLock l\(mu_\);/absl::MutexLock l\(&mu_\);/g' third_party/xla/xla/python/ifrt_proxy/common/test_utils.cc
+if [[ -d "jaxlib" ]]; then
+  find jaxlib -type f \( -name '*.h' -o -name '*.cc' -o -name '*.cuh' \) \
+    -exec perl -0pi -e 's/\babsl::(MutexLock|ReaderMutexLock|WriterMutexLock|ReleasableMutexLock)\s+([A-Za-z_][A-Za-z0-9_]*)\(\s*([A-Za-z_][A-Za-z0-9_]*(?:(?:->|\.)[A-Za-z_][A-Za-z0-9_]*)*)\s*([,\)])/absl::$1 $2\(&${3}$4/g' {} +
+fi
+if [[ -f "third_party/xla/xla/python/ifrt_proxy/common/test_utils.h" ]]; then
+  perl -0pi -e 's/\babsl::MutexLock l\(mu_\);/absl::MutexLock l\(&mu_\);/g' third_party/xla/xla/python/ifrt_proxy/common/test_utils.h
 fi
 if [[ -f "third_party/xla/xla/tsl/lib/io/zlib_compression_options.h" ]]; then
   perl -0pi -e 's/\babsl::(MutexLock|ReaderMutexLock|WriterMutexLock|ReleasableMutexLock)\s+([A-Za-z_][A-Za-z0-9_]*)\((mu_|mutex_)\);/absl::$1 $2\(&${3}\);/g' third_party/xla/xla/tsl/lib/io/zlib_compression_options.h
@@ -205,19 +209,20 @@ if [[ "${target_platform}" == linux-* ]]; then
   fi
   export LIBRARY_PATH="${PREFIX}/lib:${BUILD_PREFIX}/lib${LIBRARY_PATH:+:${LIBRARY_PATH}}"
 
-  # Add small source-compatible aliases directly in the build env headers.
-  ABSL_MUTEX_HEADER="${BUILD_PREFIX}/include/absl/synchronization/mutex.h"
-  if [[ -f "${ABSL_MUTEX_HEADER}" ]] && ! grep -q "XLA_ABSL_MUTEX_COMPAT" "${ABSL_MUTEX_HEADER}"; then
-    perl -0pi -e 's|void Unlock\(\) ABSL_UNLOCK_FUNCTION\(\);\n|void Unlock() ABSL_UNLOCK_FUNCTION();\n\n  // XLA_ABSL_MUTEX_COMPAT\n  void lock() ABSL_EXCLUSIVE_LOCK_FUNCTION() { Lock(); }\n  void unlock() ABSL_UNLOCK_FUNCTION() { Unlock(); }\n  [[nodiscard]] bool try_lock() ABSL_EXCLUSIVE_TRYLOCK_FUNCTION(true) { return TryLock(); }\n  void lock_shared() ABSL_SHARED_LOCK_FUNCTION() { ReaderLock(); }\n  void unlock_shared() ABSL_UNLOCK_FUNCTION() { ReaderUnlock(); }\n  [[nodiscard]] bool try_lock_shared() ABSL_SHARED_TRYLOCK_FUNCTION(true) { return ReaderTryLock(); }\n|s' "${ABSL_MUTEX_HEADER}"
-    perl -0pi -e 's|explicit MutexLock\(Mutex\* absl_nonnull mu\) ABSL_EXCLUSIVE_LOCK_FUNCTION\(mu\)\n      : mu_\(mu\) \{\n    this->mu_->Lock\(\);\n  \}\n|explicit MutexLock(Mutex* absl_nonnull mu) ABSL_EXCLUSIVE_LOCK_FUNCTION(mu)\n      : mu_(mu) {\n    this->mu_->Lock();\n  }\n\n  // XLA_ABSL_MUTEX_COMPAT\n  explicit MutexLock(Mutex& mu) : MutexLock(&mu) {}\n|s' "${ABSL_MUTEX_HEADER}"
-    perl -0pi -e 's|explicit MutexLock\(Mutex& mu\) : MutexLock\(&mu\) \{\}\n|explicit MutexLock(Mutex& mu) : MutexLock(&mu) {}\n  explicit MutexLock(Mutex& mu, const Condition& cond) : MutexLock(&mu, cond) {}\n|s' "${ABSL_MUTEX_HEADER}"
-    perl -0pi -e 's|explicit ReaderMutexLock\(Mutex\* absl_nonnull mu\) ABSL_SHARED_LOCK_FUNCTION\(mu\)\n      : mu_\(mu\) \{\n    mu->ReaderLock\(\);\n  \}\n|explicit ReaderMutexLock(Mutex* absl_nonnull mu) ABSL_SHARED_LOCK_FUNCTION(mu)\n      : mu_(mu) {\n    mu->ReaderLock();\n  }\n\n  // XLA_ABSL_MUTEX_COMPAT\n  explicit ReaderMutexLock(Mutex& mu) : ReaderMutexLock(&mu) {}\n|s' "${ABSL_MUTEX_HEADER}"
-    perl -0pi -e 's|explicit ReaderMutexLock\(Mutex& mu\) : ReaderMutexLock\(&mu\) \{\}\n|explicit ReaderMutexLock(Mutex& mu) : ReaderMutexLock(&mu) {}\n  explicit ReaderMutexLock(Mutex& mu, const Condition& cond) : ReaderMutexLock(&mu, cond) {}\n|s' "${ABSL_MUTEX_HEADER}"
-    perl -0pi -e 's|explicit WriterMutexLock\(Mutex\* absl_nonnull mu\)\n      ABSL_EXCLUSIVE_LOCK_FUNCTION\(mu\)\n      : mu_\(mu\) \{\n    mu->WriterLock\(\);\n  \}\n|explicit WriterMutexLock(Mutex* absl_nonnull mu)\n      ABSL_EXCLUSIVE_LOCK_FUNCTION(mu)\n      : mu_(mu) {\n    mu->WriterLock();\n  }\n\n  // XLA_ABSL_MUTEX_COMPAT\n  explicit WriterMutexLock(Mutex& mu) : WriterMutexLock(&mu) {}\n|s' "${ABSL_MUTEX_HEADER}"
-    perl -0pi -e 's|explicit WriterMutexLock\(Mutex& mu\) : WriterMutexLock\(&mu\) \{\}\n|explicit WriterMutexLock(Mutex& mu) : WriterMutexLock(&mu) {}\n  explicit WriterMutexLock(Mutex& mu, const Condition& cond) : WriterMutexLock(&mu, cond) {}\n|s' "${ABSL_MUTEX_HEADER}"
-    perl -0pi -e 's|explicit ReleasableMutexLock\(Mutex\* absl_nonnull mu\)\n      ABSL_EXCLUSIVE_LOCK_FUNCTION\(mu\)\n      : mu_\(mu\) \{\n    this->mu_->Lock\(\);\n  \}\n|explicit ReleasableMutexLock(Mutex* absl_nonnull mu)\n      ABSL_EXCLUSIVE_LOCK_FUNCTION(mu)\n      : mu_(mu) {\n    this->mu_->Lock();\n  }\n\n  // XLA_ABSL_MUTEX_COMPAT\n  explicit ReleasableMutexLock(Mutex& mu) : ReleasableMutexLock(&mu) {}\n|s' "${ABSL_MUTEX_HEADER}"
-    perl -0pi -e 's|explicit ReleasableMutexLock\(Mutex& mu\) : ReleasableMutexLock\(&mu\) \{\}\n|explicit ReleasableMutexLock(Mutex& mu) : ReleasableMutexLock(&mu) {}\n  explicit ReleasableMutexLock(Mutex& mu, const Condition& cond) : ReleasableMutexLock(&mu, cond) {}\n|s' "${ABSL_MUTEX_HEADER}"
-  fi
+fi
+
+# Add small source-compatible aliases directly in the build env headers.
+ABSL_MUTEX_HEADER="${BUILD_PREFIX}/include/absl/synchronization/mutex.h"
+if [[ -f "${ABSL_MUTEX_HEADER}" ]] && ! grep -q "XLA_ABSL_MUTEX_COMPAT" "${ABSL_MUTEX_HEADER}"; then
+  perl -0pi -e 's|void Unlock\(\) ABSL_UNLOCK_FUNCTION\(\);\n|void Unlock() ABSL_UNLOCK_FUNCTION();\n\n  // XLA_ABSL_MUTEX_COMPAT\n  void lock() ABSL_EXCLUSIVE_LOCK_FUNCTION() { Lock(); }\n  void unlock() ABSL_UNLOCK_FUNCTION() { Unlock(); }\n  [[nodiscard]] bool try_lock() ABSL_EXCLUSIVE_TRYLOCK_FUNCTION(true) { return TryLock(); }\n  void lock_shared() ABSL_SHARED_LOCK_FUNCTION() { ReaderLock(); }\n  void unlock_shared() ABSL_UNLOCK_FUNCTION() { ReaderUnlock(); }\n  [[nodiscard]] bool try_lock_shared() ABSL_SHARED_TRYLOCK_FUNCTION(true) { return ReaderTryLock(); }\n|s' "${ABSL_MUTEX_HEADER}"
+  perl -0pi -e 's|explicit MutexLock\(Mutex\* absl_nonnull mu\) ABSL_EXCLUSIVE_LOCK_FUNCTION\(mu\)\n      : mu_\(mu\) \{\n    this->mu_->Lock\(\);\n  \}\n|explicit MutexLock(Mutex* absl_nonnull mu) ABSL_EXCLUSIVE_LOCK_FUNCTION(mu)\n      : mu_(mu) {\n    this->mu_->Lock();\n  }\n\n  // XLA_ABSL_MUTEX_COMPAT\n  explicit MutexLock(Mutex& mu) : MutexLock(&mu) {}\n|s' "${ABSL_MUTEX_HEADER}"
+  perl -0pi -e 's|explicit MutexLock\(Mutex& mu\) : MutexLock\(&mu\) \{\}\n|explicit MutexLock(Mutex& mu) : MutexLock(&mu) {}\n  explicit MutexLock(Mutex& mu, const Condition& cond) : MutexLock(&mu, cond) {}\n|s' "${ABSL_MUTEX_HEADER}"
+  perl -0pi -e 's|explicit ReaderMutexLock\(Mutex\* absl_nonnull mu\) ABSL_SHARED_LOCK_FUNCTION\(mu\)\n      : mu_\(mu\) \{\n    mu->ReaderLock\(\);\n  \}\n|explicit ReaderMutexLock(Mutex* absl_nonnull mu) ABSL_SHARED_LOCK_FUNCTION(mu)\n      : mu_(mu) {\n    mu->ReaderLock();\n  }\n\n  // XLA_ABSL_MUTEX_COMPAT\n  explicit ReaderMutexLock(Mutex& mu) : ReaderMutexLock(&mu) {}\n|s' "${ABSL_MUTEX_HEADER}"
+  perl -0pi -e 's|explicit ReaderMutexLock\(Mutex& mu\) : ReaderMutexLock\(&mu\) \{\}\n|explicit ReaderMutexLock(Mutex& mu) : ReaderMutexLock(&mu) {}\n  explicit ReaderMutexLock(Mutex& mu, const Condition& cond) : ReaderMutexLock(&mu, cond) {}\n|s' "${ABSL_MUTEX_HEADER}"
+  perl -0pi -e 's|explicit WriterMutexLock\(Mutex\* absl_nonnull mu\)\n      ABSL_EXCLUSIVE_LOCK_FUNCTION\(mu\)\n      : mu_\(mu\) \{\n    mu->WriterLock\(\);\n  \}\n|explicit WriterMutexLock(Mutex* absl_nonnull mu)\n      ABSL_EXCLUSIVE_LOCK_FUNCTION(mu)\n      : mu_(mu) {\n    mu->WriterLock();\n  }\n\n  // XLA_ABSL_MUTEX_COMPAT\n  explicit WriterMutexLock(Mutex& mu) : WriterMutexLock(&mu) {}\n|s' "${ABSL_MUTEX_HEADER}"
+  perl -0pi -e 's|explicit WriterMutexLock\(Mutex& mu\) : WriterMutexLock\(&mu\) \{\}\n|explicit WriterMutexLock(Mutex& mu) : WriterMutexLock(&mu) {}\n  explicit WriterMutexLock(Mutex& mu, const Condition& cond) : WriterMutexLock(&mu, cond) {}\n|s' "${ABSL_MUTEX_HEADER}"
+  perl -0pi -e 's|explicit ReleasableMutexLock\(Mutex\* absl_nonnull mu\)\n      ABSL_EXCLUSIVE_LOCK_FUNCTION\(mu\)\n      : mu_\(mu\) \{\n    this->mu_->Lock\(\);\n  \}\n|explicit ReleasableMutexLock(Mutex* absl_nonnull mu)\n      ABSL_EXCLUSIVE_LOCK_FUNCTION(mu)\n      : mu_(mu) {\n    this->mu_->Lock();\n  }\n\n  // XLA_ABSL_MUTEX_COMPAT\n  explicit ReleasableMutexLock(Mutex& mu) : ReleasableMutexLock(&mu) {}\n|s' "${ABSL_MUTEX_HEADER}"
+  perl -0pi -e 's|explicit ReleasableMutexLock\(Mutex& mu\) : ReleasableMutexLock\(&mu\) \{\}\n|explicit ReleasableMutexLock(Mutex& mu) : ReleasableMutexLock(&mu) {}\n  explicit ReleasableMutexLock(Mutex& mu, const Condition& cond) : ReleasableMutexLock(&mu, cond) {}\n|s' "${ABSL_MUTEX_HEADER}"
 fi
 
 cat >> .bazelrc <<EOF
