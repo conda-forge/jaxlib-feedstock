@@ -1086,7 +1086,7 @@ index 000000000..f8cb7504c
 +
 +---
 + third_party/mkl_dnn/mkldnn_system.BUILD | 6 ++++++
-+ workspace2.bzl                          | 1 +
++ third_party/mkl_dnn/workspace.bzl       | 1 +
 + 2 files changed, 7 insertions(+)
 + create mode 100644 third_party/mkl_dnn/mkldnn_system.BUILD
 +
@@ -1102,18 +1102,18 @@ index 000000000..f8cb7504c
 ++    visibility = ["//visibility:public"],
 ++)
 ++
-+diff --git a/workspace2.bzl b/workspace2.bzl
-+index caacfc497b..8a1630f141 100644
-+--- a/workspace2.bzl
-++++ b/workspace2.bzl
-+@@ -194,6 +194,7 @@ def _tf_repositories():
-+         name = "onednn_async",
++diff --git a/third_party/mkl_dnn/workspace.bzl b/third_party/mkl_dnn/workspace.bzl
++index c12a859821..949d51545e 100644
++--- a/third_party/mkl_dnn/workspace.bzl
+++++ b/third_party/mkl_dnn/workspace.bzl
++@@ -7,6 +7,7 @@ def repo():
++         name = "onednn",
 +         build_file = "//third_party/mkl_dnn:mkldnn_v1.BUILD",
 +         patch_file = ["//third_party/mkl_dnn:setting_init.patch"],
 ++        system_build_file = "//third_party/mkl_dnn:mkldnn_system.BUILD",
-+         sha256 = "1cfa18fad65b4c3b46ef701a83c64b87411d63e79c8549cdb37f8c1fc10e2398",
-+         strip_prefix = "oneDNN-dev-v3.7-thunk-preview",
-+         urls = tf_mirror_urls("https://github.com/oneapi-src/oneDNN/archive/refs/heads/dev-v3.7-thunk-preview.tar.gz"),
++         sha256 = "071f289dc961b43a3b7c8cbe8a305290a7c5d308ec4b2f586397749abdc88296",
++         strip_prefix = "oneDNN-3.7.3",
++         urls = tf_mirror_urls("https://github.com/oneapi-src/oneDNN/archive/refs/tags/v3.7.3.tar.gz"),
 diff --git a/third_party/xla/0010-silence-pointless-error-in-tf_http_archive.patch b/third_party/xla/0010-silence-pointless-error-in-tf_http_archive.patch
 new file mode 100644
 index 000000000..f3724059e
