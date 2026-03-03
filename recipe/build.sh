@@ -138,8 +138,9 @@ if [[ "${host_platform}" == linux-* ]]; then
     sed -i '/Qunused-arguments/d' .bazelrc
     # Don't override our toolchain for CUDA
     sed -i '/TF_NVCC_CLANG/{N;d}' .bazelrc
-    # Keep using our toolchain
-    sed -i '/--crosstool_top=@local_config_cuda/d' .bazelrc
+    # Keep using our toolchain for both target and host builds.
+    sed -i -E '/--crosstool_top="?@local_config_cuda\/\/crosstool:toolchain"?/d' .bazelrc
+    sed -i -E '/--host_crosstool_top="?@local_config_cuda\/\/crosstool:toolchain"?/d' .bazelrc
 fi
 
 ${PYTHON} build/build.py build \

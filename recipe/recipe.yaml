@@ -32,6 +32,7 @@ requirements:
       then:
         - ${{ compiler('cuda') }}
         - rsync
+        - vim  # needs xxd binary
     - if: build_platform != host_platform
       then:
         - python
