@@ -1,0 +1,39 @@
+diff --git a/jaxlib/weakref_lru_cache.cc b/jaxlib/weakref_lru_cache.cc
+index 5eba1ec..db8f6f1 100644
+--- a/jaxlib/weakref_lru_cache.cc
++++ b/jaxlib/weakref_lru_cache.cc
+@@ -289,7 +289,7 @@ nb::object WeakrefLRUCache::Call(nb::handle weakref_key, nb::args args,
+ 
+     // Acquire a mutex to avoid problems where the gil is released during
+     // cache insertion and then a second thread invalidates the cache order.
+-    mu_.lock();
++    mu_.Lock();
+     mu_holder_thread_id_.store(std::this_thread::get_id());
+   }
+   {
+@@ -298,7 +298,7 @@ nb::object WeakrefLRUCache::Call(nb::handle weakref_key, nb::args args,
+     // released if that happens.
+     absl::Cleanup unlock = [this]() ABSL_UNLOCK_FUNCTION(mu_) {
+       mu_holder_thread_id_.store(std::thread::id());
+-      mu_.unlock();
++      mu_.Unlock();
+     };
+     entry = cache.GetOrCreateIfAbsent(key, [&inserted](const Key& key) {
+       inserted = true;
+@@ -335,7 +335,7 @@ nb::object WeakrefLRUCache::Call(nb::handle weakref_key, nb::args args,
+ 
+ std::vector<nb::object> WeakrefLRUCache::GetKeys() {
+   std::vector<nb::object> results;
+-  mu_.lock();
++  mu_.Lock();
+   for (const auto& [wr_key, wr_value] : entries_) {
+     wr_value.cache->ForEach([&results, &wr_key](
+                                 const Key& key,
+@@ -345,7 +345,7 @@ std::vector<nb::object> WeakrefLRUCache::GetKeys() {
+       results.push_back(std::move(result));
+     });
+   }
+-  mu_.unlock();
++  mu_.Unlock();
+   return results;
+ }

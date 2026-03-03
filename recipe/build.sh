@@ -49,6 +49,43 @@ if [[ -d "third_party/xla" ]]; then
     -exec perl -0pi -e 's/\babsl::(MutexLock|ReaderMutexLock|WriterMutexLock|ReleasableMutexLock)\s+([A-Za-z_][A-Za-z0-9_]*)\(\s*(mu_|mutex_|lock_)(\s*[,\)])/absl::$1 $2\(&${3}$4/g' {} +
 fi
 
+if [[ "${target_platform}" == "osx-64" ]]; then
+  JAXLIB_BUILD_FILE=""
+  if [[ -f "jaxlib/BUILD" ]]; then
+    JAXLIB_BUILD_FILE="jaxlib/BUILD"
+  elif [[ -f "jaxlib/BUILD.bazel" ]]; then
+    JAXLIB_BUILD_FILE="jaxlib/BUILD.bazel"
+  fi
+
+  if [[ -n "${JAXLIB_BUILD_FILE}" ]] && ! grep -q "XLA_CONDA_FORGE_ONEDNN_MACOS_FIX" "${JAXLIB_BUILD_FILE}"; then
+    awk -v prefix="${PREFIX}" '
+      BEGIN {
+        in_jax_pywrap = 0
+        saw_name = 0
+        inserted = 0
+      }
+      /^pywrap_library\($/ { in_jax_pywrap = 1 }
+      in_jax_pywrap && $0 == "    name = \"jax\"," { saw_name = 1 }
+      in_jax_pywrap && saw_name && !inserted && $0 == "    deps = [" {
+        print "    common_lib_linkopts = {"
+        print "        \"jaxlib/jax_common\": select({"
+        print "            \"@bazel_tools//src/conditions:darwin\": ["
+        print "                \"-Wl,-needed_library," prefix "/lib/libdnnl.dylib\","
+        print "                \"-Wl,-rpath," prefix "/lib\","
+        print "            ],"
+        print "            \"//conditions:default\": [],"
+        print "        }),"
+        print "    },"
+        print "    # XLA_CONDA_FORGE_ONEDNN_MACOS_FIX"
+        inserted = 1
+      }
+      { print }
+    ' "${JAXLIB_BUILD_FILE}" > "${JAXLIB_BUILD_FILE}.tmp"
+    mv "${JAXLIB_BUILD_FILE}.tmp" "${JAXLIB_BUILD_FILE}"
+    grep -q "XLA_CONDA_FORGE_ONEDNN_MACOS_FIX" "${JAXLIB_BUILD_FILE}"
+  fi
+fi
+
 if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
     if [[ ${cuda_compiler_version} == 12* ]]; then
         export HERMETIC_CUDA_COMPUTE_CAPABILITIES=sm_60,sm_70,sm_75,sm_80,sm_86,sm_89,sm_90,sm_100,sm_120,compute_120
@@ -459,15 +496,44 @@ ${PYTHON} build/build.py build \
     ${JAX_BAZEL_STARTUP_OPTIONS:+--bazel_startup_options=${JAX_BAZEL_STARTUP_OPTIONS}} \
     ${EXTRA}
 
-# Clean up to speedup postprocessing
-pushd build
-# Bazel server mode can crash in this environment (Netty event loop issue).
-# Cleanup is best-effort only and should not fail a successful build.
-bazel --batch clean || true
-popd
+# Clean up to speedup postprocessing. On macOS CI this can stall after a
+# successful build while restarting the JVM, so skip it there.
+if [[ "${target_platform}" == linux-* ]]; then
+  pushd build
+  # Bazel server mode can crash in this environment (Netty event loop issue).
+  # Cleanup is best-effort only and should not fail a successful build.
+  bazel --batch clean || true
+  popd
+else
+  echo "Skipping bazel clean on ${target_platform}"
+fi
 
 pushd $SP_DIR
 python -m pip install $SRC_DIR/dist/jaxlib-*.whl
+
+if [[ "${target_platform}" == "osx-64" ]]; then
+  # The common pywrap dylib holds the CPU runtime code that pulls in oneDNN.
+  JAXLIB_SO="${SP_DIR}/jaxlib/_jax.so"
+  JAXLIB_COMMON_DYLIB="${SP_DIR}/jaxlib/libjax_common.dylib"
+  otool -L "${JAXLIB_SO}"
+  if [[ ! -f "${JAXLIB_COMMON_DYLIB}" ]]; then
+    find "${SP_DIR}/jaxlib" -maxdepth 1 -type f \( -name '*.so' -o -name '*.dylib' \) -print | sort || true
+    echo "Error: ${JAXLIB_COMMON_DYLIB} not found in jaxlib package" >&2
+    exit 1
+  fi
+
+  otool -L "${JAXLIB_COMMON_DYLIB}"
+  if ! otool -L "${JAXLIB_COMMON_DYLIB}" | grep -q "libdnnl"; then
+    otool -l "${JAXLIB_COMMON_DYLIB}" | awk '
+      $1 == "cmd" && $2 == "LC_RPATH" { show = 1 }
+      show { print }
+      show && $1 == "Load" && $2 == "command" { show = 0 }
+    ' || true
+    nm -u "${JAXLIB_COMMON_DYLIB}" | grep -i dnnl || true
+    echo "Error: ${JAXLIB_COMMON_DYLIB} is not linked against libdnnl on macOS" >&2
+    exit 1
+  fi
+fi
 
 # Add INSTALLER file and remove RECORD, workaround for
 # https://github.com/conda-forge/jaxlib-feedstock/issues/293
