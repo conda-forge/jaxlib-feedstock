@@ -7,20 +7,32 @@ The pywrap common library (`libjax_common.dylib`) carries the CPU runtime
 symbols used by `_jax.so` on macOS. Ensure oneDNN is loaded from that shared
 library by adding explicit Darwin-only link options.
 ---
- jaxlib/BUILD | 6 ++++++
- 1 file changed, 6 insertions(+)
+ jaxlib/BUILD | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
 diff --git a/jaxlib/BUILD b/jaxlib/BUILD
-index 9f2264c4a..f3183d8a4 100644
+index 9f2264c4a..0bb86f95f 100644
 --- a/jaxlib/BUILD
 +++ b/jaxlib/BUILD
-@@ -154,6 +154,12 @@ pywrap_library(
+@@ -140,6 +140,11 @@ exports_files([
+     "setup.py",
+ ])
+ 
++config_setting(
++    name = "darwin_x86_64",
++    values = {"cpu": "darwin_x86_64"},
++)
++
+ pywrap_library(
+     name = "jax",
+     common_lib_def_files_or_filters = {
+@@ -154,6 +160,12 @@ pywrap_library(
              "//conditions:default": "libjax_common.lds",
          }),
      },
 +    common_lib_linkopts = {
 +        "jaxlib/jax_common": select({
-+            "@bazel_tools//src/conditions:darwin": ["-Wl,-needed-ldnnl"],
++            ":darwin_x86_64": ["-Wl,-needed-ldnnl"],
 +            "//conditions:default": [],
 +        }),
 +    },
