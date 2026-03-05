@@ -17,6 +17,7 @@ source:
     - patches/0002-Consolidated-build-fixes-for-XLA.patch
     - patches/0003-avoid-mirror-that-doesn-t-seem-to-have-current-xla-a.patch
     - patches/0004-re-enable-use_fast_cpp_protos-true.patch
+    - patches/0005-link-onednn-into-jax-common-on-macos.patch
 
 build:
   number: ${{ build if cuda_compiler_version == "None" else build + 200 }}

@@ -1,0 +1,29 @@
+From 03ee2f23da853207fc8385a097cdb19a9fabaa18 Mon Sep 17 00:00:00 2001
+From: "Filippo Luca Ferretti" <filippoluca.ferretti@outlook.com>
+Date: Thu, 5 Mar 2026 10:03:00 +0100
+Subject: [PATCH 5/5] link oneDNN into jax_common on macOS
+
+The pywrap common library (`libjax_common.dylib`) carries the CPU runtime
+symbols used by `_jax.so` on macOS. Ensure oneDNN is loaded from that shared
+library by adding explicit Darwin-only link options.
+---
+ jaxlib/BUILD | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/jaxlib/BUILD b/jaxlib/BUILD
+index 9f2264c4a..f3183d8a4 100644
+--- a/jaxlib/BUILD
++++ b/jaxlib/BUILD
+@@ -154,6 +154,12 @@ pywrap_library(
+             "//conditions:default": "libjax_common.lds",
+         }),
+     },
++    common_lib_linkopts = {
++        "jaxlib/jax_common": select({
++            "@bazel_tools//src/conditions:darwin": ["-Wl,-needed-ldnnl"],
++            "//conditions:default": [],
++        }),
++    },
+     deps = [
+         ":_ifrt_proxy",
+         ":_jax",
