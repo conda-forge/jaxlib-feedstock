@@ -1,4 +1,4 @@
-From 273f17a397ba8304b94d29c1b3fd7f8451f70873 Mon Sep 17 00:00:00 2001
+From e8d1f76626a801837a30090240b284025393dc25 Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwe.korn@quantco.com>
 Date: Thu, 14 Dec 2023 17:06:15 +0100
 Subject: [PATCH 2/4] Consolidated build fixes for XLA
@@ -32,7 +32,7 @@ Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
  third_party/grpc_systemlib.BUILD              |    71 +
  third_party/xla/0001-Fix-abseil-headers.patch |   132 +
  .../xla/0002-Omit-usage-of-StrFormat.patch    |    25 +
- .../xla/0003-Re-enable-system-abseil.patch    | 13644 ++++++++++++++++
+ .../xla/0003-Re-enable-system-abseil.patch    | 14285 ++++++++++++++++
  ...ther-absl-log-is-already-initialized.patch |    58 +
  third_party/xla/0005-Unbundle-grpc.patch      |   153 +
  ...-coordination_agent_recoverable-flag.patch |    35 +
@@ -41,7 +41,7 @@ Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
  .../0009-Add-macos_x86_64-to-mkl_deps.patch   |    21 +
  .../xla/0010-Add-systemlib-for-oneDNN.patch   |    48 +
  third_party/xla/workspace.bzl                 |    14 +-
- 27 files changed, 14330 insertions(+), 30 deletions(-)
+ 27 files changed, 14971 insertions(+), 30 deletions(-)
  create mode 100644 third_party/grpc_systemlib.BUILD
  create mode 100644 third_party/xla/0001-Fix-abseil-headers.patch
  create mode 100644 third_party/xla/0002-Omit-usage-of-StrFormat.patch
@@ -613,11 +613,11 @@ index 0000000..c299be9
 + #include <vector>
 diff --git a/third_party/xla/0003-Re-enable-system-abseil.patch b/third_party/xla/0003-Re-enable-system-abseil.patch
 new file mode 100644
-index 0000000..690f7fd
+index 0000000..1aa6e4c
 --- /dev/null
 +++ b/third_party/xla/0003-Re-enable-system-abseil.patch
-@@ -0,0 +1,13644 @@
-+From 24278641d0afba6846a525bc41a3631964b84a7c Mon Sep 17 00:00:00 2001
+@@ -0,0 +1,14285 @@
++From 765b73a5d01a0de59f767208679dfbc5f6342eb7 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 4 Jul 2024 15:58:32 +0200
 +Subject: [PATCH 03/10] Re-enable system abseil
@@ -627,16 +627,18 @@ index 0000000..690f7fd
 +
 +Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
 +---
-+ third_party/absl/system.absl.base.BUILD       |  24 ++++
-+ third_party/absl/system.absl.container.BUILD  |   8 ++
-+ third_party/absl/system.absl.crc.BUILD        |  70 +++++++++++
++ third_party/absl/system.absl.base.BUILD       |  24 +
++ third_party/absl/system.absl.container.BUILD  |   8 +
++ third_party/absl/system.absl.crc.BUILD        |  70 +++
 + third_party/absl/system.absl.flags.BUILD      |   2 +-
 + third_party/absl/system.absl.functional.BUILD |   4 +
-+ third_party/absl/system.absl.log.BUILD        | 109 ++++++++++++++++++
++ third_party/absl/system.absl.log.BUILD        | 109 ++++
 + third_party/absl/system.absl.random.BUILD     |   2 +-
-+ third_party/absl/system.absl.strings.BUILD    |  23 +++-
++ third_party/absl/system.absl.strings.BUILD    |  23 +-
 + third_party/absl/system.absl.utility.BUILD    |   5 +
-+ third_party/absl/workspace.bzl                |  30 +++++
++ third_party/absl/workspace.bzl                |  30 +
++ .../0001-Adapt-to-absl-MutexLock-API.patch    | 526 ++++++++++++++++++
++ third_party/riegeli/workspace.bzl             |   1 +
 + third_party/tsl/tsl/platform/mutex.h          |  12 +-
 + .../tsl/tsl/profiler/lib/profiler_factory.cc  |   6 +-
 + .../tsl/tsl/profiler/lib/profiler_session.cc  |   4 +-
@@ -650,7 +652,7 @@ index 0000000..690f7fd
 + xla/backends/cpu/runtime/thunk_executor.cc    |   4 +-
 + xla/backends/cpu/runtime/xfeed_manager.cc     |   8 +-
 + .../cpu/runtime/ynnpack/slinky_threadpool.cc  |  10 +-
-+ xla/backends/gpu/collectives/gpu_cliques.cc   |  18 +--
++ xla/backends/gpu/collectives/gpu_cliques.cc   |  18 +-
 + .../gpu/collectives/nccl_collectives.cc       |   4 +-
 + .../gpu/collectives/nccl_communicator.cc      |   4 +-
 + .../gpu/collectives/rccl_collectives.cc       |   4 +-
@@ -662,19 +664,19 @@ index 0000000..690f7fd
 + .../gpu/runtime/collective_cliques.cc         |   4 +-
 + .../gpu/runtime/collective_kernel_thunk.cc    |   8 +-
 + .../gpu/runtime/collective_metadata_thunk.cc  |   2 +-
-+ .../gpu/runtime/collective_permute_thunk.cc   |  10 +-
++ .../gpu/runtime/collective_permute_thunk.cc   |  14 +-
 + .../gpu/runtime/collective_permute_thunk.h    |   8 +-
 + xla/backends/gpu/runtime/collective_thunk.cc  |   4 +-
-+ .../gpu/runtime/command_buffer_cmd.cc         |  16 +--
++ .../gpu/runtime/command_buffer_cmd.cc         |  16 +-
 + .../gpu/runtime/command_buffer_thunk.cc       |  12 +-
-+ xla/backends/gpu/runtime/conditional_thunk.cc |   4 +-
++ xla/backends/gpu/runtime/conditional_thunk.cc |   9 +-
 + xla/backends/gpu/runtime/convolution_thunk.cc |   2 +-
 + xla/backends/gpu/runtime/copy_thunk.cc        |   4 +-
 + .../gpu/runtime/custom_kernel_thunk.cc        |   4 +-
 + .../gpu/runtime/dynamic_slice_thunk.cc        |   4 +-
 + xla/backends/gpu/runtime/fft_thunk.cc         |   2 +-
 + xla/backends/gpu/runtime/fft_thunk.h          |   2 +-
-+ .../gpu/runtime/host_execute_thunk.cc         |   4 +-
++ .../gpu/runtime/host_execute_thunk.cc         |   8 +-
 + xla/backends/gpu/runtime/host_memory_pool.cc  |   2 +-
 + xla/backends/gpu/runtime/host_memory_pool.h   |   2 +-
 + .../gpu/runtime/host_send_recv_thunk.cc       |   4 +-
@@ -683,7 +685,9 @@ index 0000000..690f7fd
 + .../gpu/runtime/nvshmem_collective_thunk.cc   |   4 +-
 + xla/backends/gpu/runtime/p2p_thunk_common.cc  |   4 +-
 + .../gpu/runtime/ragged_all_to_all_thunk.cc    |   4 +-
++ xla/backends/gpu/runtime/recv_thunk.cc        |   2 +-
 + .../gpu/runtime/runtime_intrinsics.cc         |   2 +-
++ xla/backends/gpu/runtime/send_thunk.cc        |   2 +-
 + xla/backends/gpu/runtime/while_thunk.cc       |   4 +-
 + xla/backends/interpreter/executable.cc        |   2 +-
 + .../profiler/gpu/cupti_buffer_events.h        |   4 +-
@@ -692,7 +696,7 @@ index 0000000..690f7fd
 + .../profiler/gpu/cupti_nvtx_ext_payload.cc    |   4 +-
 + .../profiler/gpu/cupti_pm_sampler_impl.cc     |   6 +-
 + .../profiler/gpu/cupti_pm_sampler_impl.h      |   8 +-
-+ xla/backends/profiler/gpu/cupti_tracer.cc     |  14 +--
++ xla/backends/profiler/gpu/cupti_tracer.cc     |  14 +-
 + .../profiler/gpu/ondevice_event_exporter.cc   |   6 +-
 + xla/backends/profiler/gpu/rocm_collector.cc   |  10 +-
 + xla/backends/profiler/gpu/rocm_tracer.cc      |  10 +-
@@ -711,7 +715,7 @@ index 0000000..690f7fd
 + xla/hlo/ir/hlo_module.h                       |   8 +-
 + xla/hlo/ir/hlo_module_group.cc                |   2 +-
 + xla/hlo/ir/named_sharding.cc                  |   8 +-
-+ xla/hlo/ir/tile_assignment.cc                 |  34 +++---
++ xla/hlo/ir/tile_assignment.cc                 |  34 +-
 + .../hlo_hardware_independent_test_base.cc     |   2 +-
 + .../hlo_hardware_independent_test_base.h      |   4 +-
 + xla/hlo/tools/hlo_opt/opt_lib.cc              |   4 +-
@@ -720,10 +724,10 @@ index 0000000..690f7fd
 + .../concurrency/tsl_task_executor_test.cc     |   4 +-
 + xla/literal_pool.cc                           |   8 +-
 + xla/parse_flags_from_env.cc                   |   6 +-
-+ xla/pjrt/abstract_tracked_device_buffer.cc    |  16 +--
++ xla/pjrt/abstract_tracked_device_buffer.cc    |  16 +-
 + xla/pjrt/buffer_sequencing_event.cc           |   4 +-
 + xla/pjrt/c/pjrt_c_api_test.cc                 |   6 +-
-+ xla/pjrt/c/pjrt_c_api_wrapper_impl.cc         |  16 +--
++ xla/pjrt/c/pjrt_c_api_wrapper_impl.cc         |  16 +-
 + xla/pjrt/c_api_client/pjrt_c_api_client.cc    |  10 +-
 + xla/pjrt/common_pjrt_client.cc                |  10 +-
 + xla/pjrt/cpu/cpu_async_execution_tracker.cc   |  10 +-
@@ -733,46 +737,46 @@ index 0000000..690f7fd
 + xla/pjrt/cpu/raw_buffer.cc                    |   2 +-
 + xla/pjrt/distributed/client_server_test.cc    |   8 +-
 + .../coordination/client_server_test.cc        |   8 +-
-+ .../coordination/coordination_service.cc      |  38 +++---
++ .../coordination/coordination_service.cc      |  38 +-
 + .../coordination/coordination_service.h       |   2 +-
-+ .../coordination_service_agent.cc             |  36 +++---
++ .../coordination_service_agent.cc             |  36 +-
 + .../coordination/coordination_service_agent.h |   2 +-
-+ .../coordination_service_rpc_handler.cc       |  34 +++---
++ .../coordination_service_rpc_handler.cc       |  34 +-
 + .../coordination/coordination_service_test.cc |   2 +-
 + .../grpc_coordination_service_impl.cc         |   2 +-
-+ .../coordination/key_value_store.cc           |  16 +--
++ .../coordination/key_value_store.cc           |  16 +-
 + .../distributed/in_memory_key_value_store.cc  |   6 +-
 + .../preemption/preemption_notifier.cc         |   4 +-
 + .../preemption/preemption_sync_manager.cc     |  10 +-
 + xla/pjrt/distributed/topology_util.cc         |   2 +-
 + xla/pjrt/event_pool.cc                        |   6 +-
-+ xla/pjrt/gpu/se_gpu_pjrt_client_test.cc       |  26 ++---
++ xla/pjrt/gpu/se_gpu_pjrt_client_test.cc       |  26 +-
 + xla/pjrt/gpu/se_gpu_pjrt_compiler.cc          |   2 +-
 + xla/pjrt/gpu/tfrt/gpu_event.cc                |   2 +-
 + ...u_async_host_to_device_transfer_manager.cc |  10 +-
 + ...pu_async_host_to_device_transfer_manager.h |   2 +-
-+ xla/pjrt/gpu/tfrt/tfrt_gpu_buffer.cc          |  20 ++--
++ xla/pjrt/gpu/tfrt/tfrt_gpu_buffer.cc          |  20 +-
 + xla/pjrt/gpu/tfrt/tfrt_gpu_buffer.h           |   2 +-
 + xla/pjrt/gpu/tfrt/tfrt_gpu_client.cc          |  10 +-
-+ xla/pjrt/gpu/tfrt/tfrt_gpu_client_test.cc     |  20 ++--
++ xla/pjrt/gpu/tfrt/tfrt_gpu_client_test.cc     |  20 +-
 + xla/pjrt/gpu/tfrt/tfrt_gpu_device.cc          |   4 +-
 + xla/pjrt/gpu/tfrt/tfrt_gpu_executable.cc      |   6 +-
 + xla/pjrt/gpu/tfrt/utils.cc                    |   2 +-
 + xla/pjrt/host_callback.h                      |   4 +-
-+ xla/pjrt/host_to_device_transfer_manager.cc   |  16 +--
++ xla/pjrt/host_to_device_transfer_manager.cc   |  16 +-
 + xla/pjrt/interpreter/interpreter_client.cc    |   2 +-
-+ xla/pjrt/local_device_state.cc                |  30 ++---
++ xla/pjrt/local_device_state.cc                |  30 +-
 + xla/pjrt/pjrt_client.h                        |   4 +-
 + xla/pjrt/pjrt_client_test.cc                  |   4 +-
 + xla/pjrt/pjrt_compiler.cc                     |   8 +-
-+ xla/pjrt/pjrt_stream_executor_client.cc       |  14 +--
++ xla/pjrt/pjrt_stream_executor_client.cc       |  14 +-
 + xla/pjrt/pjrt_stream_executor_client_test.cc  |   4 +-
 + xla/pjrt/se_raw_buffer.cc                     |   2 +-
 + xla/pjrt/semaphore.cc                         |   6 +-
 + xla/pjrt/tf_pjrt_client.cc                    |   6 +-
 + xla/pjrt/worker_thread.cc                     |   6 +-
 + xla/python/ifrt/attribute_map.cc              |   4 +-
-+ xla/python/ifrt/attribute_map.h               |  26 ++---
++ xla/python/ifrt/attribute_map.h               |  26 +-
 + xla/python/ifrt/ir/tests/ifrt-opt.cc          |   4 +-
 + xla/python/ifrt/memory.cc                     |   2 +-
 + xla/python/ifrt/serdes.cc                     |   6 +-
@@ -786,7 +790,7 @@ index 0000000..690f7fd
 + .../client/grpc_client_session_test.cc        |   6 +-
 + .../ifrt_proxy/client/mpmd_executable.cc      |   2 +-
 + xla/python/ifrt_proxy/client/registry.cc      |   4 +-
-+ xla/python/ifrt_proxy/client/rpc_helper.cc    |  16 +--
++ xla/python/ifrt_proxy/client/rpc_helper.cc    |  16 +-
 + .../ifrt_proxy/client/rpc_helper_test.cc      |   4 +-
 + xla/python/ifrt_proxy/common/test_utils.cc    |   6 +-
 + xla/python/ifrt_proxy/common/test_utils.h     |   8 +-
@@ -794,21 +798,21 @@ index 0000000..690f7fd
 + .../ifrt_proxy/server/grpc_service_impl.cc    |  12 +-
 + xla/python/ifrt_proxy/server/host_buffer.cc   |  10 +-
 + xla/python/ifrt_proxy/server/host_callback.cc |   6 +-
-+ xla/python/ifrt_proxy/server/ifrt_backend.cc  |  78 ++++++-------
++ xla/python/ifrt_proxy/server/ifrt_backend.cc  |  78 +--
 + .../ifrt_proxy/server/ifrt_backend_test.cc    |   2 +-
-+ xla/python/pjrt_ifrt/basic_string_array.cc    |  14 +--
-+ xla/python/pjrt_ifrt/pjrt_client.cc           |  14 +--
++ xla/python/pjrt_ifrt/basic_string_array.cc    |  14 +-
++ xla/python/pjrt_ifrt/pjrt_client.cc           |  14 +-
 + xla/python/pjrt_ifrt/pjrt_tuple.cc            |   2 +-
 + xla/python/profiler/internal/python_hooks.cc  |   4 +-
 + xla/python/safe_static_init.h                 |   2 +-
-+ xla/python/transfer/event_loop.cc             |  46 ++++----
++ xla/python/transfer/event_loop.cc             |  46 +-
 + xla/python/transfer/event_loop_test.cc        |  12 +-
 + xla/python/transfer/pjrt_transfer_server.cc   |   2 +-
-+ xla/python/transfer/socket-server.cc          |  42 +++----
-+ xla/python/transfer/socket_bulk_transport.cc  |  58 +++++-----
-+ .../transfer/socket_bulk_transport_test.cc    |  16 +--
-+ xla/python/transfer/streaming.cc              |  28 ++---
-+ xla/python/transfer/streaming_ifrt.cc         |  16 +--
++ xla/python/transfer/socket-server.cc          |  42 +-
++ xla/python/transfer/socket_bulk_transport.cc  |  58 +-
++ .../transfer/socket_bulk_transport_test.cc    |  16 +-
++ xla/python/transfer/streaming.cc              |  28 +-
++ xla/python/transfer/streaming_ifrt.cc         |  16 +-
 + xla/python/transfer/streaming_ifrt.h          |   6 +-
 + xla/python/transfer/streaming_ifrt_test.cc    |   8 +-
 + xla/python/transfer/streaming_test.cc         |   8 +-
@@ -819,20 +823,20 @@ index 0000000..690f7fd
 + xla/service/backend.cc                        |   4 +-
 + xla/service/channel_tracker.cc                |   2 +-
 + xla/service/compilation_cache.cc              |   6 +-
-+ xla/service/compilation_environments.cc       |  14 +--
++ xla/service/compilation_environments.cc       |  14 +-
 + xla/service/compiler.cc                       |   4 +-
 + xla/service/computation_placer.cc             |   4 +-
-+ xla/service/cpu/parallel_fusion_emitter.cc    |  14 +--
++ xla/service/cpu/parallel_fusion_emitter.cc    |  14 +-
 + xla/service/custom_call_sharding_helper.cc    |   4 +-
-+ xla/service/dump.cc                           |  20 ++--
++ xla/service/dump.cc                           |  20 +-
 + xla/service/executable.h                      |   6 +-
 + xla/service/execution_tracker.cc              |   6 +-
-+ xla/service/gpu/autotuning/autotuner_util.cc  |  18 +--
++ xla/service/gpu/autotuning/autotuner_util.cc  |  18 +-
 + .../gpu/autotuning/gemm_fusion_autotuner.cc   |   2 +-
 + xla/service/gpu/custom_call_test.cc           |   4 +-
 + xla/service/gpu/gpu_executable.cc             |   4 +-
 + xla/service/gpu/gpu_fusible.cc                |   8 +-
-+ xla/service/gpu/gpu_transfer_manager.cc       |  14 +--
++ xla/service/gpu/gpu_transfer_manager.cc       |  14 +-
 + .../gpu/kernels/custom_kernel_fusion.cc       |   4 +-
 + .../gpu/llvm_gpu_backend/amdgpu_backend.cc    |   4 +-
 + .../default/nvptx_libdevice_path.cc           |   2 +-
@@ -840,7 +844,7 @@ index 0000000..690f7fd
 + .../gpu/model/gpu_performance_model_base.cc   |   4 +-
 + xla/service/gpu/nvptx_compiler.cc             |   2 +-
 + xla/service/gpu/stream_executor_util.cc       |   2 +-
-+ xla/service/gpu/transforms/priority_fusion.cc |  36 +++---
++ xla/service/gpu/transforms/priority_fusion.cc |  36 +-
 + xla/service/gpu/xfeed_queue.h                 |   4 +-
 + xla/service/hlo_graph_dumper.cc               |  12 +-
 + xla/service/hlo_runner.cc                     |   6 +-
@@ -862,10 +866,11 @@ index 0000000..690f7fd
 + xla/stream_executor/command_buffer.cc         |   6 +-
 + .../cuda/caching_compilation_provider.cc      |   8 +-
 + .../cuda/caching_compilation_provider_test.cc |  12 +-
++ .../cuda/cub_sort_kernel_cuda_impl.cu.cc      |   1 +
 + xla/stream_executor/cuda/cuda_blas.cc         |   8 +-
 + xla/stream_executor/cuda/cuda_blas_lt.cc      |   6 +-
 + xla/stream_executor/cuda/cuda_dnn.cc          |   4 +-
-+ xla/stream_executor/cuda/cuda_executor.cc     |  38 +++---
++ xla/stream_executor/cuda/cuda_executor.cc     |  38 +-
 + xla/stream_executor/cuda/cuda_executor.h      |   2 +-
 + .../cuda/cuda_memory_allocator.cc             |   4 +-
 + xla/stream_executor/cuda/cuda_stream.cc       |   6 +-
@@ -887,7 +892,7 @@ index 0000000..690f7fd
 + xla/stream_executor/rocm/hip_blas_lt.cc       |   6 +-
 + xla/stream_executor/rocm/rocm_blas.cc         |   6 +-
 + xla/stream_executor/rocm/rocm_dnn.cc          |  10 +-
-+ xla/stream_executor/rocm/rocm_executor.cc     |  30 ++---
++ xla/stream_executor/rocm/rocm_executor.cc     |  30 +-
 + xla/stream_executor/rocm/rocm_executor.h      |   2 +-
 + xla/stream_executor/stream.cc                 |   6 +-
 + xla/stream_executor/stream_common.cc          |   8 +-
@@ -901,7 +906,7 @@ index 0000000..690f7fd
 + xla/stream_executor/tpu/tpu_platform.cc       |   6 +-
 + xla/stream_executor/tpu/tpu_platform.h        |   4 +-
 + .../tpu/tpu_platform_interface.cc             |   2 +-
-+ xla/tests/local_client_test_base.cc           |  14 +--
++ xla/tests/local_client_test_base.cc           |  14 +-
 + xla/tests/multiple_devices_on_host_test.cc    |   2 +-
 + xla/tests/multithreaded_compilation_test.cc   |   2 +-
 + xla/tests/pjrt_client_registry.h              |  10 +-
@@ -912,14 +917,14 @@ index 0000000..690f7fd
 + xla/tsl/concurrency/future.cc                 |   4 +-
 + xla/tsl/distributed_runtime/call_options.cc   |  10 +-
 + .../coordination/client_server_test.cc        |   8 +-
-+ .../coordination/coordination_service.cc      |  42 +++----
++ .../coordination/coordination_service.cc      |  42 +-
 + .../coordination/coordination_service.h       |   2 +-
-+ .../coordination_service_agent.cc             |  42 +++----
++ .../coordination_service_agent.cc             |  42 +-
 + .../coordination/coordination_service_agent.h |   2 +-
 + ...ordination_service_recoverable_job_test.cc |   4 +-
-+ .../coordination_service_rpc_handler.cc       |  42 +++----
++ .../coordination_service_rpc_handler.cc       |  42 +-
 + .../coordination/coordination_service_test.cc |   4 +-
-+ .../coordination/key_value_store.cc           |  16 +--
++ .../coordination/key_value_store.cc           |  16 +-
 + .../preemption/preemption_notifier.cc         |   4 +-
 + .../preemption/preemption_sync_manager.cc     |  10 +-
 + .../coordination/grpc_coordination_client.cc  |   4 +-
@@ -931,13 +936,13 @@ index 0000000..690f7fd
 + xla/tsl/framework/allocator_registry.h        |   4 +-
 + xla/tsl/framework/allocator_retry.cc          |   4 +-
 + xla/tsl/framework/allocator_retry.h           |   2 +-
-+ xla/tsl/framework/bfc_allocator.cc            |  18 +--
-+ xla/tsl/framework/cancellation.cc             |  22 ++--
++ xla/tsl/framework/bfc_allocator.cc            |  18 +-
++ xla/tsl/framework/cancellation.cc             |  22 +-
 + xla/tsl/framework/cpu_allocator_impl.cc       |  10 +-
 + xla/tsl/framework/device_id_manager.cc        |   8 +-
-+ xla/tsl/framework/tracking_allocator.cc       |  22 ++--
-+ xla/tsl/lib/histogram/histogram.cc            |  18 +--
-+ xla/tsl/lib/io/cache.cc                       |  14 +--
++ xla/tsl/framework/tracking_allocator.cc       |  22 +-
++ xla/tsl/lib/histogram/histogram.cc            |  18 +-
++ xla/tsl/lib/io/cache.cc                       |  14 +-
 + xla/tsl/lib/monitoring/collection_registry.cc |  10 +-
 + xla/tsl/lib/monitoring/collection_registry.h  |   2 +-
 + xla/tsl/lib/monitoring/counter.h              |   4 +-
@@ -950,19 +955,19 @@ index 0000000..690f7fd
 + xla/tsl/platform/cloud/gcs_dns_cache.cc       |   6 +-
 + xla/tsl/platform/cloud/gcs_dns_cache.h        |   2 +-
 + xla/tsl/platform/cloud/gcs_dns_cache_test.cc  |   2 +-
-+ xla/tsl/platform/cloud/gcs_file_system.cc     |  18 +--
++ xla/tsl/platform/cloud/gcs_file_system.cc     |  18 +-
 + xla/tsl/platform/cloud/gcs_file_system.h      |   6 +-
 + xla/tsl/platform/cloud/gcs_throttle.cc        |   6 +-
 + xla/tsl/platform/cloud/gcs_throttle.h         |   4 +-
 + .../platform/cloud/google_auth_provider.cc    |   2 +-
 + xla/tsl/platform/cloud/now_seconds_env.h      |   4 +-
-+ .../platform/cloud/ram_file_block_cache.cc    |  24 ++--
++ .../platform/cloud/ram_file_block_cache.cc    |  24 +-
 + xla/tsl/platform/default/env.cc               |   6 +-
 + xla/tsl/platform/default/net.cc               |   6 +-
 + .../platform/default/unbounded_work_queue.cc  |  10 +-
 + xla/tsl/platform/env.cc                       |   8 +-
 + xla/tsl/platform/file_system_helper.cc        |   4 +-
-+ xla/tsl/platform/ram_file_system.h            |  22 ++--
++ xla/tsl/platform/ram_file_system.h            |  22 +-
 + xla/tsl/platform/status.cc                    |   4 +-
 + xla/tsl/platform/windows/net.cc               |   6 +-
 + .../backends/gpu/ondevice_event_receiver.cc   |  10 +-
@@ -972,9 +977,10 @@ index 0000000..690f7fd
 + xla/tsl/profiler/utils/per_thread.h           |   8 +-
 + xla/tsl/util/determinism.cc                   |   4 +-
 + xla/util.cc                                   |   4 +-
-+ 345 files changed, 1621 insertions(+), 1350 deletions(-)
++ 350 files changed, 2157 insertions(+), 1359 deletions(-)
 + create mode 100644 third_party/absl/system.absl.crc.BUILD
 + create mode 100644 third_party/absl/system.absl.log.BUILD
++ create mode 100644 third_party/riegeli/0001-Adapt-to-absl-MutexLock-API.patch
 +
 +diff --git a/third_party/absl/system.absl.base.BUILD b/third_party/absl/system.absl.base.BUILD
 +index d6bf8748de..02602690db 100644
@@ -1362,6 +1368,548 @@ index 0000000..690f7fd
 +         strip_prefix = "abseil-cpp-{commit}".format(commit = ABSL_COMMIT),
 +         urls = tf_mirror_urls("https://github.com/abseil/abseil-cpp/archive/{commit}.tar.gz".format(commit = ABSL_COMMIT)),
 +         patch_file = [
++diff --git a/third_party/riegeli/0001-Adapt-to-absl-MutexLock-API.patch b/third_party/riegeli/0001-Adapt-to-absl-MutexLock-API.patch
++new file mode 100644
++index 0000000000..d2eba75e66
++--- /dev/null
+++++ b/third_party/riegeli/0001-Adapt-to-absl-MutexLock-API.patch
++@@ -0,0 +1,526 @@
+++From ef1220ccaa6966609280fda406eb8b1201c74009 Mon Sep 17 00:00:00 2001
+++From: "Uwe L. Korn" <uwe.korn@quantco.com>
+++Date: Thu, 5 Mar 2026 19:58:47 +0100
+++Subject: [PATCH] Adapt to absl::MutexLock API
+++
+++---
+++ riegeli/base/background_cleaning.cc           | 16 +++++-----
+++ riegeli/base/parallelism.cc                   |  6 ++--
+++ riegeli/base/recycling_pool.h                 | 20 ++++++-------
+++ riegeli/bytes/reader_factory.cc               | 26 ++++++++--------
+++ riegeli/csv/csv_record.cc                     |  2 +-
+++ riegeli/csv/csv_record.h                      |  2 +-
+++ riegeli/records/record_writer.cc              | 30 +++++++++----------
+++ .../tensorflow/kernels/riegeli_dataset_ops.cc |  6 ++--
+++ riegeli/zstd/zstd_dictionary.cc               |  2 +-
+++ 9 files changed, 55 insertions(+), 55 deletions(-)
+++
+++diff --git a/riegeli/base/background_cleaning.cc b/riegeli/base/background_cleaning.cc
+++index e1c1608b..d475563e 100644
+++--- a/riegeli/base/background_cleaning.cc
++++++ b/riegeli/base/background_cleaning.cc
+++@@ -28,20 +28,20 @@ BackgroundCleanee::~BackgroundCleanee() = default;  // Key method.
+++ 
+++ BackgroundCleaner::Token BackgroundCleaner::Register(
+++     BackgroundCleanee* cleanee) {
+++-  absl::MutexLock lock(mutex_);
++++  absl::MutexLock lock(&mutex_);
+++   entries_.emplace_front(cleanee, absl::InfiniteFuture());
+++   return Token(entries_.begin());
+++ }
+++ 
+++ void BackgroundCleaner::Unregister(Token token) {
+++-  absl::MutexLock lock(mutex_);
++++  absl::MutexLock lock(&mutex_);
+++   CancelCleaningInternal(token);
+++   if (next_ == token.iter()) ++next_;
+++   entries_.erase(token.iter());
+++ }
+++ 
+++ void BackgroundCleaner::CancelCleaning(Token token) {
+++-  absl::MutexLock lock(mutex_);
++++  absl::MutexLock lock(&mutex_);
+++   CancelCleaningInternal(token);
+++   if (token.iter()->deadline == absl::InfiniteFuture()) return;
+++   // Move `token.iter()` before `next_`.
+++@@ -68,7 +68,7 @@ inline void BackgroundCleaner::CancelCleaningInternal(Token token) {
+++ }
+++ 
+++ void BackgroundCleaner::ScheduleCleaningSlow(Token token, absl::Time deadline) {
+++-  absl::MutexLock lock(mutex_);
++++  absl::MutexLock lock(&mutex_);
+++   if (token.iter()->deadline <= deadline) {
+++     // Cleaning is already scheduled with the same or earlier deadline.
+++     return;
+++@@ -104,7 +104,7 @@ void BackgroundCleaner::ScheduleCleaningSlow(Token token, absl::Time deadline) {
+++   if (!no_background_thread_) return;
+++   no_background_thread_ = false;
+++   internal::ThreadPool::global().Schedule([this] {
+++-    absl::MutexLock lock(mutex_);
++++    absl::MutexLock lock(&mutex_);
+++     BackgroundThread();
+++     no_background_thread_ = true;
+++   });
+++@@ -129,9 +129,9 @@ inline void BackgroundCleaner::BackgroundThread()
+++       next_->deadline = absl::InfiniteFuture();
+++       ++next_;
+++       current_cleanee_ = cleanee;
+++-      mutex_.unlock();
++++      mutex_.Unlock();
+++       cleanee->Clean(now);
+++-      mutex_.lock();
++++      mutex_.Lock();
+++       current_cleanee_ = nullptr;
+++       if (next_ == entries_.end()) return;
+++     }
+++@@ -142,7 +142,7 @@ BackgroundCleaner::~BackgroundCleaner() {
+++   RIEGELI_CHECK(entries_.empty())
+++       << "Failed precondition of BackgroundCleaner::~BackgroundCleaner(): "
+++          "some cleanees remain registered";
+++-  absl::MutexLock lock(mutex_);
++++  absl::MutexLock lock(&mutex_);
+++   // Request the background thread to exit.
+++   deadline_reduced_ = true;
+++   mutex_.Await(absl::Condition(&no_background_thread_));
+++diff --git a/riegeli/base/parallelism.cc b/riegeli/base/parallelism.cc
+++index 14aea24c..ac9c3e6a 100644
+++--- a/riegeli/base/parallelism.cc
++++++ b/riegeli/base/parallelism.cc
+++@@ -30,7 +30,7 @@
+++ namespace riegeli::internal {
+++ 
+++ ThreadPool::~ThreadPool() {
+++-  absl::MutexLock lock(mutex_);
++++  absl::MutexLock lock(&mutex_);
+++   exiting_ = true;
+++   mutex_.Await(absl::Condition(
+++       +[](size_t* num_threads) { return *num_threads == 0; }, &num_threads_));
+++@@ -38,7 +38,7 @@ ThreadPool::~ThreadPool() {
+++ 
+++ void ThreadPool::Schedule(absl::AnyInvocable<void() &&> task) {
+++   {
+++-    absl::MutexLock lock(mutex_);
++++    absl::MutexLock lock(&mutex_);
+++     RIEGELI_ASSERT(!exiting_)
+++         << "Failed precondition of ThreadPool::Schedule(): no new threads may "
+++            "be scheduled while the thread pool is exiting";
+++@@ -48,7 +48,7 @@ void ThreadPool::Schedule(absl::AnyInvocable<void() &&> task) {
+++   }
+++   std::thread([this] {
+++     for (;;) {
+++-      absl::ReleasableMutexLock lock(mutex_);
++++      absl::ReleasableMutexLock lock(&mutex_);
+++       ++num_idle_threads_;
+++       mutex_.AwaitWithTimeout(
+++           absl::Condition(
+++diff --git a/riegeli/base/recycling_pool.h b/riegeli/base/recycling_pool.h
+++index 3f7df78d..f468e5f1 100644
+++--- a/riegeli/base/recycling_pool.h
++++++ b/riegeli/base/recycling_pool.h
+++@@ -442,7 +442,7 @@ RecyclingPool<T, Deleter>& RecyclingPool<T, Deleter>::global(
+++           options.max_size_, options.max_age_seconds_);
+++       if (ABSL_PREDICT_FALSE(cached == nullptr ||
+++                              cached->first != options_key)) {
+++-        absl::MutexLock lock(mutex_);
++++        absl::MutexLock lock(&mutex_);
+++         const auto iter = pools_.try_emplace(options_key, options).first;
+++         cached = &*iter;
+++         cache_.store(cached, std::memory_order_release);
+++@@ -481,7 +481,7 @@ template <typename T, typename Deleter>
+++ void RecyclingPool<T, Deleter>::Clear() {
+++   if (cleaner_ != nullptr) cleaner_->CancelCleaning(cleaner_token_);
+++   absl::InlinedVector<RawHandle, 16> evicted;
+++-  absl::MutexLock lock(mutex_);
++++  absl::MutexLock lock(&mutex_);
+++   evicted.reserve(ring_buffer_size_);
+++   while (ring_buffer_size_ > 0) {
+++     if (ring_buffer_end_ == 0) {
+++@@ -517,7 +517,7 @@ typename RecyclingPool<T, Deleter>::RawHandle RecyclingPool<T, Deleter>::RawGet(
+++     Factory&& factory, Refurbisher&& refurbisher) {
+++   RawHandle returned;
+++   {
+++-    absl::MutexLock lock(mutex_);
++++    absl::MutexLock lock(&mutex_);
+++     if (ABSL_PREDICT_TRUE(ring_buffer_size_ > 0)) {
+++       if (ring_buffer_end_ == 0) {
+++         ring_buffer_end_ = IntCast<uint32_t>(ring_buffer_by_age_.size());
+++@@ -542,7 +542,7 @@ void RecyclingPool<T, Deleter>::RawPut(RawHandle object) {
+++   RawHandle evicted;
+++   absl::Time deadline = absl::InfiniteFuture();
+++   {
+++-    absl::MutexLock lock(mutex_);
++++    absl::MutexLock lock(&mutex_);
+++     // Add a newest entry. Evict the oldest entry if the pool is full.
+++     if (max_age_seconds_ != std::numeric_limits<uint32_t>::max()) {
+++       if (ABSL_PREDICT_FALSE(cleaner_ == nullptr)) {
+++@@ -575,7 +575,7 @@ void RecyclingPool<T, Deleter>::Clean(absl::Time now) {
+++   absl::InlinedVector<RawHandle, 16> evicted;
+++   absl::Time deadline;
+++   {
+++-    absl::MutexLock lock(mutex_);
++++    absl::MutexLock lock(&mutex_);
+++     size_t index = ring_buffer_end_;
+++     if (index < ring_buffer_size_) index += ring_buffer_by_age_.size();
+++     index -= ring_buffer_size_;
+++@@ -645,7 +645,7 @@ KeyedRecyclingPool<T, Key, Deleter>::global(RecyclingPoolOptions options) {
+++           options.max_size_, options.max_age_seconds_);
+++       if (ABSL_PREDICT_FALSE(cached == nullptr ||
+++                              cached->first != options_key)) {
+++-        absl::MutexLock lock(mutex_);
++++        absl::MutexLock lock(&mutex_);
+++         const auto iter = pools_.try_emplace(options_key, options).first;
+++         cached = &*iter;
+++         cache_.store(cached, std::memory_order_release);
+++@@ -686,7 +686,7 @@ void KeyedRecyclingPool<T, Key, Deleter>::Clear() {
+++   if (cleaner_ != nullptr) cleaner_->CancelCleaning(cleaner_token_);
+++   ByAge evicted_by_age;
+++   ByKey evicted_by_key;
+++-  absl::MutexLock lock(mutex_);
++++  absl::MutexLock lock(&mutex_);
+++   evicted_by_age = std::exchange(by_age_, ByAge());
+++   evicted_by_key = std::exchange(by_key_, ByKey());
+++   cache_ = by_key_.end();
+++@@ -719,7 +719,7 @@ KeyedRecyclingPool<T, Key, Deleter>::RawGet(const Key& key, Factory&& factory,
+++                                             Refurbisher&& refurbisher) {
+++   RawHandle returned;
+++   {
+++-    absl::MutexLock lock(mutex_);
++++    absl::MutexLock lock(&mutex_);
+++     if (cache_ != by_key_.end()) {
+++       // Finish erasing the cached entry.
+++       ByKeyEntries& by_key_entries = cache_->second;
+++@@ -762,7 +762,7 @@ void KeyedRecyclingPool<T, Key, Deleter>::RawPut(const Key& key,
+++   RawHandle evicted;
+++   absl::Time deadline = absl::InfiniteFuture();
+++   {
+++-    absl::MutexLock lock(mutex_);
++++    absl::MutexLock lock(&mutex_);
+++     // Add a newest entry with this key.
+++     if (max_age_seconds_ != std::numeric_limits<uint32_t>::max()) {
+++       if (ABSL_PREDICT_FALSE(cleaner_ == nullptr)) {
+++@@ -839,7 +839,7 @@ void KeyedRecyclingPool<T, Key, Deleter>::Clean(absl::Time now) {
+++   absl::InlinedVector<RawHandle, 16> evicted;
+++   absl::Time deadline;
+++   {
+++-    absl::MutexLock lock(mutex_);
++++    absl::MutexLock lock(&mutex_);
+++     for (;; by_age_.pop_front()) {
+++       if (by_age_.empty()) {
+++         // Everything evicted, no need to schedule cleaning.
+++diff --git a/riegeli/bytes/reader_factory.cc b/riegeli/bytes/reader_factory.cc
+++index 348e6154..98b4ff1d 100644
+++--- a/riegeli/bytes/reader_factory.cc
++++++ b/riegeli/bytes/reader_factory.cc
+++@@ -115,7 +115,7 @@ void ReaderFactoryBase::ConcurrentReader::Done() {
+++ absl::Status ReaderFactoryBase::ConcurrentReader::AnnotateStatusImpl(
+++     absl::Status status) {
+++   if (is_open()) {
+++-    absl::MutexLock lock(shared_->mutex);
++++    absl::MutexLock lock(&shared_->mutex);
+++     shared_->reader->Seek(pos());
+++     return shared_->reader->AnnotateStatus(std::move(status));
+++   }
+++@@ -172,7 +172,7 @@ bool ReaderFactoryBase::ConcurrentReader::PullBehindScratch(
+++     if (ABSL_PREDICT_FALSE(!ok())) return false;
+++     secondary_buffer_.Clear();
+++     iter_ = secondary_buffer_.blocks().cend();
+++-    absl::MutexLock lock(shared_->mutex);
++++    absl::MutexLock lock(&shared_->mutex);
+++     if (ABSL_PREDICT_FALSE(!SyncPos())) return false;
+++     if (ABSL_PREDICT_FALSE(!ReadSome())) return false;
+++   }
+++@@ -212,7 +212,7 @@ bool ReaderFactoryBase::ConcurrentReader::ReadBehindScratch(size_t length,
+++     if (ABSL_PREDICT_FALSE(!ok())) return false;
+++     secondary_buffer_.Clear();
+++     iter_ = secondary_buffer_.blocks().cend();
+++-    absl::MutexLock lock(shared_->mutex);
++++    absl::MutexLock lock(&shared_->mutex);
+++     if (ABSL_PREDICT_FALSE(!SyncPos())) return false;
+++     if (length >= buffer_sizer_.BufferLength(pos())) {
+++       // Read directly to `dest`.
+++@@ -269,7 +269,7 @@ bool ReaderFactoryBase::ConcurrentReader::ReadBehindScratch(size_t length,
+++     if (ABSL_PREDICT_FALSE(!ok())) return false;
+++     secondary_buffer_.Clear();
+++     iter_ = secondary_buffer_.blocks().cend();
+++-    absl::MutexLock lock(shared_->mutex);
++++    absl::MutexLock lock(&shared_->mutex);
+++     if (ABSL_PREDICT_FALSE(!SyncPos())) return false;
+++     if (length >= buffer_sizer_.BufferLength(pos())) {
+++       // Read directly to `dest`.
+++@@ -327,7 +327,7 @@ bool ReaderFactoryBase::ConcurrentReader::ReadBehindScratch(size_t length,
+++     if (ABSL_PREDICT_FALSE(!ok())) return false;
+++     secondary_buffer_.Clear();
+++     iter_ = secondary_buffer_.blocks().cend();
+++-    absl::MutexLock lock(shared_->mutex);
++++    absl::MutexLock lock(&shared_->mutex);
+++     if (ABSL_PREDICT_FALSE(!SyncPos())) return false;
+++     if (length >= buffer_sizer_.BufferLength(pos())) {
+++       // Read directly to `dest`.
+++@@ -387,7 +387,7 @@ bool ReaderFactoryBase::ConcurrentReader::CopyBehindScratch(Position length,
+++     secondary_buffer_.Clear();
+++     iter_ = secondary_buffer_.blocks().cend();
+++     set_buffer();
+++-    absl::MutexLock lock(shared_->mutex);
++++    absl::MutexLock lock(&shared_->mutex);
+++     if (ABSL_PREDICT_FALSE(!SyncPos())) return false;
+++     if (length >= buffer_sizer_.BufferLength(pos())) {
+++       // Read directly to `dest`.
+++@@ -431,7 +431,7 @@ bool ReaderFactoryBase::ConcurrentReader::ReadOrPullSomeBehindScratch(
+++     if (ABSL_PREDICT_FALSE(!ok())) return false;
+++     secondary_buffer_.Clear();
+++     iter_ = secondary_buffer_.blocks().cend();
+++-    absl::MutexLock lock(shared_->mutex);
++++    absl::MutexLock lock(&shared_->mutex);
+++     if (ABSL_PREDICT_FALSE(!SyncPos())) return false;
+++     if (max_length >= buffer_sizer_.BufferLength(pos())) {
+++       // Read directly to `get_dest(max_length)`.
+++@@ -471,7 +471,7 @@ void ReaderFactoryBase::ConcurrentReader::ReadHintBehindScratch(
+++     const size_t recommended_length_to_read =
+++         UnsignedMax(recommended_length, min_length) - secondary_buffered_length;
+++     {
+++-      absl::MutexLock lock(shared_->mutex);
++++      absl::MutexLock lock(&shared_->mutex);
+++       if (ABSL_PREDICT_FALSE(!shared_->reader->Seek(
+++               limit_pos() + secondary_buffered_length))) {
+++         if (ABSL_PREDICT_FALSE(!shared_->reader->ok())) {
+++@@ -509,14 +509,14 @@ bool ReaderFactoryBase::ConcurrentReader::SyncBehindScratch(
+++   set_limit_pos(new_pos);
+++   buffer_sizer_.BeginRun(limit_pos());
+++   if (sync_type == SyncType::kFromObject) return true;
+++-  absl::MutexLock lock(shared_->mutex);
++++  absl::MutexLock lock(&shared_->mutex);
+++   return shared_->reader->Sync(sync_type);
+++ }
+++ 
+++ bool ReaderFactoryBase::ConcurrentReader::ToleratesReadingAhead() {
+++   if (buffer_sizer_.read_all_hint()) return true;
+++   if (ABSL_PREDICT_FALSE(!ok())) return false;
+++-  absl::MutexLock lock(shared_->mutex);
++++  absl::MutexLock lock(&shared_->mutex);
+++   return shared_->reader->ToleratesReadingAhead();
+++ }
+++ 
+++@@ -558,7 +558,7 @@ bool ReaderFactoryBase::ConcurrentReader::SeekBehindScratch(Position new_pos) {
+++     // Seeking forwards.
+++     std::optional<Position> size;
+++     {
+++-      absl::MutexLock lock(shared_->mutex);
++++      absl::MutexLock lock(&shared_->mutex);
+++       size = shared_->reader->Size();
+++       if (ABSL_PREDICT_FALSE(size == std::nullopt)) {
+++         return FailWithoutAnnotation(shared_->reader->status());
+++@@ -578,7 +578,7 @@ bool ReaderFactoryBase::ConcurrentReader::SeekBehindScratch(Position new_pos) {
+++ 
+++ std::optional<Position> ReaderFactoryBase::ConcurrentReader::SizeImpl() {
+++   if (ABSL_PREDICT_FALSE(!ok())) return std::nullopt;
+++-  absl::MutexLock lock(shared_->mutex);
++++  absl::MutexLock lock(&shared_->mutex);
+++   const std::optional<Position> size = shared_->reader->Size();
+++   if (ABSL_PREDICT_FALSE(size == std::nullopt)) {
+++     FailWithoutAnnotation(shared_->reader->status());
+++@@ -612,7 +612,7 @@ absl::Status ReaderFactoryBase::AnnotateStatusImpl(absl::Status status) {
+++       Reader& src = *SrcReader();
+++       return src.AnnotateStatus(std::move(status));
+++     } else {
+++-      absl::MutexLock lock(shared_->mutex);
++++      absl::MutexLock lock(&shared_->mutex);
+++       return shared_->reader->AnnotateStatus(std::move(status));
+++     }
+++   }
+++diff --git a/riegeli/csv/csv_record.cc b/riegeli/csv/csv_record.cc
+++index ff1872af..e1e242de 100644
+++--- a/riegeli/csv/csv_record.cc
++++++ b/riegeli/csv/csv_record.cc
+++@@ -202,7 +202,7 @@ absl::Status CsvHeader::TryResetUncached(
+++   if (payload_->normalizer == nullptr) {
+++     SharedPtr<Payload> old_payload_cache;
+++     {
+++-      absl::MutexLock lock(payload_cache_mutex_);
++++      absl::MutexLock lock(&payload_cache_mutex_);
+++       old_payload_cache = std::exchange(payload_cache_, payload_);
+++     }
+++     // Destroy `old_payload_cache` after releasing `payload_cache_mutex_`.
+++diff --git a/riegeli/csv/csv_record.h b/riegeli/csv/csv_record.h
+++index cfe10fd0..401753d6 100644
+++--- a/riegeli/csv/csv_record.h
++++++ b/riegeli/csv/csv_record.h
+++@@ -1131,7 +1131,7 @@ ABSL_ATTRIBUTE_ALWAYS_INLINE inline bool CsvHeader::MaybeResetToCachedPayload(
+++   }
+++   SharedPtr<Payload> payload;
+++   {
+++-    absl::MutexLock lock(payload_cache_mutex_);
++++    absl::MutexLock lock(&payload_cache_mutex_);
+++     payload = payload_cache_;
+++   }
+++   if (payload != nullptr &&
+++diff --git a/riegeli/records/record_writer.cc b/riegeli/records/record_writer.cc
+++index a9c869ac..1d9480e5 100644
+++--- a/riegeli/records/record_writer.cc
++++++ b/riegeli/records/record_writer.cc
+++@@ -595,7 +595,7 @@ inline RecordWriterBase::ParallelWorker::ParallelWorker(
+++       ParallelWorker* self;
+++     };
+++ 
+++-    mutex_.lock();
++++    mutex_.Lock();
+++     for (;;) {
+++       mutex_.Await(absl::Condition(
+++           +[](std::deque<ChunkWriterRequest>* chunk_writer_requests) {
+++@@ -603,9 +603,9 @@ inline RecordWriterBase::ParallelWorker::ParallelWorker(
+++           },
+++           &chunk_writer_requests_));
+++       ChunkWriterRequest& request = chunk_writer_requests_.front();
+++-      mutex_.unlock();
++++      mutex_.Unlock();
+++       if (ABSL_PREDICT_FALSE(!std::visit(Visitor{this}, request))) return;
+++-      mutex_.lock();
++++      mutex_.Lock();
+++       chunk_writer_requests_.pop_front();
+++       pos_before_chunks_ = chunk_writer_->pos();
+++     }
+++@@ -621,25 +621,25 @@ void RecordWriterBase::ParallelWorker::Done() {
+++   std::promise<void> done_promise;
+++   std::future<void> done_future = done_promise.get_future();
+++   {
+++-    absl::MutexLock lock(mutex_);
++++    absl::MutexLock lock(&mutex_);
+++     chunk_writer_requests_.emplace_back(DoneRequest{std::move(done_promise)});
+++   }
+++   done_future.get();
+++ }
+++ 
+++ inline bool RecordWriterBase::ParallelWorker::ok() const {
+++-  absl::MutexLock lock(mutex_);
++++  absl::MutexLock lock(&mutex_);
+++   return state_.ok();
+++ }
+++ 
+++ inline absl::Status RecordWriterBase::ParallelWorker::status() const {
+++-  absl::MutexLock lock(mutex_);
++++  absl::MutexLock lock(&mutex_);
+++   return state_.status();
+++ }
+++ 
+++ bool RecordWriterBase::ParallelWorker::FailWithoutAnnotation(
+++     absl::Status status) {
+++-  absl::MutexLock lock(mutex_);
++++  absl::MutexLock lock(&mutex_);
+++   return state_.Fail(std::move(status));
+++ }
+++ 
+++@@ -649,7 +649,7 @@ absl::Status RecordWriterBase::ParallelWorker::AnnotateStatus(
+++   std::future<absl::Status> done_future = done_promise.get_future();
+++   {
+++     absl::MutexLock lock(
+++-        mutex_, absl::Condition(this, &ParallelWorker::HasCapacityForRequest));
++++        &mutex_, absl::Condition(this, &ParallelWorker::HasCapacityForRequest));
+++     chunk_writer_requests_.emplace_back(
+++         AnnotateStatusRequest{std::move(status), std::move(done_promise)});
+++   }
+++@@ -670,7 +670,7 @@ bool RecordWriterBase::ParallelWorker::WriteSignature() {
+++   chunk_promises.chunk.set_value(std::move(chunk));
+++   {
+++     absl::MutexLock lock(
+++-        mutex_, absl::Condition(this, &ParallelWorker::HasCapacityForRequest));
++++        &mutex_, absl::Condition(this, &ParallelWorker::HasCapacityForRequest));
+++     chunk_writer_requests_.emplace_back(
+++         WriteChunkRequest{chunk_promises.chunk_header.get_future(),
+++                           chunk_promises.chunk.get_future()});
+++@@ -687,7 +687,7 @@ bool RecordWriterBase::ParallelWorker::WriteMetadata() {
+++   ChunkPromises* const chunk_promises = new ChunkPromises();
+++   {
+++     absl::MutexLock lock(
+++-        mutex_, absl::Condition(this, &ParallelWorker::HasCapacityForRequest));
++++        &mutex_, absl::Condition(this, &ParallelWorker::HasCapacityForRequest));
+++     chunk_writer_requests_.emplace_back(
+++         WriteChunkRequest{chunk_promises->chunk_header.get_future(),
+++                           chunk_promises->chunk.get_future()});
+++@@ -708,7 +708,7 @@ bool RecordWriterBase::ParallelWorker::CloseChunk() {
+++   ChunkPromises* const chunk_promises = new ChunkPromises();
+++   {
+++     absl::MutexLock lock(
+++-        mutex_, absl::Condition(this, &ParallelWorker::HasCapacityForRequest));
++++        &mutex_, absl::Condition(this, &ParallelWorker::HasCapacityForRequest));
+++     chunk_writer_requests_.emplace_back(
+++         WriteChunkRequest{chunk_promises->chunk_header.get_future(),
+++                           chunk_promises->chunk.get_future()});
+++@@ -729,7 +729,7 @@ bool RecordWriterBase::ParallelWorker::PadToBlockBoundary() {
+++   if (ABSL_PREDICT_FALSE(!ok())) return false;
+++   {
+++     absl::MutexLock lock(
+++-        mutex_, absl::Condition(this, &ParallelWorker::HasCapacityForRequest));
++++        &mutex_, absl::Condition(this, &ParallelWorker::HasCapacityForRequest));
+++     chunk_writer_requests_.emplace_back(PadToBlockBoundaryRequest());
+++   }
+++   return true;
+++@@ -745,7 +745,7 @@ RecordWriterBase::FutureStatus RecordWriterBase::ParallelWorker::FutureFlush(
+++   FutureStatus done_future = done_promise.get_future();
+++   {
+++     absl::MutexLock lock(
+++-        mutex_, absl::Condition(this, &ParallelWorker::HasCapacityForRequest));
++++        &mutex_, absl::Condition(this, &ParallelWorker::HasCapacityForRequest));
+++     chunk_writer_requests_.emplace_back(
+++         FlushRequest{flush_type, std::move(done_promise)});
+++   }
+++@@ -769,7 +769,7 @@ RecordWriterBase::ParallelWorker::ChunkBegin() const {
+++     std::vector<records_internal::FutureChunkBegin::Action> actions;
+++   };
+++   Visitor visitor;
+++-  absl::MutexLock lock(mutex_);
++++  absl::MutexLock lock(&mutex_);
+++   visitor.actions.reserve(chunk_writer_requests_.size());
+++   for (const ChunkWriterRequest& request : chunk_writer_requests_) {
+++     std::visit(visitor, request);
+++@@ -798,7 +798,7 @@ FutureRecordPosition RecordWriterBase::ParallelWorker::Pos() const {
+++ }
+++ 
+++ Position RecordWriterBase::ParallelWorker::EstimatedSize() const {
+++-  absl::MutexLock lock(mutex_);
++++  absl::MutexLock lock(&mutex_);
+++   return pos_before_chunks_;
+++ }
+++ 
+++diff --git a/riegeli/tensorflow/kernels/riegeli_dataset_ops.cc b/riegeli/tensorflow/kernels/riegeli_dataset_ops.cc
+++index 262bb8eb..c1a7f5a5 100644
+++--- a/riegeli/tensorflow/kernels/riegeli_dataset_ops.cc
++++++ b/riegeli/tensorflow/kernels/riegeli_dataset_ops.cc
+++@@ -148,7 +148,7 @@ class RiegeliDatasetOp : public ::tensorflow::data::DatasetOpKernel {
+++           ::tensorflow::data::IteratorContext* ctx,
+++           std::vector<::tensorflow::Tensor>* out_tensors,
+++           bool* end_of_sequence) override ABSL_LOCKS_EXCLUDED(mu_) {
+++-        absl::MutexLock lock(mu_);
++++        absl::MutexLock lock(&mu_);
+++         for (;;) {
+++           if (reader_ != std::nullopt) {
+++             // We are currently processing a file, so try to read the next
+++@@ -204,7 +204,7 @@ class RiegeliDatasetOp : public ::tensorflow::data::DatasetOpKernel {
+++       absl::Status SaveInternal(::tensorflow::data::SerializationContext* ctx,
+++                                 ::tensorflow::data::IteratorStateWriter* writer)
+++           override ABSL_LOCKS_EXCLUDED(mu_) {
+++-        absl::MutexLock lock(mu_);
++++        absl::MutexLock lock(&mu_);
+++         RETURN_IF_ERROR(
+++             writer->WriteScalar(full_name("current_file_index"),
+++                                 IntCast<int64_t>(current_file_index_)));
+++@@ -219,7 +219,7 @@ class RiegeliDatasetOp : public ::tensorflow::data::DatasetOpKernel {
+++           ::tensorflow::data::IteratorContext* ctx,
+++           ::tensorflow::data::IteratorStateReader* reader) override
+++           ABSL_LOCKS_EXCLUDED(mu_) {
+++-        absl::MutexLock lock(mu_);
++++        absl::MutexLock lock(&mu_);
+++         current_file_index_ = 0;
+++         reader_.reset();
+++ 
+++diff --git a/riegeli/zstd/zstd_dictionary.cc b/riegeli/zstd/zstd_dictionary.cc
+++index a7e491ac..691b2029 100644
+++--- a/riegeli/zstd/zstd_dictionary.cc
++++++ b/riegeli/zstd/zstd_dictionary.cc
+++@@ -53,7 +53,7 @@ ZstdDictionary::Repr::PrepareCompressionDictionary(
+++     int compression_level) const {
+++   SharedPtr<const ZSTD_CDictCache> compression_cache;
+++   {
+++-    absl::MutexLock lock(compression_cache_mutex_);
++++    absl::MutexLock lock(&compression_cache_mutex_);
+++     if (compression_cache_ == nullptr ||
+++         compression_cache_->compression_level != compression_level) {
+++       compression_cache_.Reset(riegeli::Maker(compression_level));
++diff --git a/third_party/riegeli/workspace.bzl b/third_party/riegeli/workspace.bzl
++index dc47fe7bf0..2365ba544d 100644
++--- a/third_party/riegeli/workspace.bzl
+++++ b/third_party/riegeli/workspace.bzl
++@@ -8,4 +8,5 @@ def repo():
++         sha256 = "f63337f63f794ba9dc7dd281b20af3d036dfe0c1a5a4b7b8dc20b39f7e323b97",
++         strip_prefix = "riegeli-9f2744dc23e81d84c02f6f51244e9e9bb9802d57",
++         urls = tf_mirror_urls("https://github.com/google/riegeli/archive/9f2744dc23e81d84c02f6f51244e9e9bb9802d57.tar.gz"),
+++	patch_file = ["//third_party/riegeli:0001-Adapt-to-absl-MutexLock-API.patch"]
++     )
 +diff --git a/third_party/tsl/tsl/platform/mutex.h b/third_party/tsl/tsl/platform/mutex.h
 +index 4163e3edd4..1209b9edce 100644
 +--- a/third_party/tsl/tsl/platform/mutex.h
@@ -2120,9 +2668,18 @@ index 0000000..690f7fd
 +               std::move(collective_multimem));
 + }
 +diff --git a/xla/backends/gpu/runtime/collective_permute_thunk.cc b/xla/backends/gpu/runtime/collective_permute_thunk.cc
-+index 02c21953d3..fd3f7e3039 100644
++index 02c21953d3..9b0bfd3761 100644
 +--- a/xla/backends/gpu/runtime/collective_permute_thunk.cc
 ++++ b/xla/backends/gpu/runtime/collective_permute_thunk.cc
++@@ -183,7 +183,7 @@ absl::Status CollectivePermuteStartThunk::Initialize(
++     const InitializeParams& params) {
++   TF_RETURN_IF_ERROR(CollectiveThunk::Initialize(params));
++   device_count_ = params.local_device_count;
++-  CHECK_GT(device_count_, 0);
+++  CHECK(device_count_ >= 0);
++   VLOG(5) << "Local device count: " << device_count_;
++ 
++   if (p2p_memcpy_enabled_) {
 +@@ -191,7 +191,7 @@ absl::Status CollectivePermuteStartThunk::Initialize(
 +         const int64_t current_id,
 +         GetCollectiveCurrentId(params.collective_params, config_));
@@ -2132,6 +2689,15 @@ index 0000000..690f7fd
 +       if (receiver_barrier_events_.find(current_id) ==
 +           receiver_barrier_events_.end()) {
 +         TF_ASSIGN_OR_RETURN(auto receiver_event,
++@@ -286,7 +286,7 @@ CollectivePermuteStartThunk::FromProto(
++ }
++ 
++ absl::StatusOr<ThunkProto> CollectivePermuteStartThunk::ToProto() const {
++-  CHECK_EQ(config_.validation_kind, P2PConfig::ValidationKind::kValid);
+++  CHECK(config_.validation_kind == P2PConfig::ValidationKind::kValid);
++   CHECK(config_.source_target_to_bounds.empty());
++ 
++   ThunkProto proto;
 +@@ -355,7 +355,7 @@ absl::StatusOr<bool> CollectivePermuteStartThunk::RunCollective(
 +     // Receiving side will record an event and the sender will wait for the
 +     // event before proceeding.
@@ -2362,10 +2928,20 @@ index 0000000..690f7fd
 +     ptr->command_buffers.clear();
 +   }
 +diff --git a/xla/backends/gpu/runtime/conditional_thunk.cc b/xla/backends/gpu/runtime/conditional_thunk.cc
-+index 49602cbf3f..318f481793 100644
++index 49602cbf3f..dda7b0b15d 100644
 +--- a/xla/backends/gpu/runtime/conditional_thunk.cc
 ++++ b/xla/backends/gpu/runtime/conditional_thunk.cc
-+@@ -84,7 +84,7 @@ absl::Status ConditionalThunk::Initialize(const InitializeParams& params) {
++@@ -58,8 +58,7 @@ ConditionalThunk::ConditionalThunk(
++                             PRED) {
++   PrimitiveType element_type = branch_index_buffer_index.shape.element_type();
++   CHECK(element_type == PRED || element_type == S32);
++-  CHECK_EQ(branch_index_buffer_index.shape.dimensions(),
++-           std::vector<int64_t>{});
+++  CHECK(branch_index_buffer_index.shape.dimensions() == std::vector<int64_t>{});
++ }
++ 
++ absl::Status ConditionalThunk::Prepare(const PrepareParams& params) {
++@@ -84,7 +83,7 @@ absl::Status ConditionalThunk::Initialize(const InitializeParams& params) {
 +     TF_RETURN_IF_ERROR(branch_thunk->Initialize(params));
 +   }
 + 
@@ -2374,7 +2950,7 @@ index 0000000..690f7fd
 + 
 +   if (!host_memory_pools_.contains(params.executor)) {
 +     PrimitiveType type =
-+@@ -102,7 +102,7 @@ absl::Status ConditionalThunk::ExecuteOnStream(const ExecuteParams& params) {
++@@ -102,7 +101,7 @@ absl::Status ConditionalThunk::ExecuteOnStream(const ExecuteParams& params) {
 + 
 +   HostMemoryPool* pool;
 +   {
@@ -2383,6 +2959,15 @@ index 0000000..690f7fd
 +     pool = host_memory_pools_.at(stream.parent()).get();
 +   }
 +   TF_ASSIGN_OR_RETURN(HostMemoryPool::Handle handle, pool->Acquire());
++@@ -226,7 +225,7 @@ std::string ConditionalThunk::ToString(int indent) const {
++   std::string result;
++   absl::StrAppend(&result, indent_str, "\n");
++   if (branch_index_is_bool_) {
++-    CHECK_EQ(branch_thunks_.size(), 2);
+++    CHECK(branch_thunks_.size() == 2);
++     absl::StrAppend(&result, indent_str, "false_branch:\n",
++                     branch_thunks_[0]->ToString(indent + 1));
++     absl::StrAppend(&result, indent_str, "true_branch:\n",
 +diff --git a/xla/backends/gpu/runtime/convolution_thunk.cc b/xla/backends/gpu/runtime/convolution_thunk.cc
 +index d6c4597d51..4dec518885 100644
 +--- a/xla/backends/gpu/runtime/convolution_thunk.cc
@@ -2489,7 +3074,7 @@ index 0000000..690f7fd
 +     if (!plan) {
 +       plan = std::make_unique<FftPlan>();
 +diff --git a/xla/backends/gpu/runtime/host_execute_thunk.cc b/xla/backends/gpu/runtime/host_execute_thunk.cc
-+index b40ff0b4dc..b7d6b3b652 100644
++index b40ff0b4dc..84749ba67a 100644
 +--- a/xla/backends/gpu/runtime/host_execute_thunk.cc
 ++++ b/xla/backends/gpu/runtime/host_execute_thunk.cc
 +@@ -345,7 +345,7 @@ HostExecuteAsyncEvents::CreateEvent(se::StreamExecutor* executor,
@@ -2510,6 +3095,24 @@ index 0000000..690f7fd
 +   auto it = events_.find(std::make_pair(executor, run_id));
 +   if (it == events_.end()) {
 +     return FailedPrecondition(
++@@ -465,7 +465,7 @@ absl::StatusOr<ThunkProto> HostExecuteStartThunk::ToProto() const {
++   auto async_events_unique_id = GetAsyncEventsUniqueId();
++   // By design, async_events_unique_id should always be present for
++   // HostExecuteStartThunk.
++-  CHECK_NE(async_events_unique_id, std::nullopt);
+++  CHECK(async_events_unique_id != std::nullopt);
++ 
++   host_execute_start_thunk_proto->set_async_events_unique_id(
++       async_events_unique_id.value().value());
++@@ -648,7 +648,7 @@ absl::StatusOr<ThunkProto> HostExecuteDoneThunk::ToProto() const {
++   auto async_events_unique_id = GetAsyncEventsUniqueId();
++   // By design, async_events_unique_id should always be present for
++   // HostExecuteDoneThunk.
++-  CHECK_NE(async_events_unique_id, std::nullopt);
+++  CHECK(async_events_unique_id != std::nullopt);
++ 
++   host_execute_done_thunk_proto->set_async_events_unique_id(
++       async_events_unique_id.value().value());
 +diff --git a/xla/backends/gpu/runtime/host_memory_pool.cc b/xla/backends/gpu/runtime/host_memory_pool.cc
 +index 674a888cbb..00f36a0fee 100644
 +--- a/xla/backends/gpu/runtime/host_memory_pool.cc
@@ -2659,6 +3262,19 @@ index 0000000..690f7fd
 +     state = per_stream_states_[stream.parent()].get();
 +   }
 + 
++diff --git a/xla/backends/gpu/runtime/recv_thunk.cc b/xla/backends/gpu/runtime/recv_thunk.cc
++index b775f577ea..bda9e4d2f3 100644
++--- a/xla/backends/gpu/runtime/recv_thunk.cc
+++++ b/xla/backends/gpu/runtime/recv_thunk.cc
++@@ -130,7 +130,7 @@ absl::StatusOr<std::unique_ptr<RecvThunk>> RecvThunk::FromProto(
++ }
++ 
++ absl::StatusOr<ThunkProto> RecvThunk::ToProto() const {
++-  CHECK_EQ(config_.validation_kind, P2PConfig::ValidationKind::kValid);
+++  CHECK(config_.validation_kind == P2PConfig::ValidationKind::kValid);
++   CHECK(config_.source_target_to_bounds.empty());
++ 
++   ThunkProto proto;
 +diff --git a/xla/backends/gpu/runtime/runtime_intrinsics.cc b/xla/backends/gpu/runtime/runtime_intrinsics.cc
 +index 4f3814c0f6..884157fd5f 100644
 +--- a/xla/backends/gpu/runtime/runtime_intrinsics.cc
@@ -2672,6 +3288,19 @@ index 0000000..690f7fd
 + 
 +     TF_RETURN_IF_ERROR(env->NewAppendableFile(filename, &file));
 +     tsl::io::RecordWriter writer(file.get());
++diff --git a/xla/backends/gpu/runtime/send_thunk.cc b/xla/backends/gpu/runtime/send_thunk.cc
++index 1ea38967f6..27df4dfbfd 100644
++--- a/xla/backends/gpu/runtime/send_thunk.cc
+++++ b/xla/backends/gpu/runtime/send_thunk.cc
++@@ -130,7 +130,7 @@ absl::StatusOr<std::unique_ptr<SendThunk>> SendThunk::FromProto(
++ }
++ 
++ absl::StatusOr<ThunkProto> SendThunk::ToProto() const {
++-  CHECK_EQ(config_.validation_kind, P2PConfig::ValidationKind::kValid);
+++  CHECK(config_.validation_kind == P2PConfig::ValidationKind::kValid);
++   CHECK(config_.source_target_to_bounds.empty());
++ 
++   ThunkProto proto;
 +diff --git a/xla/backends/gpu/runtime/while_thunk.cc b/xla/backends/gpu/runtime/while_thunk.cc
 +index 511f94f91e..2d5154bbe6 100644
 +--- a/xla/backends/gpu/runtime/while_thunk.cc
@@ -10109,6 +10738,18 @@ index 0000000..690f7fd
 +     compilation_supposed_to_be_done = true;
 +   });
 + }
++diff --git a/xla/stream_executor/cuda/cub_sort_kernel_cuda_impl.cu.cc b/xla/stream_executor/cuda/cub_sort_kernel_cuda_impl.cu.cc
++index d4bb577f13..3cd77f1dfa 100644
++--- a/xla/stream_executor/cuda/cub_sort_kernel_cuda_impl.cu.cc
+++++ b/xla/stream_executor/cuda/cub_sort_kernel_cuda_impl.cu.cc
++@@ -14,6 +14,7 @@ limitations under the License.
++ ==============================================================================*/
++ 
++ #include <cstddef>
+++#include <new>
++ 
++ #include "cub/device/device_radix_sort.cuh"
++ #include "cub/device/device_segmented_radix_sort.cuh"
 +diff --git a/xla/stream_executor/cuda/cuda_blas.cc b/xla/stream_executor/cuda/cuda_blas.cc
 +index cf946b68ca..c2d8977bca 100644
 +--- a/xla/stream_executor/cuda/cuda_blas.cc
@@ -14263,11 +14904,11 @@ index 0000000..690f7fd
 +   while (cur < text.size()) {
 diff --git a/third_party/xla/0004-Check-whether-absl-log-is-already-initialized.patch b/third_party/xla/0004-Check-whether-absl-log-is-already-initialized.patch
 new file mode 100644
-index 0000000..efdeb0f
+index 0000000..0763809
 --- /dev/null
 +++ b/third_party/xla/0004-Check-whether-absl-log-is-already-initialized.patch
 @@ -0,0 +1,58 @@
-+From c00d1a9454e25bf35894e2f356af7d0c4458643e Mon Sep 17 00:00:00 2001
++From a75704952e6399a32c0cffc1414db9fd481f7692 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Fri, 22 Nov 2024 10:51:18 +0100
 +Subject: [PATCH 04/10] Check whether absl log is already initialized
@@ -14327,11 +14968,11 @@ index 0000000..efdeb0f
 + }  // namespace xla
 diff --git a/third_party/xla/0005-Unbundle-grpc.patch b/third_party/xla/0005-Unbundle-grpc.patch
 new file mode 100644
-index 0000000..a006c9d
+index 0000000..3de332e
 --- /dev/null
 +++ b/third_party/xla/0005-Unbundle-grpc.patch
 @@ -0,0 +1,153 @@
-+From 5cde2d09d61b81e7bbc3db80360a9f12d03cbd16 Mon Sep 17 00:00:00 2001
++From f5f576fd43b400332f0a826567290325dc92be7b Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Wed, 23 Jul 2025 13:19:52 +0200
 +Subject: [PATCH 05/10] Unbundle grpc
@@ -14486,11 +15127,11 @@ index 0000000..a006c9d
 +     # Load the raw llvm-project.  llvm does not have build rules set up by default,
 diff --git a/third_party/xla/0006-Disable-coordination_agent_recoverable-flag.patch b/third_party/xla/0006-Disable-coordination_agent_recoverable-flag.patch
 new file mode 100644
-index 0000000..8529389
+index 0000000..0a2a221
 --- /dev/null
 +++ b/third_party/xla/0006-Disable-coordination_agent_recoverable-flag.patch
 @@ -0,0 +1,35 @@
-+From ab38edf8e34e2cb6b0b71aa1683b2f133ca9ba3b Mon Sep 17 00:00:00 2001
++From 23ab9c32f1d6f9bdc80e7cee0e8d36dc6e3d6cbe Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 11 Sep 2025 21:30:50 +0200
 +Subject: [PATCH 06/10] Disable coordination_agent_recoverable flag
@@ -14527,11 +15168,11 @@ index 0000000..8529389
 +            "barrier will only block non-recoverable tasks. If a synchronized "
 diff --git a/third_party/xla/0007-absl_bad_-optional-variant-_access-is-now-header-onl.patch b/third_party/xla/0007-absl_bad_-optional-variant-_access-is-now-header-onl.patch
 new file mode 100644
-index 0000000..7b154eb
+index 0000000..06b3dbb
 --- /dev/null
 +++ b/third_party/xla/0007-absl_bad_-optional-variant-_access-is-now-header-onl.patch
 @@ -0,0 +1,29 @@
-+From ec3f9c73702fd521af6366fc5db90ca817e8af8b Mon Sep 17 00:00:00 2001
++From 6ac144a2580731fba8d7c0ca8990b1157ba3b0f8 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 11 Sep 2025 21:33:07 +0200
 +Subject: [PATCH 07/10] absl_bad_{optional,variant}_access is now header-only
@@ -14562,11 +15203,11 @@ index 0000000..7b154eb
 +     ],
 diff --git a/third_party/xla/0008-Add-dependency-on-proto_bazel_features.patch b/third_party/xla/0008-Add-dependency-on-proto_bazel_features.patch
 new file mode 100644
-index 0000000..51ca8df
+index 0000000..2e062d7
 --- /dev/null
 +++ b/third_party/xla/0008-Add-dependency-on-proto_bazel_features.patch
 @@ -0,0 +1,72 @@
-+From 3e2d32735f3a5694ae998029432757ab68caf45f Mon Sep 17 00:00:00 2001
++From d945a9328ec88f9c207f355e5c0b18bff342fc53 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Fri, 12 Sep 2025 16:06:30 +0200
 +Subject: [PATCH 08/10] Add dependency on proto_bazel_features
@@ -14640,11 +15281,11 @@ index 0000000..51ca8df
 +     tf_http_archive(
 diff --git a/third_party/xla/0009-Add-macos_x86_64-to-mkl_deps.patch b/third_party/xla/0009-Add-macos_x86_64-to-mkl_deps.patch
 new file mode 100644
-index 0000000..4a08c2b
+index 0000000..fa8d5f6
 --- /dev/null
 +++ b/third_party/xla/0009-Add-macos_x86_64-to-mkl_deps.patch
 @@ -0,0 +1,21 @@
-+From e4f4b3d38dc5fd43d0c0db657a46ae792c38e0d0 Mon Sep 17 00:00:00 2001
++From 4ff6fa5709b63a5a8059cbb544f7f0d39ec5dd76 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Sat, 20 Sep 2025 08:15:14 +0200
 +Subject: [PATCH 09/10] Add macos_x86_64 to mkl_deps
@@ -14667,11 +15308,11 @@ index 0000000..4a08c2b
 +     })
 diff --git a/third_party/xla/0010-Add-systemlib-for-oneDNN.patch b/third_party/xla/0010-Add-systemlib-for-oneDNN.patch
 new file mode 100644
-index 0000000..559f7d6
+index 0000000..71c393c
 --- /dev/null
 +++ b/third_party/xla/0010-Add-systemlib-for-oneDNN.patch
 @@ -0,0 +1,48 @@
-+From 351a52b7c2a753ee1c39ed6e931ca14320d6350f Mon Sep 17 00:00:00 2001
++From ab7e5bbcf07f240676837bbdb034b94cab84ac1b Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Fri, 26 Sep 2025 17:23:37 +0200
 +Subject: [PATCH 10/10] Add systemlib for oneDNN
