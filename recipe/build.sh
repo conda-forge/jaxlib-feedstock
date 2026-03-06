@@ -153,7 +153,7 @@ bazel clean
 popd
 
 pushd $SP_DIR
-python -m pip install $SRC_DIR/dist/jaxlib-*.whl
+${PYTHON} -m pip install $SRC_DIR/dist/jaxlib-*.whl
 
 # Add INSTALLER file and remove RECORD, workaround for
 # https://github.com/conda-forge/jaxlib-feedstock/issues/293
@@ -162,8 +162,8 @@ echo "conda" > "${JAXLIB_DIST_INFO_DIR}/INSTALLER"
 rm -f "${JAXLIB_DIST_INFO_DIR}/RECORD"
 
 if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
-  python -m pip install $SRC_DIR/dist/jax_cuda*_plugin*.whl
-  python -m pip install $SRC_DIR/dist/jax_cuda*_pjrt*.whl
+  ${PYTHON} -m pip install $SRC_DIR/dist/jax_cuda*_plugin*.whl
+  ${PYTHON} -m pip install $SRC_DIR/dist/jax_cuda*_pjrt*.whl
 
   # Add INSTALLER file and remove RECORD, workaround for
   # https://github.com/conda-forge/jaxlib-feedstock/issues/293
