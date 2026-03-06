@@ -1,4 +1,4 @@
-From e8d1f76626a801837a30090240b284025393dc25 Mon Sep 17 00:00:00 2001
+From 603f68de0943ced09a20e558f767c9638a31bc2d Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwe.korn@quantco.com>
 Date: Thu, 14 Dec 2023 17:06:15 +0100
 Subject: [PATCH 2/4] Consolidated build fixes for XLA
@@ -21,9 +21,9 @@ Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
  jaxlib/gpu/rnn_kernels.cc                     |     2 +-
  jaxlib/gpu/solver_handle_pool.cc              |     4 +-
  jaxlib/gpu/sparse_kernels.cc                  |     2 +-
- jaxlib/gpu/triton_kernels.cc                  |     6 +-
+ jaxlib/gpu/triton_kernels.cc                  |     8 +-
  jaxlib/guard_lib.cc                           |     4 +-
- jaxlib/mosaic/gpu/custom_call.cc              |     2 +-
+ jaxlib/mosaic/gpu/custom_call.cc              |     4 +-
  jaxlib/pjit.cc                                |     4 +-
  jaxlib/py_executable.cc                       |     2 +-
  jaxlib/py_user_context.cc                     |     2 +-
@@ -41,7 +41,7 @@ Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
  .../0009-Add-macos_x86_64-to-mkl_deps.patch   |    21 +
  .../xla/0010-Add-systemlib-for-oneDNN.patch   |    48 +
  third_party/xla/workspace.bzl                 |    14 +-
- 27 files changed, 14971 insertions(+), 30 deletions(-)
+ 27 files changed, 14973 insertions(+), 32 deletions(-)
  create mode 100644 third_party/grpc_systemlib.BUILD
  create mode 100644 third_party/xla/0001-Fix-abseil-headers.patch
  create mode 100644 third_party/xla/0002-Omit-usage-of-StrFormat.patch
@@ -187,7 +187,7 @@ index 681c7fc..58e68d3 100644
    if (pool->handles_[stream].empty()) {
      JAX_RETURN_IF_ERROR(JAX_AS_STATUS(gpusparseCreate(&handle)));
 diff --git a/jaxlib/gpu/triton_kernels.cc b/jaxlib/gpu/triton_kernels.cc
-index 0ad86f5..726952c 100644
+index 0ad86f5..78b3b7a 100644
 --- a/jaxlib/gpu/triton_kernels.cc
 +++ b/jaxlib/gpu/triton_kernels.cc
 @@ -111,7 +111,7 @@ absl::StatusOr<ModuleImage*> GetModuleImage(std::string kernel_name,
@@ -199,6 +199,15 @@ index 0ad86f5..726952c 100644
    auto it = module_images.find(key);
    if (it != module_images.end()) return it->second.get();
  
+@@ -176,7 +176,7 @@ absl::StatusOr<KernelCall*> GetKernelCall(std::string_view opaque,
+ 
+   {
+     // Fast path uses reader lock (as hash map look-up is relatively slow).
+-    absl::ReaderMutexLock lock(mutex);
++    absl::ReaderMutexLock lock(&mutex);
+     auto it = kernel_calls.find(opaque);
+     if (ABSL_PREDICT_TRUE(it != kernel_calls.end())) {
+       JAX_RETURN_IF_ERROR(it->second.status());
 @@ -188,7 +188,7 @@ absl::StatusOr<KernelCall*> GetKernelCall(std::string_view opaque,
      return absl::InvalidArgumentError("Opaque data is empty.");
    }
@@ -240,10 +249,16 @@ index 15f7ec3..c35bb46 100644
    // thread id should be set. If the thread ID is already set, then a thread
    // guard is nested, which is allowed only in the same thread.
 diff --git a/jaxlib/mosaic/gpu/custom_call.cc b/jaxlib/mosaic/gpu/custom_call.cc
-index b95c025..6b9e0c6 100644
+index b95c025..1f7ea20 100644
 --- a/jaxlib/mosaic/gpu/custom_call.cc
 +++ b/jaxlib/mosaic/gpu/custom_call.cc
-@@ -630,7 +630,7 @@ absl::StatusOr<CompiledKernel*> CachedCompileAndInit(
+@@ -625,12 +625,12 @@ absl::StatusOr<CompiledKernel*> CachedCompileAndInit(
+ 
+   {
+     // Fast path uses reader lock (as hash map look-up is relatively slow).
+-    absl::ReaderMutexLock lock(cache->mutex);
++    absl::ReaderMutexLock lock(&cache->mutex);
+     auto it = cache->kernels.find(key);
      if (ABSL_PREDICT_TRUE(it != cache->kernels.end())) return &it->second;
    }
  
