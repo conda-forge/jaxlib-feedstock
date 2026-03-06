@@ -57,6 +57,21 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
     cp ${PREFIX}/include/cudnn*.h ${BUILD_PREFIX}/targets/${CUDA_ARCH}/include/third_party/gpus/cudnn/
     mkdir -p ${BUILD_PREFIX}/targets/${CUDA_ARCH}/include/third_party/nccl
     cp ${PREFIX}/include/nccl*.h ${BUILD_PREFIX}/targets/${CUDA_ARCH}/include/third_party/nccl/
+    # Work around clang CUDA host compilation colliding with libstdc++'s
+    # __attribute__((__noinline__)) usage via host_defines.h macro expansion.
+    # Patch both build and host CUDA include trees used by this build.
+    for CUDA_INCLUDE_ROOT in "${BUILD_PREFIX}/targets/${CUDA_ARCH}/include" "${PREFIX}/targets/${CUDA_ARCH}/include"; do
+      while IFS= read -r CUDA_HOST_DEFINES; do
+        sed -i 's/#if defined(__CUDACC__) || defined(__CUDA_ARCH__) || defined(__CUDA_LIBDEVICE__)/#if (defined(__CUDACC__) || defined(__CUDA_ARCH__) || defined(__CUDA_LIBDEVICE__)) \&\& !defined(__clang__)/' "${CUDA_HOST_DEFINES}"
+        sed -i 's/#if (defined(__CUDACC__) \&\& !defined(__clang__)) || defined(__CUDA_ARCH__) || defined(__CUDA_LIBDEVICE__)/#if (defined(__CUDACC__) || defined(__CUDA_ARCH__) || defined(__CUDA_LIBDEVICE__)) \&\& !defined(__clang__)/' "${CUDA_HOST_DEFINES}"
+      done < <(find "${CUDA_INCLUDE_ROOT}" -path '*/crt/host_defines.h' -print)
+
+      # Work around clang + CUDA 12 CUB placement-new resolution in device code.
+      while IFS= read -r CUDA_CUB_BLOCK_LOAD; do
+        sed -i 's|new (\&dst_items\[i\]) T(block_src_it\[warp_offset + tid + (i \* CUB_PTX_WARP_THREADS)\]);|detail::uninitialized_copy_single(\&dst_items[i], block_src_it[warp_offset + tid + (i * CUB_PTX_WARP_THREADS)]);|' "${CUDA_CUB_BLOCK_LOAD}"
+        sed -i 's|new (\&dst_items\[i\]) T(block_src_it\[src_pos\]);|detail::uninitialized_copy_single(\&dst_items[i], block_src_it[src_pos]);|' "${CUDA_CUB_BLOCK_LOAD}"
+      done < <(find "${CUDA_INCLUDE_ROOT}" -path '*/cub/block/block_load.cuh' -print)
+    done
     export LOCAL_CUDA_PATH="${BUILD_PREFIX}/targets/${CUDA_ARCH}"
     export LOCAL_CUDNN_PATH="${PREFIX}/targets/${CUDA_ARCH}"
     export LOCAL_NCCL_PATH="${PREFIX}/targets/${CUDA_ARCH}"
@@ -149,7 +164,7 @@ ${PYTHON} build/build.py build \
 
 # Clean up to speedup postprocessing
 pushd build
-bazel clean
+bazel clean --expunge
 popd
 
 pushd $SP_DIR
