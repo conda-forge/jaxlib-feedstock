@@ -28,6 +28,11 @@ if [[ "${target_platform}" == "linux-64" || "${target_platform}" == "linux-aarch
 fi
 export CFLAGS="${CFLAGS} -DNDEBUG -Dabsl_nullable= -Dabsl_nonnull="
 export CXXFLAGS="${CXXFLAGS} -DNDEBUG -Dabsl_nullable= -Dabsl_nonnull="
+if [[ "${cuda_compiler_version:-None}" != "None" && "${target_platform}" == "linux-aarch64" ]]; then
+  # libstdc++ assertions in std::optional expand to __glibcxx_assert_fail(),
+  # which is host-only and breaks clang -x cuda device compilation.
+  export CXXFLAGS="${CXXFLAGS} -U_GLIBCXX_ASSERTIONS"
+fi
 
 # Keep the source tree compatible with newer Abseil even if the static patch
 # was not applied in the unpacked workdir for this build.
@@ -419,6 +424,29 @@ diff --git a/xla/backends/gpu/runtime/conditional_thunk.cc b/xla/backends/gpu/ru
 -  CHECK_EQ(branch_index_buffer_index.shape.dimensions(),
 -           std::vector<int64_t>{});
 +  CHECK(branch_index_buffer_index.shape.dimensions().empty());
+EOF
+fi
+if ! grep -q "buffer_debug_float_check_kernel_cuda.cu.cc" "${XLA_ABSEIL_PATCH}"; then
+cat >> "${XLA_ABSEIL_PATCH}" <<'EOF'
+
+diff --git a/xla/stream_executor/cuda/buffer_debug_float_check_kernel_cuda.cu.cc b/xla/stream_executor/cuda/buffer_debug_float_check_kernel_cuda.cu.cc
+--- a/xla/stream_executor/cuda/buffer_debug_float_check_kernel_cuda.cu.cc
++++ b/xla/stream_executor/cuda/buffer_debug_float_check_kernel_cuda.cu.cc
+@@ -129,11 +129,10 @@
+ // grid. If max_blocks is not provided, the entire grid is used.
+ template <typename T>
+ __device__ inline std::tuple<const T*, uint64_t> GetBlockInput(
+-    const T* input, uint64_t input_size,
+-    std::optional<uint64_t> max_blocks = std::nullopt) {
++    const T* input, uint64_t input_size, uint64_t max_blocks = 0) {
+   size_t grid_size = gridDim.x * gridDim.y * gridDim.z;
+-  if (max_blocks.has_value()) {
+-    grid_size = std::min<size_t>(grid_size, *max_blocks);
++  if (max_blocks != 0) {
++    grid_size = std::min<size_t>(grid_size, max_blocks);
+   }
+   const uint64_t max_block_input_size = xla::RoundUpTo(
+       xla::CeilOfRatio(input_size, grid_size), kElementsPerMemoryAccess<T>);
 EOF
 fi
 fi
