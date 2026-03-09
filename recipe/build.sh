@@ -491,7 +491,7 @@ ${PYTHON} build/build.py build \
 pushd build
 # Bazel server mode can crash in this environment (Netty event loop issue).
 # Cleanup is best-effort only and should not fail a successful build.
-bazel --batch clean || true
+bazel --batch --expunge clean || true
 popd
 
 pushd $SP_DIR
