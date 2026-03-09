@@ -33,7 +33,12 @@ requirements:
         - ${{ compiler('cuda') }}
         - rsync
     - if: linux
-      then: vim  # needs xxd binary
+      then:
+        - vim  # needs xxd binary
+    - if: host_platform == "linux-64"
+      then:
+        # Otherwise clang picks the wrong GCC header directory
+        - libstdcxx-devel_${{ host_platform }} >=15.2
     - if: build_platform != host_platform
       then:
         - python
