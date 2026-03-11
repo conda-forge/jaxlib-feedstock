@@ -15,7 +15,7 @@ jobs:
       osx_arm64_python3.11.____cpython:
         CONFIG: osx_arm64_python3.11.____cpython
         UPLOAD_PACKAGES: 'True'
-        VMIMAGE: macOS-15
+        VMIMAGE: macOS-15-arm64
   timeoutInMinutes: 360
   variables: {}
 
