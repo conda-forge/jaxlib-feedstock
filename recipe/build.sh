@@ -494,6 +494,14 @@ pushd build
 bazel --batch --expunge clean || true
 popd
 
+# Bazel leaves large read-only trees under share/bazel inside BUILD_PREFIX.
+# rattler-build removes BUILD_PREFIX after the recipe finishes, and those
+# directories can make that cleanup fail with EACCES.
+if [[ -d "${BUILD_PREFIX}/share/bazel" ]]; then
+  chmod -R u+w "${BUILD_PREFIX}/share/bazel" || true
+  rm -rf "${BUILD_PREFIX}/share/bazel" || true
+fi
+
 pushd $SP_DIR
 python -m pip install $SRC_DIR/dist/jaxlib-*.whl
 
