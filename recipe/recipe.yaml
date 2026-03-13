@@ -1,8 +1,8 @@
 schema_version: 1
 
 context:
-  version: 0.7.2
-  build: 2
+  version: "0.9.0"
+  build: 0
 
 package:
   name: jaxlib
@@ -11,7 +11,7 @@ package:
 source:
   # only pull sources after upstream PyPI release...
   url: https://github.com/jax-ml/jax/archive/jax-v${{ version }}.tar.gz
-  sha256: 56d92604f1bb60bb3dbd7dc7c7dc21502d10b3474b8b905ce29ce06db6a26e45
+  sha256: 8525c72ac7ea01851297df5b25ca4622c65299c265c87dfe78420bb29e7b1bb3
   patches:
     - patches/0001-Allow-for-custom-CUDA-build.patch
     - patches/0002-Consolidated-build-fixes-for-XLA.patch
@@ -32,17 +32,29 @@ requirements:
       then:
         - ${{ compiler('cuda') }}
         - rsync
-    - if: build_platform != target_platform
+    - if: linux
+      then:
+        - vim  # needs xxd binary
+    - if: host_platform == "linux-64"
+      then:
+        # Otherwise clang picks the wrong GCC header directory
+        - libstdcxx-devel_${{ host_platform }} >=15.2
+    - if: build_platform != host_platform
       then:
         - python
-        - cross-python_${{ target_platform }}
+        - cross-python_${{ host_platform }}
         - numpy
         - zlib
+    - if: unix
+      then:
+        # Conda clang config files inject "<CFGDIR>/../include" (BUILD_PREFIX/include),
+        # which causes Bazel absolute include checks to report build_env paths.
+        - clang-no-conda-cfg
     - unzip
     # Keep bazel listed twice here to help the migrators track dependencies
     - bazel
     - bazel 7.*
-    - bazel-toolchain >=0.4.1
+    - bazel-toolchain >=0.5.6
     # need protoc
     - libprotobuf
     # needs protoc-gen-grpc

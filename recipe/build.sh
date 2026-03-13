@@ -3,13 +3,9 @@ set -euxo pipefail
 
 export JAX_RELEASE=$PKG_VERSION
 
-# Workaround a timestamp issue in rattler-build
-# https://github.com/prefix-dev/rattler-build/issues/1865
-touch -m -t 203510100101 $(find $BUILD_PREFIX/share/bazel/install -type f)
-
 $RECIPE_DIR/add_py_toolchain.sh
 
-if [[ "${target_platform}" == osx-* ]]; then
+if [[ "${host_platform}" == osx-* ]]; then
   export LDFLAGS="${LDFLAGS} -lz -framework CoreFoundation -Xlinker -undefined -Xlinker dynamic_lookup"
   # Remove stdlib=libc++; this is the default and errors on C sources.
   export CXXFLAGS="${CXXFLAGS/-stdlib=libc++} -D_LIBCPP_DISABLE_AVAILABILITY"
@@ -20,7 +16,7 @@ else
   # Otherwise, this will cause linkage errors with a GCC-built abseil
   export CXXFLAGS="${CXXFLAGS} -fclang-abi-compat=17"
 fi
-if [[ "${target_platform}" == "linux-64" || "${target_platform}" == "linux-aarch64" ]]; then
+if [[ "${host_platform}" == "linux-64" || "${host_platform}" == "linux-aarch64" ]]; then
     # https://github.com/conda-forge/jaxlib-feedstock/issues/310
     # Explicitly force non-executable stack to fix compatibility with glibc 2.41, due to:
     # xla_extension.so: cannot enable executable stack as shared object requires: Invalid argument
@@ -35,9 +31,9 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
     else
         export HERMETIC_CUDA_COMPUTE_CAPABILITIES=sm_75,sm_80,sm_86,sm_89,sm_90,sm_100,sm_110,sm_120,compute_120
     fi
-    if [[ "${target_platform}" == "linux-64" ]]; then
+    if [[ "${host_platform}" == "linux-64" ]]; then
         export CUDA_ARCH="x86_64-linux"
-    elif [[ "${target_platform}" == "linux-aarch64" ]]; then
+    elif [[ "${host_platform}" == "linux-aarch64" ]]; then
 	export CUDA_ARCH="sbsa-linux"
     else
 	echo "Unknown architecture for CUDA"
@@ -61,6 +57,21 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
     cp ${PREFIX}/include/cudnn*.h ${BUILD_PREFIX}/targets/${CUDA_ARCH}/include/third_party/gpus/cudnn/
     mkdir -p ${BUILD_PREFIX}/targets/${CUDA_ARCH}/include/third_party/nccl
     cp ${PREFIX}/include/nccl*.h ${BUILD_PREFIX}/targets/${CUDA_ARCH}/include/third_party/nccl/
+    # Work around clang CUDA host compilation colliding with libstdc++'s
+    # __attribute__((__noinline__)) usage via host_defines.h macro expansion.
+    # Patch both build and host CUDA include trees used by this build.
+    for CUDA_INCLUDE_ROOT in "${BUILD_PREFIX}/targets/${CUDA_ARCH}/include" "${PREFIX}/targets/${CUDA_ARCH}/include"; do
+      while IFS= read -r CUDA_HOST_DEFINES; do
+        sed -i 's/#if defined(__CUDACC__) || defined(__CUDA_ARCH__) || defined(__CUDA_LIBDEVICE__)/#if (defined(__CUDACC__) || defined(__CUDA_ARCH__) || defined(__CUDA_LIBDEVICE__)) \&\& !defined(__clang__)/' "${CUDA_HOST_DEFINES}"
+        sed -i 's/#if (defined(__CUDACC__) \&\& !defined(__clang__)) || defined(__CUDA_ARCH__) || defined(__CUDA_LIBDEVICE__)/#if (defined(__CUDACC__) || defined(__CUDA_ARCH__) || defined(__CUDA_LIBDEVICE__)) \&\& !defined(__clang__)/' "${CUDA_HOST_DEFINES}"
+      done < <(find "${CUDA_INCLUDE_ROOT}" -path '*/crt/host_defines.h' -print)
+
+      # Work around clang + CUDA 12 CUB placement-new resolution in device code.
+      while IFS= read -r CUDA_CUB_BLOCK_LOAD; do
+        sed -i 's|new (\&dst_items\[i\]) T(block_src_it\[warp_offset + tid + (i \* CUB_PTX_WARP_THREADS)\]);|detail::uninitialized_copy_single(\&dst_items[i], block_src_it[warp_offset + tid + (i * CUB_PTX_WARP_THREADS)]);|' "${CUDA_CUB_BLOCK_LOAD}"
+        sed -i 's|new (\&dst_items\[i\]) T(block_src_it\[src_pos\]);|detail::uninitialized_copy_single(\&dst_items[i], block_src_it[src_pos]);|' "${CUDA_CUB_BLOCK_LOAD}"
+      done < <(find "${CUDA_INCLUDE_ROOT}" -path '*/cub/block/block_load.cuh' -print)
+    done
     export LOCAL_CUDA_PATH="${BUILD_PREFIX}/targets/${CUDA_ARCH}"
     export LOCAL_CUDNN_PATH="${PREFIX}/targets/${CUDA_ARCH}"
     export LOCAL_NCCL_PATH="${PREFIX}/targets/${CUDA_ARCH}"
@@ -71,7 +82,7 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
 
     export TF_CUDA_VERSION="${cuda_compiler_version}"
     export TF_CUDNN_VERSION="${cudnn}"
-    if [[ "${target_platform}" == "linux-aarch64" ]]; then
+    if [[ "${host_platform}" == "linux-aarch64" ]]; then
         export TF_CUDA_PATHS="${CUDA_HOME}/targets/sbsa-linux,${TF_CUDA_PATHS}"
     fi
     export TF_NEED_CUDA=1
@@ -98,9 +109,7 @@ build --platforms=//bazel_toolchain:target_platform
 build --host_platform=//bazel_toolchain:build_platform
 build --extra_toolchains=//bazel_toolchain:cc_cf_toolchain
 build --extra_toolchains=//bazel_toolchain:cc_cf_host_toolchain
-build --logging=6
 build --verbose_failures
-build --toolchain_resolution_debug
 build --define=PREFIX=${PREFIX}
 build --define=PROTOBUF_INCLUDE_PATH=${PREFIX}/include
 build --local_resources=cpu=${CPU_COUNT}
@@ -111,7 +120,7 @@ build --repo_env=GRPC_BAZEL_DIR=${PREFIX}/share/bazel/grpc/bazel
 build:build_cuda_with_nvcc --action_env=CONDA_USE_NVCC=1
 EOF
 
-if [[ "${target_platform}" == "osx-arm64" || "${target_platform}" != "${build_platform}" ]]; then
+if [[ "${host_platform}" == "osx-arm64" || "${host_platform}" != "${build_platform}" ]]; then
   echo "build --cpu=${TARGET_CPU}" >> .bazelrc
 fi
 
@@ -124,28 +133,29 @@ fi
 # Thus: don't add com_google_protobuf here.
 export TF_SYSTEM_LIBS="boringssl,com_github_googlecloudplatform_google_cloud_cpp,com_github_grpc_grpc,flatbuffers,zlib,com_google_absl"
 
-if [[ "${target_platform}" == "osx-64" ]]; then
+if [[ "${host_platform}" == "osx-64" ]]; then
     export TF_SYSTEM_LIBS="${TF_SYSTEM_LIBS},onednn"
 fi
 
 # Mark as a release build
 EXTRA="--bazel_options=--repo_env=ML_WHEEL_TYPE=release ${CUDA_ARGS:-}"
 
-if [[ "${target_platform}" == "osx-arm64" || "${target_platform}" != "${build_platform}" ]]; then
+if [[ "${host_platform}" == "osx-arm64" || "${host_platform}" != "${build_platform}" ]]; then
     EXTRA="${EXTRA} --target_cpu ${TARGET_CPU}"
 fi
 
 # Never use the Appe toolchain
 sed -i '/local_config_apple/d' .bazelrc
-if [[ "${target_platform}" == linux-* ]]; then
-    EXTRA="${EXTRA} --clang_path $CC"
+if [[ "${host_platform}" == linux-* ]]; then
+    EXTRA="${EXTRA} --clang_path $(command -v ${CC})"
 
     # Remove incompatible argument from bazelrc
     sed -i '/Qunused-arguments/d' .bazelrc
     # Don't override our toolchain for CUDA
     sed -i '/TF_NVCC_CLANG/{N;d}' .bazelrc
-    # Keep using our toolchain
-    sed -i '/--crosstool_top=@local_config_cuda/d' .bazelrc
+    # Keep using our toolchain for both target and host builds.
+    sed -i -E '/--crosstool_top="?@local_config_cuda\/\/crosstool:toolchain"?/d' .bazelrc
+    sed -i -E '/--host_crosstool_top="?@local_config_cuda\/\/crosstool:toolchain"?/d' .bazelrc
 fi
 
 ${PYTHON} build/build.py build \
@@ -154,11 +164,11 @@ ${PYTHON} build/build.py build \
 
 # Clean up to speedup postprocessing
 pushd build
-bazel clean
+bazel clean --expunge
 popd
 
 pushd $SP_DIR
-python -m pip install $SRC_DIR/dist/jaxlib-*.whl
+${PYTHON} -m pip install $SRC_DIR/dist/jaxlib-*.whl
 
 # Add INSTALLER file and remove RECORD, workaround for
 # https://github.com/conda-forge/jaxlib-feedstock/issues/293
@@ -167,8 +177,8 @@ echo "conda" > "${JAXLIB_DIST_INFO_DIR}/INSTALLER"
 rm -f "${JAXLIB_DIST_INFO_DIR}/RECORD"
 
 if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
-  python -m pip install $SRC_DIR/dist/jax_cuda*_plugin*.whl
-  python -m pip install $SRC_DIR/dist/jax_cuda*_pjrt*.whl
+  ${PYTHON} -m pip install $SRC_DIR/dist/jax_cuda*_plugin*.whl
+  ${PYTHON} -m pip install $SRC_DIR/dist/jax_cuda*_pjrt*.whl
 
   # Add INSTALLER file and remove RECORD, workaround for
   # https://github.com/conda-forge/jaxlib-feedstock/issues/293
@@ -180,7 +190,7 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
   rm -f "${JAX_CUDA_PLUGIN_DIST_INFO_DIR}/RECORD"
 
   # Regression test for https://github.com/conda-forge/jaxlib-feedstock/issues/320
-  if [[ "${target_platform}" == linux-* ]]; then
+  if [[ "${host_platform}" == linux-* ]]; then
     # Scan all .so files in both plugin directories and error if any FLAGS_* symbols are present.
     declare -a PLUGIN_DIRS=(
       "${SP_DIR}/jax_plugins/xla_cuda${CUDA_COMPILER_MAJOR_VERSION}"

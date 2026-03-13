@@ -19,6 +19,7 @@ jobs:
     timeout-minutes: 720
     strategy:
       fail-fast: false
+      max-parallel: 50
       matrix:
         include:
           - CONFIG: linux_64_cuda_compiler_version12.9python3.11.____cpython
@@ -104,7 +105,7 @@ jobs:
     steps:
 
     - name: Checkout code
-      uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
     - name: Build on Linux
       id: build-linux
