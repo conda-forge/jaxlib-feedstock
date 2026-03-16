@@ -60,7 +60,7 @@ requirements:
     # needs protoc-gen-grpc
     - libgrpc
     # needs flatc
-    - flatbuffers <2.0.6
+    - flatbuffers
     # list libabseil here to ensure pinning correctly
     - libabseil
     - sed
@@ -88,7 +88,7 @@ requirements:
     - python-build
     # list libabseil here to ensure pinning correctly
     - libabseil
-    - flatbuffers <2.0.6
+    - flatbuffers
     - grpc-bazel-rules
     - libgrpc
     - openssl
