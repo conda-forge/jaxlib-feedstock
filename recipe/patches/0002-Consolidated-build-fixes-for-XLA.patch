@@ -1,4 +1,4 @@
-From 603f68de0943ced09a20e558f767c9638a31bc2d Mon Sep 17 00:00:00 2001
+From a5117255d3e484391568445dd177b7e4f9a90f18 Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwe.korn@quantco.com>
 Date: Thu, 14 Dec 2023 17:06:15 +0100
 Subject: [PATCH 2/4] Consolidated build fixes for XLA
@@ -32,7 +32,7 @@ Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
  third_party/grpc_systemlib.BUILD              |    71 +
  third_party/xla/0001-Fix-abseil-headers.patch |   132 +
  .../xla/0002-Omit-usage-of-StrFormat.patch    |    25 +
- .../xla/0003-Re-enable-system-abseil.patch    | 14285 ++++++++++++++++
+ .../xla/0003-Re-enable-system-abseil.patch    | 14297 ++++++++++++++++
  ...ther-absl-log-is-already-initialized.patch |    58 +
  third_party/xla/0005-Unbundle-grpc.patch      |   153 +
  ...-coordination_agent_recoverable-flag.patch |    35 +
@@ -40,8 +40,9 @@ Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
  ...d-dependency-on-proto_bazel_features.patch |    72 +
  .../0009-Add-macos_x86_64-to-mkl_deps.patch   |    21 +
  .../xla/0010-Add-systemlib-for-oneDNN.patch   |    48 +
- third_party/xla/workspace.bzl                 |    14 +-
- 27 files changed, 14973 insertions(+), 32 deletions(-)
+ ...includes-in-custom_call_status-files.patch |    47 +
+ third_party/xla/workspace.bzl                 |    15 +-
+ 28 files changed, 15033 insertions(+), 32 deletions(-)
  create mode 100644 third_party/grpc_systemlib.BUILD
  create mode 100644 third_party/xla/0001-Fix-abseil-headers.patch
  create mode 100644 third_party/xla/0002-Omit-usage-of-StrFormat.patch
@@ -53,6 +54,7 @@ Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
  create mode 100644 third_party/xla/0008-Add-dependency-on-proto_bazel_features.patch
  create mode 100644 third_party/xla/0009-Add-macos_x86_64-to-mkl_deps.patch
  create mode 100644 third_party/xla/0010-Add-systemlib-for-oneDNN.patch
+ create mode 100644 third_party/xla/0011-Add-missing-includes-in-custom_call_status-files.patch
 
 diff --git a/jaxlib/call_location.cc b/jaxlib/call_location.cc
 index 96855b1..41db1a8 100644
@@ -459,14 +461,14 @@ index 0000000..0e4e862
 +)
 diff --git a/third_party/xla/0001-Fix-abseil-headers.patch b/third_party/xla/0001-Fix-abseil-headers.patch
 new file mode 100644
-index 0000000..71b2241
+index 0000000..6ec4239
 --- /dev/null
 +++ b/third_party/xla/0001-Fix-abseil-headers.patch
 @@ -0,0 +1,132 @@
 +From f58317ece4e284a8f696b689c0091a40d3e3a80a Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 23 May 2024 15:45:52 +0200
-+Subject: [PATCH 01/10] Fix abseil headers
++Subject: [PATCH 01/11] Fix abseil headers
 +
 +---
 + xla/backends/cpu/codegen/ir_compiler.cc               | 2 +-
@@ -597,14 +599,14 @@ index 0000000..71b2241
 +         "@tsl//tsl/profiler/protobuf:profiler_analysis_cc_grpc_proto",
 diff --git a/third_party/xla/0002-Omit-usage-of-StrFormat.patch b/third_party/xla/0002-Omit-usage-of-StrFormat.patch
 new file mode 100644
-index 0000000..c299be9
+index 0000000..251011c
 --- /dev/null
 +++ b/third_party/xla/0002-Omit-usage-of-StrFormat.patch
 @@ -0,0 +1,25 @@
 +From b61bcb07995169108117479e0b0bb31925f1650e Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 4 Jul 2024 10:36:03 +0200
-+Subject: [PATCH 02/10] Omit usage of StrFormat
++Subject: [PATCH 02/11] Omit usage of StrFormat
 +
 +---
 + xla/stream_executor/gpu/gpu_executor.h | 5 +++++
@@ -628,14 +630,14 @@ index 0000000..c299be9
 + #include <vector>
 diff --git a/third_party/xla/0003-Re-enable-system-abseil.patch b/third_party/xla/0003-Re-enable-system-abseil.patch
 new file mode 100644
-index 0000000..1aa6e4c
+index 0000000..910b944
 --- /dev/null
 +++ b/third_party/xla/0003-Re-enable-system-abseil.patch
-@@ -0,0 +1,14285 @@
-+From 765b73a5d01a0de59f767208679dfbc5f6342eb7 Mon Sep 17 00:00:00 2001
+@@ -0,0 +1,14297 @@
++From d6fb5bfbb60bfb6286e3e690295dfb9aca4bfd37 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 4 Jul 2024 15:58:32 +0200
-+Subject: [PATCH 03/10] Re-enable system abseil
++Subject: [PATCH 03/11] Re-enable system abseil
 +
 +partially revert https://github.com/openxla/xla/commit/1fc2a846d259d3c896a6177485abcc68d97627a9
 +and add missing pieces
@@ -647,9 +649,10 @@ index 0000000..1aa6e4c
 + third_party/absl/system.absl.crc.BUILD        |  70 +++
 + third_party/absl/system.absl.flags.BUILD      |   2 +-
 + third_party/absl/system.absl.functional.BUILD |   4 +
++ third_party/absl/system.absl.hash.BUILD       |   1 -
 + third_party/absl/system.absl.log.BUILD        | 109 ++++
 + third_party/absl/system.absl.random.BUILD     |   2 +-
-+ third_party/absl/system.absl.strings.BUILD    |  23 +-
++ third_party/absl/system.absl.strings.BUILD    |  22 +-
 + third_party/absl/system.absl.utility.BUILD    |   5 +
 + third_party/absl/workspace.bzl                |  30 +
 + .../0001-Adapt-to-absl-MutexLock-API.patch    | 526 ++++++++++++++++++
@@ -992,7 +995,7 @@ index 0000000..1aa6e4c
 + xla/tsl/profiler/utils/per_thread.h           |   8 +-
 + xla/tsl/util/determinism.cc                   |   4 +-
 + xla/util.cc                                   |   4 +-
-+ 350 files changed, 2157 insertions(+), 1359 deletions(-)
++ 351 files changed, 2156 insertions(+), 1360 deletions(-)
 + create mode 100644 third_party/absl/system.absl.crc.BUILD
 + create mode 100644 third_party/absl/system.absl.log.BUILD
 + create mode 100644 third_party/riegeli/0001-Adapt-to-absl-MutexLock-API.patch
@@ -1156,6 +1159,18 @@ index 0000000..1aa6e4c
 ++cc_library(
 ++    name = "overload",
 ++)
++diff --git a/third_party/absl/system.absl.hash.BUILD b/third_party/absl/system.absl.hash.BUILD
++index 3367340cb2..7d4f1ee906 100644
++--- a/third_party/absl/system.absl.hash.BUILD
+++++ b/third_party/absl/system.absl.hash.BUILD
++@@ -28,7 +28,6 @@ cc_library(
++ 
++ cc_library(
++     name = "low_level_hash",
++-    linkopts = ["-labsl_low_level_hash"],
++     visibility = ["//visibility:private"],
++     deps = [
++         "//absl/base:endian",
 +diff --git a/third_party/absl/system.absl.log.BUILD b/third_party/absl/system.absl.log.BUILD
 +new file mode 100644
 +index 0000000000..b1c549aadc
@@ -1286,16 +1301,15 @@ index 0000000..1aa6e4c
 +         "-labsl_random_internal_randen_hwaes",
 +         "-labsl_random_internal_randen_hwaes_impl",
 +diff --git a/third_party/absl/system.absl.strings.BUILD b/third_party/absl/system.absl.strings.BUILD
-+index fa9a7a84f6..55b15f9a4f 100644
++index fa9a7a84f6..9d8e9bfc05 100644
 +--- a/third_party/absl/system.absl.strings.BUILD
 ++++ b/third_party/absl/system.absl.strings.BUILD
-+@@ -2,6 +2,27 @@ load("@rules_cc//cc:defs.bzl", "cc_library")
++@@ -2,6 +2,26 @@ load("@rules_cc//cc:defs.bzl", "cc_library")
 + 
 + package(default_visibility = ["//visibility:public"])
 + 
 ++cc_library(
 ++    name = "string_view",
-++    linkopts = ["-labsl_string_view"],
 ++    deps = [
 ++        "//absl/base",
 ++        "//absl/base:config",
@@ -1317,7 +1331,7 @@ index 0000000..1aa6e4c
 + cc_library(
 +     name = "strings",
 +     linkopts = ["-labsl_strings"],
-+@@ -26,7 +47,7 @@ cc_library(
++@@ -26,7 +46,7 @@ cc_library(
 + 
 + cc_library(
 +     name = "cord",
@@ -14919,14 +14933,14 @@ index 0000000..1aa6e4c
 +   while (cur < text.size()) {
 diff --git a/third_party/xla/0004-Check-whether-absl-log-is-already-initialized.patch b/third_party/xla/0004-Check-whether-absl-log-is-already-initialized.patch
 new file mode 100644
-index 0000000..0763809
+index 0000000..f2229ae
 --- /dev/null
 +++ b/third_party/xla/0004-Check-whether-absl-log-is-already-initialized.patch
 @@ -0,0 +1,58 @@
-+From a75704952e6399a32c0cffc1414db9fd481f7692 Mon Sep 17 00:00:00 2001
++From c0a070583d3b4546052b14a97ba92fa872ba2a1f Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Fri, 22 Nov 2024 10:51:18 +0100
-+Subject: [PATCH 04/10] Check whether absl log is already initialized
++Subject: [PATCH 04/11] Check whether absl log is already initialized
 +
 +---
 + xla/pjrt/c/pjrt_c_api_gpu.cc | 7 ++++++-
@@ -14983,14 +14997,14 @@ index 0000000..0763809
 + }  // namespace xla
 diff --git a/third_party/xla/0005-Unbundle-grpc.patch b/third_party/xla/0005-Unbundle-grpc.patch
 new file mode 100644
-index 0000000..3de332e
+index 0000000..3d8e3c3
 --- /dev/null
 +++ b/third_party/xla/0005-Unbundle-grpc.patch
 @@ -0,0 +1,153 @@
-+From f5f576fd43b400332f0a826567290325dc92be7b Mon Sep 17 00:00:00 2001
++From 2505865d257c9b5659de89a680feefcc705afcb6 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Wed, 23 Jul 2025 13:19:52 +0200
-+Subject: [PATCH 05/10] Unbundle grpc
++Subject: [PATCH 05/11] Unbundle grpc
 +
 +---
 + third_party/zlib.BUILD | 39 +--------------------------------------
@@ -15142,14 +15156,14 @@ index 0000000..3de332e
 +     # Load the raw llvm-project.  llvm does not have build rules set up by default,
 diff --git a/third_party/xla/0006-Disable-coordination_agent_recoverable-flag.patch b/third_party/xla/0006-Disable-coordination_agent_recoverable-flag.patch
 new file mode 100644
-index 0000000..0a2a221
+index 0000000..b920269
 --- /dev/null
 +++ b/third_party/xla/0006-Disable-coordination_agent_recoverable-flag.patch
 @@ -0,0 +1,35 @@
-+From 23ab9c32f1d6f9bdc80e7cee0e8d36dc6e3d6cbe Mon Sep 17 00:00:00 2001
++From b7ef19f30dddcc292f25505d7efaf9ebbe6ac411 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 11 Sep 2025 21:30:50 +0200
-+Subject: [PATCH 06/10] Disable coordination_agent_recoverable flag
++Subject: [PATCH 06/11] Disable coordination_agent_recoverable flag
 +
 +---
 + .../coordination/coordination_service_agent.cc            | 8 ++++----
@@ -15183,14 +15197,14 @@ index 0000000..0a2a221
 +            "barrier will only block non-recoverable tasks. If a synchronized "
 diff --git a/third_party/xla/0007-absl_bad_-optional-variant-_access-is-now-header-onl.patch b/third_party/xla/0007-absl_bad_-optional-variant-_access-is-now-header-onl.patch
 new file mode 100644
-index 0000000..06b3dbb
+index 0000000..6fd954b
 --- /dev/null
 +++ b/third_party/xla/0007-absl_bad_-optional-variant-_access-is-now-header-onl.patch
 @@ -0,0 +1,29 @@
-+From 6ac144a2580731fba8d7c0ca8990b1157ba3b0f8 Mon Sep 17 00:00:00 2001
++From e497b2ad23a292e23f430a2a330e75ace13b5817 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 11 Sep 2025 21:33:07 +0200
-+Subject: [PATCH 07/10] absl_bad_{optional,variant}_access is now header-only
++Subject: [PATCH 07/11] absl_bad_{optional,variant}_access is now header-only
 +
 +---
 + third_party/absl/system.absl.types.BUILD | 2 --
@@ -15218,14 +15232,14 @@ index 0000000..06b3dbb
 +     ],
 diff --git a/third_party/xla/0008-Add-dependency-on-proto_bazel_features.patch b/third_party/xla/0008-Add-dependency-on-proto_bazel_features.patch
 new file mode 100644
-index 0000000..2e062d7
+index 0000000..12eed09
 --- /dev/null
 +++ b/third_party/xla/0008-Add-dependency-on-proto_bazel_features.patch
 @@ -0,0 +1,72 @@
-+From d945a9328ec88f9c207f355e5c0b18bff342fc53 Mon Sep 17 00:00:00 2001
++From 8119048f92b617a1c37ee6af2dd964219ea986e1 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Fri, 12 Sep 2025 16:06:30 +0200
-+Subject: [PATCH 08/10] Add dependency on proto_bazel_features
++Subject: [PATCH 08/11] Add dependency on proto_bazel_features
 +
 +---
 + workspace2.bzl |  4 +++-
@@ -15296,14 +15310,14 @@ index 0000000..2e062d7
 +     tf_http_archive(
 diff --git a/third_party/xla/0009-Add-macos_x86_64-to-mkl_deps.patch b/third_party/xla/0009-Add-macos_x86_64-to-mkl_deps.patch
 new file mode 100644
-index 0000000..fa8d5f6
+index 0000000..63a67e7
 --- /dev/null
 +++ b/third_party/xla/0009-Add-macos_x86_64-to-mkl_deps.patch
 @@ -0,0 +1,21 @@
-+From 4ff6fa5709b63a5a8059cbb544f7f0d39ec5dd76 Mon Sep 17 00:00:00 2001
++From c97f6bcd3b0a6bade9c48ae39f6bfab22897bc1d Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Sat, 20 Sep 2025 08:15:14 +0200
-+Subject: [PATCH 09/10] Add macos_x86_64 to mkl_deps
++Subject: [PATCH 09/11] Add macos_x86_64 to mkl_deps
 +
 +---
 + xla/tsl/mkl/build_defs.bzl | 1 +
@@ -15323,14 +15337,14 @@ index 0000000..fa8d5f6
 +     })
 diff --git a/third_party/xla/0010-Add-systemlib-for-oneDNN.patch b/third_party/xla/0010-Add-systemlib-for-oneDNN.patch
 new file mode 100644
-index 0000000..71c393c
+index 0000000..84f3292
 --- /dev/null
 +++ b/third_party/xla/0010-Add-systemlib-for-oneDNN.patch
 @@ -0,0 +1,48 @@
-+From ab7e5bbcf07f240676837bbdb034b94cab84ac1b Mon Sep 17 00:00:00 2001
++From d2404fbf7b2d6780410b98aaf2109716d569bdef Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Fri, 26 Sep 2025 17:23:37 +0200
-+Subject: [PATCH 10/10] Add systemlib for oneDNN
++Subject: [PATCH 10/11] Add systemlib for oneDNN
 +
 +---
 + third_party/mkl_dnn/mkldnn_system.BUILD | 6 ++++++
@@ -15375,11 +15389,64 @@ index 0000000..71c393c
 +         Label("//xla/tsl:windows"): "@onednn//:mkl_dnn",
 +         "//conditions:default": "//xla/tsl/mkl:dummy_mkl_dnn",
 +     })
+diff --git a/third_party/xla/0011-Add-missing-includes-in-custom_call_status-files.patch b/third_party/xla/0011-Add-missing-includes-in-custom_call_status-files.patch
+new file mode 100644
+index 0000000..e161c71
+--- /dev/null
++++ b/third_party/xla/0011-Add-missing-includes-in-custom_call_status-files.patch
+@@ -0,0 +1,47 @@
++From 9b52baf3259319599bf06818fe430e2ae87d4a17 Mon Sep 17 00:00:00 2001
++From: Allan Renucci <allanrenucci@google.com>
++Date: Mon, 9 Feb 2026 03:22:02 -0800
++Subject: [PATCH 11/11] Add missing includes in custom_call_status files.
++
++PiperOrigin-RevId: 867515002
++---
++ xla/service/custom_call_status.cc         | 7 +++++++
++ xla/service/custom_call_status_internal.h | 3 ++-
++ 2 files changed, 9 insertions(+), 1 deletion(-)
++
++diff --git a/xla/service/custom_call_status.cc b/xla/service/custom_call_status.cc
++index b861ba88ff..e9554da773 100644
++--- a/xla/service/custom_call_status.cc
+++++ b/xla/service/custom_call_status.cc
++@@ -13,6 +13,13 @@ See the License for the specific language governing permissions and
++ limitations under the License.
++ ==============================================================================*/
++ 
+++#include "xla/service/custom_call_status.h"
+++
+++#include <cstddef>
+++#include <optional>
+++#include <string>
+++
+++#include "absl/strings/string_view.h"
++ #include "xla/service/custom_call_status_internal.h"
++ 
++ namespace xla {
++diff --git a/xla/service/custom_call_status_internal.h b/xla/service/custom_call_status_internal.h
++index e2ccc51187..f9b643d67f 100644
++--- a/xla/service/custom_call_status_internal.h
+++++ b/xla/service/custom_call_status_internal.h
++@@ -17,6 +17,7 @@ limitations under the License.
++ #define XLA_SERVICE_CUSTOM_CALL_STATUS_INTERNAL_H_
++ 
++ #include <optional>
+++#include <string>
++ 
++ #include "absl/strings/string_view.h"
++ #include "xla/service/custom_call_status.h"
++@@ -36,4 +37,4 @@ std::optional<absl::string_view> CustomCallStatusGetMessage(
++ 
++ }  // namespace xla
++ 
++-#endif  // XLA_SERVICE_CUSTOM_CALL_INTERNAL_STATUS_H_
+++#endif  // XLA_SERVICE_CUSTOM_CALL_STATUS_INTERNAL_H_
 diff --git a/third_party/xla/workspace.bzl b/third_party/xla/workspace.bzl
-index be345f8..8695ab3 100644
+index be345f8..880e696 100644
 --- a/third_party/xla/workspace.bzl
 +++ b/third_party/xla/workspace.bzl
-@@ -26,6 +26,18 @@ def repo():
+@@ -26,6 +26,19 @@ def repo():
          # web links (`/archive/`) links so we use the GitHub API endpoint to get the tarball
          # instead.
          urls = tf_mirror_urls("https://api.github.com/repos/openxla/xla/tarball/{commit}".format(commit = XLA_COMMIT)),
@@ -15394,11 +15461,12 @@ index be345f8..8695ab3 100644
 +            "//third_party/xla:0008-Add-dependency-on-proto_bazel_features.patch",
 +            "//third_party/xla:0009-Add-macos_x86_64-to-mkl_deps.patch",
 +            "//third_party/xla:0010-Add-systemlib-for-oneDNN.patch",
++	    "//third_party/xla:0011-Add-missing-includes-in-custom_call_status-files.patch",
 +        ],
      )
  
      # For development, one often wants to make changes to the TF repository as well
-@@ -39,4 +51,4 @@ def repo():
+@@ -39,4 +52,4 @@ def repo():
      # local_repository(
      #    name = "xla",
      #    path = "/path/to/xla",
