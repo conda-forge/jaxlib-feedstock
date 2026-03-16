@@ -176,6 +176,9 @@ JAXLIB_DIST_INFO_DIR="${SP_DIR}/jaxlib-${PKG_VERSION}.dist-info"
 echo "conda" > "${JAXLIB_DIST_INFO_DIR}/INSTALLER"
 rm -f "${JAXLIB_DIST_INFO_DIR}/RECORD"
 
+# Avoid printing all symbols
+set +x
+
 if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
   ${PYTHON} -m pip install $SRC_DIR/dist/jax_cuda*_plugin*.whl
   ${PYTHON} -m pip install $SRC_DIR/dist/jax_cuda*_pjrt*.whl
