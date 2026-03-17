@@ -97,7 +97,7 @@ requirements:
     - openssl
     - zlib
     - re2
-    - if: osx and x86_64
+    - if: (osx and x86_64) or linux
       then: onednn
   run:
     - python

@@ -1,4 +1,4 @@
-From 944c7e1a153c344153c51a13f2f9572f4e97ba77 Mon Sep 17 00:00:00 2001
+From a83d545a49aeb59512aa0d6345c29e956bac3705 Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwe.korn@quantco.com>
 Date: Thu, 14 Dec 2023 17:06:15 +0100
 Subject: [PATCH 2/4] Consolidated build fixes for XLA
@@ -34,7 +34,7 @@ Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
  .../xla/0002-Omit-usage-of-StrFormat.patch    |  25 +
  .../xla/0003-Re-enable-system-abseil.patch    | 422 +++++++++++++++++
  ...ther-absl-log-is-already-initialized.patch |  58 +++
- third_party/xla/0005-Unbundle-grpc.patch      | 442 ++++++++++++++++++
+ third_party/xla/0005-Unbundle-grpc.patch      | 444 ++++++++++++++++++
  ...-coordination_agent_recoverable-flag.patch |  35 ++
  ...al-variant-_access-is-now-header-onl.patch |  29 ++
  ...d-dependency-on-proto_bazel_features.patch |  72 +++
@@ -42,7 +42,7 @@ Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
  .../xla/0010-Add-systemlib-for-oneDNN.patch   |  48 ++
  ...includes-in-custom_call_status-files.patch |  47 ++
  third_party/xla/workspace.bzl                 |  15 +-
- 28 files changed, 1447 insertions(+), 32 deletions(-)
+ 28 files changed, 1449 insertions(+), 32 deletions(-)
  create mode 100644 third_party/grpc_systemlib.BUILD
  create mode 100644 third_party/xla/0001-Fix-abseil-headers.patch
  create mode 100644 third_party/xla/0002-Omit-usage-of-StrFormat.patch
@@ -1122,18 +1122,18 @@ index 0000000..b6a4256
 + }  // namespace xla
 diff --git a/third_party/xla/0005-Unbundle-grpc.patch b/third_party/xla/0005-Unbundle-grpc.patch
 new file mode 100644
-index 0000000..3a22c23
+index 0000000..e8e3fbf
 --- /dev/null
 +++ b/third_party/xla/0005-Unbundle-grpc.patch
-@@ -0,0 +1,442 @@
-+From 91df35a858ab405bd367037e7de8481115edabd2 Mon Sep 17 00:00:00 2001
+@@ -0,0 +1,444 @@
++From cc68ebf393c6eb39da0f5293db5c3e59d95a37e9 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Wed, 23 Jul 2025 13:19:52 +0200
 +Subject: [PATCH 05/11] Unbundle grpc
 +
 +---
 + third_party/protobuf_impl.bzl             |  19 +++
-+ third_party/protobuf_systemlib.BUILD      | 151 ++++++++++++++++++++++
++ third_party/protobuf_systemlib.BUILD      | 153 ++++++++++++++++++++++
 + third_party/py/python_init_rules.bzl      |  12 +-
 + third_party/re2_system.BUILD              |  14 ++
 + third_party/zlib.BUILD                    |  39 +-----
@@ -1141,7 +1141,7 @@ index 0000000..3a22c23
 + workspace1.bzl                            |   3 -
 + workspace2.bzl                            |  37 ++++--
 + xla/tsl/platform/default/build_config.bzl |   2 -
-+ 9 files changed, 212 insertions(+), 70 deletions(-)
++ 9 files changed, 214 insertions(+), 70 deletions(-)
 + create mode 100644 third_party/protobuf_impl.bzl
 + create mode 100644 third_party/protobuf_systemlib.BUILD
 + create mode 100644 third_party/re2_system.BUILD
@@ -1173,10 +1173,10 @@ index 0000000..3a22c23
 ++
 +diff --git a/third_party/protobuf_systemlib.BUILD b/third_party/protobuf_systemlib.BUILD
 +new file mode 100644
-+index 0000000000..3f6d38d8f1
++index 0000000000..3d11fb87b8
 +--- /dev/null
 ++++ b/third_party/protobuf_systemlib.BUILD
-+@@ -0,0 +1,151 @@
++@@ -0,0 +1,153 @@
 ++load("@rules_java//java:defs.bzl", "java_library")
 ++load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test", "objc_library")
 ++load("//bazel/toolchains:proto_lang_toolchain.bzl", "proto_lang_toolchain")
@@ -1244,27 +1244,29 @@ index 0000000..3a22c23
 ++    """,
 ++)
 ++
+++BASE_PROTO_LIBS = ["$(PREFIX)/lib/libutf8_range.a", "$(PREFIX)/lib/libutf8_validity.a", "-labsl_cord", "-labsl_cord_internal", "-labsl_cordz_functions", "-labsl_cordz_handle", "-labsl_cordz_info", "-labsl_cordz_sample_token", "-labsl_log_flags", "-labsl_log_globals", "-labsl_log_initialize", "-labsl_log_internal_check_op", "-labsl_log_internal_conditions", "-labsl_log_internal_format", "-labsl_log_internal_globals", "-labsl_log_internal_log_sink_set", "-labsl_log_internal_message", "-labsl_log_internal_nullguard", "-labsl_log_internal_proto", "-labsl_log_severity", "-labsl_log_sink"]
+++
 ++cc_library(
 ++    name = "protobuf",
-++    linkopts = ["$(PREFIX)/lib/libprotobuf.a", "-labsl_cord", "-labsl_cord_internal", "-labsl_cordz_functions", "-labsl_cordz_handle", "-labsl_cordz_info", "-labsl_cordz_sample_token", "-labsl_log_flags", "-labsl_log_globals", "-labsl_log_initialize", "-labsl_log_internal_check_op", "-labsl_log_internal_conditions", "-labsl_log_internal_format", "-labsl_log_internal_globals", "-labsl_log_internal_log_sink_set", "-labsl_log_internal_message", "-labsl_log_internal_nullguard", "-labsl_log_internal_proto", "-labsl_log_severity", "-labsl_log_sink"],
+++    linkopts = ["$(PREFIX)/lib/libprotobuf.a"] + BASE_PROTO_LIBS,
 ++    visibility = ["//visibility:public"],
 ++)
 ++
 ++cc_library(
 ++    name = "protobuf_lite",
-++    linkopts = ["$(PREFIX)/lib/libprotobuf-lite.a", "-labsl_cord", "-labsl_cord_internal", "-labsl_cordz_functions", "-labsl_cordz_handle", "-labsl_cordz_info", "-labsl_cordz_sample_token", "-labsl_log_flags", "-labsl_log_globals", "-labsl_log_initialize", "-labsl_log_internal_check_op", "-labsl_log_internal_conditions", "-labsl_log_internal_format", "-labsl_log_internal_globals", "-labsl_log_internal_log_sink_set", "-labsl_log_internal_message", "-labsl_log_internal_nullguard", "-labsl_log_internal_proto", "-labsl_log_severity", "-labsl_log_sink"],
+++    linkopts = ["$(PREFIX)/lib/libprotobuf-lite.a"] + BASE_PROTO_LIBS,
 ++    visibility = ["//visibility:public"],
 ++)
 ++
 ++cc_library(
 ++    name = "protobuf_headers",
-++    linkopts = ["$(PREFIX)/lib/libprotobuf.a", "-labsl_cord", "-labsl_cord_internal", "-labsl_cordz_functions", "-labsl_cordz_handle", "-labsl_cordz_info", "-labsl_cordz_sample_token", "-labsl_log_flags", "-labsl_log_globals", "-labsl_log_initialize", "-labsl_log_internal_check_op", "-labsl_log_internal_conditions", "-labsl_log_internal_format", "-labsl_log_internal_globals", "-labsl_log_internal_log_sink_set", "-labsl_log_internal_message", "-labsl_log_internal_nullguard", "-labsl_log_internal_proto", "-labsl_log_severity", "-labsl_log_sink"],
+++    linkopts = ["$(PREFIX)/lib/libprotobuf.a"] + BASE_PROTO_LIBS,
 ++    visibility = ["//visibility:public"],
 ++)
 ++
 ++cc_library(
 ++    name = "protoc_lib",
-++    linkopts = ["$(PREFIX)/lib/libprotoc.a", "$(PREFIX)/lib/libprotobuf.a", "-labsl_log_internal_check_op", "-labsl_log_internal_message", "-labsl_flags_reflection", "-labsl_hash", "-labsl_raw_hash_set", "-labsl_raw_logging_internal"],
+++    linkopts = ["$(PREFIX)/lib/libprotoc.a", "$(PREFIX)/lib/libprotobuf.a"] + BASE_PROTO_LIBS,
 ++    visibility = ["//visibility:public"],
 ++)
 ++
@@ -1570,11 +1572,11 @@ index 0000000..3a22c23
 + def tf_protobuf_deps():
 diff --git a/third_party/xla/0006-Disable-coordination_agent_recoverable-flag.patch b/third_party/xla/0006-Disable-coordination_agent_recoverable-flag.patch
 new file mode 100644
-index 0000000..ed11988
+index 0000000..3ff0f7e
 --- /dev/null
 +++ b/third_party/xla/0006-Disable-coordination_agent_recoverable-flag.patch
 @@ -0,0 +1,35 @@
-+From 1ff42e72f8c89e89707e4a9be0a7e9081d3c4650 Mon Sep 17 00:00:00 2001
++From 96050f41d63082b7cb27ec0c60f7d50ed25f5684 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 11 Sep 2025 21:30:50 +0200
 +Subject: [PATCH 06/11] Disable coordination_agent_recoverable flag
@@ -1611,11 +1613,11 @@ index 0000000..ed11988
 +            "barrier will only block non-recoverable tasks. If a synchronized "
 diff --git a/third_party/xla/0007-absl_bad_-optional-variant-_access-is-now-header-onl.patch b/third_party/xla/0007-absl_bad_-optional-variant-_access-is-now-header-onl.patch
 new file mode 100644
-index 0000000..c62432a
+index 0000000..6a4cb62
 --- /dev/null
 +++ b/third_party/xla/0007-absl_bad_-optional-variant-_access-is-now-header-onl.patch
 @@ -0,0 +1,29 @@
-+From 78905d8d0902fa3906d3dbdf47e9f2330d559769 Mon Sep 17 00:00:00 2001
++From 886ac8156b82a0174cc7fcd7f8df8c2c49bc434b Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 11 Sep 2025 21:33:07 +0200
 +Subject: [PATCH 07/11] absl_bad_{optional,variant}_access is now header-only
@@ -1646,11 +1648,11 @@ index 0000000..c62432a
 +     ],
 diff --git a/third_party/xla/0008-Add-dependency-on-proto_bazel_features.patch b/third_party/xla/0008-Add-dependency-on-proto_bazel_features.patch
 new file mode 100644
-index 0000000..eba2aad
+index 0000000..619b9b6
 --- /dev/null
 +++ b/third_party/xla/0008-Add-dependency-on-proto_bazel_features.patch
 @@ -0,0 +1,72 @@
-+From 2fd49a2e378d2830cbb81ad8d8766d8a9ce1c15a Mon Sep 17 00:00:00 2001
++From ed3b8af7e441302ad2568229d401ec4ec3ffb700 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Fri, 12 Sep 2025 16:06:30 +0200
 +Subject: [PATCH 08/11] Add dependency on proto_bazel_features
@@ -1724,11 +1726,11 @@ index 0000000..eba2aad
 +     tf_http_archive(
 diff --git a/third_party/xla/0009-Add-macos_x86_64-to-mkl_deps.patch b/third_party/xla/0009-Add-macos_x86_64-to-mkl_deps.patch
 new file mode 100644
-index 0000000..6586c74
+index 0000000..0ad980a
 --- /dev/null
 +++ b/third_party/xla/0009-Add-macos_x86_64-to-mkl_deps.patch
 @@ -0,0 +1,21 @@
-+From 90b54fc6da33ef8bc090ccbe81d4cfb41cb9ed44 Mon Sep 17 00:00:00 2001
++From 4431607b38f6bfd22dcd06e6cf42e9ffc84af270 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Sat, 20 Sep 2025 08:15:14 +0200
 +Subject: [PATCH 09/11] Add macos_x86_64 to mkl_deps
@@ -1751,11 +1753,11 @@ index 0000000..6586c74
 +     })
 diff --git a/third_party/xla/0010-Add-systemlib-for-oneDNN.patch b/third_party/xla/0010-Add-systemlib-for-oneDNN.patch
 new file mode 100644
-index 0000000..d1e7ddd
+index 0000000..3507ac7
 --- /dev/null
 +++ b/third_party/xla/0010-Add-systemlib-for-oneDNN.patch
 @@ -0,0 +1,48 @@
-+From 2f23abbf21fcbaa935c51b3c87a9c4aa963f1a4c Mon Sep 17 00:00:00 2001
++From 1eaaac448f67057e72fff1a1c76f5dd9656ff1d6 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Fri, 26 Sep 2025 17:23:37 +0200
 +Subject: [PATCH 10/11] Add systemlib for oneDNN
@@ -1805,11 +1807,11 @@ index 0000000..d1e7ddd
 +     })
 diff --git a/third_party/xla/0011-Add-missing-includes-in-custom_call_status-files.patch b/third_party/xla/0011-Add-missing-includes-in-custom_call_status-files.patch
 new file mode 100644
-index 0000000..938c804
+index 0000000..cf56b99
 --- /dev/null
 +++ b/third_party/xla/0011-Add-missing-includes-in-custom_call_status-files.patch
 @@ -0,0 +1,47 @@
-+From f19c39d0d65206e9c07dcc349cc9ea1ded12256c Mon Sep 17 00:00:00 2001
++From 67182d482aa8d284ebbc9a5e7893deaab9571694 Mon Sep 17 00:00:00 2001
 +From: Allan Renucci <allanrenucci@google.com>
 +Date: Mon, 9 Feb 2026 03:22:02 -0800
 +Subject: [PATCH 11/11] Add missing includes in custom_call_status files.

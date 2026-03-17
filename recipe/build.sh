@@ -134,7 +134,7 @@ fi
 # We have modified the system lib here to link to libprotobuf.a
 export TF_SYSTEM_LIBS="boringssl,com_github_googlecloudplatform_google_cloud_cpp,com_github_grpc_grpc,flatbuffers,zlib,com_google_absl,com_googlesource_code_re2,com_google_protobuf"
 
-if [[ "${host_platform}" == "osx-64" ]]; then
+if [[ "${host_platform}" != "osx-arm64" ]]; then
     export TF_SYSTEM_LIBS="${TF_SYSTEM_LIBS},onednn"
 fi
 
