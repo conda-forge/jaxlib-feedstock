@@ -110,11 +110,13 @@ build --host_platform=//bazel_toolchain:build_platform
 build --extra_toolchains=//bazel_toolchain:cc_cf_toolchain
 build --extra_toolchains=//bazel_toolchain:cc_cf_host_toolchain
 build --verbose_failures
+build --define=BUILD_PREFIX=${BUILD_PREFIX}
 build --define=PREFIX=${PREFIX}
 build --define=PROTOBUF_INCLUDE_PATH=${PREFIX}/include
 build --local_resources=cpu=${CPU_COUNT}
 build --define=with_cross_compiler_support=true
 build --repo_env=GRPC_BAZEL_DIR=${PREFIX}/share/bazel/grpc/bazel
+build --repo_env=PROTOBUF_BAZEL_DIR=${PREFIX}/share/bazel/protobuf/bazel
 
 # We need to define a dummy value for this as we delete everything else for build_cuda_with_nvcc
 build:build_cuda_with_nvcc --action_env=CONDA_USE_NVCC=1
@@ -129,9 +131,8 @@ fi
 
 # Force static linkage with protobuf to avoid definition collisions,
 # see https://github.com/conda-forge/jaxlib-feedstock/issues/89
-#
-# Thus: don't add com_google_protobuf here.
-export TF_SYSTEM_LIBS="boringssl,com_github_googlecloudplatform_google_cloud_cpp,com_github_grpc_grpc,flatbuffers,zlib,com_google_absl,com_googlesource_code_re2"
+# We have modified the system lib here to link to libprotobuf.a
+export TF_SYSTEM_LIBS="boringssl,com_github_googlecloudplatform_google_cloud_cpp,com_github_grpc_grpc,flatbuffers,zlib,com_google_absl,com_googlesource_code_re2,com_google_protobuf"
 
 if [[ "${host_platform}" == "osx-64" ]]; then
     export TF_SYSTEM_LIBS="${TF_SYSTEM_LIBS},onednn"

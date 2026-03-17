@@ -1,4 +1,4 @@
-From 8056273cd46801c4a720007a9ccc8637b2ec3eec Mon Sep 17 00:00:00 2001
+From 944c7e1a153c344153c51a13f2f9572f4e97ba77 Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwe.korn@quantco.com>
 Date: Thu, 14 Dec 2023 17:06:15 +0100
 Subject: [PATCH 2/4] Consolidated build fixes for XLA
@@ -30,33 +30,20 @@ Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
  jaxlib/python_ref_manager.cc                  |   8 +-
  jaxlib/weakref_lru_cache.cc                   |   6 +-
  third_party/grpc_systemlib.BUILD              |  71 +++
- third_party/xla/.bazelrc                      |  17 +
  third_party/xla/0001-Fix-abseil-headers.patch | 132 ++++++
- .../xla/0002-Omit-usage-of-StrFormat.patch    |  25 ++
- .../xla/0003-Re-enable-system-abseil.patch    | 422 ++++++++++++++++++
+ .../xla/0002-Omit-usage-of-StrFormat.patch    |  25 +
+ .../xla/0003-Re-enable-system-abseil.patch    | 422 +++++++++++++++++
  ...ther-absl-log-is-already-initialized.patch |  58 +++
- third_party/xla/0005-Unbundle-grpc.patch      | 183 ++++++++
+ third_party/xla/0005-Unbundle-grpc.patch      | 442 ++++++++++++++++++
  ...-coordination_agent_recoverable-flag.patch |  35 ++
  ...al-variant-_access-is-now-header-onl.patch |  29 ++
  ...d-dependency-on-proto_bazel_features.patch |  72 +++
  .../0009-Add-macos_x86_64-to-mkl_deps.patch   |  21 +
  .../xla/0010-Add-systemlib-for-oneDNN.patch   |  48 ++
  ...includes-in-custom_call_status-files.patch |  47 ++
- third_party/xla/bazel_toolchain/BUILD         | 117 +++++
- .../xla/bazel_toolchain/CROSSTOOL.template    |  88 ++++
- third_party/xla/bazel_toolchain/WORKSPACE     |   1 +
- .../cc_toolchain_build_config.bzl             | 353 +++++++++++++++
- .../bazel_toolchain/cc_toolchain_config.bzl   | 353 +++++++++++++++
- third_party/xla/bazel_toolchain/cc_wrapper.sh | 107 +++++
- .../bazel_toolchain/cc_wrapper.sh.template    | 107 +++++
- .../xla/bazel_toolchain/cc_wrapper_build.sh   | 107 +++++
- .../crosstool_wrapper_driver_is_not_gcc       | 283 ++++++++++++
- third_party/xla/py_toolchain/BUILD            |  19 +
- third_party/xla/python.shebang                |   3 +
  third_party/xla/workspace.bzl                 |  15 +-
- 40 files changed, 2743 insertions(+), 32 deletions(-)
+ 28 files changed, 1447 insertions(+), 32 deletions(-)
  create mode 100644 third_party/grpc_systemlib.BUILD
- create mode 100644 third_party/xla/.bazelrc
  create mode 100644 third_party/xla/0001-Fix-abseil-headers.patch
  create mode 100644 third_party/xla/0002-Omit-usage-of-StrFormat.patch
  create mode 100644 third_party/xla/0003-Re-enable-system-abseil.patch
@@ -68,17 +55,6 @@ Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
  create mode 100644 third_party/xla/0009-Add-macos_x86_64-to-mkl_deps.patch
  create mode 100644 third_party/xla/0010-Add-systemlib-for-oneDNN.patch
  create mode 100644 third_party/xla/0011-Add-missing-includes-in-custom_call_status-files.patch
- create mode 100644 third_party/xla/bazel_toolchain/BUILD
- create mode 100644 third_party/xla/bazel_toolchain/CROSSTOOL.template
- create mode 100644 third_party/xla/bazel_toolchain/WORKSPACE
- create mode 100644 third_party/xla/bazel_toolchain/cc_toolchain_build_config.bzl
- create mode 100644 third_party/xla/bazel_toolchain/cc_toolchain_config.bzl
- create mode 100755 third_party/xla/bazel_toolchain/cc_wrapper.sh
- create mode 100644 third_party/xla/bazel_toolchain/cc_wrapper.sh.template
- create mode 100755 third_party/xla/bazel_toolchain/cc_wrapper_build.sh
- create mode 100755 third_party/xla/bazel_toolchain/crosstool_wrapper_driver_is_not_gcc
- create mode 100644 third_party/xla/py_toolchain/BUILD
- create mode 100755 third_party/xla/python.shebang
 
 diff --git a/jaxlib/call_location.cc b/jaxlib/call_location.cc
 index 96855b1..41db1a8 100644
@@ -483,29 +459,6 @@ index 0000000..0e4e862
 +    srcs = ["grpc_python_plugin.bin"],
 +    visibility = ["//visibility:public"],
 +)
-diff --git a/third_party/xla/.bazelrc b/third_party/xla/.bazelrc
-new file mode 100644
-index 0000000..caa5f9b
---- /dev/null
-+++ b/third_party/xla/.bazelrc
-@@ -0,0 +1,17 @@
-+build --extra_toolchains=//py_toolchain:py_toolchain
-+
-+build --crosstool_top=//bazel_toolchain:toolchain
-+build --platforms=//bazel_toolchain:target_platform
-+build --host_platform=//bazel_toolchain:build_platform
-+build --extra_toolchains=//bazel_toolchain:cc_cf_toolchain
-+build --extra_toolchains=//bazel_toolchain:cc_cf_host_toolchain
-+build --verbose_failures
-+build --define=PREFIX=/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p
-+build --define=PROTOBUF_INCLUDE_PATH=/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/include
-+build --local_resources=cpu=12
-+build --define=with_cross_compiler_support=true
-+build --repo_env=GRPC_BAZEL_DIR=/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/share/bazel/grpc/bazel
-+
-+# We need to define a dummy value for this as we delete everything else for build_cuda_with_nvcc
-+build:build_cuda_with_nvcc --action_env=CONDA_USE_NVCC=1
-+build --cpu=darwin_arm64
 diff --git a/third_party/xla/0001-Fix-abseil-headers.patch b/third_party/xla/0001-Fix-abseil-headers.patch
 new file mode 100644
 index 0000000..e9950ff
@@ -1169,24 +1122,243 @@ index 0000000..b6a4256
 + }  // namespace xla
 diff --git a/third_party/xla/0005-Unbundle-grpc.patch b/third_party/xla/0005-Unbundle-grpc.patch
 new file mode 100644
-index 0000000..b6d02ec
+index 0000000..3a22c23
 --- /dev/null
 +++ b/third_party/xla/0005-Unbundle-grpc.patch
-@@ -0,0 +1,183 @@
-+From 4cb8a4920b939f43d995a5cab298fe86da76d779 Mon Sep 17 00:00:00 2001
+@@ -0,0 +1,442 @@
++From 91df35a858ab405bd367037e7de8481115edabd2 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Wed, 23 Jul 2025 13:19:52 +0200
 +Subject: [PATCH 05/11] Unbundle grpc
 +
 +---
-+ third_party/re2_system.BUILD | 14 +++++++++++++
-+ third_party/zlib.BUILD       | 39 +-----------------------------------
-+ workspace0.bzl               |  5 +----
-+ workspace1.bzl               |  3 ---
-+ workspace2.bzl               | 25 ++++++++++++++++++-----
-+ 5 files changed, 36 insertions(+), 50 deletions(-)
++ third_party/protobuf_impl.bzl             |  19 +++
++ third_party/protobuf_systemlib.BUILD      | 151 ++++++++++++++++++++++
++ third_party/py/python_init_rules.bzl      |  12 +-
++ third_party/re2_system.BUILD              |  14 ++
++ third_party/zlib.BUILD                    |  39 +-----
++ workspace0.bzl                            |   5 +-
++ workspace1.bzl                            |   3 -
++ workspace2.bzl                            |  37 ++++--
++ xla/tsl/platform/default/build_config.bzl |   2 -
++ 9 files changed, 212 insertions(+), 70 deletions(-)
++ create mode 100644 third_party/protobuf_impl.bzl
++ create mode 100644 third_party/protobuf_systemlib.BUILD
 + create mode 100644 third_party/re2_system.BUILD
 +
++diff --git a/third_party/protobuf_impl.bzl b/third_party/protobuf_impl.bzl
++new file mode 100644
++index 0000000000..b8aadff303
++--- /dev/null
+++++ b/third_party/protobuf_impl.bzl
++@@ -0,0 +1,19 @@
+++
+++
+++def _protobuf_impl(ctx):
+++  path = ctx.os.environ["PROTOBUF_BAZEL_DIR"]
+++  ctx.execute(["cp", "-r", path, "."])
+++
+++  syslib_label = ctx.attr.systemlib
+++  syslib_path = ctx.path(syslib_label)
+++  ctx.execute(["cp", syslib_path, "BUILD"])
+++  ctx.report_progress("Copied systemlib.BUILD")
+++
+++protobuf_bazel_repo = repository_rule(
+++    implementation = _protobuf_impl,
+++    environ        = ["PROTOBUF_BAZEL_DIR"],
+++    attrs = {
+++        "systemlib": attr.label(mandatory=True),
+++    },
+++)
+++
++diff --git a/third_party/protobuf_systemlib.BUILD b/third_party/protobuf_systemlib.BUILD
++new file mode 100644
++index 0000000000..3f6d38d8f1
++--- /dev/null
+++++ b/third_party/protobuf_systemlib.BUILD
++@@ -0,0 +1,151 @@
+++load("@rules_java//java:defs.bzl", "java_library")
+++load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test", "objc_library")
+++load("//bazel/toolchains:proto_lang_toolchain.bzl", "proto_lang_toolchain")
+++load("//bazel:cc_proto_library.bzl", "cc_proto_library")
+++load("//bazel:proto_library.bzl", "proto_library")
+++
+++licenses(["notice"])
+++
+++filegroup(
+++    name = "LICENSE",
+++    visibility = ["//visibility:public"],
+++)
+++
+++alias(
+++    name = "license",
+++    actual = ":LICENSE",
+++    visibility = ["//visibility:public"],
+++)
+++
+++# Map of all well known protos.
+++# name => (include path, imports)
+++WELL_KNOWN_PROTO_MAP = {
+++    "any": ("google/protobuf/any.proto", ["descriptor"]),
+++    "api": (
+++        "google/protobuf/api.proto",
+++        [
+++            "descriptor",
+++            "source_context",
+++            "type",
+++        ],
+++    ),
+++    "compiler_plugin": (
+++        "google/protobuf/compiler/plugin.proto",
+++        ["descriptor"],
+++    ),
+++    "descriptor": ("google/protobuf/descriptor.proto", []),
+++    "duration": ("google/protobuf/duration.proto", ["descriptor"]),
+++    "empty": ("google/protobuf/empty.proto", ["descriptor"]),
+++    "field_mask": ("google/protobuf/field_mask.proto", ["descriptor"]),
+++    "source_context": ("google/protobuf/source_context.proto", ["descriptor"]),
+++    "struct": ("google/protobuf/struct.proto", ["descriptor"]),
+++    "timestamp": ("google/protobuf/timestamp.proto", ["descriptor"]),
+++    "type": (
+++        "google/protobuf/type.proto",
+++        [
+++            "any",
+++            "descriptor",
+++            "source_context",
+++        ],
+++    ),
+++    "wrappers": ("google/protobuf/wrappers.proto", ["descriptor"]),
+++}
+++
+++RELATIVE_WELL_KNOWN_PROTOS = [proto[1][0] for proto in WELL_KNOWN_PROTO_MAP.items()]
+++
+++genrule(
+++    name = "link_proto_files",
+++    outs = RELATIVE_WELL_KNOWN_PROTOS,
+++    cmd = """
+++      for i in $(OUTS); do
+++        f=$${i#$(@D)/}
+++        mkdir -p $(@D)/$${f%/*}
+++        ln -sf $(PROTOBUF_INCLUDE_PATH)/$$f $(@D)/$$f
+++      done
+++    """,
+++)
+++
+++cc_library(
+++    name = "protobuf",
+++    linkopts = ["$(PREFIX)/lib/libprotobuf.a", "-labsl_cord", "-labsl_cord_internal", "-labsl_cordz_functions", "-labsl_cordz_handle", "-labsl_cordz_info", "-labsl_cordz_sample_token", "-labsl_log_flags", "-labsl_log_globals", "-labsl_log_initialize", "-labsl_log_internal_check_op", "-labsl_log_internal_conditions", "-labsl_log_internal_format", "-labsl_log_internal_globals", "-labsl_log_internal_log_sink_set", "-labsl_log_internal_message", "-labsl_log_internal_nullguard", "-labsl_log_internal_proto", "-labsl_log_severity", "-labsl_log_sink"],
+++    visibility = ["//visibility:public"],
+++)
+++
+++cc_library(
+++    name = "protobuf_lite",
+++    linkopts = ["$(PREFIX)/lib/libprotobuf-lite.a", "-labsl_cord", "-labsl_cord_internal", "-labsl_cordz_functions", "-labsl_cordz_handle", "-labsl_cordz_info", "-labsl_cordz_sample_token", "-labsl_log_flags", "-labsl_log_globals", "-labsl_log_initialize", "-labsl_log_internal_check_op", "-labsl_log_internal_conditions", "-labsl_log_internal_format", "-labsl_log_internal_globals", "-labsl_log_internal_log_sink_set", "-labsl_log_internal_message", "-labsl_log_internal_nullguard", "-labsl_log_internal_proto", "-labsl_log_severity", "-labsl_log_sink"],
+++    visibility = ["//visibility:public"],
+++)
+++
+++cc_library(
+++    name = "protobuf_headers",
+++    linkopts = ["$(PREFIX)/lib/libprotobuf.a", "-labsl_cord", "-labsl_cord_internal", "-labsl_cordz_functions", "-labsl_cordz_handle", "-labsl_cordz_info", "-labsl_cordz_sample_token", "-labsl_log_flags", "-labsl_log_globals", "-labsl_log_initialize", "-labsl_log_internal_check_op", "-labsl_log_internal_conditions", "-labsl_log_internal_format", "-labsl_log_internal_globals", "-labsl_log_internal_log_sink_set", "-labsl_log_internal_message", "-labsl_log_internal_nullguard", "-labsl_log_internal_proto", "-labsl_log_severity", "-labsl_log_sink"],
+++    visibility = ["//visibility:public"],
+++)
+++
+++cc_library(
+++    name = "protoc_lib",
+++    linkopts = ["$(PREFIX)/lib/libprotoc.a", "$(PREFIX)/lib/libprotobuf.a", "-labsl_log_internal_check_op", "-labsl_log_internal_message", "-labsl_flags_reflection", "-labsl_hash", "-labsl_raw_hash_set", "-labsl_raw_logging_internal"],
+++    visibility = ["//visibility:public"],
+++)
+++
+++LIB_ALIASES = ["type_resolver", "differencer", "json_util", "delimited_message_util"]
+++
+++[alias(
+++    name = _alias,
+++    actual = "protobuf",
+++    visibility = ["//visibility:public"],
+++) for _alias in LIB_ALIASES]
+++
+++genrule(
+++    name = "protoc",
+++    outs = ["protoc.bin"],
+++    cmd = "ln -s $(BUILD_PREFIX)/bin/protoc $@",
+++    executable = 1,
+++    visibility = ["//visibility:public"],
+++)
+++
+++cc_proto_library(
+++    name = "cc_wkt_protos",
+++    visibility = ["//visibility:public"],
+++)
+++
+++java_library(
+++    name = "protobuf_java",
+++    exports = ["@maven_protobuf//:original_com_google_protobuf_protobuf_java"],
+++    visibility = ["//visibility:public"],
+++)
+++
+++java_library(
+++    name = "protobuf_java_util",
+++    exports = ["@maven_protobuf//:original_com_google_protobuf_protobuf_java_util"],
+++    visibility = ["//visibility:public"],
+++)
+++
+++proto_lang_toolchain(
+++    name = "cc_toolchain",
+++    blacklisted_protos = [proto + "_proto" for proto in WELL_KNOWN_PROTO_MAP.keys()],
+++    command_line = "--cpp_out=$(OUT)",
+++    runtime = ":protobuf",
+++    visibility = ["//visibility:public"],
+++)
+++
+++proto_lang_toolchain(
+++    name = "java_toolchain",
+++    command_line = "--java_out=$(OUT)",
+++    runtime = ":protobuf_java",
+++    visibility = ["//visibility:public"],
+++)
+++
+++[proto_library(
+++    name = proto[0] + "_proto",
+++    srcs = [proto[1][0]],
+++    visibility = ["//visibility:public"],
+++    deps = [dep + "_proto" for dep in proto[1][1]],
+++) for proto in WELL_KNOWN_PROTO_MAP.items()]
+++
+++[cc_proto_library(
+++    name = proto[0] + "_cc_proto",
+++    deps = [":" + proto[0] + "_proto"],
+++    visibility = ["//visibility:public"],
+++) for proto in WELL_KNOWN_PROTO_MAP.items()]
++diff --git a/third_party/py/python_init_rules.bzl b/third_party/py/python_init_rules.bzl
++index 84370d1dff..64ab023bc9 100644
++--- a/third_party/py/python_init_rules.bzl
+++++ b/third_party/py/python_init_rules.bzl
++@@ -1,6 +1,7 @@
++ """Hermetic Python initialization. Consult the WORKSPACE on how to use it."""
++ 
++ load("//third_party:repo.bzl", "tf_http_archive", "tf_mirror_urls")
+++load("//third_party:protobuf_impl.bzl", "protobuf_bazel_repo")
++ 
++ def python_init_rules(extra_patches = []):
++     """Defines (doesn't setup) the rules_python repository.
++@@ -20,16 +21,9 @@ def python_init_rules(extra_patches = []):
++         ],
++     )
++ 
++-    tf_http_archive(
+++    protobuf_bazel_repo(
++         name = "com_google_protobuf",
++-        patch_file = ["@xla//third_party/protobuf:protobuf.patch"],
++-        sha256 = "6e09bbc950ba60c3a7b30280210cd285af8d7d8ed5e0a6ed101c72aff22e8d88",
++-        strip_prefix = "protobuf-6.31.1",
++-        urls = tf_mirror_urls("https://github.com/protocolbuffers/protobuf/archive/refs/tags/v6.31.1.zip"),
++-        repo_mapping = {
++-            "@abseil-cpp": "@com_google_absl",
++-            "@protobuf_pip_deps": "@pypi",
++-        },
+++        systemlib = "@xla//third_party:protobuf_systemlib.BUILD",
++     )
++ 
++     tf_http_archive(
 +diff --git a/third_party/re2_system.BUILD b/third_party/re2_system.BUILD
 +new file mode 100644
 +index 0000000000..4d143fd47d
@@ -1306,10 +1478,18 @@ index 0000000..b6d02ec
 + # shadowing previous loads and trigger a buildifier warning.
 + xla_workspace1 = workspace
 +diff --git a/workspace2.bzl b/workspace2.bzl
-+index 8430d9842b..048a684b3d 100644
++index 8430d9842b..532c23ce45 100644
 +--- a/workspace2.bzl
 ++++ b/workspace2.bzl
-+@@ -154,6 +154,23 @@ def _tf_toolchains():
++@@ -57,6 +57,7 @@ load("//third_party/transformer_engine:workspace.bzl", transformer_engine = "rep
++ load("//third_party/triton:workspace.bzl", triton = "repo")
++ load("//third_party/uv:workspace.bzl", uv = "repo")
++ load("//third_party/xnnpack:workspace.bzl", xnnpack = "repo")
+++load("//third_party:protobuf_impl.bzl", "protobuf_bazel_repo")
++ load("//tools/def_file_filter:def_file_filter_configure.bzl", "def_file_filter_configure")
++ load("//tools/toolchains:cpus/aarch64/aarch64_compiler_configure.bzl", "aarch64_compiler_configure")
++ load("//tools/toolchains:cpus/arm/arm_compiler_configure.bzl", "arm_compiler_configure")
++@@ -154,6 +155,23 @@ def _tf_toolchains():
 +         aarch64_repo = "../aarch64_linux_toolchain",
 +         armhf_repo = "../armhf_linux_toolchain",
 +     )
@@ -1333,7 +1513,7 @@ index 0000000..b6d02ec
 + 
 + # Define all external repositories required by TensorFlow
 + def _tf_repositories():
-+@@ -246,6 +263,7 @@ def _tf_repositories():
++@@ -246,6 +264,7 @@ def _tf_repositories():
 +         name = "com_googlesource_code_re2",
 +         sha256 = "ef516fb84824a597c4d5d0d6d330daedb18363b5a99eda87d027e6bdd9cba299",
 +         strip_prefix = "re2-03da4fc0857c285e3a26782f6bc8931c4c950df4",
@@ -1341,7 +1521,26 @@ index 0000000..b6d02ec
 +         urls = tf_mirror_urls("https://github.com/google/re2/archive/03da4fc0857c285e3a26782f6bc8931c4c950df4.tar.gz"),
 +     )
 + 
-+@@ -365,12 +383,9 @@ def _tf_repositories():
++@@ -297,16 +316,9 @@ def _tf_repositories():
++ 
++     # `com_google_protobuf` is initialized in `python_init_rules()`.
++     maybe(
++-        tf_http_archive,
+++        protobuf_bazel_repo,
++         name = "com_google_protobuf",
++-        patch_file = ["//third_party/protobuf:protobuf.patch"],
++-        sha256 = "6e09bbc950ba60c3a7b30280210cd285af8d7d8ed5e0a6ed101c72aff22e8d88",
++-        strip_prefix = "protobuf-6.31.1",
++-        urls = tf_mirror_urls("https://github.com/protocolbuffers/protobuf/archive/refs/tags/v6.31.1.zip"),
++-        repo_mapping = {
++-            "@abseil-cpp": "@com_google_absl",
++-            "@protobuf_pip_deps": "@pypi",
++-        },
+++        systemlib = "//third_party:protobuf_systemlib.BUILD",
++     )
++ 
++     tf_http_archive(
++@@ -365,12 +377,9 @@ def _tf_repositories():
 +         urls = tf_mirror_urls("https://curl.se/download/curl-8.11.0.tar.gz"),
 +     )
 + 
@@ -1356,13 +1555,26 @@ index 0000000..b6d02ec
 +     )
 + 
 +     # Load the raw llvm-project.  llvm does not have build rules set up by default,
++diff --git a/xla/tsl/platform/default/build_config.bzl b/xla/tsl/platform/default/build_config.bzl
++index 75b21fa525..3d677a385b 100644
++--- a/xla/tsl/platform/default/build_config.bzl
+++++ b/xla/tsl/platform/default/build_config.bzl
++@@ -428,8 +428,6 @@ def _protobuf_deps():
++         clean_dep("@com_google_protobuf//:type_resolver"),
++         clean_dep("@com_google_protobuf//:protobuf"),
++         clean_dep("@com_google_protobuf//:protobuf_lite"),
++-        clean_dep("@com_google_protobuf//src/google/protobuf/io"),
++-        clean_dep("@com_google_protobuf//src/google/protobuf/io:tokenizer"),
++     ]
++ 
++ def tf_protobuf_deps():
 diff --git a/third_party/xla/0006-Disable-coordination_agent_recoverable-flag.patch b/third_party/xla/0006-Disable-coordination_agent_recoverable-flag.patch
 new file mode 100644
-index 0000000..9c6751e
+index 0000000..ed11988
 --- /dev/null
 +++ b/third_party/xla/0006-Disable-coordination_agent_recoverable-flag.patch
 @@ -0,0 +1,35 @@
-+From 49041d1e46aead9deeae7f8d7707ab7c9b8869ed Mon Sep 17 00:00:00 2001
++From 1ff42e72f8c89e89707e4a9be0a7e9081d3c4650 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 11 Sep 2025 21:30:50 +0200
 +Subject: [PATCH 06/11] Disable coordination_agent_recoverable flag
@@ -1399,11 +1611,11 @@ index 0000000..9c6751e
 +            "barrier will only block non-recoverable tasks. If a synchronized "
 diff --git a/third_party/xla/0007-absl_bad_-optional-variant-_access-is-now-header-onl.patch b/third_party/xla/0007-absl_bad_-optional-variant-_access-is-now-header-onl.patch
 new file mode 100644
-index 0000000..5309678
+index 0000000..c62432a
 --- /dev/null
 +++ b/third_party/xla/0007-absl_bad_-optional-variant-_access-is-now-header-onl.patch
 @@ -0,0 +1,29 @@
-+From 232e96611b75598cba093bd90441748645207c59 Mon Sep 17 00:00:00 2001
++From 78905d8d0902fa3906d3dbdf47e9f2330d559769 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 11 Sep 2025 21:33:07 +0200
 +Subject: [PATCH 07/11] absl_bad_{optional,variant}_access is now header-only
@@ -1434,11 +1646,11 @@ index 0000000..5309678
 +     ],
 diff --git a/third_party/xla/0008-Add-dependency-on-proto_bazel_features.patch b/third_party/xla/0008-Add-dependency-on-proto_bazel_features.patch
 new file mode 100644
-index 0000000..6736682
+index 0000000..eba2aad
 --- /dev/null
 +++ b/third_party/xla/0008-Add-dependency-on-proto_bazel_features.patch
 @@ -0,0 +1,72 @@
-+From 43a613398c3d4f6c869bff1ccd26b13dfe7f3d53 Mon Sep 17 00:00:00 2001
++From 2fd49a2e378d2830cbb81ad8d8766d8a9ce1c15a Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Fri, 12 Sep 2025 16:06:30 +0200
 +Subject: [PATCH 08/11] Add dependency on proto_bazel_features
@@ -1449,7 +1661,7 @@ index 0000000..6736682
 + 2 files changed, 19 insertions(+), 2 deletions(-)
 +
 +diff --git a/workspace2.bzl b/workspace2.bzl
-+index 048a684b3d..02aeaf11eb 100644
++index 532c23ce45..c347609000 100644
 +--- a/workspace2.bzl
 ++++ b/workspace2.bzl
 +@@ -1,6 +1,7 @@
@@ -1460,7 +1672,7 @@ index 0000000..6736682
 + load("@bazel_skylib//lib:versions.bzl", "versions")
 + load("@bazel_tools//tools/build_defs/repo:java.bzl", "java_import_external")
 + load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
-+@@ -713,7 +714,8 @@ def workspace():
++@@ -707,7 +708,8 @@ def workspace():
 +     # written according to common practice to query native.existing_rule()).
 +     _tf_repositories()
 + 
@@ -1512,11 +1724,11 @@ index 0000000..6736682
 +     tf_http_archive(
 diff --git a/third_party/xla/0009-Add-macos_x86_64-to-mkl_deps.patch b/third_party/xla/0009-Add-macos_x86_64-to-mkl_deps.patch
 new file mode 100644
-index 0000000..97a0fc9
+index 0000000..6586c74
 --- /dev/null
 +++ b/third_party/xla/0009-Add-macos_x86_64-to-mkl_deps.patch
 @@ -0,0 +1,21 @@
-+From d9f202c33cc16ef98a5d915a532f8ab6f6cc76e2 Mon Sep 17 00:00:00 2001
++From 90b54fc6da33ef8bc090ccbe81d4cfb41cb9ed44 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Sat, 20 Sep 2025 08:15:14 +0200
 +Subject: [PATCH 09/11] Add macos_x86_64 to mkl_deps
@@ -1539,11 +1751,11 @@ index 0000000..97a0fc9
 +     })
 diff --git a/third_party/xla/0010-Add-systemlib-for-oneDNN.patch b/third_party/xla/0010-Add-systemlib-for-oneDNN.patch
 new file mode 100644
-index 0000000..6bce379
+index 0000000..d1e7ddd
 --- /dev/null
 +++ b/third_party/xla/0010-Add-systemlib-for-oneDNN.patch
 @@ -0,0 +1,48 @@
-+From ce4d73e63515e5b62edaa0f069d57b2ad7ab7e28 Mon Sep 17 00:00:00 2001
++From 2f23abbf21fcbaa935c51b3c87a9c4aa963f1a4c Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Fri, 26 Sep 2025 17:23:37 +0200
 +Subject: [PATCH 10/11] Add systemlib for oneDNN
@@ -1593,11 +1805,11 @@ index 0000000..6bce379
 +     })
 diff --git a/third_party/xla/0011-Add-missing-includes-in-custom_call_status-files.patch b/third_party/xla/0011-Add-missing-includes-in-custom_call_status-files.patch
 new file mode 100644
-index 0000000..f02c198
+index 0000000..938c804
 --- /dev/null
 +++ b/third_party/xla/0011-Add-missing-includes-in-custom_call_status-files.patch
 @@ -0,0 +1,47 @@
-+From eb1bf4c24a1195959fcd0db870d46d4140b1b5de Mon Sep 17 00:00:00 2001
++From f19c39d0d65206e9c07dcc349cc9ea1ded12256c Mon Sep 17 00:00:00 2001
 +From: Allan Renucci <allanrenucci@google.com>
 +Date: Mon, 9 Feb 2026 03:22:02 -0800
 +Subject: [PATCH 11/11] Add missing includes in custom_call_status files.
@@ -1644,1610 +1856,6 @@ index 0000000..f02c198
 + 
 +-#endif  // XLA_SERVICE_CUSTOM_CALL_INTERNAL_STATUS_H_
 ++#endif  // XLA_SERVICE_CUSTOM_CALL_STATUS_INTERNAL_H_
-diff --git a/third_party/xla/bazel_toolchain/BUILD b/third_party/xla/bazel_toolchain/BUILD
-new file mode 100644
-index 0000000..04f36be
---- /dev/null
-+++ b/third_party/xla/bazel_toolchain/BUILD
-@@ -0,0 +1,117 @@
-+package(default_visibility = ["//visibility:public"])
-+
-+load("@rules_cc//cc/toolchains:cc_toolchain.bzl", "cc_toolchain")
-+
-+filegroup(
-+    name = "empty",
-+    srcs = [],
-+)
-+
-+filegroup(
-+    name = "cc_wrapper",
-+    srcs = [
-+        "cc_wrapper.sh",
-+        "cc_wrapper_build.sh",
-+    ],
-+)
-+
-+filegroup(
-+    name = "compiler_deps",
-+    srcs = [":cc_wrapper"],
-+)
-+
-+load(
-+    ":cc_toolchain_config.bzl", "cc_toolchain_config"
-+    )
-+
-+cc_toolchain_config(
-+    name = "cc-compiler-target-config"
-+)
-+
-+load(
-+    ":cc_toolchain_build_config.bzl", build_cc_toolchain_config = "cc_toolchain_config"
-+)
-+build_cc_toolchain_config(
-+    name = "cc-compiler-build-config"
-+)
-+
-+toolchains = {
-+    "darwin_arm64|compiler": ":cc-compiler-build",
-+    "darwin_arm64": ":cc-compiler-build",
-+}
-+toolchains["darwin_arm64|compiler"] = ":cc-compiler-target"
-+toolchains["darwin_arm64"] = ":cc-compiler-target"
-+cc_toolchain_suite(
-+    name = "toolchain",
-+    toolchains = toolchains,
-+)
-+
-+cc_toolchain(
-+    name = "cc-compiler-target",
-+    all_files = ":compiler_deps",
-+    compiler_files = ":compiler_deps",
-+    toolchain_identifier = "local",
-+    toolchain_config = ":cc-compiler-target-config",
-+    dwp_files = ":empty",
-+    linker_files = ":compiler_deps",
-+    objcopy_files = ":empty",
-+    strip_files = ":empty",
-+    supports_param_files = 0,
-+)
-+
-+cc_toolchain(
-+    name = "cc-compiler-build",
-+    all_files = ":compiler_deps",
-+    compiler_files = ":compiler_deps",
-+    toolchain_identifier = "build",
-+    toolchain_config = ":cc-compiler-build-config",
-+    dwp_files = ":empty",
-+    linker_files = ":compiler_deps",
-+    objcopy_files = ":empty",
-+    strip_files = ":empty",
-+    supports_param_files = 0,
-+)
-+
-+toolchain(
-+    name = "cc_cf_toolchain",
-+    toolchain = ":cc-compiler-target",
-+    toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
-+    exec_compatible_with = [
-+        "@platforms//cpu:arm64",
-+        "@platforms//os:macos",
-+    ],
-+    target_compatible_with = [
-+        "@platforms//cpu:arm64",
-+        "@platforms//os:macos",
-+    ],
-+)
-+
-+toolchain(
-+    name = "cc_cf_host_toolchain",
-+    toolchain = ":cc-compiler-build",
-+    toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
-+    exec_compatible_with = [
-+        "@platforms//cpu:arm64",
-+        "@platforms//os:macos",
-+    ],
-+    target_compatible_with = [
-+        "@platforms//cpu:arm64",
-+        "@platforms//os:macos",
-+    ],
-+)
-+
-+platform(
-+    name = "build_platform",
-+    constraint_values = [
-+        "@platforms//os:macos",
-+        "@platforms//cpu:arm64",
-+    ],
-+)
-+
-+platform(
-+    name = "target_platform",
-+    constraint_values = [
-+        "@platforms//os:macos",
-+        "@platforms//cpu:arm64",
-+    ],
-+)
-diff --git a/third_party/xla/bazel_toolchain/CROSSTOOL.template b/third_party/xla/bazel_toolchain/CROSSTOOL.template
-new file mode 100644
-index 0000000..8402300
---- /dev/null
-+++ b/third_party/xla/bazel_toolchain/CROSSTOOL.template
-@@ -0,0 +1,88 @@
-+major_version: "local"
-+minor_version: ""
-+default_target_cpu: "same_as_host"
-+
-+default_toolchain {
-+  cpu: "darwin"
-+  toolchain_identifier: "local"
-+}
-+
-+toolchain {
-+  toolchain_identifier: "local"
-+  abi_version: "local"
-+  abi_libc_version: "local"
-+  builtin_sysroot: ""
-+  compiler: "compiler"
-+  host_system_name: "local"
-+  needsPic: true
-+  supports_gold_linker: false
-+  supports_incremental_linker: false
-+  supports_fission: false
-+  supports_interface_shared_objects: false
-+  supports_normalizing_ar: false
-+  supports_start_end_lib: false
-+  target_libc: "macosx"
-+  target_cpu: "darwin"
-+  target_system_name: "local"
-+  cxx_flag: "-stdlib=libc++"
-+  cxx_flag: "-fvisibility-inlines-hidden"
-+  cxx_flag: "-std=c++17"
-+  cxx_flag: "-fmessage-length=0"
-+  linker_flag: "-Wl,-pie"
-+  linker_flag: "-headerpad_max_install_names"
-+  linker_flag: "-Wl,-dead_strip_dylibs"
-+  linker_flag: "-undefined"
-+  linker_flag: "dynamic_lookup"
-+  linker_flag: "-force_load"
-+  linker_flag: "${BUILD_PREFIX}/lib/libc++.a"
-+  linker_flag: "-force_load"
-+  linker_flag: "${BUILD_PREFIX}/lib/libc++abi.a"
-+  linker_flag: "-nostdlib"
-+  linker_flag: "-lc"
-+  linker_flag: "-isysroot${CONDA_BUILD_SYSROOT}"
-+  cxx_builtin_include_directory: "${PREFIX}/include/c++/v1"
-+  cxx_builtin_include_directory: "${PREFIX}/lib/clang/10.0.0/include"
-+  cxx_builtin_include_directory: "${CONDA_BUILD_SYSROOT}/usr/include"
-+  cxx_builtin_include_directory: "${CONDA_BUILD_SYSROOT}/System/Library/Frameworks"
-+  objcopy_embed_flag: "-I"
-+  objcopy_embed_flag: "binary"
-+  unfiltered_cxx_flag: "-no-canonical-prefixes"
-+  unfiltered_cxx_flag: "-Wno-builtin-macro-redefined"
-+  unfiltered_cxx_flag: "-D__DATE__=\"redacted\""
-+  unfiltered_cxx_flag: "-D__TIMESTAMP__=\"redacted\""
-+  unfiltered_cxx_flag: "-D__TIME__=\"redacted\""
-+  compiler_flag: "-march=core2"
-+  compiler_flag: "-mtune=haswell"
-+  compiler_flag: "-mssse3"
-+  compiler_flag: "-ftree-vectorize"
-+  compiler_flag: "-fPIC"
-+  compiler_flag: "-fPIE"
-+  compiler_flag: "-fstack-protector-strong"
-+  compiler_flag: "-O2"
-+  compiler_flag: "-pipe"
-+  tool_path {name: "ld" path: "${LD}" }
-+  tool_path {name: "cpp" path: "/usr/bin/cpp" }
-+  tool_path {name: "dwp" path: "/usr/bin/dwp" }
-+  tool_path {name: "gcov" path: "/usr/bin/gcov" }
-+  tool_path {name: "nm" path: "${NM}" }
-+  tool_path {name: "objcopy" path: "/usr/bin/objcopy" }
-+  tool_path {name: "objdump" path: "/usr/bin/objdump" }
-+  tool_path {name: "strip" path: "${STRIP}" }
-+  tool_path {name: "gcc" path: "cc_wrapper.sh" }
-+  tool_path {name: "ar" path: "${LIBTOOL}" }
-+
-+  compilation_mode_flags {
-+    mode: DBG
-+    compiler_flag: "-g"
-+  }
-+  compilation_mode_flags {
-+    mode: OPT
-+    compiler_flag: "-g0"
-+    compiler_flag: "-O2"
-+    compiler_flag: "-D_FORTIFY_SOURCE=1"
-+    compiler_flag: "-DNDEBUG"
-+    compiler_flag: "-ffunction-sections"
-+    compiler_flag: "-fdata-sections"
-+  }
-+  linking_mode_flags { mode: DYNAMIC }
-+}
-diff --git a/third_party/xla/bazel_toolchain/WORKSPACE b/third_party/xla/bazel_toolchain/WORKSPACE
-new file mode 100644
-index 0000000..1255865
---- /dev/null
-+++ b/third_party/xla/bazel_toolchain/WORKSPACE
-@@ -0,0 +1 @@
-+workspace(name = "local_config_cc")
-diff --git a/third_party/xla/bazel_toolchain/cc_toolchain_build_config.bzl b/third_party/xla/bazel_toolchain/cc_toolchain_build_config.bzl
-new file mode 100644
-index 0000000..76dfa8f
---- /dev/null
-+++ b/third_party/xla/bazel_toolchain/cc_toolchain_build_config.bzl
-@@ -0,0 +1,353 @@
-+# Adapted from the following links and pulling in options from old CROSSTOOL.template
-+# https://docs.bazel.build/versions/0.26.0/tutorial/cc-toolchain-config.html
-+# https://github.com/bazelbuild/bazel/blob/4dfc83d5f11e9190e9e25dee4c7dc2a71cd7b8fd/tools/osx/crosstool/cc_toolchain_config.bzl
-+# https://docs.bazel.build/versions/master/skylark/lib/cc_common.html#create_cc_toolchain_config_info
-+
-+load("@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl",
-+     "feature",
-+     "flag_group",
-+     "flag_set",
-+     "tool_path",
-+     "with_feature_set",
-+     )
-+
-+load("@bazel_tools//tools/build_defs/cc:action_names.bzl",
-+     "ACTION_NAMES")
-+load("@rules_cc//cc/common:cc_common.bzl", "cc_common")
-+load("@rules_cc//cc/toolchains:cc_toolchain_config_info.bzl", "CcToolchainConfigInfo")
-+
-+def _impl(ctx):
-+    tool_paths = [
-+        tool_path(
-+            name = "gcc",
-+            path = "cc_wrapper.sh",
-+        ),
-+        tool_path(
-+            name = "ld",
-+            path = "arm64-apple-darwin20.0.0-ld",
-+        ),
-+        tool_path(
-+            name = "ar",
-+            path = "/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/build_env/bin/arm64-apple-darwin20.0.0-libtool",
-+        ),
-+        tool_path(
-+            name = "cpp",
-+            path = "/usr/bin/cpp",
-+        ),
-+        tool_path(
-+            name = "gcov",
-+            path = "/usr/bin/gcov",
-+        ),
-+        tool_path(
-+            name = "nm",
-+            path = "arm64-apple-darwin20.0.0-nm",
-+        ),
-+        tool_path(
-+            name = "objdump",
-+            path = "/usr/bin/objdump",
-+        ),
-+        tool_path(
-+            name = "strip",
-+            path = "arm64-apple-darwin20.0.0-strip",
-+        ),
-+    ]
-+
-+    all_compile_actions = [
-+        ACTION_NAMES.c_compile,
-+        ACTION_NAMES.cpp_compile,
-+        ACTION_NAMES.linkstamp_compile,
-+        ACTION_NAMES.assemble,
-+        ACTION_NAMES.preprocess_assemble,
-+        ACTION_NAMES.cpp_header_parsing,
-+        ACTION_NAMES.cpp_module_compile,
-+        ACTION_NAMES.cpp_module_codegen,
-+        ACTION_NAMES.clif_match,
-+        ACTION_NAMES.lto_backend,
-+    ]
-+
-+    all_cpp_compile_actions = [
-+        ACTION_NAMES.cpp_compile,
-+        ACTION_NAMES.linkstamp_compile,
-+        ACTION_NAMES.cpp_header_parsing,
-+        ACTION_NAMES.cpp_module_compile,
-+        ACTION_NAMES.cpp_module_codegen,
-+        ACTION_NAMES.clif_match,
-+    ]
-+
-+    preprocessor_compile_actions = [
-+        ACTION_NAMES.c_compile,
-+        ACTION_NAMES.cpp_compile,
-+        ACTION_NAMES.linkstamp_compile,
-+        ACTION_NAMES.preprocess_assemble,
-+        ACTION_NAMES.cpp_header_parsing,
-+        ACTION_NAMES.cpp_module_compile,
-+        ACTION_NAMES.clif_match,
-+    ]
-+
-+    codegen_compile_actions = [
-+        ACTION_NAMES.c_compile,
-+        ACTION_NAMES.cpp_compile,
-+        ACTION_NAMES.linkstamp_compile,
-+        ACTION_NAMES.assemble,
-+        ACTION_NAMES.preprocess_assemble,
-+        ACTION_NAMES.cpp_module_codegen,
-+        ACTION_NAMES.lto_backend,
-+    ]
-+
-+    all_link_actions = [
-+        ACTION_NAMES.cpp_link_executable,
-+        ACTION_NAMES.cpp_link_dynamic_library,
-+        ACTION_NAMES.cpp_link_nodeps_dynamic_library,
-+    ]
-+
-+    compiler_flags = feature(
-+        name = "compiler_flags",
-+        enabled = True,
-+        flag_sets = [
-+            flag_set(
-+                actions = all_compile_actions,
-+                flag_groups = [flag_group(flags = "-ftree-vectorize -fPIC -fstack-protector-strong -O2 -pipe -isystem /Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/include -fdebug-prefix-map=/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/work=/usr/local/src/conda/jaxlib-0.9.0 -fdebug-prefix-map=/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p=/usr/local/src/conda-prefix -DNDEBUG -Dabsl_nullable= -Dabsl_nonnull= -D_FORTIFY_SOURCE=2 -DNDEBUG -isystem /Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/include -mmacosx-version-min=11.0 -mmacosx-version-min=11.0".split(" "))],
-+            ),
-+        ],
-+    )
-+
-+    objcpp_flags = feature(
-+        name = "objcpp_flags",
-+        enabled = True,
-+        flag_sets = [
-+            flag_set(
-+                actions = [
-+                    ACTION_NAMES.objcpp_compile,
-+                ],
-+                flag_groups = [flag_group(flags = "-ftree-vectorize -fPIC -fstack-protector-strong -O2 -pipe -fvisibility-inlines-hidden -fmessage-length=0 -isystem /Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/include -fdebug-prefix-map=/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/work=/usr/local/src/conda/jaxlib-0.9.0 -fdebug-prefix-map=/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p=/usr/local/src/conda-prefix -D_LIBCPP_DISABLE_AVAILABILITY -DNDEBUG -Dabsl_nullable= -Dabsl_nonnull= -D_FORTIFY_SOURCE=2 -DNDEBUG -isystem /Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/include -mmacosx-version-min=11.0 -mmacosx-version-min=11.0".split(" "))],
-+            ),
-+        ],
-+    )
-+
-+    cxx_flags = feature(
-+        name = "cxx_flags",
-+        enabled = True,
-+        flag_sets = [
-+            flag_set(
-+                actions = [
-+                    ACTION_NAMES.assemble,
-+                    ACTION_NAMES.preprocess_assemble,
-+                    ACTION_NAMES.linkstamp_compile,
-+                    ACTION_NAMES.cpp_compile,
-+                    ACTION_NAMES.cpp_header_parsing,
-+                    ACTION_NAMES.cpp_module_compile,
-+                    ACTION_NAMES.cpp_module_codegen,
-+                    ACTION_NAMES.lto_backend,
-+                    ACTION_NAMES.clif_match,
-+                ],
-+                flag_groups = [flag_group(flags = "-ftree-vectorize -fPIC -fstack-protector-strong -O2 -pipe -fvisibility-inlines-hidden -fmessage-length=0 -isystem /Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/include -fdebug-prefix-map=/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/work=/usr/local/src/conda/jaxlib-0.9.0 -fdebug-prefix-map=/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p=/usr/local/src/conda-prefix -D_LIBCPP_DISABLE_AVAILABILITY -DNDEBUG -Dabsl_nullable= -Dabsl_nonnull= -D_FORTIFY_SOURCE=2 -DNDEBUG -isystem /Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/include -mmacosx-version-min=11.0 -mmacosx-version-min=11.0".split(" "))],
-+            ),
-+        ],
-+    )
-+    
-+    if "osx-arm64".startswith("osx"):
-+        toolchain_include_directories_flags = [
-+            "-isystem",
-+            "/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/build_env/include/c++/v1",
-+            "-isystem",
-+            "/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/build_env/lib/clang/20.1.8/include",
-+            "-isystem",
-+            "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include",
-+            "-isystem",
-+            "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks",
-+            "-isystem",
-+            "/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/include",
-+        ]
-+    else:
-+        toolchain_include_directories_flags = [
-+            "-isystem",
-+            "/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/include",
-+        ]
-+
-+    toolchain_include_directories_feature = feature(
-+        name = "toolchain_include_directories",
-+        enabled = True,
-+        flag_sets = [
-+            flag_set(
-+                actions = [
-+                    ACTION_NAMES.assemble,
-+                    ACTION_NAMES.preprocess_assemble,
-+                    ACTION_NAMES.linkstamp_compile,
-+                    ACTION_NAMES.c_compile,
-+                    ACTION_NAMES.cpp_compile,
-+                    ACTION_NAMES.cpp_header_parsing,
-+                    ACTION_NAMES.cpp_module_compile,
-+                    ACTION_NAMES.cpp_module_codegen,
-+                    ACTION_NAMES.lto_backend,
-+                    ACTION_NAMES.clif_match,
-+                ],
-+                flag_groups = [
-+                    flag_group(
-+                        flags = toolchain_include_directories_flags,
-+                    ),
-+                ],
-+            ),
-+        ],
-+    )
-+
-+    linker_flags = feature(
-+        name = "linker_flags",
-+        flag_sets = [
-+            flag_set (
-+                actions = [
-+                    ACTION_NAMES.assemble,
-+                    ACTION_NAMES.preprocess_assemble,
-+                    ACTION_NAMES.linkstamp_compile,
-+                    ACTION_NAMES.c_compile,
-+                    ACTION_NAMES.cpp_compile,
-+                    ACTION_NAMES.objcpp_compile,
-+                    ACTION_NAMES.cpp_header_parsing,
-+                    ACTION_NAMES.cpp_module_compile,
-+                    ACTION_NAMES.cpp_module_codegen,
-+                    ACTION_NAMES.lto_backend,
-+                    ACTION_NAMES.clif_match,
-+                ],
-+                flag_groups = [flag_group(flags = "-lc++ -Wl,-headerpad_max_install_names -Wl,-dead_strip_dylibs -Wl,-rpath,/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/lib -L/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/lib -lz -framework CoreFoundation -Xlinker -undefined -Xlinker dynamic_lookup".split(" "))],
-+            ),
-+        ],
-+    )
-+
-+    link_libcpp_feature = feature(
-+        name = "link_libc++",
-+        enabled = True,
-+        flag_sets = [
-+            flag_set(
-+                actions = all_link_actions +
-+                          ["objc-executable", "objc++-executable"],
-+                flag_groups = [flag_group(flags = "-lc++ -Wl,-headerpad_max_install_names -Wl,-dead_strip_dylibs -Wl,-rpath,/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/lib -L/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/lib -lz -framework CoreFoundation -Xlinker -undefined -Xlinker dynamic_lookup".split(" "))],
-+            ),
-+        ],
-+    )
-+
-+    supports_pic_feature = feature(
-+        name = "supports_pic",
-+        enabled = True
-+        )
-+
-+    supports_dynamic_linker = feature(
-+        name = "supports_dynamic_linker",
-+        enabled = True
-+        )
-+
-+    opt = feature(
-+        name = "opt",
-+        enabled = True,
-+        flag_sets = [
-+            flag_set(
-+                actions = [
-+                    ACTION_NAMES.assemble,
-+                    ACTION_NAMES.preprocess_assemble,
-+                    ACTION_NAMES.linkstamp_compile,
-+                    ACTION_NAMES.c_compile,
-+                    ACTION_NAMES.cpp_compile,
-+                    ACTION_NAMES.cpp_header_parsing,
-+                    ACTION_NAMES.cpp_module_compile,
-+                    ACTION_NAMES.cpp_module_codegen,
-+                    ACTION_NAMES.lto_backend,
-+                    ACTION_NAMES.clif_match,
-+                ],
-+                flag_groups = [
-+                    flag_group(
-+                        flags = [
-+                            "-g0",
-+                            "-O2",
-+                            "-D_FORTIFY_SOURCE=1",
-+                            "-DNDEBUG",
-+                            "-ffunction-sections",
-+                            "-fdata-sections",
-+                        ],
-+                    ),
-+                ],
-+            ),
-+        ],
-+    )
-+
-+    dbg = feature(
-+        name = "dbg",
-+        enabled = True,
-+        flag_sets = [
-+            flag_set(
-+                actions = [
-+                    ACTION_NAMES.assemble,
-+                    ACTION_NAMES.preprocess_assemble,
-+                    ACTION_NAMES.linkstamp_compile,
-+                    ACTION_NAMES.c_compile,
-+                    ACTION_NAMES.cpp_compile,
-+                    ACTION_NAMES.cpp_header_parsing,
-+                    ACTION_NAMES.cpp_module_compile,
-+                    ACTION_NAMES.cpp_module_codegen,
-+                    ACTION_NAMES.lto_backend,
-+                    ACTION_NAMES.clif_match,
-+                ],
-+                flag_groups = [
-+                    flag_group(
-+                        flags = [
-+                            "-g"
-+                        ],
-+                    ),
-+                ],
-+            ),
-+        ],
-+    )
-+
-+    if "osx-arm64".startswith("osx"):
-+        cxx_builtin_include_directories = [
-+            "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks",
-+            "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include",
-+            "/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/build_env/lib/clang/20.1.8/include",
-+            "/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/build_env/lib/clang/20/include",
-+            "/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/build_env/include/c++/v1",
-+            "/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/include",
-+            "/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/include",
-+        ]
-+    else:
-+        cxx_builtin_include_directories = [
-+            "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include",
-+            "/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/build_env/lib/gcc/arm64-apple-darwin20.0.0/",
-+	    "/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/build_env/lib/gcc/arm64-apple-darwin20.0.0//include/c++",
-+	    "/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/build_env/lib/gcc/arm64-apple-darwin20.0.0//include/c++/arm64-apple-darwin20.0.0",
-+	    "/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/build_env/lib/gcc/arm64-apple-darwin20.0.0//include/c++/backward",
-+	    "/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/build_env/arm64-apple-darwin20.0.0/include/c++/",
-+            "/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/include",
-+	    # Include for clang-headers, should be ignored in gcc builds
-+            "/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/build_env/lib/clang/20.1.8/include/",
-+            "/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/build_env/lib/clang/20/include/",
-+        ]
-+
-+        if (len("")):
-+            cxx_builtin_include_directories.append("/include")
-+            cxx_builtin_include_directories.append("/targets/x86_64-linux/include/")
-+            # sbsa is linux-aarch64
-+            cxx_builtin_include_directories.append("/targets/sbsa-linux/include/")
-+            # These are needed for CUDA 12+
-+            cxx_builtin_include_directories.append("/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/targets/x86_64-linux/include/")
-+            cxx_builtin_include_directories.append("/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/targets/sbsa-linux/include/")
-+            cxx_builtin_include_directories.append("/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/targets/x86_64-linux/include/")
-+            cxx_builtin_include_directories.append("/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/targets/sbsa-linux/include/")
-+
-+    return cc_common.create_cc_toolchain_config_info(
-+        ctx = ctx,
-+        toolchain_identifier = "local",
-+        host_system_name = "local",
-+        #host_system_name = "darwin_arm64",
-+        target_system_name = "arm64-apple-macosx",
-+        target_cpu = "darwin_arm64",
-+        target_libc = "macosx",
-+        compiler = "compiler",
-+        abi_version = "local",
-+        abi_libc_version = "local",
-+        tool_paths = tool_paths,
-+        cxx_builtin_include_directories = cxx_builtin_include_directories,
-+        features = [toolchain_include_directories_feature, compiler_flags, cxx_flags, supports_pic_feature, linker_flags, supports_dynamic_linker, link_libcpp_feature, objcpp_flags],
-+    )
-+
-+cc_toolchain_config = rule(
-+    implementation = _impl,
-+    attrs = {},
-+    provides = [CcToolchainConfigInfo],
-+)
-diff --git a/third_party/xla/bazel_toolchain/cc_toolchain_config.bzl b/third_party/xla/bazel_toolchain/cc_toolchain_config.bzl
-new file mode 100644
-index 0000000..76dfa8f
---- /dev/null
-+++ b/third_party/xla/bazel_toolchain/cc_toolchain_config.bzl
-@@ -0,0 +1,353 @@
-+# Adapted from the following links and pulling in options from old CROSSTOOL.template
-+# https://docs.bazel.build/versions/0.26.0/tutorial/cc-toolchain-config.html
-+# https://github.com/bazelbuild/bazel/blob/4dfc83d5f11e9190e9e25dee4c7dc2a71cd7b8fd/tools/osx/crosstool/cc_toolchain_config.bzl
-+# https://docs.bazel.build/versions/master/skylark/lib/cc_common.html#create_cc_toolchain_config_info
-+
-+load("@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl",
-+     "feature",
-+     "flag_group",
-+     "flag_set",
-+     "tool_path",
-+     "with_feature_set",
-+     )
-+
-+load("@bazel_tools//tools/build_defs/cc:action_names.bzl",
-+     "ACTION_NAMES")
-+load("@rules_cc//cc/common:cc_common.bzl", "cc_common")
-+load("@rules_cc//cc/toolchains:cc_toolchain_config_info.bzl", "CcToolchainConfigInfo")
-+
-+def _impl(ctx):
-+    tool_paths = [
-+        tool_path(
-+            name = "gcc",
-+            path = "cc_wrapper.sh",
-+        ),
-+        tool_path(
-+            name = "ld",
-+            path = "arm64-apple-darwin20.0.0-ld",
-+        ),
-+        tool_path(
-+            name = "ar",
-+            path = "/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/build_env/bin/arm64-apple-darwin20.0.0-libtool",
-+        ),
-+        tool_path(
-+            name = "cpp",
-+            path = "/usr/bin/cpp",
-+        ),
-+        tool_path(
-+            name = "gcov",
-+            path = "/usr/bin/gcov",
-+        ),
-+        tool_path(
-+            name = "nm",
-+            path = "arm64-apple-darwin20.0.0-nm",
-+        ),
-+        tool_path(
-+            name = "objdump",
-+            path = "/usr/bin/objdump",
-+        ),
-+        tool_path(
-+            name = "strip",
-+            path = "arm64-apple-darwin20.0.0-strip",
-+        ),
-+    ]
-+
-+    all_compile_actions = [
-+        ACTION_NAMES.c_compile,
-+        ACTION_NAMES.cpp_compile,
-+        ACTION_NAMES.linkstamp_compile,
-+        ACTION_NAMES.assemble,
-+        ACTION_NAMES.preprocess_assemble,
-+        ACTION_NAMES.cpp_header_parsing,
-+        ACTION_NAMES.cpp_module_compile,
-+        ACTION_NAMES.cpp_module_codegen,
-+        ACTION_NAMES.clif_match,
-+        ACTION_NAMES.lto_backend,
-+    ]
-+
-+    all_cpp_compile_actions = [
-+        ACTION_NAMES.cpp_compile,
-+        ACTION_NAMES.linkstamp_compile,
-+        ACTION_NAMES.cpp_header_parsing,
-+        ACTION_NAMES.cpp_module_compile,
-+        ACTION_NAMES.cpp_module_codegen,
-+        ACTION_NAMES.clif_match,
-+    ]
-+
-+    preprocessor_compile_actions = [
-+        ACTION_NAMES.c_compile,
-+        ACTION_NAMES.cpp_compile,
-+        ACTION_NAMES.linkstamp_compile,
-+        ACTION_NAMES.preprocess_assemble,
-+        ACTION_NAMES.cpp_header_parsing,
-+        ACTION_NAMES.cpp_module_compile,
-+        ACTION_NAMES.clif_match,
-+    ]
-+
-+    codegen_compile_actions = [
-+        ACTION_NAMES.c_compile,
-+        ACTION_NAMES.cpp_compile,
-+        ACTION_NAMES.linkstamp_compile,
-+        ACTION_NAMES.assemble,
-+        ACTION_NAMES.preprocess_assemble,
-+        ACTION_NAMES.cpp_module_codegen,
-+        ACTION_NAMES.lto_backend,
-+    ]
-+
-+    all_link_actions = [
-+        ACTION_NAMES.cpp_link_executable,
-+        ACTION_NAMES.cpp_link_dynamic_library,
-+        ACTION_NAMES.cpp_link_nodeps_dynamic_library,
-+    ]
-+
-+    compiler_flags = feature(
-+        name = "compiler_flags",
-+        enabled = True,
-+        flag_sets = [
-+            flag_set(
-+                actions = all_compile_actions,
-+                flag_groups = [flag_group(flags = "-ftree-vectorize -fPIC -fstack-protector-strong -O2 -pipe -isystem /Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/include -fdebug-prefix-map=/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/work=/usr/local/src/conda/jaxlib-0.9.0 -fdebug-prefix-map=/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p=/usr/local/src/conda-prefix -DNDEBUG -Dabsl_nullable= -Dabsl_nonnull= -D_FORTIFY_SOURCE=2 -DNDEBUG -isystem /Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/include -mmacosx-version-min=11.0 -mmacosx-version-min=11.0".split(" "))],
-+            ),
-+        ],
-+    )
-+
-+    objcpp_flags = feature(
-+        name = "objcpp_flags",
-+        enabled = True,
-+        flag_sets = [
-+            flag_set(
-+                actions = [
-+                    ACTION_NAMES.objcpp_compile,
-+                ],
-+                flag_groups = [flag_group(flags = "-ftree-vectorize -fPIC -fstack-protector-strong -O2 -pipe -fvisibility-inlines-hidden -fmessage-length=0 -isystem /Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/include -fdebug-prefix-map=/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/work=/usr/local/src/conda/jaxlib-0.9.0 -fdebug-prefix-map=/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p=/usr/local/src/conda-prefix -D_LIBCPP_DISABLE_AVAILABILITY -DNDEBUG -Dabsl_nullable= -Dabsl_nonnull= -D_FORTIFY_SOURCE=2 -DNDEBUG -isystem /Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/include -mmacosx-version-min=11.0 -mmacosx-version-min=11.0".split(" "))],
-+            ),
-+        ],
-+    )
-+
-+    cxx_flags = feature(
-+        name = "cxx_flags",
-+        enabled = True,
-+        flag_sets = [
-+            flag_set(
-+                actions = [
-+                    ACTION_NAMES.assemble,
-+                    ACTION_NAMES.preprocess_assemble,
-+                    ACTION_NAMES.linkstamp_compile,
-+                    ACTION_NAMES.cpp_compile,
-+                    ACTION_NAMES.cpp_header_parsing,
-+                    ACTION_NAMES.cpp_module_compile,
-+                    ACTION_NAMES.cpp_module_codegen,
-+                    ACTION_NAMES.lto_backend,
-+                    ACTION_NAMES.clif_match,
-+                ],
-+                flag_groups = [flag_group(flags = "-ftree-vectorize -fPIC -fstack-protector-strong -O2 -pipe -fvisibility-inlines-hidden -fmessage-length=0 -isystem /Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/include -fdebug-prefix-map=/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/work=/usr/local/src/conda/jaxlib-0.9.0 -fdebug-prefix-map=/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p=/usr/local/src/conda-prefix -D_LIBCPP_DISABLE_AVAILABILITY -DNDEBUG -Dabsl_nullable= -Dabsl_nonnull= -D_FORTIFY_SOURCE=2 -DNDEBUG -isystem /Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/include -mmacosx-version-min=11.0 -mmacosx-version-min=11.0".split(" "))],
-+            ),
-+        ],
-+    )
-+    
-+    if "osx-arm64".startswith("osx"):
-+        toolchain_include_directories_flags = [
-+            "-isystem",
-+            "/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/build_env/include/c++/v1",
-+            "-isystem",
-+            "/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/build_env/lib/clang/20.1.8/include",
-+            "-isystem",
-+            "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include",
-+            "-isystem",
-+            "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks",
-+            "-isystem",
-+            "/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/include",
-+        ]
-+    else:
-+        toolchain_include_directories_flags = [
-+            "-isystem",
-+            "/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/include",
-+        ]
-+
-+    toolchain_include_directories_feature = feature(
-+        name = "toolchain_include_directories",
-+        enabled = True,
-+        flag_sets = [
-+            flag_set(
-+                actions = [
-+                    ACTION_NAMES.assemble,
-+                    ACTION_NAMES.preprocess_assemble,
-+                    ACTION_NAMES.linkstamp_compile,
-+                    ACTION_NAMES.c_compile,
-+                    ACTION_NAMES.cpp_compile,
-+                    ACTION_NAMES.cpp_header_parsing,
-+                    ACTION_NAMES.cpp_module_compile,
-+                    ACTION_NAMES.cpp_module_codegen,
-+                    ACTION_NAMES.lto_backend,
-+                    ACTION_NAMES.clif_match,
-+                ],
-+                flag_groups = [
-+                    flag_group(
-+                        flags = toolchain_include_directories_flags,
-+                    ),
-+                ],
-+            ),
-+        ],
-+    )
-+
-+    linker_flags = feature(
-+        name = "linker_flags",
-+        flag_sets = [
-+            flag_set (
-+                actions = [
-+                    ACTION_NAMES.assemble,
-+                    ACTION_NAMES.preprocess_assemble,
-+                    ACTION_NAMES.linkstamp_compile,
-+                    ACTION_NAMES.c_compile,
-+                    ACTION_NAMES.cpp_compile,
-+                    ACTION_NAMES.objcpp_compile,
-+                    ACTION_NAMES.cpp_header_parsing,
-+                    ACTION_NAMES.cpp_module_compile,
-+                    ACTION_NAMES.cpp_module_codegen,
-+                    ACTION_NAMES.lto_backend,
-+                    ACTION_NAMES.clif_match,
-+                ],
-+                flag_groups = [flag_group(flags = "-lc++ -Wl,-headerpad_max_install_names -Wl,-dead_strip_dylibs -Wl,-rpath,/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/lib -L/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/lib -lz -framework CoreFoundation -Xlinker -undefined -Xlinker dynamic_lookup".split(" "))],
-+            ),
-+        ],
-+    )
-+
-+    link_libcpp_feature = feature(
-+        name = "link_libc++",
-+        enabled = True,
-+        flag_sets = [
-+            flag_set(
-+                actions = all_link_actions +
-+                          ["objc-executable", "objc++-executable"],
-+                flag_groups = [flag_group(flags = "-lc++ -Wl,-headerpad_max_install_names -Wl,-dead_strip_dylibs -Wl,-rpath,/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/lib -L/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/lib -lz -framework CoreFoundation -Xlinker -undefined -Xlinker dynamic_lookup".split(" "))],
-+            ),
-+        ],
-+    )
-+
-+    supports_pic_feature = feature(
-+        name = "supports_pic",
-+        enabled = True
-+        )
-+
-+    supports_dynamic_linker = feature(
-+        name = "supports_dynamic_linker",
-+        enabled = True
-+        )
-+
-+    opt = feature(
-+        name = "opt",
-+        enabled = True,
-+        flag_sets = [
-+            flag_set(
-+                actions = [
-+                    ACTION_NAMES.assemble,
-+                    ACTION_NAMES.preprocess_assemble,
-+                    ACTION_NAMES.linkstamp_compile,
-+                    ACTION_NAMES.c_compile,
-+                    ACTION_NAMES.cpp_compile,
-+                    ACTION_NAMES.cpp_header_parsing,
-+                    ACTION_NAMES.cpp_module_compile,
-+                    ACTION_NAMES.cpp_module_codegen,
-+                    ACTION_NAMES.lto_backend,
-+                    ACTION_NAMES.clif_match,
-+                ],
-+                flag_groups = [
-+                    flag_group(
-+                        flags = [
-+                            "-g0",
-+                            "-O2",
-+                            "-D_FORTIFY_SOURCE=1",
-+                            "-DNDEBUG",
-+                            "-ffunction-sections",
-+                            "-fdata-sections",
-+                        ],
-+                    ),
-+                ],
-+            ),
-+        ],
-+    )
-+
-+    dbg = feature(
-+        name = "dbg",
-+        enabled = True,
-+        flag_sets = [
-+            flag_set(
-+                actions = [
-+                    ACTION_NAMES.assemble,
-+                    ACTION_NAMES.preprocess_assemble,
-+                    ACTION_NAMES.linkstamp_compile,
-+                    ACTION_NAMES.c_compile,
-+                    ACTION_NAMES.cpp_compile,
-+                    ACTION_NAMES.cpp_header_parsing,
-+                    ACTION_NAMES.cpp_module_compile,
-+                    ACTION_NAMES.cpp_module_codegen,
-+                    ACTION_NAMES.lto_backend,
-+                    ACTION_NAMES.clif_match,
-+                ],
-+                flag_groups = [
-+                    flag_group(
-+                        flags = [
-+                            "-g"
-+                        ],
-+                    ),
-+                ],
-+            ),
-+        ],
-+    )
-+
-+    if "osx-arm64".startswith("osx"):
-+        cxx_builtin_include_directories = [
-+            "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks",
-+            "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include",
-+            "/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/build_env/lib/clang/20.1.8/include",
-+            "/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/build_env/lib/clang/20/include",
-+            "/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/build_env/include/c++/v1",
-+            "/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/include",
-+            "/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/include",
-+        ]
-+    else:
-+        cxx_builtin_include_directories = [
-+            "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include",
-+            "/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/build_env/lib/gcc/arm64-apple-darwin20.0.0/",
-+	    "/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/build_env/lib/gcc/arm64-apple-darwin20.0.0//include/c++",
-+	    "/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/build_env/lib/gcc/arm64-apple-darwin20.0.0//include/c++/arm64-apple-darwin20.0.0",
-+	    "/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/build_env/lib/gcc/arm64-apple-darwin20.0.0//include/c++/backward",
-+	    "/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/build_env/arm64-apple-darwin20.0.0/include/c++/",
-+            "/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/include",
-+	    # Include for clang-headers, should be ignored in gcc builds
-+            "/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/build_env/lib/clang/20.1.8/include/",
-+            "/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/build_env/lib/clang/20/include/",
-+        ]
-+
-+        if (len("")):
-+            cxx_builtin_include_directories.append("/include")
-+            cxx_builtin_include_directories.append("/targets/x86_64-linux/include/")
-+            # sbsa is linux-aarch64
-+            cxx_builtin_include_directories.append("/targets/sbsa-linux/include/")
-+            # These are needed for CUDA 12+
-+            cxx_builtin_include_directories.append("/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/targets/x86_64-linux/include/")
-+            cxx_builtin_include_directories.append("/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/targets/sbsa-linux/include/")
-+            cxx_builtin_include_directories.append("/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/targets/x86_64-linux/include/")
-+            cxx_builtin_include_directories.append("/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/targets/sbsa-linux/include/")
-+
-+    return cc_common.create_cc_toolchain_config_info(
-+        ctx = ctx,
-+        toolchain_identifier = "local",
-+        host_system_name = "local",
-+        #host_system_name = "darwin_arm64",
-+        target_system_name = "arm64-apple-macosx",
-+        target_cpu = "darwin_arm64",
-+        target_libc = "macosx",
-+        compiler = "compiler",
-+        abi_version = "local",
-+        abi_libc_version = "local",
-+        tool_paths = tool_paths,
-+        cxx_builtin_include_directories = cxx_builtin_include_directories,
-+        features = [toolchain_include_directories_feature, compiler_flags, cxx_flags, supports_pic_feature, linker_flags, supports_dynamic_linker, link_libcpp_feature, objcpp_flags],
-+    )
-+
-+cc_toolchain_config = rule(
-+    implementation = _impl,
-+    attrs = {},
-+    provides = [CcToolchainConfigInfo],
-+)
-diff --git a/third_party/xla/bazel_toolchain/cc_wrapper.sh b/third_party/xla/bazel_toolchain/cc_wrapper.sh
-new file mode 100755
-index 0000000..e7b0723
---- /dev/null
-+++ b/third_party/xla/bazel_toolchain/cc_wrapper.sh
-@@ -0,0 +1,107 @@
-+#!/bin/bash
-+#
-+# Copyright 2015 The Bazel Authors. All rights reserved.
-+#
-+# Licensed under the Apache License, Version 2.0 (the "License");
-+# you may not use this file except in compliance with the License.
-+# You may obtain a copy of the License at
-+#
-+#    http://www.apache.org/licenses/LICENSE-2.0
-+#
-+# Unless required by applicable law or agreed to in writing, software
-+# distributed under the License is distributed on an "AS IS" BASIS,
-+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-+# See the License for the specific language governing permissions and
-+# limitations under the License.
-+#
-+# OS X relpath is not really working. This is a wrapper script around gcc
-+# to simulate relpath behavior.
-+#
-+# This wrapper uses install_name_tool to replace all paths in the binary
-+# (bazel-out/.../path/to/original/library.so) by the paths relative to
-+# the binary. It parses the command line to behave as rpath is supposed
-+# to work.
-+#
-+# See https://blogs.oracle.com/dipol/entry/dynamic_libraries_rpath_and_mac
-+# on how to set those paths for Mach-O binaries.
-+#
-+set -eu
-+
-+INSTALL_NAME_TOOL="arm64-apple-darwin20.0.0-install_name_tool"
-+export MACOSX_SDK_VERSION=""
-+export MACOSX_DEPLOYMENT_TARGET="11.0"
-+
-+LIBS=
-+LIB_DIRS=
-+RPATHS=
-+OUTPUT=
-+# let parse the option list
-+for i in "$@"; do
-+    if [[ "${OUTPUT}" = "1" ]]; then
-+        OUTPUT=$i
-+    elif [[ "$i" =~ ^-l(.*)$ ]]; then
-+        LIBS="${BASH_REMATCH[1]} $LIBS"
-+    elif [[ "$i" =~ ^-L(.*)$ ]]; then
-+        LIB_DIRS="${BASH_REMATCH[1]} $LIB_DIRS"
-+    elif [[ "$i" =~ ^-Wl,-rpath,\@loader_path/(.*)$ ]]; then
-+        RPATHS="${BASH_REMATCH[1]} ${RPATHS}"
-+    elif [[ "$i" = "-o" ]]; then
-+        # output is coming
-+        OUTPUT=1
-+    fi
-+done
-+
-+# Set-up the environment
-+
-+# Call the C++ compiler
-+CONDA_BUILD_SYSROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk /Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/build_env/bin/arm64-apple-darwin20.0.0-clang "$@"
-+
-+function get_library_path() {
-+    for libdir in ${LIB_DIRS}; do
-+        if [ -f ${libdir}/lib$1.so ]; then
-+            echo "${libdir}/lib$1.so"
-+        elif [ -f ${libdir}/lib$1.dylib ]; then
-+            echo "${libdir}/lib$1.dylib"
-+        fi
-+    done
-+}
-+
-+# A convenient method to return the actual path even for non symlinks
-+# and multi-level symlinks.
-+function get_realpath() {
-+    local previous="$1"
-+    local next=$(readlink "${previous}")
-+    while [ -n "${next}" ]; do
-+        previous="${next}"
-+        next=$(readlink "${previous}")
-+    done
-+    echo "${previous}"
-+}
-+
-+# Get the path of a lib inside a tool
-+function get_otool_path() {
-+    # the lib path is the path of the original lib relative to the workspace
-+    get_realpath $1 | sed 's|^.*/bazel-out/|bazel-out/|'
-+}
-+
-+# Do replacements in the output
-+for rpath in ${RPATHS}; do
-+    for lib in ${LIBS}; do
-+        unset libname
-+        if [ -f "$(dirname ${OUTPUT})/${rpath}/lib${lib}.so" ]; then
-+            libname="lib${lib}.so"
-+        elif [ -f "$(dirname ${OUTPUT})/${rpath}/lib${lib}.dylib" ]; then
-+            libname="lib${lib}.dylib"
-+        fi
-+        # ${libname-} --> return $libname if defined, or undefined otherwise. This is to make
-+        # this set -e friendly
-+        if [[ -n "${libname-}" ]]; then
-+            libpath=$(get_library_path ${lib})
-+            if [ -n "${libpath}" ]; then
-+                arm64-apple-darwin20.0.0-install_name_tool -change $(get_otool_path "${libpath}") \
-+                    "@loader_path/${rpath}/${libname}" "${OUTPUT}"
-+            fi
-+        fi
-+    done
-+done
-+
-diff --git a/third_party/xla/bazel_toolchain/cc_wrapper.sh.template b/third_party/xla/bazel_toolchain/cc_wrapper.sh.template
-new file mode 100644
-index 0000000..d8e5ce8
---- /dev/null
-+++ b/third_party/xla/bazel_toolchain/cc_wrapper.sh.template
-@@ -0,0 +1,107 @@
-+#!/bin/bash
-+#
-+# Copyright 2015 The Bazel Authors. All rights reserved.
-+#
-+# Licensed under the Apache License, Version 2.0 (the "License");
-+# you may not use this file except in compliance with the License.
-+# You may obtain a copy of the License at
-+#
-+#    http://www.apache.org/licenses/LICENSE-2.0
-+#
-+# Unless required by applicable law or agreed to in writing, software
-+# distributed under the License is distributed on an "AS IS" BASIS,
-+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-+# See the License for the specific language governing permissions and
-+# limitations under the License.
-+#
-+# OS X relpath is not really working. This is a wrapper script around gcc
-+# to simulate relpath behavior.
-+#
-+# This wrapper uses install_name_tool to replace all paths in the binary
-+# (bazel-out/.../path/to/original/library.so) by the paths relative to
-+# the binary. It parses the command line to behave as rpath is supposed
-+# to work.
-+#
-+# See https://blogs.oracle.com/dipol/entry/dynamic_libraries_rpath_and_mac
-+# on how to set those paths for Mach-O binaries.
-+#
-+set -eu
-+
-+INSTALL_NAME_TOOL="${INSTALL_NAME_TOOL}"
-+export MACOSX_SDK_VERSION="${MACOSX_SDK_VERSION}"
-+export MACOSX_DEPLOYMENT_TARGET="${MACOSX_DEPLOYMENT_TARGET}"
-+
-+LIBS=
-+LIB_DIRS=
-+RPATHS=
-+OUTPUT=
-+# let parse the option list
-+for i in "$@"; do
-+    if [[ "${OUTPUT}" = "1" ]]; then
-+        OUTPUT=$i
-+    elif [[ "$i" =~ ^-l(.*)$ ]]; then
-+        LIBS="${BASH_REMATCH[1]} $LIBS"
-+    elif [[ "$i" =~ ^-L(.*)$ ]]; then
-+        LIB_DIRS="${BASH_REMATCH[1]} $LIB_DIRS"
-+    elif [[ "$i" =~ ^-Wl,-rpath,\@loader_path/(.*)$ ]]; then
-+        RPATHS="${BASH_REMATCH[1]} ${RPATHS}"
-+    elif [[ "$i" = "-o" ]]; then
-+        # output is coming
-+        OUTPUT=1
-+    fi
-+done
-+
-+# Set-up the environment
-+
-+# Call the C++ compiler
-+CONDA_BUILD_SYSROOT=${CONDA_BUILD_SYSROOT} ${CLANG} "$@"
-+
-+function get_library_path() {
-+    for libdir in ${LIB_DIRS}; do
-+        if [ -f ${libdir}/lib$1.so ]; then
-+            echo "${libdir}/lib$1.so"
-+        elif [ -f ${libdir}/lib$1.dylib ]; then
-+            echo "${libdir}/lib$1.dylib"
-+        fi
-+    done
-+}
-+
-+# A convenient method to return the actual path even for non symlinks
-+# and multi-level symlinks.
-+function get_realpath() {
-+    local previous="$1"
-+    local next=$(readlink "${previous}")
-+    while [ -n "${next}" ]; do
-+        previous="${next}"
-+        next=$(readlink "${previous}")
-+    done
-+    echo "${previous}"
-+}
-+
-+# Get the path of a lib inside a tool
-+function get_otool_path() {
-+    # the lib path is the path of the original lib relative to the workspace
-+    get_realpath $1 | sed 's|^.*/bazel-out/|bazel-out/|'
-+}
-+
-+# Do replacements in the output
-+for rpath in ${RPATHS}; do
-+    for lib in ${LIBS}; do
-+        unset libname
-+        if [ -f "$(dirname ${OUTPUT})/${rpath}/lib${lib}.so" ]; then
-+            libname="lib${lib}.so"
-+        elif [ -f "$(dirname ${OUTPUT})/${rpath}/lib${lib}.dylib" ]; then
-+            libname="lib${lib}.dylib"
-+        fi
-+        # ${libname-} --> return $libname if defined, or undefined otherwise. This is to make
-+        # this set -e friendly
-+        if [[ -n "${libname-}" ]]; then
-+            libpath=$(get_library_path ${lib})
-+            if [ -n "${libpath}" ]; then
-+                ${INSTALL_NAME_TOOL} -change $(get_otool_path "${libpath}") \
-+                    "@loader_path/${rpath}/${libname}" "${OUTPUT}"
-+            fi
-+        fi
-+    done
-+done
-+
-diff --git a/third_party/xla/bazel_toolchain/cc_wrapper_build.sh b/third_party/xla/bazel_toolchain/cc_wrapper_build.sh
-new file mode 100755
-index 0000000..e7b0723
---- /dev/null
-+++ b/third_party/xla/bazel_toolchain/cc_wrapper_build.sh
-@@ -0,0 +1,107 @@
-+#!/bin/bash
-+#
-+# Copyright 2015 The Bazel Authors. All rights reserved.
-+#
-+# Licensed under the Apache License, Version 2.0 (the "License");
-+# you may not use this file except in compliance with the License.
-+# You may obtain a copy of the License at
-+#
-+#    http://www.apache.org/licenses/LICENSE-2.0
-+#
-+# Unless required by applicable law or agreed to in writing, software
-+# distributed under the License is distributed on an "AS IS" BASIS,
-+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-+# See the License for the specific language governing permissions and
-+# limitations under the License.
-+#
-+# OS X relpath is not really working. This is a wrapper script around gcc
-+# to simulate relpath behavior.
-+#
-+# This wrapper uses install_name_tool to replace all paths in the binary
-+# (bazel-out/.../path/to/original/library.so) by the paths relative to
-+# the binary. It parses the command line to behave as rpath is supposed
-+# to work.
-+#
-+# See https://blogs.oracle.com/dipol/entry/dynamic_libraries_rpath_and_mac
-+# on how to set those paths for Mach-O binaries.
-+#
-+set -eu
-+
-+INSTALL_NAME_TOOL="arm64-apple-darwin20.0.0-install_name_tool"
-+export MACOSX_SDK_VERSION=""
-+export MACOSX_DEPLOYMENT_TARGET="11.0"
-+
-+LIBS=
-+LIB_DIRS=
-+RPATHS=
-+OUTPUT=
-+# let parse the option list
-+for i in "$@"; do
-+    if [[ "${OUTPUT}" = "1" ]]; then
-+        OUTPUT=$i
-+    elif [[ "$i" =~ ^-l(.*)$ ]]; then
-+        LIBS="${BASH_REMATCH[1]} $LIBS"
-+    elif [[ "$i" =~ ^-L(.*)$ ]]; then
-+        LIB_DIRS="${BASH_REMATCH[1]} $LIB_DIRS"
-+    elif [[ "$i" =~ ^-Wl,-rpath,\@loader_path/(.*)$ ]]; then
-+        RPATHS="${BASH_REMATCH[1]} ${RPATHS}"
-+    elif [[ "$i" = "-o" ]]; then
-+        # output is coming
-+        OUTPUT=1
-+    fi
-+done
-+
-+# Set-up the environment
-+
-+# Call the C++ compiler
-+CONDA_BUILD_SYSROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk /Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/build_env/bin/arm64-apple-darwin20.0.0-clang "$@"
-+
-+function get_library_path() {
-+    for libdir in ${LIB_DIRS}; do
-+        if [ -f ${libdir}/lib$1.so ]; then
-+            echo "${libdir}/lib$1.so"
-+        elif [ -f ${libdir}/lib$1.dylib ]; then
-+            echo "${libdir}/lib$1.dylib"
-+        fi
-+    done
-+}
-+
-+# A convenient method to return the actual path even for non symlinks
-+# and multi-level symlinks.
-+function get_realpath() {
-+    local previous="$1"
-+    local next=$(readlink "${previous}")
-+    while [ -n "${next}" ]; do
-+        previous="${next}"
-+        next=$(readlink "${previous}")
-+    done
-+    echo "${previous}"
-+}
-+
-+# Get the path of a lib inside a tool
-+function get_otool_path() {
-+    # the lib path is the path of the original lib relative to the workspace
-+    get_realpath $1 | sed 's|^.*/bazel-out/|bazel-out/|'
-+}
-+
-+# Do replacements in the output
-+for rpath in ${RPATHS}; do
-+    for lib in ${LIBS}; do
-+        unset libname
-+        if [ -f "$(dirname ${OUTPUT})/${rpath}/lib${lib}.so" ]; then
-+            libname="lib${lib}.so"
-+        elif [ -f "$(dirname ${OUTPUT})/${rpath}/lib${lib}.dylib" ]; then
-+            libname="lib${lib}.dylib"
-+        fi
-+        # ${libname-} --> return $libname if defined, or undefined otherwise. This is to make
-+        # this set -e friendly
-+        if [[ -n "${libname-}" ]]; then
-+            libpath=$(get_library_path ${lib})
-+            if [ -n "${libpath}" ]; then
-+                arm64-apple-darwin20.0.0-install_name_tool -change $(get_otool_path "${libpath}") \
-+                    "@loader_path/${rpath}/${libname}" "${OUTPUT}"
-+            fi
-+        fi
-+    done
-+done
-+
-diff --git a/third_party/xla/bazel_toolchain/crosstool_wrapper_driver_is_not_gcc b/third_party/xla/bazel_toolchain/crosstool_wrapper_driver_is_not_gcc
-new file mode 100755
-index 0000000..aef71da
---- /dev/null
-+++ b/third_party/xla/bazel_toolchain/crosstool_wrapper_driver_is_not_gcc
-@@ -0,0 +1,283 @@
-+#!/usr/bin/env python
-+# Copyright 2019 The TensorFlow Authors. All Rights Reserved.
-+#
-+# Licensed under the Apache License, Version 2.0 (the "License");
-+# you may not use this file except in compliance with the License.
-+# You may obtain a copy of the License at
-+#
-+#     http://www.apache.org/licenses/LICENSE-2.0
-+#
-+# Unless required by applicable law or agreed to in writing, software
-+# distributed under the License is distributed on an "AS IS" BASIS,
-+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-+# See the License for the specific language governing permissions and
-+# limitations under the License.
-+# ==============================================================================
-+"""Crosstool wrapper for compiling CUDA programs.
-+
-+SYNOPSIS:
-+  crosstool_wrapper_is_not_gcc [options passed in by cc_library()
-+                                or cc_binary() rule]
-+
-+DESCRIPTION:
-+  This script is expected to be called by the cc_library() or cc_binary() bazel
-+  rules. When the option "-x cuda" is present in the list of arguments passed
-+  to this script, it invokes the nvcc CUDA compiler. Most arguments are passed
-+  as is as a string to --compiler-options of nvcc. When "-x cuda" is not
-+  present, this wrapper invokes hybrid_driver_is_not_gcc with the input
-+  arguments as is.
-+"""
-+
-+# NOTE wolfv this file can be found here: https://raw.githubusercontent.com/tensorflow/tensorflow/master/third_party/gpus/crosstool/clang/bin/crosstool_wrapper_driver_is_not_gcc.tpl
-+
-+from __future__ import print_function
-+
-+from argparse import ArgumentParser
-+import os
-+import subprocess
-+import re
-+import sys
-+import shlex
-+
-+# Template values set by cuda_autoconf.
-+CPU_COMPILER = ""
-+GCC_HOST_COMPILER_PATH = ""
-+
-+NVCC_VERSION = 'None'
-+NVCC_PATH = '/bin/nvcc'
-+PREFIX_DIR = os.path.dirname(GCC_HOST_COMPILER_PATH)
-+
-+def Log(s):
-+    print('gpus/crosstool: {0}'.format(s))
-+
-+
-+def GetOptionValue(argv, option):
-+    """Extract the list of values for option from the argv list.
-+
-+    Args:
-+      argv: A list of strings, possibly the argv passed to main().
-+      option: The option whose value to extract, with the leading '-'.
-+
-+    Returns:
-+      A list of values, either directly following the option,
-+      (eg., -opt val1 val2) or values collected from multiple occurrences of
-+      the option (eg., -opt val1 -opt val2).
-+    """
-+
-+    parser = ArgumentParser()
-+    parser.add_argument(option, nargs='*', action='append')
-+    option = option.lstrip('-').replace('-', '_')
-+    args, _ = parser.parse_known_args(argv)
-+    if not args or not vars(args)[option]:
-+        return []
-+    else:
-+        return sum(vars(args)[option], [])
-+
-+
-+def GetHostCompilerOptions(argv):
-+    """Collect the -isystem, -iquote, and --sysroot option values from argv.
-+
-+    Args:
-+      argv: A list of strings, possibly the argv passed to main().
-+
-+    Returns:
-+      The string that can be used as the --compiler-options to nvcc.
-+    """
-+
-+    parser = ArgumentParser()
-+    parser.add_argument('-isystem', nargs='*', action='append')
-+    parser.add_argument('-iquote', nargs='*', action='append')
-+    parser.add_argument('--sysroot', nargs=1)
-+    parser.add_argument('-g', nargs='*', action='append')
-+    parser.add_argument('-fno-canonical-system-headers', action='store_true')
-+    parser.add_argument('-no-canonical-prefixes', action='store_true')
-+
-+    args, _ = parser.parse_known_args(argv)
-+
-+    opts = ''
-+
-+    if args.isystem:
-+        opts += ' -isystem ' + ' -isystem '.join(sum(args.isystem, []))
-+    if args.iquote:
-+        opts += ' -iquote ' + ' -iquote '.join(sum(args.iquote, []))
-+    if args.g:
-+        opts += ' -g' + ' -g'.join(sum(args.g, []))
-+    if args.fno_canonical_system_headers:
-+        opts += ' -fno-canonical-system-headers'
-+    if args.no_canonical_prefixes:
-+        opts += ' -no-canonical-prefixes'
-+    if args.sysroot:
-+        opts += ' --sysroot ' + args.sysroot[0]
-+
-+    return opts
-+
-+def _update_options(nvcc_options):
-+    if NVCC_VERSION in ("7.0",):
-+        return nvcc_options
-+
-+    update_options = { "relaxed-constexpr" : "expt-relaxed-constexpr" }
-+    return [ update_options[opt] if opt in update_options else opt
-+             for opt in nvcc_options ]
-+
-+def GetNvccOptions(argv):
-+    """Collect the -nvcc_options values from argv.
-+
-+    Args:
-+      argv: A list of strings, possibly the argv passed to main().
-+
-+    Returns:
-+      The string that can be passed directly to nvcc.
-+    """
-+
-+    parser = ArgumentParser()
-+    parser.add_argument('-nvcc_options', nargs='*', action='append')
-+
-+    args, _ = parser.parse_known_args(argv)
-+
-+    if args.nvcc_options:
-+        options = _update_options(sum(args.nvcc_options, []))
-+        return ' '.join(['--'+a for a in options])
-+    return ''
-+
-+def system(cmd):
-+    """Invokes cmd with os.system().
-+
-+    Args:
-+      cmd: The command.
-+
-+    Returns:
-+      The exit code if the process exited with exit() or -signal
-+      if the process was terminated by a signal.
-+    """
-+    retv = os.system(cmd)
-+    if os.WIFEXITED(retv):
-+        return os.WEXITSTATUS(retv)
-+    else:
-+        return -os.WTERMSIG(retv)
-+
-+def InvokeNvcc(argv, log=False):
-+    """Call nvcc with arguments assembled from argv.
-+
-+    Args:
-+      argv: A list of strings, possibly the argv passed to main().
-+      log: True if logging is requested.
-+
-+    Returns:
-+      The return value of calling system('nvcc ' + args)
-+    """
-+
-+    host_compiler_options = GetHostCompilerOptions(argv)
-+    nvcc_compiler_options = GetNvccOptions(argv)
-+    opt_option = GetOptionValue(argv, '-O')
-+    m_options = GetOptionValue(argv, '-m')
-+    m_options = ''.join([' -m' + m for m in m_options if m in ['32', '64']])
-+    include_options = GetOptionValue(argv, '-I')
-+    out_file = GetOptionValue(argv, '-o')
-+    depfiles = GetOptionValue(argv, '-MF')
-+    defines = GetOptionValue(argv, '-D')
-+    defines = ''.join([' -D' + define for define in defines])
-+    undefines = GetOptionValue(argv, '-U')
-+    undefines = ''.join([' -U' + define for define in undefines])
-+    std_options = GetOptionValue(argv, '-std')
-+    # Supported -std flags as of CUDA 9.0. Only keep last to mimic gcc/clang.
-+    nvcc_allowed_std_options = ["c++03", "c++11", "c++14"]
-+    std_options = ''.join([' -std=' + define
-+                           for define in std_options if define in nvcc_allowed_std_options][-1:])
-+    fatbin_options = ''.join([' --fatbin-options=' + option
-+                              for option in GetOptionValue(argv, '-Xcuda-fatbinary')])
-+
-+    # The list of source files get passed after the -c option. I don't know of
-+    # any other reliable way to just get the list of source files to be compiled.
-+    src_files = GetOptionValue(argv, '-c')
-+
-+    # Pass -w through from host to nvcc, but don't do anything fancier with
-+    # warnings-related flags, since they're not necessarily the same across
-+    # compilers.
-+    warning_options = ' -w' if '-w' in argv else ''
-+
-+    if len(src_files) == 0:
-+        return 1
-+    if len(out_file) != 1:
-+        return 1
-+
-+    opt = (' -O2' if (len(opt_option) > 0 and int(opt_option[0]) > 0)
-+           else ' -g')
-+
-+    includes = (' -I ' + ' -I '.join(include_options)
-+                if len(include_options) > 0
-+                else '')
-+
-+    # Unfortunately, there are other options that have -c prefix too.
-+    # So allowing only those look like C/C++ files.
-+    src_files = [f for f in src_files if
-+                 re.search(r'\.cpp$|\.cc$|\.c$|\.cxx$|\.C$', f)]
-+    srcs = ' '.join(src_files)
-+    out = ' -o ' + out_file[0]
-+
-+    nvccopts = '-D_FORCE_INLINES '
-+    for capability in GetOptionValue(argv, "--cuda-gpu-arch"):
-+        capability = capability[len('sm_'):]
-+        nvccopts += r'-gencode=arch=compute_%s,\"code=sm_%s\" ' % (capability,
-+                                                                   capability)
-+    for capability in GetOptionValue(argv, '--cuda-include-ptx'):
-+        capability = capability[len('sm_'):]
-+        nvccopts += r'-gencode=arch=compute_%s,\"code=compute_%s\" ' % (capability,
-+                                                                        capability)
-+    nvccopts += nvcc_compiler_options
-+    nvccopts += undefines
-+    nvccopts += defines
-+    nvccopts += std_options
-+    nvccopts += m_options
-+    nvccopts += warning_options
-+    nvccopts += fatbin_options
-+
-+    if depfiles:
-+        # Generate the dependency file
-+        depfile = depfiles[0]
-+        cmd = (NVCC_PATH + ' ' + nvccopts +
-+               ' --compiler-options "' + host_compiler_options + '"' +
-+               ' --compiler-bindir=' + GCC_HOST_COMPILER_PATH +
-+               ' -I .' +
-+               ' -x cu ' + opt + includes + ' ' + srcs + ' -M -o ' + depfile)
-+        if log: Log(cmd)
-+        exit_status = system(cmd)
-+        if exit_status != 0:
-+            return exit_status
-+
-+    cmd = (NVCC_PATH + ' ' + nvccopts +
-+           ' --compiler-options "' + host_compiler_options + ' -fPIC"' +
-+           ' --compiler-bindir=' + GCC_HOST_COMPILER_PATH +
-+           ' -I .' +
-+           ' -x cu ' + opt + includes + ' -c ' + srcs + out)
-+
-+    # TODO(zhengxq): for some reason, 'gcc' needs this help to find 'as'.
-+    # Need to investigate and fix.
-+    cmd = 'PATH=' + PREFIX_DIR + ':$PATH ' + cmd
-+    if log: Log(cmd)
-+    return system(cmd)
-+
-+
-+def main():
-+    parser = ArgumentParser()
-+    parser.add_argument('-x', nargs=1)
-+    parser.add_argument('--cuda_log', action='store_true')
-+    args, leftover = parser.parse_known_args(sys.argv[1:])
-+
-+    if args.x and args.x[0] == 'cuda':
-+        if args.cuda_log: Log('-x cuda')
-+        leftover = [shlex.quote(s) for s in leftover]
-+        if args.cuda_log: Log('using nvcc')
-+        return InvokeNvcc(leftover, log=args.cuda_log)
-+
-+    # Strip our flags before passing through to the CPU compiler for files which
-+    # are not -x cuda. We can't just pass 'leftover' because it also strips -x.
-+    # We not only want to pass -x to the CPU compiler, but also keep it in its
-+    # relative location in the argv list (the compiler is actually sensitive to
-+    # this).
-+    cpu_compiler_flags = [flag for flag in sys.argv[1:]
-+                          if not flag.startswith(('--cuda_log'))]
-+
-+    return subprocess.call([CPU_COMPILER] + cpu_compiler_flags)
-+
-+if __name__ == '__main__':
-+    sys.exit(main())
-diff --git a/third_party/xla/py_toolchain/BUILD b/third_party/xla/py_toolchain/BUILD
-new file mode 100644
-index 0000000..e21f8c7
---- /dev/null
-+++ b/third_party/xla/py_toolchain/BUILD
-@@ -0,0 +1,19 @@
-+load("@bazel_tools//tools/python:toolchain.bzl", "py_runtime_pair")
-+
-+py_runtime(
-+    name = "python3",
-+    python_version = "PY3",
-+    interpreter_path = '/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/work/python.shebang',
-+    stub_shebang = '#!/bin/bash /Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/work/python.shebang',
-+)
-+
-+py_runtime_pair(
-+    name = "py_runtime_pair",
-+    py3_runtime = ":python3",
-+)
-+
-+toolchain(
-+    name = "py_toolchain",
-+    toolchain = ":py_runtime_pair",
-+    toolchain_type = "@bazel_tools//tools/python:toolchain_type",
-+)
-diff --git a/third_party/xla/python.shebang b/third_party/xla/python.shebang
-new file mode 100755
-index 0000000..b60ae8f
---- /dev/null
-+++ b/third_party/xla/python.shebang
-@@ -0,0 +1,3 @@
-+#!/bin/bash
-+export PYTHONSAFEPATH=1
-+/Users/uwe/Development/conda-forge/jaxlib-feedstock/output/bld/rattler-build_jaxlib_1773740987/host_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/bin/python "$@"
 diff --git a/third_party/xla/workspace.bzl b/third_party/xla/workspace.bzl
 index be345f8..880e696 100644
 --- a/third_party/xla/workspace.bzl

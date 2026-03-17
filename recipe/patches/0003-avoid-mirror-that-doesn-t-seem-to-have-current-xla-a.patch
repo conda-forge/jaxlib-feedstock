@@ -1,4 +1,4 @@
-From 87ded1d4ad933446d519d2e2372892304dfa1492 Mon Sep 17 00:00:00 2001
+From b5542597bffce9bdc8a882b186a6401a69424ca2 Mon Sep 17 00:00:00 2001
 From: "H. Vetinari" <h.vetinari@gmx.com>
 Date: Sun, 27 Jul 2025 10:42:28 +1100
 Subject: [PATCH 3/4] avoid mirror that doesn't seem to have current xla

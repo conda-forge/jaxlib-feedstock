@@ -89,6 +89,8 @@ requirements:
     - python-build
     # list libabseil here to ensure pinning correctly
     - libabseil
+    - libprotobuf-static
+    - protobuf-bazel-rules
     - flatbuffers
     - grpc-bazel-rules
     - libgrpc
