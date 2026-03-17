@@ -42,6 +42,8 @@ pin_run_as_build:
     max_pin: x.x
 python:
 - 3.11.* *_cpython
+re2:
+- 2025.11.05
 target_platform:
 - osx-arm64
 zip_keys:
