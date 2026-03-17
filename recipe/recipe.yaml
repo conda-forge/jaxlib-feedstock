@@ -94,6 +94,7 @@ requirements:
     - libgrpc
     - openssl
     - zlib
+    - re2
     - if: osx and x86_64
       then: onednn
   run:

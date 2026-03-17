@@ -131,7 +131,7 @@ fi
 # see https://github.com/conda-forge/jaxlib-feedstock/issues/89
 #
 # Thus: don't add com_google_protobuf here.
-export TF_SYSTEM_LIBS="boringssl,com_github_googlecloudplatform_google_cloud_cpp,com_github_grpc_grpc,flatbuffers,zlib,com_google_absl"
+export TF_SYSTEM_LIBS="boringssl,com_github_googlecloudplatform_google_cloud_cpp,com_github_grpc_grpc,flatbuffers,zlib,com_google_absl,com_googlesource_code_re2"
 
 if [[ "${host_platform}" == "osx-64" ]]; then
     export TF_SYSTEM_LIBS="${TF_SYSTEM_LIBS},onednn"
