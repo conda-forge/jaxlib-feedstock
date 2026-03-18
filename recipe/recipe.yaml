@@ -99,10 +99,14 @@ requirements:
     - re2
     - if: (osx and x86_64) or linux
       then: onednn
+    - if: linux and x86_64
+      then: onednn-cpu-threadpool
   run:
     - python
     - scipy >=1.9
     - ml_dtypes >=0.2.0
+    - if: linux and x86_64
+      then: onednn-cpu-threadpool
     - if: cuda_compiler_version != "None"
       then:
         - __cuda
