@@ -1,4 +1,4 @@
-From a83d545a49aeb59512aa0d6345c29e956bac3705 Mon Sep 17 00:00:00 2001
+From c29ee72835a9a6a5b32a2b29faf7a943fc1e9f37 Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwe.korn@quantco.com>
 Date: Thu, 14 Dec 2023 17:06:15 +0100
 Subject: [PATCH 2/4] Consolidated build fixes for XLA
@@ -39,10 +39,10 @@ Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
  ...al-variant-_access-is-now-header-onl.patch |  29 ++
  ...d-dependency-on-proto_bazel_features.patch |  72 +++
  .../0009-Add-macos_x86_64-to-mkl_deps.patch   |  21 +
- .../xla/0010-Add-systemlib-for-oneDNN.patch   |  48 ++
+ .../xla/0010-Add-systemlib-for-oneDNN.patch   | 103 ++++
  ...includes-in-custom_call_status-files.patch |  47 ++
  third_party/xla/workspace.bzl                 |  15 +-
- 28 files changed, 1449 insertions(+), 32 deletions(-)
+ 28 files changed, 1504 insertions(+), 32 deletions(-)
  create mode 100644 third_party/grpc_systemlib.BUILD
  create mode 100644 third_party/xla/0001-Fix-abseil-headers.patch
  create mode 100644 third_party/xla/0002-Omit-usage-of-StrFormat.patch
@@ -1753,20 +1753,22 @@ index 0000000..0ad980a
 +     })
 diff --git a/third_party/xla/0010-Add-systemlib-for-oneDNN.patch b/third_party/xla/0010-Add-systemlib-for-oneDNN.patch
 new file mode 100644
-index 0000000..3507ac7
+index 0000000..8ff175f
 --- /dev/null
 +++ b/third_party/xla/0010-Add-systemlib-for-oneDNN.patch
-@@ -0,0 +1,48 @@
-+From 1eaaac448f67057e72fff1a1c76f5dd9656ff1d6 Mon Sep 17 00:00:00 2001
+@@ -0,0 +1,103 @@
++From 996a7dbab2277d609cac6148043bdb3de3e0267f Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Fri, 26 Sep 2025 17:23:37 +0200
 +Subject: [PATCH 10/11] Add systemlib for oneDNN
 +
 +---
-+ third_party/mkl_dnn/mkldnn_system.BUILD | 6 ++++++
-+ third_party/mkl_dnn/workspace.bzl       | 1 +
-+ xla/tsl/mkl/build_defs.bzl              | 1 +
-+ 3 files changed, 8 insertions(+)
++ third_party/mkl_dnn/mkldnn_system.BUILD            |  6 ++++++
++ third_party/mkl_dnn/workspace.bzl                  |  1 +
++ .../cpu/runtime/onednn/onednn_threadpool.h         | 10 +++++++---
++ xla/tsl/mkl/build_defs.bzl                         |  1 +
++ xla/tsl/util/onednn_threadpool.h                   | 14 ++++++++------
++ 5 files changed, 23 insertions(+), 9 deletions(-)
 + create mode 100644 third_party/mkl_dnn/mkldnn_system.BUILD
 +
 +diff --git a/third_party/mkl_dnn/mkldnn_system.BUILD b/third_party/mkl_dnn/mkldnn_system.BUILD
@@ -1793,6 +1795,34 @@ index 0000000..3507ac7
 +         sha256 = "071f289dc961b43a3b7c8cbe8a305290a7c5d308ec4b2f586397749abdc88296",
 +         strip_prefix = "oneDNN-3.7.3",
 +         urls = tf_mirror_urls("https://github.com/oneapi-src/oneDNN/archive/refs/tags/v3.7.3.tar.gz"),
++diff --git a/xla/backends/cpu/runtime/onednn/onednn_threadpool.h b/xla/backends/cpu/runtime/onednn/onednn_threadpool.h
++index 99180b9a42..2bdd7e7b0d 100644
++--- a/xla/backends/cpu/runtime/onednn/onednn_threadpool.h
+++++ b/xla/backends/cpu/runtime/onednn/onednn_threadpool.h
++@@ -23,6 +23,7 @@ limitations under the License.
++ #include "Eigen/ThreadPool"
++ #include "oneapi/dnnl/dnnl_threadpool.h"  // IWYU pragma: keep
++ #include "oneapi/dnnl/dnnl_threadpool_iface.hpp"
+++#include "oneapi/dnnl/dnnl_version.h"
++ #include "xla/backends/cpu/runtime/work_queue.h"
++ #include "xla/tsl/concurrency/async_value_ref.h"
++ #include "xla/tsl/concurrency/chain.h"
++@@ -66,9 +67,12 @@ class OneDnnThreadPool final
++ 
++   uint64_t get_flags() const final { return is_async_ ? ASYNCHRONOUS : 0; }
++ 
++-#ifdef ENABLE_ONEDNN_ASYNC
++-  // The wait() method only exists with oneDNN's experimental support for
++-  // asynchronous execution determined by the ENABLE_ONEDNN_ASYNC.
+++#if defined(ENABLE_ONEDNN_ASYNC) || \
+++    DNNL_VERSION_MAJOR > 3 || \
+++    (DNNL_VERSION_MAJOR == 3 && DNNL_VERSION_MINOR >= 11)
+++  // oneDNN 3.11 made threadpool_iface::wait() mandatory for both sync and
+++  // async CPU runtime threadpools. Older releases only need it for the
+++  // experimental async runtime support, so keep it version-gated.
++   void wait() override {
++     if (is_async_) {
++       // While performing asynchronous execution, wait() method is needed to
 +diff --git a/xla/tsl/mkl/build_defs.bzl b/xla/tsl/mkl/build_defs.bzl
 +index fa62eaf299..97f0649b62 100644
 +--- a/xla/tsl/mkl/build_defs.bzl
@@ -1805,13 +1835,38 @@ index 0000000..3507ac7
 +         Label("//xla/tsl:windows"): "@onednn//:mkl_dnn",
 +         "//conditions:default": "//xla/tsl/mkl:dummy_mkl_dnn",
 +     })
++diff --git a/xla/tsl/util/onednn_threadpool.h b/xla/tsl/util/onednn_threadpool.h
++index f3fe49da71..4c5abeebcf 100644
++--- a/xla/tsl/util/onednn_threadpool.h
+++++ b/xla/tsl/util/onednn_threadpool.h
++@@ -89,12 +89,14 @@ class OneDnnThreadPool : public threadpool_iface {
++     return (eigen_interface_->CurrentThreadId() != -1) ? true : false;
++   }
++   uint64_t get_flags() const override { return ASYNCHRONOUS; }
++-#ifdef ENABLE_ONEDNN_ASYNC
++-  // wait() method for synchronous execution is basically a no-op.
++-  // But we need to implement it to satisfy the interface.
++-  // This is the requirement of the new experimental async runtime support
++-  // in oneDNN.
++-  virtual void wait() override {}
+++#if defined(ENABLE_ONEDNN_ASYNC) || \
+++    DNNL_VERSION_MAJOR > 3 || \
+++    (DNNL_VERSION_MAJOR == 3 && DNNL_VERSION_MINOR >= 11)
+++  // oneDNN 3.11 made threadpool_iface::wait() mandatory even for the
+++  // synchronous threadpool interop path. Older releases only need it for the
+++  // experimental async runtime support, so keep the implementation version-
+++  // gated to stay compatible with the vendored 3.7.x interface.
+++  void wait() override {}
++ #endif  // ENABLE_ONEDNN_ASYNC
++   void parallel_for(int n, const std::function<void(int, int)>& fn) override {
++     // Should never happen (handled by DNNL)
 diff --git a/third_party/xla/0011-Add-missing-includes-in-custom_call_status-files.patch b/third_party/xla/0011-Add-missing-includes-in-custom_call_status-files.patch
 new file mode 100644
-index 0000000..cf56b99
+index 0000000..c7b76ac
 --- /dev/null
 +++ b/third_party/xla/0011-Add-missing-includes-in-custom_call_status-files.patch
 @@ -0,0 +1,47 @@
-+From 67182d482aa8d284ebbc9a5e7893deaab9571694 Mon Sep 17 00:00:00 2001
++From 9247e83d081e823f13d26f943133db5ef80ffc50 Mon Sep 17 00:00:00 2001
 +From: Allan Renucci <allanrenucci@google.com>
 +Date: Mon, 9 Feb 2026 03:22:02 -0800
 +Subject: [PATCH 11/11] Add missing includes in custom_call_status files.
