@@ -1,5 +1,8 @@
 azure:
   free_disk_space: true
+  # Linux builds all timeout, don't waste resources
+  settings_linux:
+    timeoutInMinutes: 1
 build_platform:
   linux_aarch64: linux_64
 conda_build:
