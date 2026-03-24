@@ -1,4 +1,4 @@
-From a2f9cb91171e670c021946f390f22285907b00fc Mon Sep 17 00:00:00 2001
+From 39aa994063a1d2295a7fc56b2d5577756162d04f Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwe.korn@quantco.com>
 Date: Thu, 14 Dec 2023 17:06:15 +0100
 Subject: [PATCH 2/4] Consolidated build fixes for XLA
@@ -781,11 +781,11 @@ index 0000000..32e8663
 + }  // namespace xla
 diff --git a/third_party/xla/0005-Unbundle-grpc.patch b/third_party/xla/0005-Unbundle-grpc.patch
 new file mode 100644
-index 0000000..ff8dc14
+index 0000000..25e895c
 --- /dev/null
 +++ b/third_party/xla/0005-Unbundle-grpc.patch
 @@ -0,0 +1,467 @@
-+From d2ec468bfb06b06e12d6328a98c1cf64e98646f0 Mon Sep 17 00:00:00 2001
++From 23fc43365cb97654c0c464edebd6bc4ae97d238b Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Wed, 23 Jul 2025 13:19:52 +0200
 +Subject: [PATCH 05/11] Unbundle grpc
@@ -832,7 +832,7 @@ index 0000000..ff8dc14
 ++
 +diff --git a/third_party/protobuf_systemlib.BUILD b/third_party/protobuf_systemlib.BUILD
 +new file mode 100644
-+index 0000000000..746abfde15
++index 0000000000..8659b29068
 +--- /dev/null
 ++++ b/third_party/protobuf_systemlib.BUILD
 +@@ -0,0 +1,170 @@
@@ -946,7 +946,7 @@ index 0000000..ff8dc14
 ++    visibility = ["//visibility:public"],
 ++)
 ++
-++LIB_ALIASES = ["type_resolver", "differencer", "json_util", "delimited_message_util", "field_mask_util"]
+++LIB_ALIASES = ["type_resolver", "differencer", "json_util", "delimited_message_util", "field_mask_util", "arena"]
 ++
 ++[alias(
 ++    name = _alias,
@@ -1254,11 +1254,11 @@ index 0000000..ff8dc14
 + def tf_protobuf_deps():
 diff --git a/third_party/xla/0006-Disable-coordination_agent_recoverable-flag.patch b/third_party/xla/0006-Disable-coordination_agent_recoverable-flag.patch
 new file mode 100644
-index 0000000..6281a9a
+index 0000000..f0607e6
 --- /dev/null
 +++ b/third_party/xla/0006-Disable-coordination_agent_recoverable-flag.patch
 @@ -0,0 +1,35 @@
-+From ea419d9f1dda0a69aba4f1e94633f5ab72b5e315 Mon Sep 17 00:00:00 2001
++From 96f2f293f7fda0974e088533c3543ac4429cd092 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 11 Sep 2025 21:30:50 +0200
 +Subject: [PATCH 06/11] Disable coordination_agent_recoverable flag
@@ -1295,11 +1295,11 @@ index 0000000..6281a9a
 +            "barrier will only block non-recoverable tasks. If a synchronized "
 diff --git a/third_party/xla/0007-absl_bad_-optional-variant-_access-is-now-header-onl.patch b/third_party/xla/0007-absl_bad_-optional-variant-_access-is-now-header-onl.patch
 new file mode 100644
-index 0000000..459ac9c
+index 0000000..e5db4cd
 --- /dev/null
 +++ b/third_party/xla/0007-absl_bad_-optional-variant-_access-is-now-header-onl.patch
 @@ -0,0 +1,29 @@
-+From 5aed3165a916dd620f1726579ea24ecd1472b65f Mon Sep 17 00:00:00 2001
++From 34274ba04a288ba501596778e15187c32f454cc3 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 11 Sep 2025 21:33:07 +0200
 +Subject: [PATCH 07/11] absl_bad_{optional,variant}_access is now header-only
@@ -1330,11 +1330,11 @@ index 0000000..459ac9c
 +     ],
 diff --git a/third_party/xla/0008-Add-dependency-on-proto_bazel_features.patch b/third_party/xla/0008-Add-dependency-on-proto_bazel_features.patch
 new file mode 100644
-index 0000000..bbd943e
+index 0000000..fa6e539
 --- /dev/null
 +++ b/third_party/xla/0008-Add-dependency-on-proto_bazel_features.patch
 @@ -0,0 +1,72 @@
-+From ca24db831eda99f6ebbe90a6e6402ac524b6a5be Mon Sep 17 00:00:00 2001
++From e76afe6756f1a968db052980b64d2480a579b76a Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Fri, 12 Sep 2025 16:06:30 +0200
 +Subject: [PATCH 08/11] Add dependency on proto_bazel_features
@@ -1408,11 +1408,11 @@ index 0000000..bbd943e
 +     tf_http_archive(
 diff --git a/third_party/xla/0009-Add-macos_x86_64-to-mkl_deps.patch b/third_party/xla/0009-Add-macos_x86_64-to-mkl_deps.patch
 new file mode 100644
-index 0000000..723158b
+index 0000000..20316cb
 --- /dev/null
 +++ b/third_party/xla/0009-Add-macos_x86_64-to-mkl_deps.patch
 @@ -0,0 +1,21 @@
-+From d37e4200f6241f1817a365730c69dcc5c2820c48 Mon Sep 17 00:00:00 2001
++From 855e8bb02925e049986aea476c5e563384d847ba Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Sat, 20 Sep 2025 08:15:14 +0200
 +Subject: [PATCH 09/11] Add macos_x86_64 to mkl_deps
@@ -1435,11 +1435,11 @@ index 0000000..723158b
 +     })
 diff --git a/third_party/xla/0010-Add-systemlib-for-oneDNN.patch b/third_party/xla/0010-Add-systemlib-for-oneDNN.patch
 new file mode 100644
-index 0000000..279af6f
+index 0000000..eaa78fa
 --- /dev/null
 +++ b/third_party/xla/0010-Add-systemlib-for-oneDNN.patch
 @@ -0,0 +1,103 @@
-+From 474768061cf44864952ec22624916933dc95a111 Mon Sep 17 00:00:00 2001
++From 4560aeb637016297de3e1fd18953fa9031f4bde6 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Fri, 26 Sep 2025 17:23:37 +0200
 +Subject: [PATCH 10/11] Add systemlib for oneDNN
@@ -1544,11 +1544,11 @@ index 0000000..279af6f
 +     // Should never happen (handled by DNNL)
 diff --git a/third_party/xla/0011-Fix-clang-CUDA-incompatabilities.patch b/third_party/xla/0011-Fix-clang-CUDA-incompatabilities.patch
 new file mode 100644
-index 0000000..28ed620
+index 0000000..4cc8949
 --- /dev/null
 +++ b/third_party/xla/0011-Fix-clang-CUDA-incompatabilities.patch
 @@ -0,0 +1,64 @@
-+From 4f269c9cb664c9865c97aca2d240442f047782a3 Mon Sep 17 00:00:00 2001
++From bda0abfe8d7995db742d36a82e3af698e15a17da Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Mon, 23 Mar 2026 07:29:40 +0100
 +Subject: [PATCH 11/11] Fix clang<->CUDA incompatabilities
