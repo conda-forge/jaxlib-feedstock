@@ -1,4 +1,4 @@
-From 9fd216006219501271783ff6a75c4339cd5d4974 Mon Sep 17 00:00:00 2001
+From 0e61f40a75fe6590cf35fba6fc7aae5c77dd8e8a Mon Sep 17 00:00:00 2001
 From: "Uwe L. Korn" <uwe.korn@quantco.com>
 Date: Thu, 14 Dec 2023 17:06:15 +0100
 Subject: [PATCH 2/4] Consolidated build fixes for XLA
@@ -15,11 +15,11 @@ which is also where we're patching in the list of patches to apply to xla.
 Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
 ---
  third_party/grpc_systemlib.BUILD              |  71 +++
- third_party/xla/0001-Fix-abseil-headers.patch | 132 ++++++
+ third_party/xla/0001-Fix-abseil-headers.patch | 132 +++++
  .../xla/0002-Omit-usage-of-StrFormat.patch    |  25 +
- .../xla/0003-Re-enable-system-abseil.patch    | 422 +++++++++++++++++
+ .../xla/0003-Re-enable-system-abseil.patch    | 422 ++++++++++++++++
  ...ther-absl-log-is-already-initialized.patch |  58 +++
- third_party/xla/0005-Unbundle-grpc.patch      | 444 ++++++++++++++++++
+ third_party/xla/0005-Unbundle-grpc.patch      | 461 ++++++++++++++++++
  ...-coordination_agent_recoverable-flag.patch |  35 ++
  ...al-variant-_access-is-now-header-onl.patch |  29 ++
  ...d-dependency-on-proto_bazel_features.patch |  72 +++
@@ -27,7 +27,7 @@ Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
  .../xla/0010-Add-systemlib-for-oneDNN.patch   | 103 ++++
  ...011-Fix-clang-CUDA-incompatabilities.patch |  64 +++
  third_party/xla/workspace.bzl                 |  15 +-
- 13 files changed, 1490 insertions(+), 1 deletion(-)
+ 13 files changed, 1507 insertions(+), 1 deletion(-)
  create mode 100644 third_party/grpc_systemlib.BUILD
  create mode 100644 third_party/xla/0001-Fix-abseil-headers.patch
  create mode 100644 third_party/xla/0002-Omit-usage-of-StrFormat.patch
@@ -120,14 +120,14 @@ index 0000000..0e4e862
 +)
 diff --git a/third_party/xla/0001-Fix-abseil-headers.patch b/third_party/xla/0001-Fix-abseil-headers.patch
 new file mode 100644
-index 0000000..729a47f
+index 0000000..cc3dcbb
 --- /dev/null
 +++ b/third_party/xla/0001-Fix-abseil-headers.patch
 @@ -0,0 +1,132 @@
 +From c266c525ad9e37329666d9d7c9f9015b11e599ff Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 23 May 2024 15:45:52 +0200
-+Subject: [PATCH 01/10] Fix abseil headers
++Subject: [PATCH 01/11] Fix abseil headers
 +
 +---
 + xla/backends/cpu/codegen/ir_compiler.cc               | 2 +-
@@ -258,14 +258,14 @@ index 0000000..729a47f
 +         "@tsl//tsl/profiler/protobuf:profiler_analysis_cc_grpc_proto",
 diff --git a/third_party/xla/0002-Omit-usage-of-StrFormat.patch b/third_party/xla/0002-Omit-usage-of-StrFormat.patch
 new file mode 100644
-index 0000000..1920e8d
+index 0000000..e8b0f93
 --- /dev/null
 +++ b/third_party/xla/0002-Omit-usage-of-StrFormat.patch
 @@ -0,0 +1,25 @@
 +From 3792256e8b44b6ada0c07605bad208bdc10cd02c Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 4 Jul 2024 10:36:03 +0200
-+Subject: [PATCH 02/10] Omit usage of StrFormat
++Subject: [PATCH 02/11] Omit usage of StrFormat
 +
 +---
 + xla/stream_executor/gpu/gpu_executor.h | 5 +++++
@@ -289,14 +289,14 @@ index 0000000..1920e8d
 + #include <vector>
 diff --git a/third_party/xla/0003-Re-enable-system-abseil.patch b/third_party/xla/0003-Re-enable-system-abseil.patch
 new file mode 100644
-index 0000000..79b2464
+index 0000000..30da27e
 --- /dev/null
 +++ b/third_party/xla/0003-Re-enable-system-abseil.patch
 @@ -0,0 +1,422 @@
 +From 1230900627ce35b347788644573fe54dccc91c0a Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 4 Jul 2024 15:58:32 +0200
-+Subject: [PATCH 03/10] Re-enable system abseil
++Subject: [PATCH 03/11] Re-enable system abseil
 +
 +partially revert https://github.com/openxla/xla/commit/1fc2a846d259d3c896a6177485abcc68d97627a9
 +and add missing pieces
@@ -717,14 +717,14 @@ index 0000000..79b2464
 +         patch_file = [
 diff --git a/third_party/xla/0004-Check-whether-absl-log-is-already-initialized.patch b/third_party/xla/0004-Check-whether-absl-log-is-already-initialized.patch
 new file mode 100644
-index 0000000..8806529
+index 0000000..8ae1353
 --- /dev/null
 +++ b/third_party/xla/0004-Check-whether-absl-log-is-already-initialized.patch
 @@ -0,0 +1,58 @@
 +From d2fa4962c0eff61322ace0ecd587a897a9b0fb06 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Fri, 22 Nov 2024 10:51:18 +0100
-+Subject: [PATCH 04/10] Check whether absl log is already initialized
++Subject: [PATCH 04/11] Check whether absl log is already initialized
 +
 +---
 + xla/pjrt/c/pjrt_c_api_gpu.cc | 7 ++++++-
@@ -781,26 +781,26 @@ index 0000000..8806529
 + }  // namespace xla
 diff --git a/third_party/xla/0005-Unbundle-grpc.patch b/third_party/xla/0005-Unbundle-grpc.patch
 new file mode 100644
-index 0000000..c89dced
+index 0000000..ca2fdf2
 --- /dev/null
 +++ b/third_party/xla/0005-Unbundle-grpc.patch
-@@ -0,0 +1,444 @@
-+From 69030f242ab949861ea91fd9ab04379bd8f31fc7 Mon Sep 17 00:00:00 2001
+@@ -0,0 +1,461 @@
++From f3912f87aaa7ddf05ba90257e3d7e2d591fdd033 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Wed, 23 Jul 2025 13:19:52 +0200
-+Subject: [PATCH 05/10] Unbundle grpc
++Subject: [PATCH 05/11] Unbundle grpc
 +
 +---
 + third_party/protobuf_impl.bzl             |  19 +++
-+ third_party/protobuf_systemlib.BUILD      | 153 ++++++++++++++++++++++
++ third_party/protobuf_systemlib.BUILD      | 170 ++++++++++++++++++++++
 + third_party/py/python_init_rules.bzl      |  12 +-
 + third_party/re2_system.BUILD              |  14 ++
-+ third_party/zlib.BUILD                    |  39 +-----
++ third_party/zlib.BUILD                    |  39 +----
 + workspace0.bzl                            |   5 +-
 + workspace1.bzl                            |   3 -
-+ workspace2.bzl                            |  37 ++++--
++ workspace2.bzl                            |  37 +++--
 + xla/tsl/platform/default/build_config.bzl |   2 -
-+ 9 files changed, 214 insertions(+), 70 deletions(-)
++ 9 files changed, 231 insertions(+), 70 deletions(-)
 + create mode 100644 third_party/protobuf_impl.bzl
 + create mode 100644 third_party/protobuf_systemlib.BUILD
 + create mode 100644 third_party/re2_system.BUILD
@@ -832,10 +832,10 @@ index 0000000..c89dced
 ++
 +diff --git a/third_party/protobuf_systemlib.BUILD b/third_party/protobuf_systemlib.BUILD
 +new file mode 100644
-+index 0000000000..915125e627
++index 0000000000..746abfde15
 +--- /dev/null
 ++++ b/third_party/protobuf_systemlib.BUILD
-+@@ -0,0 +1,153 @@
++@@ -0,0 +1,170 @@
 ++load("@rules_java//java:defs.bzl", "java_library")
 ++load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test", "objc_library")
 ++load("//bazel/toolchains:proto_lang_toolchain.bzl", "proto_lang_toolchain")
@@ -903,29 +903,46 @@ index 0000000..c89dced
 ++    """,
 ++)
 ++
-++BASE_PROTO_LIBS = ["$(PREFIX)/lib/libutf8_range.a", "$(PREFIX)/lib/libutf8_validity.a", "-labsl_cord", "-labsl_cord_internal", "-labsl_cordz_functions", "-labsl_cordz_handle", "-labsl_cordz_info", "-labsl_cordz_sample_token", "-labsl_log_flags", "-labsl_log_globals", "-labsl_log_initialize", "-labsl_log_internal_check_op", "-labsl_log_internal_conditions", "-labsl_log_internal_format", "-labsl_log_internal_globals", "-labsl_log_internal_log_sink_set", "-labsl_log_internal_message", "-labsl_log_internal_nullguard", "-labsl_log_internal_proto", "-labsl_log_severity", "-labsl_log_sink"]
+++BASE_PROTO_LIBS = ["-labsl_cord", "-labsl_cord_internal", "-labsl_cordz_functions", "-labsl_cordz_handle", "-labsl_cordz_info", "-labsl_cordz_sample_token", "-labsl_log_flags", "-labsl_log_globals", "-labsl_log_initialize", "-labsl_log_internal_check_op", "-labsl_log_internal_conditions", "-labsl_log_internal_format", "-labsl_log_internal_globals", "-labsl_log_internal_log_sink_set", "-labsl_log_internal_message", "-labsl_log_internal_nullguard", "-labsl_log_internal_proto", "-labsl_log_severity", "-labsl_log_sink"]
+++
+++config_setting(
+++    name = "is_target_platform",
+++    constraint_values = ["@//bazel_toolchain:conda_target_platform"],
+++)
 ++
 ++cc_library(
 ++    name = "protobuf",
-++    linkopts = ["$(PREFIX)/lib/libprotobuf.a"] + BASE_PROTO_LIBS,
+++    linkopts = select({
+++            ":is_target_platform": ["$(PREFIX)/lib/libprotobuf.a", "$(PREFIX)/lib/libutf8_range.a", "$(PREFIX)/lib/libutf8_validity.a"],
+++            "//conditions:default": ["$(BUILD_PREFIX)/lib/libprotobuf.a", "$(BUILD_PREFIX)/lib/libutf8_range.a", "$(BUILD_PREFIX)/lib/libutf8_validity.a"],
+++    }) + BASE_PROTO_LIBS,
 ++    visibility = ["//visibility:public"],
 ++)
 ++
 ++cc_library(
 ++    name = "protobuf_lite",
-++    linkopts = ["$(PREFIX)/lib/libprotobuf-lite.a"] + BASE_PROTO_LIBS,
+++    linkopts = select({
+++            ":is_target_platform": ["$(PREFIX)/lib/libprotobuf-lite.a", "$(PREFIX)/lib/libutf8_range.a", "$(PREFIX)/lib/libutf8_validity.a"],
+++            "//conditions:default": ["$(BUILD_PREFIX)/lib/libprotobuf-lite.a", "$(BUILD_PREFIX)/lib/libutf8_range.a", "$(BUILD_PREFIX)/lib/libutf8_validity.a"],
+++    }) + BASE_PROTO_LIBS,
 ++    visibility = ["//visibility:public"],
 ++)
 ++
 ++cc_library(
 ++    name = "protobuf_headers",
-++    linkopts = ["$(PREFIX)/lib/libprotobuf.a"] + BASE_PROTO_LIBS,
+++    linkopts = select({
+++            ":is_target_platform": ["$(PREFIX)/lib/libprotobuf.a", "$(PREFIX)/lib/libutf8_range.a", "$(PREFIX)/lib/libutf8_validity.a"],
+++            "//conditions:default": ["$(BUILD_PREFIX)/lib/libprotobuf.a", "$(BUILD_PREFIX)/lib/libutf8_range.a", "$(BUILD_PREFIX)/lib/libutf8_validity.a"],
+++    }) + BASE_PROTO_LIBS,
 ++    visibility = ["//visibility:public"],
 ++)
 ++
 ++cc_library(
 ++    name = "protoc_lib",
-++    linkopts = ["$(PREFIX)/lib/libprotoc.a", "$(PREFIX)/lib/libprotobuf.a"] + BASE_PROTO_LIBS,
+++    linkopts = select({
+++            ":is_target_platform": ["$(PREFIX)/lib/libprotoc.a", "$(PREFIX)/lib/libprotobuf.a", "$(PREFIX)/lib/libutf8_range.a", "$(PREFIX)/lib/libutf8_validity.a"],
+++            "//conditions:default": ["$(BUILD_PREFIX)/lib/libprotoc.a", "$(BUILD_PREFIX)/lib/libprotobuf.a", "$(BUILD_PREFIX)/lib/libutf8_range.a", "$(BUILD_PREFIX)/lib/libutf8_validity.a"],
+++    }) + BASE_PROTO_LIBS,
 ++    visibility = ["//visibility:public"],
 ++)
 ++
@@ -1231,14 +1248,14 @@ index 0000000..c89dced
 + def tf_protobuf_deps():
 diff --git a/third_party/xla/0006-Disable-coordination_agent_recoverable-flag.patch b/third_party/xla/0006-Disable-coordination_agent_recoverable-flag.patch
 new file mode 100644
-index 0000000..bbc8af5
+index 0000000..41748a0
 --- /dev/null
 +++ b/third_party/xla/0006-Disable-coordination_agent_recoverable-flag.patch
 @@ -0,0 +1,35 @@
-+From 6d0ae39db21d0be55e10115a553833da6f2881d5 Mon Sep 17 00:00:00 2001
++From 87874e14f23e3ce19c36aa5a2df0e5fa1847316c Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 11 Sep 2025 21:30:50 +0200
-+Subject: [PATCH 06/10] Disable coordination_agent_recoverable flag
++Subject: [PATCH 06/11] Disable coordination_agent_recoverable flag
 +
 +---
 + .../coordination/coordination_service_agent.cc            | 8 ++++----
@@ -1272,14 +1289,14 @@ index 0000000..bbc8af5
 +            "barrier will only block non-recoverable tasks. If a synchronized "
 diff --git a/third_party/xla/0007-absl_bad_-optional-variant-_access-is-now-header-onl.patch b/third_party/xla/0007-absl_bad_-optional-variant-_access-is-now-header-onl.patch
 new file mode 100644
-index 0000000..a6bac7b
+index 0000000..3d143c2
 --- /dev/null
 +++ b/third_party/xla/0007-absl_bad_-optional-variant-_access-is-now-header-onl.patch
 @@ -0,0 +1,29 @@
-+From 8e91200eb0daa2ed8550172261462f84dc62b9ad Mon Sep 17 00:00:00 2001
++From 06808c2c9502c4af1b074160cbdce686b7d144b1 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Thu, 11 Sep 2025 21:33:07 +0200
-+Subject: [PATCH 07/10] absl_bad_{optional,variant}_access is now header-only
++Subject: [PATCH 07/11] absl_bad_{optional,variant}_access is now header-only
 +
 +---
 + third_party/absl/system.absl.types.BUILD | 2 --
@@ -1307,14 +1324,14 @@ index 0000000..a6bac7b
 +     ],
 diff --git a/third_party/xla/0008-Add-dependency-on-proto_bazel_features.patch b/third_party/xla/0008-Add-dependency-on-proto_bazel_features.patch
 new file mode 100644
-index 0000000..45693ff
+index 0000000..34d2832
 --- /dev/null
 +++ b/third_party/xla/0008-Add-dependency-on-proto_bazel_features.patch
 @@ -0,0 +1,72 @@
-+From 2b2dcbe64d85cfe9033db19e9175441f4775da84 Mon Sep 17 00:00:00 2001
++From ada17ae4bee39d33922831189d9b89c71054a664 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Fri, 12 Sep 2025 16:06:30 +0200
-+Subject: [PATCH 08/10] Add dependency on proto_bazel_features
++Subject: [PATCH 08/11] Add dependency on proto_bazel_features
 +
 +---
 + workspace2.bzl |  4 +++-
@@ -1385,14 +1402,14 @@ index 0000000..45693ff
 +     tf_http_archive(
 diff --git a/third_party/xla/0009-Add-macos_x86_64-to-mkl_deps.patch b/third_party/xla/0009-Add-macos_x86_64-to-mkl_deps.patch
 new file mode 100644
-index 0000000..b797288
+index 0000000..94538d1
 --- /dev/null
 +++ b/third_party/xla/0009-Add-macos_x86_64-to-mkl_deps.patch
 @@ -0,0 +1,21 @@
-+From 2324931ccc6b34e358adf20ef3bd76d340fd0d60 Mon Sep 17 00:00:00 2001
++From d91b2dc24a6ee7c7071893a382416e8d81644a8b Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Sat, 20 Sep 2025 08:15:14 +0200
-+Subject: [PATCH 09/10] Add macos_x86_64 to mkl_deps
++Subject: [PATCH 09/11] Add macos_x86_64 to mkl_deps
 +
 +---
 + xla/tsl/mkl/build_defs.bzl | 1 +
@@ -1412,14 +1429,14 @@ index 0000000..b797288
 +     })
 diff --git a/third_party/xla/0010-Add-systemlib-for-oneDNN.patch b/third_party/xla/0010-Add-systemlib-for-oneDNN.patch
 new file mode 100644
-index 0000000..f5d9870
+index 0000000..f52798e
 --- /dev/null
 +++ b/third_party/xla/0010-Add-systemlib-for-oneDNN.patch
 @@ -0,0 +1,103 @@
-+From f233ba2d6063893ab2b8c986d55ebd7f06f261ae Mon Sep 17 00:00:00 2001
++From b174f9bf79f39ed93377fa52a6a8cfb26e84a8b2 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Fri, 26 Sep 2025 17:23:37 +0200
-+Subject: [PATCH 10/10] Add systemlib for oneDNN
++Subject: [PATCH 10/11] Add systemlib for oneDNN
 +
 +---
 + third_party/mkl_dnn/mkldnn_system.BUILD            |  6 ++++++
@@ -1521,11 +1538,11 @@ index 0000000..f5d9870
 +     // Should never happen (handled by DNNL)
 diff --git a/third_party/xla/0011-Fix-clang-CUDA-incompatabilities.patch b/third_party/xla/0011-Fix-clang-CUDA-incompatabilities.patch
 new file mode 100644
-index 0000000..0cae486
+index 0000000..a7b1d51
 --- /dev/null
 +++ b/third_party/xla/0011-Fix-clang-CUDA-incompatabilities.patch
 @@ -0,0 +1,64 @@
-+From 0e975a6ccf5baa28a91792fc3cc4846620aad482 Mon Sep 17 00:00:00 2001
++From bc1b1774fc031a8afb41aefc38ecd9963adb0a76 Mon Sep 17 00:00:00 2001
 +From: "Uwe L. Korn" <uwe.korn@quantco.com>
 +Date: Mon, 23 Mar 2026 07:29:40 +0100
 +Subject: [PATCH 11/11] Fix clang<->CUDA incompatabilities
