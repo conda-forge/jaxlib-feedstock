@@ -80,8 +80,14 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
     test -f ${BUILD_PREFIX}/targets/${CUDA_ARCH}/bin/nvlink || ln -s $(which nvlink) ${BUILD_PREFIX}/targets/${CUDA_ARCH}/bin/nvlink
     test -f ${BUILD_PREFIX}/targets/${CUDA_ARCH}/bin/fatbinary || ln -s $(which fatbinary) ${BUILD_PREFIX}/targets/${CUDA_ARCH}/bin/fatbinary
 
+    # rules_ml_toolchain expects an nvml redist directory for local CUDA builds.
+    # Conda packages only provide the NVML stub library, so expose the target root
+    # under the expected name to satisfy the repository rule on clean builds.
+    if [[ ! -e "${LOCAL_CUDA_PATH}/nvml" ]]; then
+      ln -s . "${LOCAL_CUDA_PATH}/nvml"
+    fi
     export TF_CUDA_VERSION="${cuda_compiler_version}"
-    export TF_CUDNN_VERSION="${cudnn}"
+    export TF_CUDNN_VERSION=$(conda list -p $PREFIX ^cudnn$ | awk '$1 == "cudnn" {split($2, a, "."); print a[1]"."a[2]"."a[3]}')
     if [[ "${host_platform}" == "linux-aarch64" ]]; then
         export TF_CUDA_PATHS="${CUDA_HOME}/targets/sbsa-linux,${TF_CUDA_PATHS}"
     fi

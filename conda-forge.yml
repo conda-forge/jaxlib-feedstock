@@ -14,12 +14,12 @@ github:
   branch_name: main
   tooling_branch_name: main
 github_actions:
-  self_hosted: true
+  #self_hosted: true
   timeout_minutes: 720
-  triggers:
-  - push
-  - pull_request
+  #triggers:
+  #- push
+  #- pull_request
 provider:
-  # linux_64: github_actions
-  osx_arm64: azure
+  linux_64: github_actions
+  osx_arm64: default
 test: native_and_emulated

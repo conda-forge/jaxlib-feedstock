@@ -22,8 +22,6 @@ cxx_compiler_version:
 - '20'
 flatbuffers:
 - 25.9.23
-github_actions_labels:
-- cirun-openstack-cpu-large
 libabseil:
 - '20260107'
 libgrpc:
