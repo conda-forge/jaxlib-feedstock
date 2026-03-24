@@ -45,7 +45,6 @@ requirements:
         - cross-python_${{ host_platform }}
         - numpy
         - zlib
-        - libprotobuf-static
     - if: unix
       then:
         # Conda clang config files inject "<CFGDIR>/../include" (BUILD_PREFIX/include),
@@ -58,6 +57,7 @@ requirements:
     - bazel-toolchain >=0.5.8
     # need protoc
     - libprotobuf
+    - libprotobuf-static
     # needs protoc-gen-grpc
     - libgrpc
     # needs flatc
