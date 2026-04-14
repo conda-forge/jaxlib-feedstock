@@ -124,9 +124,18 @@ build --define=with_cross_compiler_support=true
 build --repo_env=GRPC_BAZEL_DIR=${PREFIX}/share/bazel/grpc/bazel
 build --repo_env=PROTOBUF_BAZEL_DIR=${PREFIX}/share/bazel/protobuf/bazel
 
-# We need to define a dummy value for this as we delete everything else for build_cuda_with_nvcc
+# Tell nvcc builds to use conda's NVCC
 build:build_cuda_with_nvcc --action_env=CONDA_USE_NVCC=1
 EOF
+
+# clang's __clang_cuda_runtime_wrapper.h unconditionally includes
+# texture_indirect_functions.h, which was removed in CUDA 13.0
+if [[ ${cuda_compiler_version:-None} != "None" && ${cuda_compiler_version} != 12* ]]; then
+    for hdr in texture_indirect_functions.h; do
+        test -f "${BUILD_PREFIX}/targets/${CUDA_ARCH}/include/${hdr}" \
+            || touch "${BUILD_PREFIX}/targets/${CUDA_ARCH}/include/${hdr}"
+    done
+fi
 
 if [[ "${host_platform}" == "osx-arm64" || "${host_platform}" != "${build_platform}" ]]; then
   echo "build --cpu=${TARGET_CPU}" >> .bazelrc
@@ -158,11 +167,12 @@ if [[ "${host_platform}" == linux-* ]]; then
 
     # Remove incompatible argument from bazelrc
     sed -i '/Qunused-arguments/d' .bazelrc
-    # Don't override our toolchain for CUDA
-    sed -i '/TF_NVCC_CLANG/{N;d}' .bazelrc
-    # Keep using our toolchain for both target and host builds.
-    sed -i -E '/--crosstool_top="?@local_config_cuda\/\/crosstool:toolchain"?/d' .bazelrc
-    sed -i -E '/--host_crosstool_top="?@local_config_cuda\/\/crosstool:toolchain"?/d' .bazelrc
+    if [[ ${cuda_compiler_version:-None} != "None" ]]; then
+        # Clang handles device code; use recipe's toolchain instead of local_config_cuda
+        sed -i '/TF_NVCC_CLANG/d' .bazelrc
+        sed -i -E '/--crosstool_top="?@local_config_cuda\/\/crosstool:toolchain"?/d' .bazelrc
+        sed -i -E '/--host_crosstool_top="?@local_config_cuda\/\/crosstool:toolchain"?/d' .bazelrc
+    fi
 fi
 
 ${PYTHON} build/build.py build \
