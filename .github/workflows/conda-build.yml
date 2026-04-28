@@ -22,85 +22,149 @@ jobs:
       max-parallel: 50
       matrix:
         include:
-          - CONFIG: linux_64_cuda_compiler_version12.9python3.11.____cpython
+          - CONFIG: linux_64_c_compiler_version21c_stdlib_version2.17cuda_compiler_version12.9cxx_compiler_version21python3.11.____cpython
+            STORE_BUILD_ARTIFACTS: False
             UPLOAD_PACKAGES: True
             os: ubuntu
-            runs_on: ['ubuntu-latest']
+            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_64_c_compiler_version21c_stdlib_ve_h877a50cf']
             DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
-          - CONFIG: linux_64_cuda_compiler_version12.9python3.12.____cpython
+          - CONFIG: linux_64_c_compiler_version21c_stdlib_version2.17cuda_compiler_version12.9cxx_compiler_version21python3.12.____cpython
+            STORE_BUILD_ARTIFACTS: False
             UPLOAD_PACKAGES: True
             os: ubuntu
-            runs_on: ['ubuntu-latest']
+            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_64_c_compiler_version21c_stdlib_ve_heca34970']
             DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
-          - CONFIG: linux_64_cuda_compiler_version12.9python3.13.____cp313
+          - CONFIG: linux_64_c_compiler_version21c_stdlib_version2.17cuda_compiler_version12.9cxx_compiler_version21python3.13.____cp313
+            STORE_BUILD_ARTIFACTS: False
             UPLOAD_PACKAGES: True
             os: ubuntu
-            runs_on: ['ubuntu-latest']
+            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_64_c_compiler_version21c_stdlib_ve_hf4ec09b1']
             DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
-          - CONFIG: linux_64_cuda_compiler_version12.9python3.14.____cp314
+          - CONFIG: linux_64_c_compiler_version21c_stdlib_version2.17cuda_compiler_version12.9cxx_compiler_version21python3.14.____cp314
+            STORE_BUILD_ARTIFACTS: False
             UPLOAD_PACKAGES: True
             os: ubuntu
-            runs_on: ['ubuntu-latest']
+            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_64_c_compiler_version21c_stdlib_ve_h52893804']
             DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
-          - CONFIG: linux_64_cuda_compiler_versionNonepython3.11.____cpython
+          - CONFIG: linux_64_c_compiler_version22c_stdlib_version2.17cuda_compiler_versionNonecxx_compiler_version22python3.11.____cpython
+            STORE_BUILD_ARTIFACTS: False
             UPLOAD_PACKAGES: True
             os: ubuntu
-            runs_on: ['ubuntu-latest']
+            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_64_c_compiler_version22c_stdlib_ve_hd49817c7']
             DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
-          - CONFIG: linux_64_cuda_compiler_versionNonepython3.12.____cpython
+          - CONFIG: linux_64_c_compiler_version22c_stdlib_version2.17cuda_compiler_versionNonecxx_compiler_version22python3.12.____cpython
+            STORE_BUILD_ARTIFACTS: False
             UPLOAD_PACKAGES: True
             os: ubuntu
-            runs_on: ['ubuntu-latest']
+            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_64_c_compiler_version22c_stdlib_ve_h0df64b82']
             DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
-          - CONFIG: linux_64_cuda_compiler_versionNonepython3.13.____cp313
+          - CONFIG: linux_64_c_compiler_version22c_stdlib_version2.17cuda_compiler_versionNonecxx_compiler_version22python3.13.____cp313
+            STORE_BUILD_ARTIFACTS: False
             UPLOAD_PACKAGES: True
             os: ubuntu
-            runs_on: ['ubuntu-latest']
+            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_64_c_compiler_version22c_stdlib_ve_h791dfee9']
             DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
-          - CONFIG: linux_64_cuda_compiler_versionNonepython3.14.____cp314
+          - CONFIG: linux_64_c_compiler_version22c_stdlib_version2.17cuda_compiler_versionNonecxx_compiler_version22python3.14.____cp314
+            STORE_BUILD_ARTIFACTS: False
             UPLOAD_PACKAGES: True
             os: ubuntu
-            runs_on: ['ubuntu-latest']
+            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_64_c_compiler_version22c_stdlib_ve_h11852d48']
             DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
-          - CONFIG: linux_aarch64_cuda_compiler_version12.9python3.11.____cpython
+          - CONFIG: linux_64_c_compiler_version22c_stdlib_version2.28cuda_compiler_version13.0cxx_compiler_version22python3.11.____cpython
+            STORE_BUILD_ARTIFACTS: False
             UPLOAD_PACKAGES: True
             os: ubuntu
-            runs_on: ['ubuntu-latest']
+            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_64_c_compiler_version22c_stdlib_ve_h4fa406e5']
             DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
-          - CONFIG: linux_aarch64_cuda_compiler_version12.9python3.12.____cpython
+          - CONFIG: linux_64_c_compiler_version22c_stdlib_version2.28cuda_compiler_version13.0cxx_compiler_version22python3.12.____cpython
+            STORE_BUILD_ARTIFACTS: False
             UPLOAD_PACKAGES: True
             os: ubuntu
-            runs_on: ['ubuntu-latest']
+            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_64_c_compiler_version22c_stdlib_ve_h00476c94']
             DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
-          - CONFIG: linux_aarch64_cuda_compiler_version12.9python3.13.____cp313
+          - CONFIG: linux_64_c_compiler_version22c_stdlib_version2.28cuda_compiler_version13.0cxx_compiler_version22python3.13.____cp313
+            STORE_BUILD_ARTIFACTS: False
             UPLOAD_PACKAGES: True
             os: ubuntu
-            runs_on: ['ubuntu-latest']
+            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_64_c_compiler_version22c_stdlib_ve_hc21587ee']
             DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
-          - CONFIG: linux_aarch64_cuda_compiler_version12.9python3.14.____cp314
+          - CONFIG: linux_64_c_compiler_version22c_stdlib_version2.28cuda_compiler_version13.0cxx_compiler_version22python3.14.____cp314
+            STORE_BUILD_ARTIFACTS: False
             UPLOAD_PACKAGES: True
             os: ubuntu
-            runs_on: ['ubuntu-latest']
+            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_64_c_compiler_version22c_stdlib_ve_h037b3bc4']
             DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
-          - CONFIG: linux_aarch64_cuda_compiler_versionNonepython3.11.____cpython
+          - CONFIG: linux_aarch64_c_compiler_version21c_stdlib_version2.17cuda_compiler_version12.9cxx_compiler_version21python3.11.____cpython
+            STORE_BUILD_ARTIFACTS: False
             UPLOAD_PACKAGES: True
             os: ubuntu
-            runs_on: ['ubuntu-latest']
+            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_aarch64_c_compiler_version21c_stdl_hd4df2d01']
             DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
-          - CONFIG: linux_aarch64_cuda_compiler_versionNonepython3.12.____cpython
+          - CONFIG: linux_aarch64_c_compiler_version21c_stdlib_version2.17cuda_compiler_version12.9cxx_compiler_version21python3.12.____cpython
+            STORE_BUILD_ARTIFACTS: False
             UPLOAD_PACKAGES: True
             os: ubuntu
-            runs_on: ['ubuntu-latest']
+            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_aarch64_c_compiler_version21c_stdl_h1355c690']
             DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
-          - CONFIG: linux_aarch64_cuda_compiler_versionNonepython3.13.____cp313
+          - CONFIG: linux_aarch64_c_compiler_version21c_stdlib_version2.17cuda_compiler_version12.9cxx_compiler_version21python3.13.____cp313
+            STORE_BUILD_ARTIFACTS: False
             UPLOAD_PACKAGES: True
             os: ubuntu
-            runs_on: ['ubuntu-latest']
+            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_aarch64_c_compiler_version21c_stdl_h931c5862']
             DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
-          - CONFIG: linux_aarch64_cuda_compiler_versionNonepython3.14.____cp314
+          - CONFIG: linux_aarch64_c_compiler_version21c_stdlib_version2.17cuda_compiler_version12.9cxx_compiler_version21python3.14.____cp314
+            STORE_BUILD_ARTIFACTS: False
             UPLOAD_PACKAGES: True
             os: ubuntu
-            runs_on: ['ubuntu-latest']
+            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_aarch64_c_compiler_version21c_stdl_h2a0b9ae4']
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
+          - CONFIG: linux_aarch64_c_compiler_version22c_stdlib_version2.17cuda_compiler_versionNonecxx_compiler_version22python3.11.____cpython
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            os: ubuntu
+            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_aarch64_c_compiler_version22c_stdl_h9f3de77d']
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
+          - CONFIG: linux_aarch64_c_compiler_version22c_stdlib_version2.17cuda_compiler_versionNonecxx_compiler_version22python3.12.____cpython
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            os: ubuntu
+            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_aarch64_c_compiler_version22c_stdl_h76b8a1bb']
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
+          - CONFIG: linux_aarch64_c_compiler_version22c_stdlib_version2.17cuda_compiler_versionNonecxx_compiler_version22python3.13.____cp313
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            os: ubuntu
+            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_aarch64_c_compiler_version22c_stdl_h213cb976']
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
+          - CONFIG: linux_aarch64_c_compiler_version22c_stdlib_version2.17cuda_compiler_versionNonecxx_compiler_version22python3.14.____cp314
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            os: ubuntu
+            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_aarch64_c_compiler_version22c_stdl_hf862ea2d']
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
+          - CONFIG: linux_aarch64_c_compiler_version22c_stdlib_version2.28cuda_compiler_version13.0cxx_compiler_version22python3.11.____cpython
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            os: ubuntu
+            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_aarch64_c_compiler_version22c_stdl_h3472a97a']
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
+          - CONFIG: linux_aarch64_c_compiler_version22c_stdlib_version2.28cuda_compiler_version13.0cxx_compiler_version22python3.12.____cpython
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            os: ubuntu
+            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_aarch64_c_compiler_version22c_stdl_h299b7f40']
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
+          - CONFIG: linux_aarch64_c_compiler_version22c_stdlib_version2.28cuda_compiler_version13.0cxx_compiler_version22python3.13.____cp313
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            os: ubuntu
+            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_aarch64_c_compiler_version22c_stdl_hc685841d']
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
+          - CONFIG: linux_aarch64_c_compiler_version22c_stdlib_version2.28cuda_compiler_version13.0cxx_compiler_version22python3.14.____cp314
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            os: ubuntu
+            runs_on: ['cirun-openstack-cpu-large--${{ github.run_id }}-linux_aarch64_c_compiler_version22c_stdl_hc2bb553e']
             DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
     steps:
 
@@ -174,7 +238,7 @@ jobs:
       env:
         # default value; make it explicit, as it needs to match with artefact
         # generation below. Not configurable for now, can be revisited later
-        CONDA_BLD_DIR: C:\bld
+        CONDA_BLD_PATH: C:\bld
         MINIFORGE_HOME: ${{ contains(runner.arch, 'ARM') && 'C' || 'D' }}:\Miniforge
         PYTHONUNBUFFERED: 1
         CONFIG: ${{ matrix.CONFIG }}
