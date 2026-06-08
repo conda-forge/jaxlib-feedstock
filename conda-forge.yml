@@ -1,10 +1,5 @@
 azure:
   free_disk_space: true
-  # Linux builds all timeout, don't waste resources
-  settings_linux:
-    timeoutInMinutes: 1
-build_platform:
-  linux_aarch64: linux_64
 conda_build:
   pkg_format: '2'
 conda_build_tool: rattler-build
@@ -14,12 +9,12 @@ github:
   branch_name: main
   tooling_branch_name: main
 github_actions:
-  #self_hosted: true
   timeout_minutes: 720
-  #triggers:
-  #- push
-  #- pull_request
+  triggers:
+  - push
+  - pull_request
 provider:
   linux_64: github_actions
-  osx_arm64: default
+  linux_aarch64: github_actions
+  osx_arm64: github_Actions
 test: native_and_emulated
