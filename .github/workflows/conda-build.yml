@@ -166,6 +166,38 @@ jobs:
             tools_install_dir: ~/miniforge3
             build_workspace_dir: build_artifacts
             docker_run_args: 
+          - CONFIG: osx_arm64_python3.11.____cpython
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            os: macos
+            runs_on: ['namespace-profile-12cpu-on-osx-arm64']
+            tools_install_dir: ~/miniforge3
+            build_workspace_dir: ~/miniforge3/conda-bld
+            docker_run_args: 
+          - CONFIG: osx_arm64_python3.12.____cpython
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            os: macos
+            runs_on: ['namespace-profile-12cpu-on-osx-arm64']
+            tools_install_dir: ~/miniforge3
+            build_workspace_dir: ~/miniforge3/conda-bld
+            docker_run_args: 
+          - CONFIG: osx_arm64_python3.13.____cp313
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            os: macos
+            runs_on: ['namespace-profile-12cpu-on-osx-arm64']
+            tools_install_dir: ~/miniforge3
+            build_workspace_dir: ~/miniforge3/conda-bld
+            docker_run_args: 
+          - CONFIG: osx_arm64_python3.14.____cp314
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            os: macos
+            runs_on: ['namespace-profile-12cpu-on-osx-arm64']
+            tools_install_dir: ~/miniforge3
+            build_workspace_dir: ~/miniforge3/conda-bld
+            docker_run_args: 
     steps:
 
     - name: Checkout code
