@@ -13,6 +13,8 @@ github_actions:
   triggers:
   - push
   - pull_request
+build_platform:
+  osx_64: osx_arm64
 provider:
   linux_64: github_actions
   linux_aarch64: github_actions
