@@ -22,6 +22,150 @@ jobs:
       max-parallel: 50
       matrix:
         include:
+          - CONFIG: linux_64_cuda_compiler_version12.9python3.11.____cpython
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            os: ubuntu
+            runs_on: ['namespace-profile-16cpu-on-linux-64']
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
+            tools_install_dir: ~/miniforge3
+            build_workspace_dir: build_artifacts
+            docker_run_args: 
+          - CONFIG: linux_64_cuda_compiler_version12.9python3.12.____cpython
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            os: ubuntu
+            runs_on: ['namespace-profile-16cpu-on-linux-64']
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
+            tools_install_dir: ~/miniforge3
+            build_workspace_dir: build_artifacts
+            docker_run_args: 
+          - CONFIG: linux_64_cuda_compiler_version12.9python3.13.____cp313
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            os: ubuntu
+            runs_on: ['namespace-profile-16cpu-on-linux-64']
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
+            tools_install_dir: ~/miniforge3
+            build_workspace_dir: build_artifacts
+            docker_run_args: 
+          - CONFIG: linux_64_cuda_compiler_version12.9python3.14.____cp314
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            os: ubuntu
+            runs_on: ['namespace-profile-16cpu-on-linux-64']
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
+            tools_install_dir: ~/miniforge3
+            build_workspace_dir: build_artifacts
+            docker_run_args: 
+          - CONFIG: linux_64_cuda_compiler_versionNonepython3.11.____cpython
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            os: ubuntu
+            runs_on: ['namespace-profile-16cpu-on-linux-64']
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
+            tools_install_dir: ~/miniforge3
+            build_workspace_dir: build_artifacts
+            docker_run_args: 
+          - CONFIG: linux_64_cuda_compiler_versionNonepython3.12.____cpython
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            os: ubuntu
+            runs_on: ['namespace-profile-16cpu-on-linux-64']
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
+            tools_install_dir: ~/miniforge3
+            build_workspace_dir: build_artifacts
+            docker_run_args: 
+          - CONFIG: linux_64_cuda_compiler_versionNonepython3.13.____cp313
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            os: ubuntu
+            runs_on: ['namespace-profile-16cpu-on-linux-64']
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
+            tools_install_dir: ~/miniforge3
+            build_workspace_dir: build_artifacts
+            docker_run_args: 
+          - CONFIG: linux_64_cuda_compiler_versionNonepython3.14.____cp314
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            os: ubuntu
+            runs_on: ['namespace-profile-16cpu-on-linux-64']
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
+            tools_install_dir: ~/miniforge3
+            build_workspace_dir: build_artifacts
+            docker_run_args: 
+          - CONFIG: linux_aarch64_cuda_compiler_version12.9python3.11.____cpython
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            os: ubuntu
+            runs_on: ['namespace-profile-8cpu-on-linux-aarch64']
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-aarch64:alma9
+            tools_install_dir: ~/miniforge3
+            build_workspace_dir: build_artifacts
+            docker_run_args: 
+          - CONFIG: linux_aarch64_cuda_compiler_version12.9python3.12.____cpython
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            os: ubuntu
+            runs_on: ['namespace-profile-8cpu-on-linux-aarch64']
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-aarch64:alma9
+            tools_install_dir: ~/miniforge3
+            build_workspace_dir: build_artifacts
+            docker_run_args: 
+          - CONFIG: linux_aarch64_cuda_compiler_version12.9python3.13.____cp313
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            os: ubuntu
+            runs_on: ['namespace-profile-8cpu-on-linux-aarch64']
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-aarch64:alma9
+            tools_install_dir: ~/miniforge3
+            build_workspace_dir: build_artifacts
+            docker_run_args: 
+          - CONFIG: linux_aarch64_cuda_compiler_version12.9python3.14.____cp314
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            os: ubuntu
+            runs_on: ['namespace-profile-8cpu-on-linux-aarch64']
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-aarch64:alma9
+            tools_install_dir: ~/miniforge3
+            build_workspace_dir: build_artifacts
+            docker_run_args: 
+          - CONFIG: linux_aarch64_cuda_compiler_versionNonepython3.11.____cpython
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            os: ubuntu
+            runs_on: ['namespace-profile-8cpu-on-linux-aarch64']
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-aarch64:alma9
+            tools_install_dir: ~/miniforge3
+            build_workspace_dir: build_artifacts
+            docker_run_args: 
+          - CONFIG: linux_aarch64_cuda_compiler_versionNonepython3.12.____cpython
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            os: ubuntu
+            runs_on: ['namespace-profile-8cpu-on-linux-aarch64']
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-aarch64:alma9
+            tools_install_dir: ~/miniforge3
+            build_workspace_dir: build_artifacts
+            docker_run_args: 
+          - CONFIG: linux_aarch64_cuda_compiler_versionNonepython3.13.____cp313
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            os: ubuntu
+            runs_on: ['namespace-profile-8cpu-on-linux-aarch64']
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-aarch64:alma9
+            tools_install_dir: ~/miniforge3
+            build_workspace_dir: build_artifacts
+            docker_run_args: 
+          - CONFIG: linux_aarch64_cuda_compiler_versionNonepython3.14.____cp314
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            os: ubuntu
+            runs_on: ['namespace-profile-8cpu-on-linux-aarch64']
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-aarch64:alma9
+            tools_install_dir: ~/miniforge3
+            build_workspace_dir: build_artifacts
+            docker_run_args: 
           - CONFIG: osx_64_python3.11.____cpython
             STORE_BUILD_ARTIFACTS: False
             UPLOAD_PACKAGES: True
@@ -30,7 +174,55 @@ jobs:
             tools_install_dir: ~/miniforge3
             build_workspace_dir: ~/miniforge3/conda-bld
             docker_run_args: 
+          - CONFIG: osx_64_python3.12.____cpython
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            os: macos
+            runs_on: ['namespace-profile-12cpu-on-osx-arm64']
+            tools_install_dir: ~/miniforge3
+            build_workspace_dir: ~/miniforge3/conda-bld
+            docker_run_args: 
+          - CONFIG: osx_64_python3.13.____cp313
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            os: macos
+            runs_on: ['namespace-profile-12cpu-on-osx-arm64']
+            tools_install_dir: ~/miniforge3
+            build_workspace_dir: ~/miniforge3/conda-bld
+            docker_run_args: 
+          - CONFIG: osx_64_python3.14.____cp314
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            os: macos
+            runs_on: ['namespace-profile-12cpu-on-osx-arm64']
+            tools_install_dir: ~/miniforge3
+            build_workspace_dir: ~/miniforge3/conda-bld
+            docker_run_args: 
           - CONFIG: osx_arm64_python3.11.____cpython
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            os: macos
+            runs_on: ['namespace-profile-12cpu-on-osx-arm64']
+            tools_install_dir: ~/miniforge3
+            build_workspace_dir: ~/miniforge3/conda-bld
+            docker_run_args: 
+          - CONFIG: osx_arm64_python3.12.____cpython
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            os: macos
+            runs_on: ['namespace-profile-12cpu-on-osx-arm64']
+            tools_install_dir: ~/miniforge3
+            build_workspace_dir: ~/miniforge3/conda-bld
+            docker_run_args: 
+          - CONFIG: osx_arm64_python3.13.____cp313
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            os: macos
+            runs_on: ['namespace-profile-12cpu-on-osx-arm64']
+            tools_install_dir: ~/miniforge3
+            build_workspace_dir: ~/miniforge3/conda-bld
+            docker_run_args: 
+          - CONFIG: osx_arm64_python3.14.____cp314
             STORE_BUILD_ARTIFACTS: False
             UPLOAD_PACKAGES: True
             os: macos
