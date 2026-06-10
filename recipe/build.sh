@@ -72,6 +72,12 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
         sed -i 's|new (\&dst_items\[i\]) T(block_src_it\[src_pos\]);|detail::uninitialized_copy_single(\&dst_items[i], block_src_it[src_pos]);|' "${CUDA_CUB_BLOCK_LOAD}"
       done < <(find "${CUDA_INCLUDE_ROOT}" -path '*/cub/block/block_load.cuh' -print)
     done
+    # Work around NCCL __stwt(uint4*) not being supported in CUDA 12.9+
+    # __stwt now only accepts __half* / __bfloat* pointer types.
+    NCPROXY="${PREFIX}/include/nccl_device/gin/proxy/gin_proxy.h"
+    if [[ -f "${NCPROXY}" ]]; then
+      sed -i 's/__stwt((uint4\*)&q\[idx\] + i, ((uint4\*)gfd)\[i\])/((uint4*)\&q[idx])\[i\] = ((uint4*)gfd)\[i\]/' "${NCPROXY}"
+    fi
     export LOCAL_CUDA_PATH="${BUILD_PREFIX}/targets/${CUDA_ARCH}"
     export LOCAL_CUDNN_PATH="${PREFIX}/targets/${CUDA_ARCH}"
     export LOCAL_NCCL_PATH="${PREFIX}/targets/${CUDA_ARCH}"
@@ -99,7 +105,8 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
                --cuda_major_version=${CUDA_COMPILER_MAJOR_VERSION} \
                --cuda_version=$TF_CUDA_VERSION \
                --cudnn_version=$TF_CUDNN_VERSION \
-               --build_cuda_with_clang"
+               --build_cuda_with_clang \
+               --bazel_options=--cxxopt=-include --bazel_options=--cxxopt=string.h"
 fi
 
 if [[ "${CI:-}" == "github_actions" ]]; then
@@ -222,7 +229,7 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
         # Prefer nm -s as requested; fall back to plain nm if -s is unsupported to avoid hard failure.
         # Fail the build if any symbol starting with FLAGS_ is present.
         for SO in "${SO_FILES[@]}"; do
-          SYMBOLS_OUTPUT=$(nm -s "${SO}" 2>/dev/null || nm "${SO}")
+          SYMBOLS_OUTPUT=$(${NM} -s "${SO}" 2>/dev/null || ${nm} "${SO}")
           if echo "${SYMBOLS_OUTPUT}" | grep -E '(^|[^A-Za-z0-9_])FLAGS_[A-Za-z0-9_]+' >/dev/null; then
             echo "Error: Unexpected FLAGS_* symbols found in ${SO}:" >&2
             echo "----------------------------------------" >&2

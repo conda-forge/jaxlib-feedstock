@@ -22,6 +22,8 @@ cxx_compiler_version:
 - '20'
 flatbuffers:
 - 25.9.23
+github_actions_labels:
+- namespace-profile-12cpu-on-osx-arm64
 libabseil:
 - '20260107'
 libgrpc:
