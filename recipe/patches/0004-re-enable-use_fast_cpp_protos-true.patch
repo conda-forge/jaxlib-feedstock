@@ -1,4 +1,4 @@
-From 6b6435bc8ec120380ca9342bcfc0502b66af680a Mon Sep 17 00:00:00 2001
+From 1b73c271372e0750b636025ef19d4aa1b816cf8e Mon Sep 17 00:00:00 2001
 From: "H. Vetinari" <h.vetinari@gmx.com>
 Date: Sun, 31 Aug 2025 13:28:45 +1100
 Subject: [PATCH 4/4] re-enable use_fast_cpp_protos=true
@@ -8,7 +8,7 @@ Subject: [PATCH 4/4] re-enable use_fast_cpp_protos=true
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/.bazelrc b/.bazelrc
-index 4822c09..85084bb 100644
+index 012b595..25a7fbc 100644
 --- a/.bazelrc
 +++ b/.bazelrc
 @@ -145,7 +145,7 @@ common --@rules_python//python/config_settings:precompile=force_disabled
