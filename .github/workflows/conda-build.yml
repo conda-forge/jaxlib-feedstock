@@ -28,7 +28,7 @@ jobs:
             UPLOAD_PACKAGES: True
             build_workspace_dir: build_artifacts
             docker_run_args: 
-            free_disk_space: skip
+            free_disk_space: max
             os: ubuntu
             pagefile_size: 0
             resize_partitions: False
@@ -40,7 +40,7 @@ jobs:
             UPLOAD_PACKAGES: True
             build_workspace_dir: build_artifacts
             docker_run_args: 
-            free_disk_space: skip
+            free_disk_space: max
             os: ubuntu
             pagefile_size: 0
             resize_partitions: False
@@ -52,7 +52,7 @@ jobs:
             UPLOAD_PACKAGES: True
             build_workspace_dir: build_artifacts
             docker_run_args: 
-            free_disk_space: skip
+            free_disk_space: max
             os: ubuntu
             pagefile_size: 0
             resize_partitions: False
@@ -64,7 +64,7 @@ jobs:
             UPLOAD_PACKAGES: True
             build_workspace_dir: build_artifacts
             docker_run_args: 
-            free_disk_space: skip
+            free_disk_space: max
             os: ubuntu
             pagefile_size: 0
             resize_partitions: False
@@ -76,7 +76,7 @@ jobs:
             UPLOAD_PACKAGES: True
             build_workspace_dir: build_artifacts
             docker_run_args: 
-            free_disk_space: skip
+            free_disk_space: max
             os: ubuntu
             pagefile_size: 0
             resize_partitions: False
@@ -88,7 +88,7 @@ jobs:
             UPLOAD_PACKAGES: True
             build_workspace_dir: build_artifacts
             docker_run_args: 
-            free_disk_space: skip
+            free_disk_space: max
             os: ubuntu
             pagefile_size: 0
             resize_partitions: False
@@ -100,7 +100,7 @@ jobs:
             UPLOAD_PACKAGES: True
             build_workspace_dir: build_artifacts
             docker_run_args: 
-            free_disk_space: skip
+            free_disk_space: max
             os: ubuntu
             pagefile_size: 0
             resize_partitions: False
@@ -112,7 +112,7 @@ jobs:
             UPLOAD_PACKAGES: True
             build_workspace_dir: build_artifacts
             docker_run_args: 
-            free_disk_space: skip
+            free_disk_space: max
             os: ubuntu
             pagefile_size: 0
             resize_partitions: False
@@ -124,7 +124,7 @@ jobs:
             UPLOAD_PACKAGES: True
             build_workspace_dir: build_artifacts
             docker_run_args: 
-            free_disk_space: skip
+            free_disk_space: max
             os: ubuntu
             pagefile_size: 0
             resize_partitions: False
@@ -136,7 +136,7 @@ jobs:
             UPLOAD_PACKAGES: True
             build_workspace_dir: build_artifacts
             docker_run_args: 
-            free_disk_space: skip
+            free_disk_space: max
             os: ubuntu
             pagefile_size: 0
             resize_partitions: False
@@ -148,7 +148,7 @@ jobs:
             UPLOAD_PACKAGES: True
             build_workspace_dir: build_artifacts
             docker_run_args: 
-            free_disk_space: skip
+            free_disk_space: max
             os: ubuntu
             pagefile_size: 0
             resize_partitions: False
@@ -160,7 +160,7 @@ jobs:
             UPLOAD_PACKAGES: True
             build_workspace_dir: build_artifacts
             docker_run_args: 
-            free_disk_space: skip
+            free_disk_space: max
             os: ubuntu
             pagefile_size: 0
             resize_partitions: False
@@ -172,7 +172,7 @@ jobs:
             UPLOAD_PACKAGES: True
             build_workspace_dir: build_artifacts
             docker_run_args: 
-            free_disk_space: skip
+            free_disk_space: max
             os: ubuntu
             pagefile_size: 0
             resize_partitions: False
@@ -184,7 +184,7 @@ jobs:
             UPLOAD_PACKAGES: True
             build_workspace_dir: build_artifacts
             docker_run_args: 
-            free_disk_space: skip
+            free_disk_space: max
             os: ubuntu
             pagefile_size: 0
             resize_partitions: False
@@ -196,7 +196,7 @@ jobs:
             UPLOAD_PACKAGES: True
             build_workspace_dir: build_artifacts
             docker_run_args: 
-            free_disk_space: skip
+            free_disk_space: max
             os: ubuntu
             pagefile_size: 0
             resize_partitions: False
@@ -208,7 +208,7 @@ jobs:
             UPLOAD_PACKAGES: True
             build_workspace_dir: build_artifacts
             docker_run_args: 
-            free_disk_space: skip
+            free_disk_space: max
             os: ubuntu
             pagefile_size: 0
             resize_partitions: False
@@ -219,7 +219,7 @@ jobs:
             UPLOAD_PACKAGES: True
             build_workspace_dir: ~/miniforge3/conda-bld
             docker_run_args: 
-            free_disk_space: skip
+            free_disk_space: max
             os: macos
             pagefile_size: 0
             resize_partitions: False
@@ -230,7 +230,7 @@ jobs:
             UPLOAD_PACKAGES: True
             build_workspace_dir: ~/miniforge3/conda-bld
             docker_run_args: 
-            free_disk_space: skip
+            free_disk_space: max
             os: macos
             pagefile_size: 0
             resize_partitions: False
@@ -241,7 +241,7 @@ jobs:
             UPLOAD_PACKAGES: True
             build_workspace_dir: ~/miniforge3/conda-bld
             docker_run_args: 
-            free_disk_space: skip
+            free_disk_space: max
             os: macos
             pagefile_size: 0
             resize_partitions: False
@@ -252,7 +252,7 @@ jobs:
             UPLOAD_PACKAGES: True
             build_workspace_dir: ~/miniforge3/conda-bld
             docker_run_args: 
-            free_disk_space: skip
+            free_disk_space: max
             os: macos
             pagefile_size: 0
             resize_partitions: False
@@ -263,7 +263,7 @@ jobs:
             UPLOAD_PACKAGES: True
             build_workspace_dir: ~/miniforge3/conda-bld
             docker_run_args: 
-            free_disk_space: skip
+            free_disk_space: max
             os: macos
             pagefile_size: 0
             resize_partitions: False
@@ -274,7 +274,7 @@ jobs:
             UPLOAD_PACKAGES: True
             build_workspace_dir: ~/miniforge3/conda-bld
             docker_run_args: 
-            free_disk_space: skip
+            free_disk_space: max
             os: macos
             pagefile_size: 0
             resize_partitions: False
@@ -285,7 +285,7 @@ jobs:
             UPLOAD_PACKAGES: True
             build_workspace_dir: ~/miniforge3/conda-bld
             docker_run_args: 
-            free_disk_space: skip
+            free_disk_space: max
             os: macos
             pagefile_size: 0
             resize_partitions: False
@@ -296,7 +296,7 @@ jobs:
             UPLOAD_PACKAGES: True
             build_workspace_dir: ~/miniforge3/conda-bld
             docker_run_args: 
-            free_disk_space: skip
+            free_disk_space: max
             os: macos
             pagefile_size: 0
             resize_partitions: False
@@ -306,6 +306,14 @@ jobs:
 
     - name: Checkout code
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+    - name: Manage disk space
+      env:
+        FREE_DISK_SPACE: ${{ matrix.free_disk_space }}
+        OS: ${{ matrix.os }}
+      shell: bash
+      run: |
+        .scripts/free_disk_space.sh "${FREE_DISK_SPACE}"
     - name: Configure binfmt_misc
       if: matrix.os == 'ubuntu'
       shell: bash
