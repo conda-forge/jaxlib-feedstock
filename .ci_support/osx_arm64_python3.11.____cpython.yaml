@@ -1,7 +1,7 @@
 MACOSX_DEPLOYMENT_TARGET:
-- '11.0'
+- '12.0'
 MACOSX_SDK_VERSION:
-- '11.0'
+- '12.0'
 c_compiler:
 - clang
 c_compiler_version:
@@ -9,7 +9,7 @@ c_compiler_version:
 c_stdlib:
 - macosx_deployment_target
 c_stdlib_version:
-- '11.0'
+- '12.0'
 channel_sources:
 - conda-forge
 channel_targets:
@@ -25,11 +25,11 @@ flatbuffers:
 github_actions_labels:
 - namespace-profile-12cpu-on-osx-arm64
 libabseil:
-- '20260107'
+- '20260526'
 libgrpc:
-- '1.78'
+- '1.82'
 libprotobuf:
-- 6.33.5
+- 7.35.1
 macos_machine:
 - arm64-apple-darwin20.0.0
 numpy:
