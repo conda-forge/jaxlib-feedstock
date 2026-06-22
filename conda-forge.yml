@@ -1,5 +1,7 @@
 azure:
   free_disk_space: true
+build_platform:
+  osx_64: osx_arm64
 conda_build:
   pkg_format: '2'
 conda_build_tool: rattler-build
@@ -13,8 +15,6 @@ github_actions:
   triggers:
   - push
   - pull_request
-build_platform:
-  osx_64: osx_arm64
 provider:
   linux_64: github_actions
   linux_aarch64: github_actions
