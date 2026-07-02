@@ -23,7 +23,29 @@ if [[ "${host_platform}" == "linux-64" || "${host_platform}" == "linux-aarch64" 
     LDFLAGS+=" -Wl,-z,noexecstack"
 fi
 export CFLAGS="${CFLAGS} -DNDEBUG -Dabsl_nullable= -Dabsl_nonnull="
-export CXXFLAGS="${CXXFLAGS} -DNDEBUG -Dabsl_nullable= -Dabsl_nonnull="
+export CXXFLAGS="${CXXFLAGS} -DNDEBUG -Dabsl_nullable= -Dabsl_nonnull= -Wno-ignored-attributes"
+
+if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
+  # libstdc++ assertions in std::optional expand to __glibcxx_assert_fail(),
+  # which is host-only and breaks clang -x cuda device compilation.
+  export CXXFLAGS="${CXXFLAGS} -U_GLIBCXX_ASSERTIONS"
+fi
+
+# Clang 20+ enforces that explicitly-defaulted copy assignment operators
+# must have a parameter type matching the implicitly-declared one.
+# GCC 15.2.0's std::optional uses = default with const parameters, but
+# when the contained type has a non-const (or deleted) copy assignment,
+# Clang reports: "the parameter for this explicitly-defaulted copy assignment
+# operator is const, but a member or base requires it to be non-const".
+#
+# In C++17 mode this is a hard error. In C++20+ mode, Clang downgrades
+# this diagnostic to a warning (warn_defaulted_method_deleted) and the
+# function is implicitly deleted. Override -std=c++17 to -std=c++20 and
+# suppress the resulting warning.
+#
+# Also suppress GCC -Wdefaulted-function-deleted warnings that may arise
+# when C++ standard mode is upgraded.
+CXXFLAGS="${CXXFLAGS} -Wno-defaulted-function-deleted"
 
 if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
     if [[ ${cuda_compiler_version} == 12* ]]; then
@@ -77,6 +99,19 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
     NCPROXY="${PREFIX}/include/nccl_device/gin/proxy/gin_proxy.h"
     if [[ -f "${NCPROXY}" ]]; then
       sed -i 's/__stwt((uint4\*)&q\[idx\] + i, ((uint4\*)gfd)\[i\])/((uint4*)\&q[idx])\[i\] = ((uint4*)gfd)\[i\]/' "${NCPROXY}"
+    fi
+
+    # Work around NCCL gin_gpi headers using typeof() which is not supported
+    # in CUDA device compilation with Clang. Replace typeof with a decltype-based
+    # approach that strips references using a template helper.
+    GPI_DEVICE_HOST_COMMON="${PREFIX}/include/nccl_device/gin/gpi/gin_gpi_device_host_common.h"
+    if [[ -f "${GPI_DEVICE_HOST_COMMON}" ]]; then
+      # Insert template helper before #ifndef GPI_ACCESS_ONCE to strip references from decltype
+      sed -i 's/^#ifndef GPI_ACCESS_ONCE$/template<typename T> struct __gpi_remove_ref { using type = T; };\
+template<typename T> struct __gpi_remove_ref<T\&> { using type = T; };\
+template<typename T> struct __gpi_remove_ref<T\&\&> { using type = T; };\
+#ifndef GPI_ACCESS_ONCE/' "${GPI_DEVICE_HOST_COMMON}"
+      sed -i 's/typeof(x)/typename __gpi_remove_ref<decltype(x)>::type/g' "${GPI_DEVICE_HOST_COMMON}"
     fi
     export LOCAL_CUDA_PATH="${BUILD_PREFIX}/targets/${CUDA_ARCH}"
     export LOCAL_CUDNN_PATH="${PREFIX}/targets/${CUDA_ARCH}"
@@ -152,7 +187,7 @@ if [[ "${host_platform}" != "osx-arm64" ]]; then
 fi
 
 # Mark as a release build
-EXTRA="--bazel_options=--repo_env=ML_WHEEL_TYPE=release ${CUDA_ARGS:-}"
+EXTRA="--bazel_options=--repo_env=ML_WHEEL_TYPE=release ${CUDA_ARGS:-} --bazel_options=--cxxopt=-std=c++20 --bazel_options=--host_cxxopt=-std=c++20"
 
 if [[ "${host_platform}" == "osx-arm64" || "${host_platform}" != "${build_platform}" ]]; then
     EXTRA="${EXTRA} --target_cpu ${TARGET_CPU}"
@@ -170,6 +205,21 @@ if [[ "${host_platform}" == linux-* ]]; then
     # Keep using our toolchain for both target and host builds.
     sed -i -E '/--crosstool_top="?@local_config_cuda\/\/crosstool:toolchain"?/d' .bazelrc
     sed -i -E '/--host_crosstool_top="?@local_config_cuda\/\/crosstool:toolchain"?/d' .bazelrc
+fi
+
+
+# Work around GCC's type_traits using internal helper functions (__or_fn, __and_fn)
+# that are implicitly __host__ only, which breaks clang -x cuda device compilation.
+# Add __attribute__((host)) __attribute__((device)) to make them available in device code.
+GCC_TYPE_TRAITS=$(find ${BUILD_PREFIX}/lib/gcc -name type_traits -not -path "*/experimental/*" -not -path "*/tr1/*" -not -path "*/tr2/*" -print 2>/dev/null | head -1)
+if [[ -f "${GCC_TYPE_TRAITS}" ]]; then
+  echo "Patching GCC type_traits: ${GCC_TYPE_TRAITS}"
+  sed -i 's/auto __or_fn(int)/__attribute__((host)) __attribute__((device)) auto __or_fn(int)/g' "${GCC_TYPE_TRAITS}"
+  sed -i 's/auto __or_fn(\.\.\.)/__attribute__((host)) __attribute__((device)) auto __or_fn(...)/g' "${GCC_TYPE_TRAITS}"
+  sed -i 's/auto __and_fn(int)/__attribute__((host)) __attribute__((device)) auto __and_fn(int)/g' "${GCC_TYPE_TRAITS}"
+  sed -i 's/auto __and_fn(\.\.\.)/__attribute__((host)) __attribute__((device)) auto __and_fn(...)/g' "${GCC_TYPE_TRAITS}"
+else
+  echo "GCC type_traits not found at ${BUILD_PREFIX}/lib/gcc"
 fi
 
 ${PYTHON} build/build.py build \
