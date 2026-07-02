@@ -211,7 +211,7 @@ fi
 # Work around GCC's type_traits using internal helper functions (__or_fn, __and_fn)
 # that are implicitly __host__ only, which breaks clang -x cuda device compilation.
 # Add __attribute__((host)) __attribute__((device)) to make them available in device code.
-GCC_TYPE_TRAITS=$(find ${BUILD_PREFIX}/lib/gcc -name type_traits -not -path "*/experimental/*" -not -path "*/tr1/*" -not -path "*/tr2/*" -print 2>/dev/null | head -1)
+GCC_TYPE_TRAITS=$(find ${BUILD_PREFIX}/lib/gcc -name type_traits -not -path "*/experimental/*" -not -path "*/tr1/*" -not -path "*/tr2/*" -print 2>/dev/null | head -1) || :
 if [[ -f "${GCC_TYPE_TRAITS}" ]]; then
   echo "Patching GCC type_traits: ${GCC_TYPE_TRAITS}"
   sed -i 's/auto __or_fn(int)/__attribute__((host)) __attribute__((device)) auto __or_fn(int)/g' "${GCC_TYPE_TRAITS}"
