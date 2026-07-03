@@ -1,0 +1,201 @@
+From ad2c111719e25eaed95545edac3eefb3a996d5e6 Mon Sep 17 00:00:00 2001
+From: "Uwe L. Korn" <uwe.korn@quantco.com>
+Date: Wed, 1 Jul 2026 19:12:57 +0000
+Subject: [PATCH] Fix oneDNN ACL spdlog/fmt consteval and LLVM
+ indexed_accessor_iterator issues with Clang 20
+
+---
+ ...pdlog-fmt-consteval-error-with-Clang.patch | 75 +++++++++++++++++
+ ..._accessor_iterator-missing-default-c.patch | 84 +++++++++++++++++++
+ third_party/xla/workspace.bzl                 |  2 +
+ 3 files changed, 161 insertions(+)
+ create mode 100644 third_party/xla/0012-Fix-oneDNN-ACL-spdlog-fmt-consteval-error-with-Clang.patch
+ create mode 100644 third_party/xla/0013-Fix-LLVM-indexed_accessor_iterator-missing-default-c.patch
+
+diff --git a/third_party/xla/0012-Fix-oneDNN-ACL-spdlog-fmt-consteval-error-with-Clang.patch b/third_party/xla/0012-Fix-oneDNN-ACL-spdlog-fmt-consteval-error-with-Clang.patch
+new file mode 100644
+index 0000000..6b8aa6d
+--- /dev/null
++++ b/third_party/xla/0012-Fix-oneDNN-ACL-spdlog-fmt-consteval-error-with-Clang.patch
+@@ -0,0 +1,75 @@
++From 19f8e71ad6c3bbda6eefa281bfa33762b56aa942 Mon Sep 17 00:00:00 2001
++From: "Uwe L. Korn" <uwe.korn@quantco.com>
++Date: Wed, 1 Jul 2026 18:16:37 +0000
++Subject: [PATCH] Fix oneDNN ACL spdlog/fmt consteval error with Clang 20
++
++---
++ .../onednn_acl_fix_spdlog_fmt_consteval.patch | 43 +++++++++++++++++++
++ third_party/mkl_dnn/workspace.bzl             |  1 +
++ 2 files changed, 44 insertions(+)
++ create mode 100644 third_party/mkl_dnn/onednn_acl_fix_spdlog_fmt_consteval.patch
++
++diff --git a/third_party/mkl_dnn/onednn_acl_fix_spdlog_fmt_consteval.patch b/third_party/mkl_dnn/onednn_acl_fix_spdlog_fmt_consteval.patch
++new file mode 100644
++index 0000000000..7cba3af8a6
++--- /dev/null
+++++ b/third_party/mkl_dnn/onednn_acl_fix_spdlog_fmt_consteval.patch
++@@ -0,0 +1,43 @@
+++# Copyright 2026 The OpenXLA Authors.
+++#
+++# Licensed under the Apache License, Version 2.0 (the "License");
+++# you may not use this file except in compliance with the License.
+++# You may obtain a copy of the License at
+++#
+++#     http://www.apache.org/licenses/LICENSE-2.0
+++#
+++# Unless required by applicable law or agreed to in writing, software
+++# distributed under the License is distributed on an "AS IS" BASIS,
+++# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+++# See the License for the specific language governing permissions and
+++# limitations under the License.
+++# ==============================================================================
+++#
+++# The bundled fmt (v11.0.2) implementation of compile-time-checked format
+++# strings (FMT_STRING) relies on evaluating a non-constexpr-safe code path
+++# inside a consteval constructor. Clang >= 18 rejects this with:
+++#   error: call to consteval function ... is not a constant expression
+++# because it now propagates immediate-function-context requirements into
+++# every sub-expression of a consteval call (matching the C++23 resolution
+++# of CWG2334), which fmt 11.0.2 does not yet handle. This affects both
+++# spdlog's own call sites and fmt's internal call sites (e.g. bigint
+++# formatting), so patch FMT_STRING itself rather than each call site.
+++#
+++# Since compile-time format-string checking is a diagnostic-only feature
+++# (format strings are still checked at runtime), disable it for the
+++# bundled fmt used by oneDNN's verbose logging so it builds with newer
+++# Clang releases.
+++diff --git a/src/common/spdlog/fmt/bundled/format.h b/src/common/spdlog/fmt/bundled/format.h
+++index 1111111..2222222 100644
+++--- a/src/common/spdlog/fmt/bundled/format.h
++++++ b/src/common/spdlog/fmt/bundled/format.h
+++@@ -1824,5 +1824,7 @@
+++  *     // A compile-time error because 'd' is an invalid specifier for strings.
+++  *     std::string s = fmt::format(FMT_STRING("{:d}"), "foo");
+++  */
+++-#define FMT_STRING(s) FMT_STRING_IMPL(s, fmt::detail::compile_string, )
++++// Disabled: fmt 11.0.2's FMT_STRING_IMPL trips a consteval-constant-expression
++++// bug with Clang >= 18. Fall back to runtime-checked format strings.
++++#define FMT_STRING(s) s
+++
+++ template <size_t width, typename Char, typename OutputIt>
++diff --git a/third_party/mkl_dnn/workspace.bzl b/third_party/mkl_dnn/workspace.bzl
++index 14cde92583..ddcd48b733 100644
++--- a/third_party/mkl_dnn/workspace.bzl
+++++ b/third_party/mkl_dnn/workspace.bzl
++@@ -33,6 +33,7 @@ def repo():
++         patch_file = [
++             "//third_party/mkl_dnn:onednn_acl_lock_fixed_format_matmul.patch",
++             "//third_party/mkl_dnn:onednn_acl_threadpool_default_max.patch",
+++            "//third_party/mkl_dnn:onednn_acl_fix_spdlog_fmt_consteval.patch",
++         ],
++         sha256 = "5792cbc07764c6e25c459ff68efb5cfcd7f4a0ba66dca6a4a2c681cd7a644596",
++         strip_prefix = "oneDNN-3.7",
++-- 
++2.43.0
++
+diff --git a/third_party/xla/0013-Fix-LLVM-indexed_accessor_iterator-missing-default-c.patch b/third_party/xla/0013-Fix-LLVM-indexed_accessor_iterator-missing-default-c.patch
+new file mode 100644
+index 0000000..6448bb5
+--- /dev/null
++++ b/third_party/xla/0013-Fix-LLVM-indexed_accessor_iterator-missing-default-c.patch
+@@ -0,0 +1,84 @@
++From 4ce0295dd693d309876493cdd26d70c42e57ab09 Mon Sep 17 00:00:00 2001
++From: "Uwe L. Korn" <uwe.korn@quantco.com>
++Date: Wed, 1 Jul 2026 19:08:02 +0000
++Subject: [PATCH] Fix LLVM indexed_accessor_iterator missing default
++ constructor under C++20
++
++---
++ ...dexed_accessor_iterator_default_ctor.patch | 51 +++++++++++++++++++
++ third_party/llvm/workspace.bzl                |  1 +
++ 2 files changed, 52 insertions(+)
++ create mode 100644 third_party/llvm/fix_indexed_accessor_iterator_default_ctor.patch
++
++diff --git a/third_party/llvm/fix_indexed_accessor_iterator_default_ctor.patch b/third_party/llvm/fix_indexed_accessor_iterator_default_ctor.patch
++new file mode 100644
++index 0000000000..9a48d858bf
++--- /dev/null
+++++ b/third_party/llvm/fix_indexed_accessor_iterator_default_ctor.patch
++@@ -0,0 +1,51 @@
+++# Copyright 2026 The LLVM Project Authors.
+++#
+++# Part of the LLVM Project, under the Apache License v2.0 with LLVM
+++# Exceptions. See https://llvm.org/LICENSE.txt for license information.
+++# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+++#
+++# indexed_accessor_iterator (and the nested iterator type of
+++# indexed_accessor_range_base, used e.g. by mlir::SuccessorRange) has no
+++# default constructor by design. When compiled as C++20 (this build forces
+++# -std=c++20, see recipe/build.sh), libstdc++'s std::reverse_iterator
+++# eagerly instantiates its own default constructor's exception specifier
+++# (`noexcept(noexcept(_Iterator()))`) whenever `std::is_constructible_v` (or
+++# a concept built on top of it, e.g. via GenericDomTreeConstruction.h's use
+++# of reverse_iterator) is checked against these iterators. Since exception
+++# specifications are instantiated outside of SFINAE context (CWG1330),
+++# a *missing* default constructor turns into a hard error:
+++#   error: no matching constructor for initialization of
+++#   'llvm::detail::indexed_accessor_range_base<...>::iterator'
+++#
+++# Adding a defaulted default constructor fixes this: it is well-formed to
+++# name (even a deleted) default constructor from an unevaluated operand, so
+++# it's enough for `_Iterator()` to resolve to *some* declared constructor.
+++# The added constructors are never meaningfully invoked at runtime.
+++diff --git a/llvm/include/llvm/ADT/STLExtras.h b/llvm/include/llvm/ADT/STLExtras.h
+++index 1111111..2222222 100644
+++--- a/llvm/include/llvm/ADT/STLExtras.h
++++++ b/llvm/include/llvm/ADT/STLExtras.h
+++@@ -1193,6 +1193,10 @@ public:
+++   const BaseT &getBase() const { return base; }
+++
+++ protected:
++++  // Only present to satisfy std::default_initializable (needed transitively
++++  // by e.g. std::reverse_iterator under C++20); never meaningfully invoked.
++++  indexed_accessor_iterator() = default;
++++
+++   indexed_accessor_iterator(BaseT base, ptrdiff_t index)
+++       : base(base), index(index) {}
+++   BaseT base;
+++@@ -1220,7 +1224,12 @@ public:
+++   class iterator : public indexed_accessor_iterator<iterator, BaseT, T,
+++                                                     PointerT, ReferenceT> {
+++   public:
++++    // Only present to satisfy std::default_initializable (needed
++++    // transitively by e.g. std::reverse_iterator under C++20); never
++++    // meaningfully invoked.
++++    iterator() = default;
++++
+++     // Index into this iterator, invoking a static method on the derived type.
+++     ReferenceT operator*() const {
+++       return DerivedT::dereference_iterator(this->getBase(), this->getIndex());
+++     }
++diff --git a/third_party/llvm/workspace.bzl b/third_party/llvm/workspace.bzl
++index 1344146573..6d4d45ebc6 100644
++--- a/third_party/llvm/workspace.bzl
+++++ b/third_party/llvm/workspace.bzl
++@@ -24,6 +24,7 @@ def repo(name):
++             "//third_party/llvm:lit_test.patch",
++             "//third_party/llvm:run_lit.patch",
++             "//third_party/llvm:llvm_pr_203230.patch",
+++            "//third_party/llvm:fix_indexed_accessor_iterator_default_ctor.patch",
++         ],
++         link_files = {"//third_party/llvm:run_lit.sh": "mlir/run_lit.sh"},
++     )
++-- 
++2.43.0
++
+diff --git a/third_party/xla/workspace.bzl b/third_party/xla/workspace.bzl
+index 2dd4755..a051b61 100644
+--- a/third_party/xla/workspace.bzl
++++ b/third_party/xla/workspace.bzl
+@@ -40,6 +40,8 @@ def repo():
+             "//third_party/xla:0009-Add-macos_x86_64-to-mkl_deps.patch",
+             "//third_party/xla:0010-Add-systemlib-for-oneDNN.patch",
+             "//third_party/xla:0011-Fix-clang-CUDA-incompatabilities.patch",
++            "//third_party/xla:0012-Fix-oneDNN-ACL-spdlog-fmt-consteval-error-with-Clang.patch",
++            "//third_party/xla:0013-Fix-LLVM-indexed_accessor_iterator-missing-default-c.patch",
+         ],
+     )
+ 
+-- 
+2.43.0
+
