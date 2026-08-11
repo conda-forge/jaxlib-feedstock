@@ -23,7 +23,7 @@ jobs:
       matrix:
         include:
           - CONFIG: linux_64_cuda_compiler_version12.9python3.11.____cpython
-            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma10
             STORE_BUILD_ARTIFACTS: False
             UPLOAD_PACKAGES: True
             build_workspace_dir: build_artifacts
@@ -35,7 +35,7 @@ jobs:
             runs_on: ['namespace-profile-16cpu-on-linux-64;container.privileged=true;container.mount-scratch=true']
             tools_install_dir: ~/miniforge3
           - CONFIG: linux_64_cuda_compiler_version12.9python3.12.____cpython
-            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma10
             STORE_BUILD_ARTIFACTS: False
             UPLOAD_PACKAGES: True
             build_workspace_dir: build_artifacts
@@ -47,7 +47,7 @@ jobs:
             runs_on: ['namespace-profile-16cpu-on-linux-64;container.privileged=true;container.mount-scratch=true']
             tools_install_dir: ~/miniforge3
           - CONFIG: linux_64_cuda_compiler_version12.9python3.13.____cp313
-            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma10
             STORE_BUILD_ARTIFACTS: False
             UPLOAD_PACKAGES: True
             build_workspace_dir: build_artifacts
@@ -59,7 +59,19 @@ jobs:
             runs_on: ['namespace-profile-16cpu-on-linux-64;container.privileged=true;container.mount-scratch=true']
             tools_install_dir: ~/miniforge3
           - CONFIG: linux_64_cuda_compiler_version12.9python3.14.____cp314
-            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma10
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            build_workspace_dir: build_artifacts
+            docker_run_args: 
+            free_disk_space: max
+            os: ubuntu
+            pagefile_size: 0
+            resize_partitions: False
+            runs_on: ['namespace-profile-16cpu-on-linux-64;container.privileged=true;container.mount-scratch=true']
+            tools_install_dir: ~/miniforge3
+          - CONFIG: linux_64_cuda_compiler_version12.9python3.14.____cp314t
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma10
             STORE_BUILD_ARTIFACTS: False
             UPLOAD_PACKAGES: True
             build_workspace_dir: build_artifacts
@@ -71,7 +83,7 @@ jobs:
             runs_on: ['namespace-profile-16cpu-on-linux-64;container.privileged=true;container.mount-scratch=true']
             tools_install_dir: ~/miniforge3
           - CONFIG: linux_64_cuda_compiler_versionNonepython3.11.____cpython
-            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma10
             STORE_BUILD_ARTIFACTS: False
             UPLOAD_PACKAGES: True
             build_workspace_dir: build_artifacts
@@ -83,7 +95,7 @@ jobs:
             runs_on: ['namespace-profile-16cpu-on-linux-64;container.privileged=true;container.mount-scratch=true']
             tools_install_dir: ~/miniforge3
           - CONFIG: linux_64_cuda_compiler_versionNonepython3.12.____cpython
-            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma10
             STORE_BUILD_ARTIFACTS: False
             UPLOAD_PACKAGES: True
             build_workspace_dir: build_artifacts
@@ -95,7 +107,7 @@ jobs:
             runs_on: ['namespace-profile-16cpu-on-linux-64;container.privileged=true;container.mount-scratch=true']
             tools_install_dir: ~/miniforge3
           - CONFIG: linux_64_cuda_compiler_versionNonepython3.13.____cp313
-            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma10
             STORE_BUILD_ARTIFACTS: False
             UPLOAD_PACKAGES: True
             build_workspace_dir: build_artifacts
@@ -107,7 +119,19 @@ jobs:
             runs_on: ['namespace-profile-16cpu-on-linux-64;container.privileged=true;container.mount-scratch=true']
             tools_install_dir: ~/miniforge3
           - CONFIG: linux_64_cuda_compiler_versionNonepython3.14.____cp314
-            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma9
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma10
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            build_workspace_dir: build_artifacts
+            docker_run_args: 
+            free_disk_space: max
+            os: ubuntu
+            pagefile_size: 0
+            resize_partitions: False
+            runs_on: ['namespace-profile-16cpu-on-linux-64;container.privileged=true;container.mount-scratch=true']
+            tools_install_dir: ~/miniforge3
+          - CONFIG: linux_64_cuda_compiler_versionNonepython3.14.____cp314t
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma10
             STORE_BUILD_ARTIFACTS: False
             UPLOAD_PACKAGES: True
             build_workspace_dir: build_artifacts
@@ -119,7 +143,7 @@ jobs:
             runs_on: ['namespace-profile-16cpu-on-linux-64;container.privileged=true;container.mount-scratch=true']
             tools_install_dir: ~/miniforge3
           - CONFIG: linux_aarch64_cuda_compiler_version12.9python3.11.____cpython
-            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-aarch64:alma9
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-aarch64:alma10
             STORE_BUILD_ARTIFACTS: False
             UPLOAD_PACKAGES: True
             build_workspace_dir: build_artifacts
@@ -131,7 +155,7 @@ jobs:
             runs_on: ['namespace-profile-8cpu-on-linux-aarch64;container.privileged=true;container.mount-scratch=true']
             tools_install_dir: ~/miniforge3
           - CONFIG: linux_aarch64_cuda_compiler_version12.9python3.12.____cpython
-            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-aarch64:alma9
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-aarch64:alma10
             STORE_BUILD_ARTIFACTS: False
             UPLOAD_PACKAGES: True
             build_workspace_dir: build_artifacts
@@ -143,7 +167,7 @@ jobs:
             runs_on: ['namespace-profile-8cpu-on-linux-aarch64;container.privileged=true;container.mount-scratch=true']
             tools_install_dir: ~/miniforge3
           - CONFIG: linux_aarch64_cuda_compiler_version12.9python3.13.____cp313
-            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-aarch64:alma9
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-aarch64:alma10
             STORE_BUILD_ARTIFACTS: False
             UPLOAD_PACKAGES: True
             build_workspace_dir: build_artifacts
@@ -155,7 +179,19 @@ jobs:
             runs_on: ['namespace-profile-8cpu-on-linux-aarch64;container.privileged=true;container.mount-scratch=true']
             tools_install_dir: ~/miniforge3
           - CONFIG: linux_aarch64_cuda_compiler_version12.9python3.14.____cp314
-            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-aarch64:alma9
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-aarch64:alma10
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            build_workspace_dir: build_artifacts
+            docker_run_args: 
+            free_disk_space: max
+            os: ubuntu
+            pagefile_size: 0
+            resize_partitions: False
+            runs_on: ['namespace-profile-8cpu-on-linux-aarch64;container.privileged=true;container.mount-scratch=true']
+            tools_install_dir: ~/miniforge3
+          - CONFIG: linux_aarch64_cuda_compiler_version12.9python3.14.____cp314t
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-aarch64:alma10
             STORE_BUILD_ARTIFACTS: False
             UPLOAD_PACKAGES: True
             build_workspace_dir: build_artifacts
@@ -167,7 +203,7 @@ jobs:
             runs_on: ['namespace-profile-8cpu-on-linux-aarch64;container.privileged=true;container.mount-scratch=true']
             tools_install_dir: ~/miniforge3
           - CONFIG: linux_aarch64_cuda_compiler_versionNonepython3.11.____cpython
-            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-aarch64:alma9
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-aarch64:alma10
             STORE_BUILD_ARTIFACTS: False
             UPLOAD_PACKAGES: True
             build_workspace_dir: build_artifacts
@@ -179,7 +215,7 @@ jobs:
             runs_on: ['namespace-profile-8cpu-on-linux-aarch64;container.privileged=true;container.mount-scratch=true']
             tools_install_dir: ~/miniforge3
           - CONFIG: linux_aarch64_cuda_compiler_versionNonepython3.12.____cpython
-            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-aarch64:alma9
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-aarch64:alma10
             STORE_BUILD_ARTIFACTS: False
             UPLOAD_PACKAGES: True
             build_workspace_dir: build_artifacts
@@ -191,7 +227,7 @@ jobs:
             runs_on: ['namespace-profile-8cpu-on-linux-aarch64;container.privileged=true;container.mount-scratch=true']
             tools_install_dir: ~/miniforge3
           - CONFIG: linux_aarch64_cuda_compiler_versionNonepython3.13.____cp313
-            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-aarch64:alma9
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-aarch64:alma10
             STORE_BUILD_ARTIFACTS: False
             UPLOAD_PACKAGES: True
             build_workspace_dir: build_artifacts
@@ -203,7 +239,19 @@ jobs:
             runs_on: ['namespace-profile-8cpu-on-linux-aarch64;container.privileged=true;container.mount-scratch=true']
             tools_install_dir: ~/miniforge3
           - CONFIG: linux_aarch64_cuda_compiler_versionNonepython3.14.____cp314
-            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-aarch64:alma9
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-aarch64:alma10
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            build_workspace_dir: build_artifacts
+            docker_run_args: 
+            free_disk_space: max
+            os: ubuntu
+            pagefile_size: 0
+            resize_partitions: False
+            runs_on: ['namespace-profile-8cpu-on-linux-aarch64;container.privileged=true;container.mount-scratch=true']
+            tools_install_dir: ~/miniforge3
+          - CONFIG: linux_aarch64_cuda_compiler_versionNonepython3.14.____cp314t
+            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-aarch64:alma10
             STORE_BUILD_ARTIFACTS: False
             UPLOAD_PACKAGES: True
             build_workspace_dir: build_artifacts
@@ -258,6 +306,17 @@ jobs:
             resize_partitions: False
             runs_on: ['namespace-profile-12cpu-on-osx-arm64']
             tools_install_dir: ~/miniforge3
+          - CONFIG: osx_64_python3.14.____cp314t
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            build_workspace_dir: ~/miniforge3/conda-bld
+            docker_run_args: 
+            free_disk_space: max
+            os: macos
+            pagefile_size: 0
+            resize_partitions: False
+            runs_on: ['namespace-profile-12cpu-on-osx-arm64']
+            tools_install_dir: ~/miniforge3
           - CONFIG: osx_arm64_python3.11.____cpython
             STORE_BUILD_ARTIFACTS: False
             UPLOAD_PACKAGES: True
@@ -302,10 +361,21 @@ jobs:
             resize_partitions: False
             runs_on: ['namespace-profile-12cpu-on-osx-arm64']
             tools_install_dir: ~/miniforge3
+          - CONFIG: osx_arm64_python3.14.____cp314t
+            STORE_BUILD_ARTIFACTS: False
+            UPLOAD_PACKAGES: True
+            build_workspace_dir: ~/miniforge3/conda-bld
+            docker_run_args: 
+            free_disk_space: max
+            os: macos
+            pagefile_size: 0
+            resize_partitions: False
+            runs_on: ['namespace-profile-12cpu-on-osx-arm64']
+            tools_install_dir: ~/miniforge3
     steps:
 
     - name: Checkout code
-      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
     - name: Manage disk space
       env:
@@ -342,7 +412,7 @@ jobs:
       run: |
         export CONDA_BLD_PATH="${CONDA_BLD_PATH/#~/${HOME}}"
         export FEEDSTOCK_NAME="$(basename $GITHUB_REPOSITORY)"
-        export GIT_BRANCH="$(basename $GITHUB_REF)"
+        export GIT_BRANCH="${GITHUB_REF_NAME}"
         export MINIFORGE_HOME="${MINIFORGE_HOME/#~/${HOME}}"
         export flow_run_id="github_$GITHUB_RUN_ID"
         export remote_url="https://github.com/$GITHUB_REPOSITORY"
@@ -372,7 +442,7 @@ jobs:
       run: |
         export CONDA_BLD_PATH="${CONDA_BLD_PATH/#~/${HOME}}"
         export FEEDSTOCK_NAME="$(basename $GITHUB_REPOSITORY)"
-        export GIT_BRANCH="$(basename $GITHUB_REF)"
+        export GIT_BRANCH="${GITHUB_REF_NAME}"
         export MINIFORGE_HOME="${MINIFORGE_HOME/#~/${HOME}}"
         export flow_run_id="github_$GITHUB_RUN_ID"
         export remote_url="https://github.com/$GITHUB_REPOSITORY"
@@ -394,6 +464,7 @@ jobs:
         set "sha=%GITHUB_SHA%"
         call ".scripts\run_win_build.bat"
       env:
+        BUILD_PLATFORM: ${{ matrix.build_platform }}
         CI: github_actions
         CONDA_BLD_PATH: ${{ matrix.build_workspace_dir }}
         CONFIG: ${{ matrix.CONFIG }}
