@@ -1,768 +1,205 @@
-From afa7d76b653bf3895daa3a1102e5e6aea2136c81 Mon Sep 17 00:00:00 2001
-From: "Uwe L. Korn" <uwe.korn@quantco.com>
-Date: Thu, 14 Dec 2023 17:06:15 +0100
-Subject: [PATCH 2/4] Consolidated build fixes for XLA
+From ec43f65ca8c4c8129d18551d04fcb901bdd55a3b Mon Sep 17 00:00:00 2001
+From: Codex <codex@localhost>
+Date: Thu, 24 Sep 2026 18:04:51 +0200
+Subject: [PATCH] Adapt XLA build fixes to Bzlmod
 
-jax vendors xla, but only populates the sources through bazel, so we cannot
-patch as usual through conda, but rather need to teach the bazel build file
-for xla to apply those patches.
-
-To maintain/rebase these patches, use a checkout of https://github.com/openxla/xla,
-and then rebase to the commit of xla being used by jax, which can be found in
-https://github.com/jax-ml/jax/blob/jax-v{{ version }}/third_party/xla/revision.bzl
-which is also where we're patching in the list of patches to apply to xla.
-
-Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
 ---
- third_party/grpc_systemlib.BUILD              |  79 +++
- third_party/xla/0001-Fix-abseil-headers.patch | 132 +++++
- .../xla/0002-Omit-usage-of-StrFormat.patch    |  25 +
- .../xla/0003-Re-enable-system-abseil.patch    | 440 ++++++++++++++++
- ...ther-absl-log-is-already-initialized.patch |  58 +++
- third_party/xla/0005-Unbundle-grpc.patch      | 469 ++++++++++++++++++
- ...-coordination_agent_recoverable-flag.patch |  35 ++
- ...al-variant-_access-is-now-header-onl.patch |  29 ++
- ...d-dependency-on-proto_bazel_features.patch |  72 +++
- .../0009-Add-macos_x86_64-to-mkl_deps.patch   |  21 +
- .../xla/0010-Add-systemlib-for-oneDNN.patch   |  93 ++++
- ...011-Fix-clang-CUDA-incompatabilities.patch |  64 +++
- third_party/xla/workspace.bzl                 |  11 +
- 13 files changed, 1528 insertions(+)
- create mode 100644 third_party/grpc_systemlib.BUILD
- create mode 100644 third_party/xla/0001-Fix-abseil-headers.patch
- create mode 100644 third_party/xla/0002-Omit-usage-of-StrFormat.patch
- create mode 100644 third_party/xla/0003-Re-enable-system-abseil.patch
- create mode 100644 third_party/xla/0004-Check-whether-absl-log-is-already-initialized.patch
- create mode 100644 third_party/xla/0005-Unbundle-grpc.patch
- create mode 100644 third_party/xla/0006-Disable-coordination_agent_recoverable-flag.patch
- create mode 100644 third_party/xla/0007-absl_bad_-optional-variant-_access-is-now-header-onl.patch
- create mode 100644 third_party/xla/0008-Add-dependency-on-proto_bazel_features.patch
- create mode 100644 third_party/xla/0009-Add-macos_x86_64-to-mkl_deps.patch
- create mode 100644 third_party/xla/0010-Add-systemlib-for-oneDNN.patch
- create mode 100644 third_party/xla/0011-Fix-clang-CUDA-incompatabilities.patch
+ MODULE.bazel                                 |   4 +
+ third_party/xla/0001-conda-build-fixes.patch | 282 +++++++++++++++++++
+ third_party/xla/BUILD.bazel                  |   3 +
+ 3 files changed, 289 insertions(+)
+ create mode 100644 third_party/xla/0001-conda-build-fixes.patch
+ create mode 100644 third_party/xla/BUILD.bazel
 
-diff --git a/third_party/grpc_systemlib.BUILD b/third_party/grpc_systemlib.BUILD
+diff --git a/MODULE.bazel b/MODULE.bazel
+index d1120c4..9870429 100644
+--- a/MODULE.bazel
++++ b/MODULE.bazel
+@@ -32,6 +32,10 @@ bazel_dep(name = "xla")
+ archive_override(
+     module_name = "xla",
+     integrity = "sha256-MsuAh9iDGKAfmXTq1iVOHKBtJj+hhH9hUDN5UlvUaJc=",
++    patch_strip = 1,
++    patches = [
++        "//third_party/xla:0001-conda-build-fixes.patch",
++    ],
+     strip_prefix = "xla-91888df6ce85102c30220e41d952065925e10886",
+     urls = ["https://github.com/openxla/xla/archive/91888df6ce85102c30220e41d952065925e10886.tar.gz"],
+ )
+diff --git a/third_party/xla/0001-conda-build-fixes.patch b/third_party/xla/0001-conda-build-fixes.patch
 new file mode 100644
-index 0000000..1f45073
+index 0000000..21aa01a
 --- /dev/null
-+++ b/third_party/grpc_systemlib.BUILD
-@@ -0,0 +1,79 @@
-+licenses(["notice"])  # Apache v2
-+
-+filegroup(
-+    name = "LICENSE",
-+    visibility = ["//visibility:public"],
-+)
-+
-+cc_library(
-+    name = "gpr",
-+    linkopts = [
-+        "-lgpr",
-+    ],
-+    visibility = ["//visibility:public"],
-+)
-+
-+cc_library(
-+    name = "grpc",
-+    linkopts = [
-+        "-lgrpc",
-+        "-lgpr",
-+    ],
-+    visibility = ["//visibility:public"],
-+)
-+
-+cc_library(
-+    name = "grpc++",
-+    linkopts = [
-+        "-lgrpc++",
-+        "-lgpr",
-+    ],
-+    visibility = ["//visibility:public"],
-+)
-+
-+cc_library(
-+    name = "grpc++_codegen_proto",
-+    visibility = ["//visibility:public"],
-+)
-+
-+cc_library(
-+    name = "grpc_unsecure",
-+    linkopts = [
-+        "-lgrpc_unsecure",
-+        "-lgpr",
-+    ],
-+    visibility = ["//visibility:public"],
-+)
-+
-+cc_library(
-+    name = "grpc++_unsecure",
-+    linkopts = [
-+        "-lgrpc++_unsecure",
-+        "-lgpr",
-+    ],
-+    visibility = ["//visibility:public"],
-+)
-+
-+genrule(
-+    name = "ln_grpc_cpp_plugin",
-+    outs = ["grpc_cpp_plugin.bin"],
-+    cmd = "ln -s $$(which grpc_cpp_plugin) $@",
-+)
-+
-+sh_binary(
-+    name = "grpc_cpp_plugin",
-+    srcs = ["grpc_cpp_plugin.bin"],
-+    visibility = ["//visibility:public"],
-+)
-+
-+genrule(
-+    name = "ln_grpc_python_plugin",
-+    outs = ["grpc_python_plugin.bin"],
-+    cmd = "ln -s $$(which grpc_python_plugin) $@",
-+)
-+
-+sh_binary(
-+    name = "grpc_python_plugin",
-+    srcs = ["grpc_python_plugin.bin"],
-+    visibility = ["//visibility:public"],
-+)
-diff --git a/third_party/xla/0001-Fix-abseil-headers.patch b/third_party/xla/0001-Fix-abseil-headers.patch
-new file mode 100644
-index 0000000..d533be0
---- /dev/null
-+++ b/third_party/xla/0001-Fix-abseil-headers.patch
-@@ -0,0 +1,132 @@
-+From 55c0c647285dfca30cc7fe8e1c65d53fc7bcd334 Mon Sep 17 00:00:00 2001
-+From: "Uwe L. Korn" <uwe.korn@quantco.com>
-+Date: Thu, 23 May 2024 15:45:52 +0200
-+Subject: [PATCH 01/11] Fix abseil headers
-+
-+---
-+ xla/backends/cpu/codegen/ir_compiler.cc               | 2 +-
-+ xla/hlo/transforms/simplifiers/algebraic_simplifier.h | 2 +-
-+ xla/python/BUILD                                      | 5 +++++
-+ xla/python/ifrt_proxy/common/BUILD                    | 3 +++
-+ xla/python/profiler/internal/BUILD                    | 3 +++
-+ xla/tsl/distributed_runtime/rpc/BUILD                 | 1 +
-+ xla/tsl/platform/default/BUILD                        | 2 ++
-+ xla/tsl/profiler/rpc/client/BUILD                     | 2 ++
-+ 8 files changed, 18 insertions(+), 2 deletions(-)
-+
-+diff --git a/xla/backends/cpu/codegen/ir_compiler.cc b/xla/backends/cpu/codegen/ir_compiler.cc
-+index 31a2afb7bc..3025807fb2 100644
-+--- a/xla/backends/cpu/codegen/ir_compiler.cc
-++++ b/xla/backends/cpu/codegen/ir_compiler.cc
-+@@ -179,7 +179,7 @@ static std::unique_ptr<HloModuleConfig> ParseXlaBackendExtraOptions(
-+ // of the proto should be ignored since they're just the default values.
-+ // We could instead return an unordered_map<str, str>, but we already have
-+ // helpers that expect a DebugOptions, so this ends up being simpler.
-+-static absl_nullable std::unique_ptr<HloModuleConfig> GetXlaBackendExtraOptions(
-++static std::unique_ptr<HloModuleConfig> GetXlaBackendExtraOptions(
-+     const llvm::Module& llvm_module) {
-+   llvm::Metadata* md = llvm_module.getModuleFlag("xla_backend_extra_options");
-+   if (md == nullptr) {
-+diff --git a/xla/hlo/transforms/simplifiers/algebraic_simplifier.h b/xla/hlo/transforms/simplifiers/algebraic_simplifier.h
-+index 9f7e944267..f8935f2149 100644
-+--- a/xla/hlo/transforms/simplifiers/algebraic_simplifier.h
-++++ b/xla/hlo/transforms/simplifiers/algebraic_simplifier.h
-+@@ -874,7 +874,7 @@ class AlgebraicSimplifierVisitor : public DfsHloRewriteVisitor {
-+   // slice instruction is replaced).
-+   // - For example in slices=([0:X:X]), where X == dimension
-+   absl::StatusOr<bool> RemoveRedundantStride(
-+-      HloInstruction* absl_nonnull slice);
-++      HloInstruction* slice);
-+ 
-+   // Helper function for HandleReduce. Replaces a reduce with a broadcast of the
-+   // init values if the reduce is operating on a zero-element array or the
-+diff --git a/xla/python/BUILD b/xla/python/BUILD
-+index 21b6e6b7d1..7cfba3c0bb 100644
-+--- a/xla/python/BUILD
-++++ b/xla/python/BUILD
-+@@ -582,7 +582,12 @@ cc_library(
-+     hdrs = ["logging.h"],
-+     visibility = internal_visibility([":friends"]),
-+     deps = [
-++        "@com_google_absl//absl/base:config",
-++        "@com_google_absl//absl/log:check",
-+         "@com_google_absl//absl/log:initialize",
-++        "@com_google_absl//absl/status",
-++        "@com_google_absl//absl/status:statusor",
-++        "@com_google_absl//absl/strings",
-+     ],
-+ )
-+ 
-+diff --git a/xla/python/ifrt_proxy/common/BUILD b/xla/python/ifrt_proxy/common/BUILD
-+index b3107da8c7..e0b3261625 100644
-+--- a/xla/python/ifrt_proxy/common/BUILD
-++++ b/xla/python/ifrt_proxy/common/BUILD
-+@@ -51,6 +51,9 @@ cc_library(
-+         "@com_github_grpc_grpc//:grpc++",
-+         "@com_google_absl//absl/log",
-+         "@com_google_absl//absl/log:check",
-++        "@com_google_absl//absl/status",
-++        "@com_google_absl//absl/status:statusor",
-++        "@com_google_absl//absl/strings",
-+         "@tsl//tsl/platform",
-+     ],
-+     alwayslink = True,
-+diff --git a/xla/python/profiler/internal/BUILD b/xla/python/profiler/internal/BUILD
-+index 0d748f0281..76c1f7d353 100644
-+--- a/xla/python/profiler/internal/BUILD
-++++ b/xla/python/profiler/internal/BUILD
-+@@ -51,6 +51,9 @@ cc_library(
-+     ]),
-+     deps = [
-+         "//xla/tsl/platform:macros",
-++        "@com_google_absl//absl/base:config",
-++        "@com_google_absl//absl/status",
-++        "@com_google_absl//absl/status:statusor",
-+     ],
-+ )
-+ 
-+diff --git a/xla/tsl/distributed_runtime/rpc/BUILD b/xla/tsl/distributed_runtime/rpc/BUILD
-+index 0260caf519..3ec38f4370 100644
-+--- a/xla/tsl/distributed_runtime/rpc/BUILD
-++++ b/xla/tsl/distributed_runtime/rpc/BUILD
-+@@ -41,6 +41,7 @@ cc_library(
-+         "@com_github_grpc_grpc//:grpc++",
-+         "@com_github_grpc_grpc//:grpc++_codegen_proto",
-+         "@com_google_absl//absl/status",
-++        "@com_google_absl//absl/status:statusor",
-+         "@com_google_absl//absl/strings:cord",
-+         "@com_google_absl//absl/strings:str_format",
-+         "@com_google_absl//absl/strings:string_view",
-+diff --git a/xla/tsl/platform/default/BUILD b/xla/tsl/platform/default/BUILD
-+index 85308d7017..4e383d76a1 100644
-+--- a/xla/tsl/platform/default/BUILD
-++++ b/xla/tsl/platform/default/BUILD
-+@@ -277,6 +277,8 @@ cc_library(
-+         "//xla/tsl/platform:logging",
-+         "@com_github_grpc_grpc//:grpc++",
-+         "@com_google_absl//absl/log:check",
-++        "@com_google_absl//absl/status",
-++        "@com_google_absl//absl/status:statusor",
-+     ],
-+ )
-+ 
-+diff --git a/xla/tsl/profiler/rpc/client/BUILD b/xla/tsl/profiler/rpc/client/BUILD
-+index 05e869e20c..272ddcf957 100644
-+--- a/xla/tsl/profiler/rpc/client/BUILD
-++++ b/xla/tsl/profiler/rpc/client/BUILD
-+@@ -108,6 +108,7 @@ cc_library(
-+     deps = [
-+         ":profiler_client_impl",
-+         "@com_google_absl//absl/status",
-++        "@com_google_absl//absl/status:statusor",
-+         "@com_google_absl//absl/strings",
-+         "@com_google_absl//absl/time",
-+         "@tsl//tsl/profiler/protobuf:profiler_analysis_cc_grpc_proto",
-+@@ -138,6 +139,7 @@ cc_library(
-+         "@com_github_grpc_grpc//:grpc++",
-+         "@com_google_absl//absl/memory",
-+         "@com_google_absl//absl/status",
-++        "@com_google_absl//absl/status:statusor",
-+         "@com_google_absl//absl/strings",
-+         "@com_google_absl//absl/time",
-+         "@tsl//tsl/profiler/protobuf:profiler_analysis_cc_grpc_proto",
-diff --git a/third_party/xla/0002-Omit-usage-of-StrFormat.patch b/third_party/xla/0002-Omit-usage-of-StrFormat.patch
-new file mode 100644
-index 0000000..c9e78fa
---- /dev/null
-+++ b/third_party/xla/0002-Omit-usage-of-StrFormat.patch
-@@ -0,0 +1,25 @@
-+From fd0dd17167b53e8be69cf737758efe4dd236f7a6 Mon Sep 17 00:00:00 2001
-+From: "Uwe L. Korn" <uwe.korn@quantco.com>
-+Date: Thu, 4 Jul 2024 10:36:03 +0200
-+Subject: [PATCH 02/11] Omit usage of StrFormat
-+
-+---
-+ xla/stream_executor/gpu/gpu_executor.h | 5 +++++
-+ 1 file changed, 5 insertions(+)
-+
-+diff --git a/xla/stream_executor/gpu/gpu_executor.h b/xla/stream_executor/gpu/gpu_executor.h
-+index b49ffec205..c3911036ff 100644
-+--- a/xla/stream_executor/gpu/gpu_executor.h
-++++ b/xla/stream_executor/gpu/gpu_executor.h
-+@@ -18,6 +18,11 @@ limitations under the License.
-+ 
-+ #include <cstdint>
-+ #include <memory>
-++#include <memory>
-++#include <optional>
-++#include <string>
-++#include <sstream>
-++#include <unordered_map>
-+ #include <utility>
-+ #include <variant>
-+ #include <vector>
-diff --git a/third_party/xla/0003-Re-enable-system-abseil.patch b/third_party/xla/0003-Re-enable-system-abseil.patch
-new file mode 100644
-index 0000000..7ac6ad1
---- /dev/null
-+++ b/third_party/xla/0003-Re-enable-system-abseil.patch
-@@ -0,0 +1,440 @@
-+From 3689462cf562e25dcadae6550e6a980af34cb00e Mon Sep 17 00:00:00 2001
-+From: "Uwe L. Korn" <uwe.korn@quantco.com>
-+Date: Thu, 4 Jul 2024 15:58:32 +0200
-+Subject: [PATCH 03/11] Re-enable system abseil
-+
-+partially revert https://github.com/openxla/xla/commit/1fc2a846d259d3c896a6177485abcc68d97627a9
-+and add missing pieces
-+
-+Co-Authored-By: H. Vetinari <h.vetinari@gmx.com>
-+---
-+ third_party/absl/system.absl.base.BUILD       |  24 ++++
-+ third_party/absl/system.absl.container.BUILD  |  19 +++
-+ third_party/absl/system.absl.crc.BUILD        |  70 +++++++++++
-+ third_party/absl/system.absl.flags.BUILD      |   2 +-
-+ third_party/absl/system.absl.functional.BUILD |   4 +
-+ third_party/absl/system.absl.hash.BUILD       |   1 -
-+ third_party/absl/system.absl.log.BUILD        | 109 ++++++++++++++++++
-+ third_party/absl/system.absl.random.BUILD     |   2 +-
-+ third_party/absl/system.absl.strings.BUILD    |  22 +++-
-+ third_party/absl/system.absl.utility.BUILD    |   5 +
-+ third_party/absl/workspace.bzl                |  30 +++++
-+ 11 files changed, 284 insertions(+), 4 deletions(-)
-+ create mode 100644 third_party/absl/system.absl.crc.BUILD
-+ create mode 100644 third_party/absl/system.absl.log.BUILD
-+
-+diff --git a/third_party/absl/system.absl.base.BUILD b/third_party/absl/system.absl.base.BUILD
-+index d6bf8748de..02602690db 100644
-+--- a/third_party/absl/system.absl.base.BUILD
-++++ b/third_party/absl/system.absl.base.BUILD
-+@@ -20,6 +20,14 @@ cc_library(
-+     linkopts = ["-labsl_log_severity"],
-+ )
-+ 
-++cc_library(
-++    name = "nullability",
-++    deps = [
-++        ":core_headers",
-++        "//absl/meta:type_traits",
-++    ],
-++)
-++
-+ cc_library(
-+     name = "raw_logging_internal",
-+     linkopts = ["-labsl_raw_logging_internal"],
-+@@ -105,3 +113,19 @@ cc_library(
-+         "//absl:__subpackages__",
-+     ],
-+ )
-++
-++cc_library(
-++    name = "prefetch",
-++    deps = [
-++        ":config",
-++        ":core_headers",
-++    ],
-++)
-++
-++cc_library(
-++    name = "no_destructor",
-++    deps = [
-++        ":config",
-++        ":nullability",
-++    ],
-++)
-+diff --git a/third_party/absl/system.absl.container.BUILD b/third_party/absl/system.absl.container.BUILD
-+index 95c1626043..0f82617173 100644
-+--- a/third_party/absl/system.absl.container.BUILD
-++++ b/third_party/absl/system.absl.container.BUILD
-+@@ -44,6 +44,17 @@ cc_library(
-+     ],
-+ )
-+ 
-++cc_library(
-++    name = "linked_hash_map",
-++    deps = [
-++        ":common",
-++        "//absl/base:config",
-++        "//absl/base:core_headers",
-++        "//absl/base:throw_delegate",
-++        "//absl/container:flat_hash_set",
-++    ],
-++)
-++
-+ cc_library(
-+     name = "flat_hash_map",
-+     deps = [
-+@@ -100,6 +111,14 @@ cc_library(
-+     ],
-+ )
-+ 
-++cc_library(
-++    name = "hash_container_defaults",
-++    deps = [
-++        "//absl/base:config",
-++        "//absl/hash",
-++    ],
-++)
-++
-+ cc_library(
-+     name = "hash_function_defaults",
-+     deps = [
-+diff --git a/third_party/absl/system.absl.crc.BUILD b/third_party/absl/system.absl.crc.BUILD
++++ b/third_party/xla/0001-conda-build-fixes.patch
+@@ -0,0 +1,282 @@
++diff --git a/third_party/mkl_dnn/mkldnn_system.BUILD b/third_party/mkl_dnn/mkldnn_system.BUILD
 +new file mode 100644
-+index 0000000000..487c36ff45
++index 0000000000000000000000000000000000000000..21787db25a924cfcdc330d07e83af3c6ad7d2b3c
 +--- /dev/null
-++++ b/third_party/absl/system.absl.crc.BUILD
-+@@ -0,0 +1,70 @@
-++load("@rules_cc//cc:defs.bzl", "cc_library")
-++
-++package(default_visibility = ["//visibility:public"])
-++
+++++ b/third_party/mkl_dnn/mkldnn_system.BUILD
++@@ -0,0 +1,6 @@
 ++cc_library(
-++    name = "crc32c",
-++    linkopts = [
-++        "-labsl_crc32c",
-++        "-labsl_crc_cord_state",
-++        "-labsl_crc_cpu_detect",
-++        "-labsl_crc_internal",
-++    ],
-++    deps = [
-++        ":cpu_detect",
-++        ":crc_internal",
-++        ":non_temporal_memcpy",
-++        "//absl/base:config",
-++        "//absl/base:core_headers",
-++        "//absl/base:endian",
-++        "//absl/base:prefetch",
-++        "//absl/strings",
-++        "//absl/strings:str_format",
-++    ],
-++)
-++
-++cc_library(
-++    name = "cpu_detect",
-++    visibility = ["//visibility:private"],
-++    deps = [
-++        "//absl/base",
-++        "//absl/base:config",
-++    ],
-++)
-++
-++cc_library(
-++    name = "crc_internal",
-++    visibility = ["//visibility:private"],
-++    deps = [
-++        ":cpu_detect",
-++        "//absl/base:config",
-++        "//absl/base:core_headers",
-++        "//absl/base:endian",
-++        "//absl/base:prefetch",
-++        "//absl/base:raw_logging_internal",
-++        "//absl/memory",
-++        "//absl/numeric:bits",
-++    ],
-++)
-++
-++cc_library(
-++    name = "non_temporal_memcpy",
-++    visibility = [
-++        ":__pkg__",
-++    ],
-++    deps = [
-++        ":non_temporal_arm_intrinsics",
-++        "//absl/base:config",
-++        "//absl/base:core_headers",
-++    ],
-++)
-++
-++cc_library(
-++    name = "non_temporal_arm_intrinsics",
-++    visibility = [
-++        ":__pkg__",
-++    ],
-++    deps = [
-++        "//absl/base:config",
-++    ],
-++)
-+diff --git a/third_party/absl/system.absl.flags.BUILD b/third_party/absl/system.absl.flags.BUILD
-+index aff653c7e5..5f95b11dec 100644
-+--- a/third_party/absl/system.absl.flags.BUILD
-++++ b/third_party/absl/system.absl.flags.BUILD
-+@@ -97,7 +97,7 @@ cc_library(
-+ 
-+ cc_library(
-+     name = "flag",
-+-    linkopts = ["-labsl_flags"],
-++    linkopts = ["-labsl_flags_usage"],
-+     deps = [
-+         ":config",
-+         ":flag_internal",
-+diff --git a/third_party/absl/system.absl.functional.BUILD b/third_party/absl/system.absl.functional.BUILD
-+index 9439bd0ba2..70ef675f73 100644
-+--- a/third_party/absl/system.absl.functional.BUILD
-++++ b/third_party/absl/system.absl.functional.BUILD
-+@@ -13,3 +13,7 @@ cc_library(
-+ cc_library(
-+     name = "function_ref",
-+ )
-++
-++cc_library(
-++    name = "overload",
-++)
-+diff --git a/third_party/absl/system.absl.hash.BUILD b/third_party/absl/system.absl.hash.BUILD
-+index 3367340cb2..7d4f1ee906 100644
-+--- a/third_party/absl/system.absl.hash.BUILD
-++++ b/third_party/absl/system.absl.hash.BUILD
-+@@ -28,7 +28,6 @@ cc_library(
-+ 
-+ cc_library(
-+     name = "low_level_hash",
-+-    linkopts = ["-labsl_low_level_hash"],
-+     visibility = ["//visibility:private"],
-+     deps = [
-+         "//absl/base:endian",
-+diff --git a/third_party/absl/system.absl.log.BUILD b/third_party/absl/system.absl.log.BUILD
-+new file mode 100644
-+index 0000000000..b1c549aadc
-+--- /dev/null
-++++ b/third_party/absl/system.absl.log.BUILD
-+@@ -0,0 +1,109 @@
-++load("@rules_cc//cc:defs.bzl", "cc_library")
-++
-++package(default_visibility = ["//visibility:public"])
-++
-++cc_library(
-++    name = "die_if_null",
-++    linkopts = ["-labsl_die_if_null"],
-++    deps = [
-++        ":log",
-++        "//absl/base:config",
-++        "//absl/base:core_headers",
-++        "//absl/strings",
-++    ],
-++)
-++
-++cc_library(
-++    name = "log",
-++    linkopts = [
-++        "-labsl_vlog_config_internal",
-++        "-labsl_log_internal_conditions",
-++        "-labsl_log_internal_check_op",
-++        "-labsl_log_internal_message",
-++        "-labsl_log_internal_nullguard",
-++        "-labsl_synchronization",
-++        "-labsl_kernel_timeout_internal",
-++        "-labsl_cordz_info",
-++        "-labsl_cordz_functions",
-++        "-labsl_log_internal_globals"
-++    ],
-++)
-++
-++cc_library(
-++    name = "absl_log",
-++    deps = [
-++        ":log",
-++    ]
-++)
-++
-++cc_library(
-++    name = "check",
-++    linkopts = [
-++        "-labsl_vlog_config_internal",
-++        "-labsl_log_internal_check_op",
-++        "-labsl_log_internal_message",
-++        "-labsl_log_internal_nullguard",
-++    ],
-++)
-++
-++cc_library(
-++    name = "globals",
-++    linkopts = [
-++        "-labsl_log_globals",
-++        "-labsl_log_severity",
-++        "-labsl_raw_logging_internal",
-++        "-labsl_vlog_config_internal",
-++    ],
-++    deps = [
-++        ":log",
-++        "//absl/base:config",
-++        "//absl/base:core_headers",
-++        "//absl/hash",
-++        "//absl/strings",
-++    ],
-++)
-++
-++cc_library(
-++    name = "initialize",
-++    linkopts = [
-++        "-labsl_log_initialize",
-++    ],
-++)
-++
-++cc_library(
-++    name = "log_sink",
-++    linkopts = [
-++        "-labsl_log_internal_log_sink_set",
-++    ],
-++)
-++
-++cc_library(
-++    name = "log_sink_registry",
-++    deps = [
-++       ":log_sink",
-++    ],
-++)
-++
-++cc_library(
-++    name = "log_entry",
-++    linkopts = [
-++        "-labsl_log_internal_log_sink_set",
-++    ],
-++)
-++
-++cc_library(
-++    name = "absl_check",
-++    linkopts = [
-++        "-labsl_vlog_config_internal",
-++        "-labsl_log_internal_check_op",
-++        "-labsl_log_internal_message",
-++        "-labsl_log_internal_nullguard",
-++    ],
-++)
-++
-++cc_library(
-++    name = "vlog_is_on",
-++    linkopts = [
-++        "-labsl_vlog_config_internal",
-++    ],
-++)
-+diff --git a/third_party/absl/system.absl.random.BUILD b/third_party/absl/system.absl.random.BUILD
-+index ac17ce6343..84550a38a9 100644
-+--- a/third_party/absl/system.absl.random.BUILD
-++++ b/third_party/absl/system.absl.random.BUILD
-+@@ -29,8 +29,8 @@ cc_library(
-+ cc_library(
-+     name = "seed_sequences",
-+     linkopts = [
-++        "-labsl_random_internal_entropy_pool",
-+         "-labsl_random_internal_platform",
-+-        "-labsl_random_internal_pool_urbg",
-+         "-labsl_random_internal_randen",
-+         "-labsl_random_internal_randen_hwaes",
-+         "-labsl_random_internal_randen_hwaes_impl",
-+diff --git a/third_party/absl/system.absl.strings.BUILD b/third_party/absl/system.absl.strings.BUILD
-+index fa9a7a84f6..9d8e9bfc05 100644
-+--- a/third_party/absl/system.absl.strings.BUILD
-++++ b/third_party/absl/system.absl.strings.BUILD
-+@@ -2,6 +2,26 @@ load("@rules_cc//cc:defs.bzl", "cc_library")
-+ 
-+ package(default_visibility = ["//visibility:public"])
-+ 
-++cc_library(
-++    name = "string_view",
-++    deps = [
-++        "//absl/base",
-++        "//absl/base:config",
-++        "//absl/base:core_headers",
-++        "//absl/base:nullability",
-++        "//absl/base:throw_delegate",
-++    ],
-++)
-++
-++cc_library(
-++    name = "charset",
-++    deps = [
-++        ":string_view",
-++        "//absl/base",
-++        "//absl/base:config",
-++    ],
-++)
-++
-+ cc_library(
-+     name = "strings",
-+     linkopts = ["-labsl_strings"],
-+@@ -26,7 +46,7 @@ cc_library(
-+ 
-+ cc_library(
-+     name = "cord",
-+-    linkopts = ["-labsl_cord"],
-++    linkopts = ["-labsl_cord", "-labsl_cord_internal"],
-+     deps = [
-+         ":str_format",
-+         "//absl/container:compressed_tuple",
-+diff --git a/third_party/absl/system.absl.utility.BUILD b/third_party/absl/system.absl.utility.BUILD
-+index e15049e261..013f44289e 100644
-+--- a/third_party/absl/system.absl.utility.BUILD
-++++ b/third_party/absl/system.absl.utility.BUILD
-+@@ -4,3 +4,8 @@ cc_library(
-+     name = "utility",
-+     visibility = ["//visibility:public"],
-+ )
-++
-++cc_library(
-++    name = "if_constexpr",
+++    name = "mkl_dnn",
+++    linkopts = ["-ldnnl"],
 ++    visibility = ["//visibility:public"],
 ++)
-+diff --git a/third_party/absl/workspace.bzl b/third_party/absl/workspace.bzl
-+index 5c97326c35..7f364c1cc8 100644
-+--- a/third_party/absl/workspace.bzl
-++++ b/third_party/absl/workspace.bzl
-+@@ -11,9 +11,39 @@ def repo():
-+     ABSL_SHA256 = "87e91fb785a2d0233f4599317afd576b7736e6732d557bdcdfdc11990bd333ef"
-+     # LINT.ThenChange(//tensorflow/lite/tools/cmake/modules/abseil-cpp.cmake)
-+ 
-++    SYS_DIRS = [
-++        "algorithm",
-++        "base",
-++        "crc",
-++        "cleanup",
-++        "container",
-++        "debugging",
-++        "flags",
-++        "functional",
-++        "hash",
-++        "log",
-++        "memory",
-++        "meta",
-++        "numeric",
-++        "random",
-++        "status",
-++        "strings",
-++        "synchronization",
-++        "time",
-++        "types",
-++        "utility",
-++    ]
-++    SYS_LINKS = {
-++        "//third_party/absl:system.absl.{name}.BUILD".format(name = n): "absl/{name}/BUILD.bazel".format(name = n)
-++        for n in SYS_DIRS
-++    }
 ++
++diff --git a/third_party/mkl_dnn/onednn_acl_fix_spdlog_fmt_consteval.patch b/third_party/mkl_dnn/onednn_acl_fix_spdlog_fmt_consteval.patch
++new file mode 100644
++index 0000000000000000000000000000000000000000..7cba3af8a6c848550ed794c02122cfab03d8d51d
++--- /dev/null
+++++ b/third_party/mkl_dnn/onednn_acl_fix_spdlog_fmt_consteval.patch
++@@ -0,0 +1,43 @@
+++# Copyright 2026 The OpenXLA Authors.
+++#
+++# Licensed under the Apache License, Version 2.0 (the "License");
+++# you may not use this file except in compliance with the License.
+++# You may obtain a copy of the License at
+++#
+++#     http://www.apache.org/licenses/LICENSE-2.0
+++#
+++# Unless required by applicable law or agreed to in writing, software
+++# distributed under the License is distributed on an "AS IS" BASIS,
+++# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+++# See the License for the specific language governing permissions and
+++# limitations under the License.
+++# ==============================================================================
+++#
+++# The bundled fmt (v11.0.2) implementation of compile-time-checked format
+++# strings (FMT_STRING) relies on evaluating a non-constexpr-safe code path
+++# inside a consteval constructor. Clang >= 18 rejects this with:
+++#   error: call to consteval function ... is not a constant expression
+++# because it now propagates immediate-function-context requirements into
+++# every sub-expression of a consteval call (matching the C++23 resolution
+++# of CWG2334), which fmt 11.0.2 does not yet handle. This affects both
+++# spdlog's own call sites and fmt's internal call sites (e.g. bigint
+++# formatting), so patch FMT_STRING itself rather than each call site.
+++#
+++# Since compile-time format-string checking is a diagnostic-only feature
+++# (format strings are still checked at runtime), disable it for the
+++# bundled fmt used by oneDNN's verbose logging so it builds with newer
+++# Clang releases.
+++diff --git a/src/common/spdlog/fmt/bundled/format.h b/src/common/spdlog/fmt/bundled/format.h
+++index 1111111..2222222 100644
+++--- a/src/common/spdlog/fmt/bundled/format.h
++++++ b/src/common/spdlog/fmt/bundled/format.h
+++@@ -1824,5 +1824,7 @@
+++  *     // A compile-time error because 'd' is an invalid specifier for strings.
+++  *     std::string s = fmt::format(FMT_STRING("{:d}"), "foo");
+++  */
+++-#define FMT_STRING(s) FMT_STRING_IMPL(s, fmt::detail::compile_string, )
++++// Disabled: fmt 11.0.2's FMT_STRING_IMPL trips a consteval-constant-expression
++++// bug with Clang >= 18. Fall back to runtime-checked format strings.
++++#define FMT_STRING(s) s
+++
+++ template <size_t width, typename Char, typename OutputIt>
++diff --git a/third_party/mkl_dnn/workspace.bzl b/third_party/mkl_dnn/workspace.bzl
++index 679d4a4dd4187da948e62ac30bcf6f8e52f7c5c7..48ef60dfd9a128771348cb0af28ef043f952d75b 100644
++--- a/third_party/mkl_dnn/workspace.bzl
+++++ b/third_party/mkl_dnn/workspace.bzl
++@@ -21,6 +21,7 @@ def repo():
 +     tf_http_archive(
-+         name = "com_google_absl",
-+         sha256 = ABSL_SHA256,
-++        build_file = "//third_party/absl:com_google_absl.BUILD",
-++        system_build_file = "//third_party/absl:system.BUILD",
-++        system_link_files = SYS_LINKS,
-+         strip_prefix = "abseil-cpp-{commit}".format(commit = ABSL_COMMIT),
-+         urls = tf_mirror_urls("https://github.com/abseil/abseil-cpp/archive/{commit}.tar.gz".format(commit = ABSL_COMMIT)),
++         name = "onednn",
++         build_file = "//third_party/mkl_dnn:mkldnn_v1.BUILD",
+++        system_build_file = "//third_party/mkl_dnn:mkldnn_system.BUILD",
++         patch_file = ["//third_party/mkl_dnn:setting_tsan_race_v3_7_3.patch"],
++         sha256 = "071f289dc961b43a3b7c8cbe8a305290a7c5d308ec4b2f586397749abdc88296",
++         strip_prefix = "oneDNN-3.7.3",
++@@ -30,6 +31,7 @@ def repo():
++     tf_http_archive(
++         name = "onednn_async",
++         build_file = "//third_party/mkl_dnn:mkldnn_v1_async.BUILD",
+++        system_build_file = "//third_party/mkl_dnn:mkldnn_system.BUILD",
++         # Rename the gtest module in oneDNN's third_party to avoid
++         # conflict with Google's gtest module
 +         patch_file = [
-diff --git a/third_party/xla/0004-Check-whether-absl-log-is-already-initialized.patch b/third_party/xla/0004-Check-whether-absl-log-is-already-initialized.patch
-new file mode 100644
-index 0000000..6791c1a
---- /dev/null
-+++ b/third_party/xla/0004-Check-whether-absl-log-is-already-initialized.patch
-@@ -0,0 +1,58 @@
-+From e791fc0d6a3a812e0de4588a1dcbe23529333973 Mon Sep 17 00:00:00 2001
-+From: "Uwe L. Korn" <uwe.korn@quantco.com>
-+Date: Fri, 22 Nov 2024 10:51:18 +0100
-+Subject: [PATCH 04/11] Check whether absl log is already initialized
++@@ -47,6 +49,7 @@ def repo():
++         patch_file = [
++             "//third_party/mkl_dnn:onednn_acl_lock_fixed_format_matmul.patch",
++             "//third_party/mkl_dnn:onednn_acl_threadpool_default_max.patch",
+++            "//third_party/mkl_dnn:onednn_acl_fix_spdlog_fmt_consteval.patch",
++         ],
++         sha256 = "5792cbc07764c6e25c459ff68efb5cfcd7f4a0ba66dca6a4a2c681cd7a644596",
++         strip_prefix = "oneDNN-3.7",
++diff --git a/third_party/raft/workspace.bzl b/third_party/raft/workspace.bzl
++index 51d656143562ab32f7e7048146a687bc738c9eb4..3dcc9ff26c68816c438519d08c85de718230e61a 100644
++--- a/third_party/raft/workspace.bzl
+++++ b/third_party/raft/workspace.bzl
++@@ -44,6 +44,8 @@ def tensorflow_repo():
++ def xla_repo():
++     """Imports raft."""
 +
-+---
-+ xla/pjrt/c/pjrt_c_api_gpu.cc | 7 ++++++-
-+ xla/python/logging.cc        | 7 ++++++-
-+ 2 files changed, 12 insertions(+), 2 deletions(-)
+++    return tensorflow_repo()
+++
++     RAFT_VERSION = "26.02.00"
++     RAFT_SHA256 = "b4c005c70d9e1281a65dc30dc39051d1e4e713130da1fa0b76df832064674b59"
 +
++diff --git a/third_party/rmm/workspace.bzl b/third_party/rmm/workspace.bzl
++index faad341515066978e590ff954eb2090a6d5e8460..d7f56f63537c937df7fd9df6f637271dff037a2e 100644
++--- a/third_party/rmm/workspace.bzl
+++++ b/third_party/rmm/workspace.bzl
++@@ -35,6 +35,8 @@ def tensorflow_repo():
++ def xla_repo():
++     """Imports rmm."""
++
+++    return tensorflow_repo()
+++
++     RMM_VERSION = "26.02.00"
++     RMM_SHA256 = "f7460ec9f177d79e8a709b7011cd11392059bcbd906336f4f5b90ef2b5547683"
++
++diff --git a/xla/backends/cpu/runtime/onednn/onednn_threadpool.h b/xla/backends/cpu/runtime/onednn/onednn_threadpool.h
++index 07f2d5257bf5a0b125c53c257977c63080857cb2..283315e608e23f507d87f6713a4ee66638f59267 100644
++--- a/xla/backends/cpu/runtime/onednn/onednn_threadpool.h
+++++ b/xla/backends/cpu/runtime/onednn/onednn_threadpool.h
++@@ -24,6 +24,7 @@ limitations under the License.
++ #include "Eigen/ThreadPool"
++ #include "oneapi/dnnl/dnnl_threadpool.h"  // IWYU pragma: keep
++ #include "oneapi/dnnl/dnnl_threadpool_iface.hpp"
+++#include "oneapi/dnnl/dnnl_version.h"
++ #include "xla/backends/cpu/runtime/work_queue.h"
++ #include "xla/tsl/concurrency/async_value_ref.h"
++ #include "xla/tsl/concurrency/chain.h"
++@@ -67,9 +68,10 @@ class OneDnnThreadPool final
++
++   uint64_t get_flags() const final { return is_async_ ? ASYNCHRONOUS : 0; }
++
++-#ifdef ENABLE_ONEDNN_ASYNC
++-  // The wait() method only exists with oneDNN's experimental support for
++-  // asynchronous execution determined by the ENABLE_ONEDNN_ASYNC.
+++#if defined(ENABLE_ONEDNN_ASYNC) || DNNL_VERSION_MAJOR > 3 || \
+++    (DNNL_VERSION_MAJOR == 3 && DNNL_VERSION_MINOR >= 11)
+++  // oneDNN 3.11 made wait() mandatory for all threadpool interfaces. Older
+++  // releases only need it with experimental asynchronous execution enabled.
++   void wait() override {
++     if (is_async_) {
++       // While performing asynchronous execution, wait() method is needed to
++@@ -78,7 +80,7 @@ class OneDnnThreadPool final
++       tsl::BlockUntilReady(done_event_);
++     }
++   }
++-#endif  // ENABLE_ONEDNN_ASYNC
+++#endif
++
++   void parallel_for(int n, const std::function<void(int, int)>& fn) final {
++     // Cap num_workers at n to avoid Worker::Parallelize's partition-clamping
++diff --git a/xla/pjrt/c/BUILD b/xla/pjrt/c/BUILD
++index cc4773993e3801415a2b01a418c87cde71adbb59..ae8714463a14e04102b3ff99531c77e5c0b8a5af 100644
++--- a/xla/pjrt/c/BUILD
+++++ b/xla/pjrt/c/BUILD
++@@ -706,6 +706,7 @@ cc_library(
++         ":pjrt_c_api_macros",
++         "@com_google_absl//absl/base",
++         "@com_google_absl//absl/log:initialize",
+++        "@com_google_absl//absl/log:globals",
++         "@tsl//tsl/platform",
++     ],
++     alwayslink = 1,
 +diff --git a/xla/pjrt/c/pjrt_c_api_gpu.cc b/xla/pjrt/c/pjrt_c_api_gpu.cc
-+index fe836332be..895f40524d 100644
++index fe836332be666261703afba2e1865e4dec2d8194..895f40524d13da955c469aaf30a2b8020fddd718 100644
 +--- a/xla/pjrt/c/pjrt_c_api_gpu.cc
 ++++ b/xla/pjrt/c/pjrt_c_api_gpu.cc
 +@@ -17,6 +17,7 @@ limitations under the License.
-+ 
++
 + #include "absl/base/call_once.h"
 + #include "absl/log/initialize.h"
 ++#include "absl/log/internal/globals.h"
@@ -782,18 +219,30 @@ index 0000000..6791c1a
 + #endif  // PLATFORM_GOOGLE
 +   return pjrt::gpu_plugin::GetGpuPjrtApi();
 + }
++diff --git a/xla/python/BUILD b/xla/python/BUILD
++index 143d6bec7468e84649a2a2b8193a8fe6f4474468..a893277179ca71bfd227fc759646959705026059 100644
++--- a/xla/python/BUILD
+++++ b/xla/python/BUILD
++@@ -593,6 +593,7 @@ cc_library(
++     visibility = internal_visibility([":friends"]),
++     deps = [
++         "@com_google_absl//absl/log:initialize",
+++        "@com_google_absl//absl/log:globals",
++     ],
++ )
++
 +diff --git a/xla/python/logging.cc b/xla/python/logging.cc
-+index 2d8261f025..5222fa96c6 100644
++index 2d8261f02597467a80951dbc5b1d31619828ef07..5222fa96c6d84ed58d099e0fe17368e5ecfb6a67 100644
 +--- a/xla/python/logging.cc
 ++++ b/xla/python/logging.cc
 +@@ -16,12 +16,17 @@ limitations under the License.
 + #include "xla/python/logging.h"
-+ 
++
 + #include "absl/log/initialize.h"
 ++#include "absl/log/internal/globals.h"
-+ 
++
 + namespace xla {
-+ 
++
 + // TODO(phawkins): We can't import absl logging in the same file as TSL logging
 + // because of conflicting definitions. We should fix this by using ABSL logging
 + // everywhere.
@@ -803,505 +252,15 @@ index 0000000..6791c1a
 ++    absl::InitializeLog();
 ++  }
 ++}
-+ 
++
 + }  // namespace xla
-diff --git a/third_party/xla/0005-Unbundle-grpc.patch b/third_party/xla/0005-Unbundle-grpc.patch
-new file mode 100644
-index 0000000..ce40617
---- /dev/null
-+++ b/third_party/xla/0005-Unbundle-grpc.patch
-@@ -0,0 +1,469 @@
-+From c4d16b07df92b609b4c7d1cef45669507a2552c1 Mon Sep 17 00:00:00 2001
-+From: "Uwe L. Korn" <uwe.korn@quantco.com>
-+Date: Wed, 23 Jul 2025 13:19:52 +0200
-+Subject: [PATCH 05/11] Unbundle grpc
-+
-+---
-+ third_party/protobuf_impl.bzl             |  19 +++
-+ third_party/protobuf_systemlib.BUILD      | 170 ++++++++++++++++++++++
-+ third_party/py/python_init_rules.bzl      |  15 +-
-+ third_party/re2_system.BUILD              |  14 ++
-+ third_party/zlib.BUILD                    |  39 +----
-+ workspace0.bzl                            |   5 +-
-+ workspace1.bzl                            |   3 -
-+ workspace2.bzl                            |  40 ++---
-+ xla/tsl/platform/default/build_config.bzl |   2 -
-+ 9 files changed, 231 insertions(+), 76 deletions(-)
-+ create mode 100644 third_party/protobuf_impl.bzl
-+ create mode 100644 third_party/protobuf_systemlib.BUILD
-+ create mode 100644 third_party/re2_system.BUILD
-+
-+diff --git a/third_party/protobuf_impl.bzl b/third_party/protobuf_impl.bzl
-+new file mode 100644
-+index 0000000000..b8aadff303
-+--- /dev/null
-++++ b/third_party/protobuf_impl.bzl
-+@@ -0,0 +1,19 @@
-++
-++
-++def _protobuf_impl(ctx):
-++  path = ctx.os.environ["PROTOBUF_BAZEL_DIR"]
-++  ctx.execute(["cp", "-r", path, "."])
-++
-++  syslib_label = ctx.attr.systemlib
-++  syslib_path = ctx.path(syslib_label)
-++  ctx.execute(["cp", syslib_path, "BUILD"])
-++  ctx.report_progress("Copied systemlib.BUILD")
-++
-++protobuf_bazel_repo = repository_rule(
-++    implementation = _protobuf_impl,
-++    environ        = ["PROTOBUF_BAZEL_DIR"],
-++    attrs = {
-++        "systemlib": attr.label(mandatory=True),
-++    },
-++)
-++
-+diff --git a/third_party/protobuf_systemlib.BUILD b/third_party/protobuf_systemlib.BUILD
-+new file mode 100644
-+index 0000000000..8659b29068
-+--- /dev/null
-++++ b/third_party/protobuf_systemlib.BUILD
-+@@ -0,0 +1,170 @@
-++load("@rules_java//java:defs.bzl", "java_library")
-++load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test", "objc_library")
-++load("//bazel/toolchains:proto_lang_toolchain.bzl", "proto_lang_toolchain")
-++load("//bazel:cc_proto_library.bzl", "cc_proto_library")
-++load("//bazel:proto_library.bzl", "proto_library")
-++
-++licenses(["notice"])
-++
-++filegroup(
-++    name = "LICENSE",
-++    visibility = ["//visibility:public"],
-++)
-++
-++alias(
-++    name = "license",
-++    actual = ":LICENSE",
-++    visibility = ["//visibility:public"],
-++)
-++
-++# Map of all well known protos.
-++# name => (include path, imports)
-++WELL_KNOWN_PROTO_MAP = {
-++    "any": ("google/protobuf/any.proto", ["descriptor"]),
-++    "api": (
-++        "google/protobuf/api.proto",
-++        [
-++            "descriptor",
-++            "source_context",
-++            "type",
-++        ],
-++    ),
-++    "compiler_plugin": (
-++        "google/protobuf/compiler/plugin.proto",
-++        ["descriptor"],
-++    ),
-++    "descriptor": ("google/protobuf/descriptor.proto", []),
-++    "duration": ("google/protobuf/duration.proto", ["descriptor"]),
-++    "empty": ("google/protobuf/empty.proto", ["descriptor"]),
-++    "field_mask": ("google/protobuf/field_mask.proto", ["descriptor"]),
-++    "source_context": ("google/protobuf/source_context.proto", ["descriptor"]),
-++    "struct": ("google/protobuf/struct.proto", ["descriptor"]),
-++    "timestamp": ("google/protobuf/timestamp.proto", ["descriptor"]),
-++    "type": (
-++        "google/protobuf/type.proto",
-++        [
-++            "any",
-++            "descriptor",
-++            "source_context",
-++        ],
-++    ),
-++    "wrappers": ("google/protobuf/wrappers.proto", ["descriptor"]),
-++}
-++
-++RELATIVE_WELL_KNOWN_PROTOS = [proto[1][0] for proto in WELL_KNOWN_PROTO_MAP.items()]
-++
-++genrule(
-++    name = "link_proto_files",
-++    outs = RELATIVE_WELL_KNOWN_PROTOS,
-++    cmd = """
-++      for i in $(OUTS); do
-++        f=$${i#$(@D)/}
-++        mkdir -p $(@D)/$${f%/*}
-++        ln -sf $(PROTOBUF_INCLUDE_PATH)/$$f $(@D)/$$f
-++      done
-++    """,
-++)
-++
-++BASE_PROTO_LIBS = ["-labsl_cord", "-labsl_cord_internal", "-labsl_cordz_functions", "-labsl_cordz_handle", "-labsl_cordz_info", "-labsl_cordz_sample_token", "-labsl_log_flags", "-labsl_log_globals", "-labsl_log_initialize", "-labsl_log_internal_check_op", "-labsl_log_internal_conditions", "-labsl_log_internal_format", "-labsl_log_internal_globals", "-labsl_log_internal_log_sink_set", "-labsl_log_internal_message", "-labsl_log_internal_nullguard", "-labsl_log_internal_proto", "-labsl_log_severity", "-labsl_log_sink"]
-++
-++config_setting(
-++    name = "is_target_platform",
-++    constraint_values = ["@//bazel_toolchain:conda_target_platform"],
-++)
-++
-++cc_library(
-++    name = "protobuf",
-++    linkopts = select({
-++            ":is_target_platform": ["$(PREFIX)/lib/libprotobuf.a", "$(PREFIX)/lib/libutf8_range.a", "$(PREFIX)/lib/libutf8_validity.a"],
-++            "//conditions:default": ["$(BUILD_PREFIX)/lib/libprotobuf.a", "$(BUILD_PREFIX)/lib/libutf8_range.a", "$(BUILD_PREFIX)/lib/libutf8_validity.a"],
-++    }) + BASE_PROTO_LIBS,
-++    visibility = ["//visibility:public"],
-++)
-++
-++cc_library(
-++    name = "protobuf_lite",
-++    linkopts = select({
-++            ":is_target_platform": ["$(PREFIX)/lib/libprotobuf-lite.a", "$(PREFIX)/lib/libutf8_range.a", "$(PREFIX)/lib/libutf8_validity.a"],
-++            "//conditions:default": ["$(BUILD_PREFIX)/lib/libprotobuf-lite.a", "$(BUILD_PREFIX)/lib/libutf8_range.a", "$(BUILD_PREFIX)/lib/libutf8_validity.a"],
-++    }) + BASE_PROTO_LIBS,
-++    visibility = ["//visibility:public"],
-++)
-++
-++cc_library(
-++    name = "protobuf_headers",
-++    linkopts = select({
-++            ":is_target_platform": ["$(PREFIX)/lib/libprotobuf.a", "$(PREFIX)/lib/libutf8_range.a", "$(PREFIX)/lib/libutf8_validity.a"],
-++            "//conditions:default": ["$(BUILD_PREFIX)/lib/libprotobuf.a", "$(BUILD_PREFIX)/lib/libutf8_range.a", "$(BUILD_PREFIX)/lib/libutf8_validity.a"],
-++    }) + BASE_PROTO_LIBS,
-++    visibility = ["//visibility:public"],
-++)
-++
-++cc_library(
-++    name = "protoc_lib",
-++    linkopts = select({
-++            ":is_target_platform": ["$(PREFIX)/lib/libprotoc.a", "$(PREFIX)/lib/libprotobuf.a", "$(PREFIX)/lib/libutf8_range.a", "$(PREFIX)/lib/libutf8_validity.a"],
-++            "//conditions:default": ["$(BUILD_PREFIX)/lib/libprotoc.a", "$(BUILD_PREFIX)/lib/libprotobuf.a", "$(BUILD_PREFIX)/lib/libutf8_range.a", "$(BUILD_PREFIX)/lib/libutf8_validity.a"],
-++    }) + BASE_PROTO_LIBS,
-++    visibility = ["//visibility:public"],
-++)
-++
-++LIB_ALIASES = ["type_resolver", "differencer", "json_util", "delimited_message_util", "field_mask_util", "arena"]
-++
-++[alias(
-++    name = _alias,
-++    actual = "protobuf",
-++    visibility = ["//visibility:public"],
-++) for _alias in LIB_ALIASES]
-++
-++genrule(
-++    name = "protoc",
-++    outs = ["protoc.bin"],
-++    cmd = "ln -s $(BUILD_PREFIX)/bin/protoc $@",
-++    executable = 1,
-++    visibility = ["//visibility:public"],
-++)
-++
-++cc_proto_library(
-++    name = "cc_wkt_protos",
-++    visibility = ["//visibility:public"],
-++)
-++
-++java_library(
-++    name = "protobuf_java",
-++    exports = ["@maven_protobuf//:original_com_google_protobuf_protobuf_java"],
-++    visibility = ["//visibility:public"],
-++)
-++
-++java_library(
-++    name = "protobuf_java_util",
-++    exports = ["@maven_protobuf//:original_com_google_protobuf_protobuf_java_util"],
-++    visibility = ["//visibility:public"],
-++)
-++
-++proto_lang_toolchain(
-++    name = "cc_toolchain",
-++    blacklisted_protos = [proto + "_proto" for proto in WELL_KNOWN_PROTO_MAP.keys()],
-++    command_line = "--cpp_out=$(OUT)",
-++    runtime = ":protobuf",
-++    visibility = ["//visibility:public"],
-++)
-++
-++proto_lang_toolchain(
-++    name = "java_toolchain",
-++    command_line = "--java_out=$(OUT)",
-++    runtime = ":protobuf_java",
-++    visibility = ["//visibility:public"],
-++)
-++
-++[proto_library(
-++    name = proto[0] + "_proto",
-++    srcs = [proto[1][0]],
-++    visibility = ["//visibility:public"],
-++    deps = [dep + "_proto" for dep in proto[1][1]],
-++) for proto in WELL_KNOWN_PROTO_MAP.items()]
-++
-++[cc_proto_library(
-++    name = proto[0] + "_cc_proto",
-++    deps = [":" + proto[0] + "_proto"],
-++    visibility = ["//visibility:public"],
-++) for proto in WELL_KNOWN_PROTO_MAP.items()]
-+diff --git a/third_party/py/python_init_rules.bzl b/third_party/py/python_init_rules.bzl
-+index 5a192ca558..4da83d2022 100644
-+--- a/third_party/py/python_init_rules.bzl
-++++ b/third_party/py/python_init_rules.bzl
-+@@ -1,6 +1,7 @@
-+ """Hermetic Python initialization. Consult the WORKSPACE on how to use it."""
-+ 
-+ load("//third_party:repo.bzl", "tf_http_archive", "tf_mirror_urls")
-++load("//third_party:protobuf_impl.bzl", "protobuf_bazel_repo")
-+ 
-+ def python_init_rules(extra_patches = []):
-+     """Defines (doesn't setup) the rules_python repository.
-+@@ -20,19 +21,9 @@ def python_init_rules(extra_patches = []):
-+         ],
-+     )
-+ 
-+-    tf_http_archive(
-++    protobuf_bazel_repo(
-+         name = "com_google_protobuf",
-+-        patch_file = [
-+-            "@xla//third_party/protobuf:protobuf.patch",
-+-            "@xla//third_party/protobuf:protobuf_arena.patch",
-+-        ],
-+-        sha256 = "6e09bbc950ba60c3a7b30280210cd285af8d7d8ed5e0a6ed101c72aff22e8d88",
-+-        strip_prefix = "protobuf-6.31.1",
-+-        urls = tf_mirror_urls("https://github.com/protocolbuffers/protobuf/archive/refs/tags/v6.31.1.zip"),
-+-        repo_mapping = {
-+-            "@abseil-cpp": "@com_google_absl",
-+-            "@protobuf_pip_deps": "@pypi",
-+-        },
-++        systemlib = "@xla//third_party:protobuf_systemlib.BUILD",
-+     )
-+ 
-+     tf_http_archive(
-+diff --git a/third_party/re2_system.BUILD b/third_party/re2_system.BUILD
-+new file mode 100644
-+index 0000000000..4d143fd47d
-+--- /dev/null
-++++ b/third_party/re2_system.BUILD
-+@@ -0,0 +1,14 @@
-++load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
-++load("@rules_cc//cc:cc_library.bzl", "cc_library")
-++load("@rules_cc//cc:cc_test.bzl", "cc_test")
-++
-++package(default_visibility = ["//visibility:public"])
-++
-++licenses(["notice"])
-++
-++exports_files(["LICENSE"])
-++
-++cc_library(
-++    name = "re2",
-++    linkopts = ["-lre2"]
-++)
-+diff --git a/third_party/zlib.BUILD b/third_party/zlib.BUILD
-+index eeb6ddda79..72f1ae7abe 100644
-+--- a/third_party/zlib.BUILD
-++++ b/third_party/zlib.BUILD
-+@@ -4,44 +4,7 @@ licenses(["notice"])  # BSD/MIT-like license (for zlib)
-+ 
-+ cc_library(
-+     name = "zlib",
-+-    srcs = [
-+-        "adler32.c",
-+-        "compress.c",
-+-        "crc32.c",
-+-        "crc32.h",
-+-        "deflate.c",
-+-        "deflate.h",
-+-        "gzclose.c",
-+-        "gzguts.h",
-+-        "gzlib.c",
-+-        "gzread.c",
-+-        "gzwrite.c",
-+-        "infback.c",
-+-        "inffast.c",
-+-        "inffast.h",
-+-        "inffixed.h",
-+-        "inflate.c",
-+-        "inflate.h",
-+-        "inftrees.c",
-+-        "inftrees.h",
-+-        "trees.c",
-+-        "trees.h",
-+-        "uncompr.c",
-+-        "zutil.c",
-+-        "zutil.h",
-+-    ],
-+-    hdrs = [
-+-        "zconf.h",
-+-        "zlib.h",
-+-    ],
-+-    copts = select({
-+-        "@xla//xla/tsl:windows": [],
-+-        "//conditions:default": [
-+-            "-Wno-shift-negative-value",
-+-            "-DZ_HAVE_UNISTD_H",
-+-        ],
-+-    }),
-+-    includes = ["."],
-++    linkopts = ["-lz"],
-+ )
-+ 
-+ alias(
-+diff --git a/workspace0.bzl b/workspace0.bzl
-+index a660d049f7..0361b6f7db 100644
-+--- a/workspace0.bzl
-++++ b/workspace0.bzl
-+@@ -5,7 +5,6 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-+ load("@build_bazel_apple_support//lib:repositories.bzl", "apple_support_dependencies")
-+ load("@build_bazel_rules_apple//apple:repositories.bzl", "apple_rules_dependencies")
-+ load("@build_bazel_rules_swift//swift:repositories.bzl", "swift_rules_dependencies")
-+-load("@com_github_grpc_grpc//bazel:grpc_extra_deps.bzl", "grpc_extra_deps")
-+ load("@com_google_benchmark//:bazel/benchmark_deps.bzl", "benchmark_deps")
-+ load("//third_party:repo.bzl", "tf_http_archive", "tf_mirror_urls")
-+ 
-+@@ -21,7 +20,7 @@ def _tf_bind():
-+     # Needed by Protobuf
-+     native.bind(
-+         name = "grpc_cpp_plugin",
-+-        actual = "@com_github_grpc_grpc//src/compiler:grpc_cpp_plugin",
-++        actual = "@com_github_grpc_grpc//:grpc_cpp_plugin",
-+     )
-+     native.bind(
-+         name = "grpc_python_plugin",
-+@@ -138,8 +137,6 @@ def workspace():
-+     # at the end of the WORKSPACE file.
-+     _tf_bind()
-+ 
-+-    grpc_extra_deps()
-+-
-+ # Alias so it can be loaded without assigning to a different symbol to prevent
-+ # shadowing previous loads and trigger a buildifier warning.
-+ xla_workspace0 = workspace
-+diff --git a/workspace1.bzl b/workspace1.bzl
-+index cbd3d24aec..3d063fa2c8 100644
-+--- a/workspace1.bzl
-++++ b/workspace1.bzl
-+@@ -1,6 +1,5 @@
-+ """TensorFlow workspace initialization. Consult the WORKSPACE on how to use it."""
-+ 
-+-load("@com_github_grpc_grpc//bazel:grpc_deps.bzl", "grpc_deps")
-+ load("@io_bazel_rules_closure//closure:defs.bzl", "closure_repositories")
-+ load("@rules_pkg//:deps.bzl", "rules_pkg_dependencies")
-+ load("//third_party:repo.bzl", "tf_http_archive", "tf_mirror_urls")
-+@@ -24,8 +23,6 @@ def workspace():
-+         ),
-+     )
-+ 
-+-    grpc_deps()
-+-
-+ # Alias so it can be loaded without assigning to a different symbol to prevent
-+ # shadowing previous loads and trigger a buildifier warning.
-+ xla_workspace1 = workspace
-+diff --git a/workspace2.bzl b/workspace2.bzl
-+index 2c70609cf4..6b3fa83736 100644
-+--- a/workspace2.bzl
-++++ b/workspace2.bzl
-+@@ -67,6 +67,7 @@ load("//third_party/transformer_engine:workspace.bzl", transformer_engine = "rep
-+ load("//third_party/triton:workspace.bzl", triton = "repo")
-+ load("//third_party/uv:workspace.bzl", uv = "repo")
-+ load("//third_party/xnnpack:workspace.bzl", xnnpack = "repo")
-++load("//third_party:protobuf_impl.bzl", "protobuf_bazel_repo")
-+ load("//tools/def_file_filter:def_file_filter_configure.bzl", "def_file_filter_configure")
-+ load("//tools/toolchains:cpus/aarch64/aarch64_compiler_configure.bzl", "aarch64_compiler_configure")
-+ load("//tools/toolchains:cpus/arm/arm_compiler_configure.bzl", "arm_compiler_configure")
-+@@ -178,6 +179,23 @@ def _tf_toolchains():
-+         aarch64_repo = "../aarch64_linux_toolchain",
-+         armhf_repo = "../armhf_linux_toolchain",
-+     )
-++    
-++def _grpc_impl(ctx):
-++  path = ctx.os.environ["GRPC_BAZEL_DIR"]
-++  ctx.execute(["cp", "-r", path, "."])
-++
-++  syslib_label = ctx.attr.systemlib
-++  syslib_path = ctx.path(syslib_label)
-++  ctx.execute(["cp", syslib_path, "BUILD"])
-++  ctx.report_progress("Copied systemlib.BUILD")
-++
-++grpc_bazel_repo = repository_rule(
-++    implementation = _grpc_impl,
-++    environ        = ["GRPC_BAZEL_DIR"],
-++    attrs = {
-++        "systemlib": attr.label(mandatory=True),
-++    },
-++)
-+ 
-+ # Define all external repositories required by TensorFlow
-+ def _tf_repositories():
-+@@ -237,6 +255,7 @@ def _tf_repositories():
-+         name = "com_googlesource_code_re2",
-+         sha256 = "8635bc46ac8d73974b4198229805287c8d620245f2081af155d7d96d4988a3a5",
-+         strip_prefix = "re2-927f5d53caf8111721e734cf24724686bb745f55",
-++        system_build_file = "//third_party:re2_system.BUILD",
-+         urls = tf_mirror_urls("https://github.com/google/re2/archive/927f5d53caf8111721e734cf24724686bb745f55.tar.gz"),
-+         repo_mapping = {
-+             "@abseil-cpp": "@com_google_absl",
-+@@ -291,19 +310,9 @@ def _tf_repositories():
-+ 
-+     # `com_google_protobuf` is initialized in `python_init_rules()`.
-+     maybe(
-+-        tf_http_archive,
-++        protobuf_bazel_repo,
-+         name = "com_google_protobuf",
-+-        patch_file = [
-+-            "//third_party/protobuf:protobuf.patch",
-+-            "//third_party/protobuf:protobuf_arena.patch",
-+-        ],
-+-        sha256 = "61e5e5b7f29c4a719d9691b97c2b8937b8bd5ab1b6b7586f3f55934011806280",
-+-        strip_prefix = "protobuf-34.1",
-+-        urls = tf_mirror_urls("https://github.com/protocolbuffers/protobuf/releases/download/v34.1/protobuf-34.1.zip"),
-+-        repo_mapping = {
-+-            "@abseil-cpp": "@com_google_absl",
-+-            "@protobuf_pip_deps": "@pypi",
-+-        },
-++        systemlib = "//third_party:protobuf_systemlib.BUILD",
-+     )
-+ 
-+     tf_http_archive(
-+@@ -362,12 +371,9 @@ def _tf_repositories():
-+         urls = tf_mirror_urls("https://curl.se/download/curl-8.11.0.tar.gz"),
-+     )
-+ 
-+-    tf_http_archive(
-++    grpc_bazel_repo(
-+         name = "com_github_grpc_grpc",
-+-        sha256 = "e2ace790a5f2d0f83259d1390a816a33b013ea34df2e86084d927e58daa4c5d9",
-+-        strip_prefix = "grpc-1.78.0",
-+-        patch_file = ["//third_party/grpc:grpc.patch", "//third_party/grpc:layering_check.patch"],
-+-        urls = tf_mirror_urls("https://github.com/grpc/grpc/archive/refs/tags/v1.78.0.tar.gz"),
-++        systemlib = "//third_party:grpc_systemlib.BUILD",
-+     )
-+ 
-+     # Load the raw llvm-project.  llvm does not have build rules set up by default,
-+diff --git a/xla/tsl/platform/default/build_config.bzl b/xla/tsl/platform/default/build_config.bzl
-+index 6d8e8a9375..0b3a08ac75 100644
-+--- a/xla/tsl/platform/default/build_config.bzl
-++++ b/xla/tsl/platform/default/build_config.bzl
-+@@ -431,8 +431,6 @@ def _protobuf_deps():
-+         clean_dep("@com_google_protobuf//:type_resolver"),
-+         clean_dep("@com_google_protobuf//:protobuf"),
-+         clean_dep("@com_google_protobuf//:protobuf_lite"),
-+-        clean_dep("@com_google_protobuf//src/google/protobuf/io"),
-+-        clean_dep("@com_google_protobuf//src/google/protobuf/io:tokenizer"),
-+     ]
-+ 
-+ def tf_protobuf_deps():
-diff --git a/third_party/xla/0006-Disable-coordination_agent_recoverable-flag.patch b/third_party/xla/0006-Disable-coordination_agent_recoverable-flag.patch
-new file mode 100644
-index 0000000..0bff6a3
---- /dev/null
-+++ b/third_party/xla/0006-Disable-coordination_agent_recoverable-flag.patch
-@@ -0,0 +1,35 @@
-+From 17fa4895eee5b6f1a7afdd1cd2f1e0f7d38ca04d Mon Sep 17 00:00:00 2001
-+From: "Uwe L. Korn" <uwe.korn@quantco.com>
-+Date: Thu, 11 Sep 2025 21:30:50 +0200
-+Subject: [PATCH 06/11] Disable coordination_agent_recoverable flag
-+
-+---
-+ .../coordination/coordination_service_agent.cc            | 8 ++++----
-+ 1 file changed, 4 insertions(+), 4 deletions(-)
-+
 +diff --git a/xla/tsl/distributed_runtime/coordination/coordination_service_agent.cc b/xla/tsl/distributed_runtime/coordination/coordination_service_agent.cc
-+index a3b9503705..9c359ffdca 100644
++index a3b950370524b58429fcd54b8dea776752da5975..9c359ffdca127aa4eca164296a4f14523bcd6f1f 100644
 +--- a/xla/tsl/distributed_runtime/coordination/coordination_service_agent.cc
 ++++ b/xla/tsl/distributed_runtime/coordination/coordination_service_agent.cc
 +@@ -55,9 +55,9 @@ limitations under the License.
 + #include "xla/tsl/protobuf/coordination_service.pb.h"
-+ 
++
 + // TODO(b/342448688): Expose via config and API instead of flag.
 +-ABSL_FLAG(
 +-    bool, coordination_agent_recoverable, false,
@@ -1309,7 +268,7 @@ index 0000000..0bff6a3
 ++// ABSL_FLAG(
 ++//     bool, coordination_agent_recoverable, false,
 ++//     "If true, allow it to silently reconnect to the service after a restart.");
-+ 
++
 + namespace tsl {
 + using tensorflow::CoordinatedTask;
 +@@ -98,7 +98,7 @@ absl::Status CoordinationServiceAgent::Initialize(
@@ -1321,334 +280,49 @@ index 0000000..0bff6a3
 +     LOG(WARNING)
 +         << "Using experimental recoverable task feature. The default shutdown "
 +            "barrier will only block non-recoverable tasks. If a synchronized "
-diff --git a/third_party/xla/0007-absl_bad_-optional-variant-_access-is-now-header-onl.patch b/third_party/xla/0007-absl_bad_-optional-variant-_access-is-now-header-onl.patch
-new file mode 100644
-index 0000000..726bacf
---- /dev/null
-+++ b/third_party/xla/0007-absl_bad_-optional-variant-_access-is-now-header-onl.patch
-@@ -0,0 +1,29 @@
-+From 81f0dd34897a06f5ff27730f9ffa9e8a08ef38e4 Mon Sep 17 00:00:00 2001
-+From: "Uwe L. Korn" <uwe.korn@quantco.com>
-+Date: Thu, 11 Sep 2025 21:33:07 +0200
-+Subject: [PATCH 07/11] absl_bad_{optional,variant}_access is now header-only
-+
-+---
-+ third_party/absl/system.absl.types.BUILD | 2 --
-+ 1 file changed, 2 deletions(-)
-+
-+diff --git a/third_party/absl/system.absl.types.BUILD b/third_party/absl/system.absl.types.BUILD
-+index db94fc9918..623c0e9612 100644
-+--- a/third_party/absl/system.absl.types.BUILD
-++++ b/third_party/absl/system.absl.types.BUILD
-+@@ -30,7 +30,6 @@ cc_library(
-+ 
-+ cc_library(
-+     name = "bad_optional_access",
-+-    linkopts = ["-labsl_bad_optional_access"],
-+     deps = [
-+         "//absl/base:raw_logging_internal",
-+     ],
-+@@ -38,7 +37,6 @@ cc_library(
-+ 
-+ cc_library(
-+     name = "bad_variant_access",
-+-    linkopts = ["-labsl_bad_variant_access"],
-+     deps = [
-+         "//absl/base:raw_logging_internal",
-+     ],
-diff --git a/third_party/xla/0008-Add-dependency-on-proto_bazel_features.patch b/third_party/xla/0008-Add-dependency-on-proto_bazel_features.patch
-new file mode 100644
-index 0000000..754265b
---- /dev/null
-+++ b/third_party/xla/0008-Add-dependency-on-proto_bazel_features.patch
-@@ -0,0 +1,72 @@
-+From 6cc795438e6dce98d2f2a4955f146f5d922e022e Mon Sep 17 00:00:00 2001
-+From: "Uwe L. Korn" <uwe.korn@quantco.com>
-+Date: Fri, 12 Sep 2025 16:06:30 +0200
-+Subject: [PATCH 08/11] Add dependency on proto_bazel_features
-+
-+---
-+ workspace2.bzl |  4 +++-
-+ workspace3.bzl | 17 ++++++++++++++++-
-+ 2 files changed, 19 insertions(+), 2 deletions(-)
-+
-+diff --git a/workspace2.bzl b/workspace2.bzl
-+index 6b3fa83736..ccec782527 100644
-+--- a/workspace2.bzl
-++++ b/workspace2.bzl
-+@@ -1,6 +1,7 @@
-+ """TensorFlow workspace initialization. Consult the WORKSPACE on how to use it."""
-+ 
-+ load("@bazel_features//:deps.bzl", "bazel_features_deps")
-++load("@proto_bazel_features//:deps.bzl", proto_bazel_features_deps = "bazel_features_deps")
-+ load("@bazel_skylib//lib:versions.bzl", "versions")
-+ load("@bazel_tools//tools/build_defs/repo:java.bzl", "java_import_external")
-+ load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
-+@@ -667,7 +668,8 @@ def workspace():
-+     # written according to common practice to query native.existing_rule()).
-+     _tf_repositories()
-+ 
-+-    bazel_features_deps()
-++    # bazel_features_deps()
-++    proto_bazel_features_deps()
-+ 
-+ # Alias so it can be loaded without assigning to a different symbol to prevent
-+ # shadowing previous loads and trigger a buildifier warning.
-+diff --git a/workspace3.bzl b/workspace3.bzl
-+index a9aa1507a8..9598938b7b 100644
-+--- a/workspace3.bzl
-++++ b/workspace3.bzl
-+@@ -23,6 +23,14 @@ def workspace():
-+         ),
-+     )
-+ 
-++    tf_http_archive(
-++        name = "rules_java",
-++        urls = tf_mirror_urls(
-++            "https://github.com/bazelbuild/rules_java/releases/download/7.12.5/rules_java-7.12.5.tar.gz",
-++	),
-++        sha256 = "17b18cb4f92ab7b94aa343ce78531b73960b1bed2ba166e5b02c9fdf0b0ac270",
-++    )
-++
-+     tf_http_archive(
-+         name = "rules_license",
-+         urls = tf_mirror_urls(
-+@@ -40,12 +48,19 @@ def workspace():
-+     )
-+ 
-+     tf_http_archive(
-+-        name = "bazel_features",
-++        name = "proto_bazel_features",
-+         sha256 = "4fd9922d464686820ffd8fcefa28ccffa147f7cdc6b6ac0d8b07fde565c65d66",
-+         strip_prefix = "bazel_features-1.25.0",
-+         urls = tf_mirror_urls("https://github.com/bazel-contrib/bazel_features/releases/download/v1.25.0/bazel_features-v1.25.0.tar.gz"),
-+     )
-+ 
-++    tf_http_archive(
-++        name = "bazel_features",
-++        sha256 = "c41853e3b636c533b86bf5ab4658064e6cc9db0a3bce52cbff0629e094344ca9",
-++        strip_prefix = "bazel_features-1.33.0",
-++        urls = tf_mirror_urls("https://github.com/bazel-contrib/bazel_features/releases/download/v1.33.0/bazel_features-v1.33.0.tar.gz"),
-++    )
-++
-+     # Toolchains for ML projects hermetic builds.
-+     # Details: https://github.com/google-ml-infra/rules_ml_toolchain
-+     tf_http_archive(
-diff --git a/third_party/xla/0009-Add-macos_x86_64-to-mkl_deps.patch b/third_party/xla/0009-Add-macos_x86_64-to-mkl_deps.patch
-new file mode 100644
-index 0000000..7a9d48f
---- /dev/null
-+++ b/third_party/xla/0009-Add-macos_x86_64-to-mkl_deps.patch
-@@ -0,0 +1,21 @@
-+From cc3b77f2805b1bcfe7a5570b96afe44ca90037ec Mon Sep 17 00:00:00 2001
-+From: "Uwe L. Korn" <uwe.korn@quantco.com>
-+Date: Sat, 20 Sep 2025 08:15:14 +0200
-+Subject: [PATCH 09/11] Add macos_x86_64 to mkl_deps
-+
-+---
-+ xla/tsl/mkl/build_defs.bzl | 1 +
-+ 1 file changed, 1 insertion(+)
-+
 +diff --git a/xla/tsl/mkl/build_defs.bzl b/xla/tsl/mkl/build_defs.bzl
-+index 81f8015b39..fa62eaf299 100644
++index 256f55ad8ddd29cd123945e70215b19f84718a4f..4efe43da882ff97e0d720a0cd1163fd81756c6e5 100644
 +--- a/xla/tsl/mkl/build_defs.bzl
 ++++ b/xla/tsl/mkl/build_defs.bzl
-+@@ -111,6 +111,7 @@ def mkl_deps():
++@@ -110,6 +110,7 @@ def mkl_deps():
++     return select({
 +         Label("//xla/tsl/mkl:build_with_mkl_aarch64"): ["@mkl_dnn_acl_compatible//:mkl_dnn_acl"],
-+         Label("//xla/tsl:linux_x86_64_with_onednn_async"): ["@onednn_async//:mkl_dnn"],
-+         Label("//xla/tsl:linux_x86_64"): ["@onednn//:mkl_dnn"],
++         Label("//xla/tsl:linux_x86_64"): ["@onednn_async//:mkl_dnn"],
 ++        Label("//xla/tsl:macos_x86_64"): ["@onednn//:mkl_dnn"],
-+         Label("//xla/tsl:windows"): ["@onednn//:mkl_dnn"],
++         Label("//xla/tsl:windows"): ["@onednn_async//:mkl_dnn"],
 +         "//conditions:default": [],
 +     })
-diff --git a/third_party/xla/0010-Add-systemlib-for-oneDNN.patch b/third_party/xla/0010-Add-systemlib-for-oneDNN.patch
-new file mode 100644
-index 0000000..4684321
---- /dev/null
-+++ b/third_party/xla/0010-Add-systemlib-for-oneDNN.patch
-@@ -0,0 +1,93 @@
-+From fe804b3bcb7cb84f2fd88725805038efc8413d31 Mon Sep 17 00:00:00 2001
-+From: "Uwe L. Korn" <uwe.korn@quantco.com>
-+Date: Fri, 26 Sep 2025 17:23:37 +0200
-+Subject: [PATCH 10/11] Add systemlib for oneDNN
-+
-+---
-+ third_party/mkl_dnn/mkldnn_system.BUILD             |  6 ++++++
-+ third_party/mkl_dnn/workspace.bzl                   |  1 +
-+ xla/backends/cpu/runtime/onednn/onednn_threadpool.h | 10 +++++++---
-+ xla/tsl/mkl/build_defs.bzl                          |  1 +
-+ xla/tsl/util/onednn_threadpool.h                    |  4 +++-
-+ 5 files changed, 18 insertions(+), 4 deletions(-)
-+ create mode 100644 third_party/mkl_dnn/mkldnn_system.BUILD
-+
-+diff --git a/third_party/mkl_dnn/mkldnn_system.BUILD b/third_party/mkl_dnn/mkldnn_system.BUILD
-+new file mode 100644
-+index 0000000000..21787db25a
-+--- /dev/null
-++++ b/third_party/mkl_dnn/mkldnn_system.BUILD
-+@@ -0,0 +1,6 @@
-++cc_library(
-++    name = "mkl_dnn",
-++    linkopts = ["-ldnnl"],
-++    visibility = ["//visibility:public"],
-++)
-++
-+diff --git a/third_party/mkl_dnn/workspace.bzl b/third_party/mkl_dnn/workspace.bzl
-+index 1c4b9b663f..14cde92583 100644
-+--- a/third_party/mkl_dnn/workspace.bzl
-++++ b/third_party/mkl_dnn/workspace.bzl
-+@@ -7,6 +7,7 @@ def repo():
-+         name = "onednn",
-+         build_file = "//third_party/mkl_dnn:mkldnn_v1.BUILD",
-+         patch_file = ["//third_party/mkl_dnn:setting_init.patch"],
-++        system_build_file = "//third_party/mkl_dnn:mkldnn_system.BUILD",
-+         sha256 = "071f289dc961b43a3b7c8cbe8a305290a7c5d308ec4b2f586397749abdc88296",
-+         strip_prefix = "oneDNN-3.7.3",
-+         urls = tf_mirror_urls("https://github.com/oneapi-src/oneDNN/archive/refs/tags/v3.7.3.tar.gz"),
-+diff --git a/xla/backends/cpu/runtime/onednn/onednn_threadpool.h b/xla/backends/cpu/runtime/onednn/onednn_threadpool.h
-+index 99180b9a42..2bdd7e7b0d 100644
-+--- a/xla/backends/cpu/runtime/onednn/onednn_threadpool.h
-++++ b/xla/backends/cpu/runtime/onednn/onednn_threadpool.h
-+@@ -23,6 +23,7 @@ limitations under the License.
-+ #include "Eigen/ThreadPool"
-+ #include "oneapi/dnnl/dnnl_threadpool.h"  // IWYU pragma: keep
-+ #include "oneapi/dnnl/dnnl_threadpool_iface.hpp"
-++#include "oneapi/dnnl/dnnl_version.h"
-+ #include "xla/backends/cpu/runtime/work_queue.h"
-+ #include "xla/tsl/concurrency/async_value_ref.h"
-+ #include "xla/tsl/concurrency/chain.h"
-+@@ -66,9 +67,12 @@ class OneDnnThreadPool final
-+ 
-+   uint64_t get_flags() const final { return is_async_ ? ASYNCHRONOUS : 0; }
-+ 
-+-#ifdef ENABLE_ONEDNN_ASYNC
-+-  // The wait() method only exists with oneDNN's experimental support for
-+-  // asynchronous execution determined by the ENABLE_ONEDNN_ASYNC.
-++#if defined(ENABLE_ONEDNN_ASYNC) || \
-++    DNNL_VERSION_MAJOR > 3 || \
-++    (DNNL_VERSION_MAJOR == 3 && DNNL_VERSION_MINOR >= 11)
-++  // oneDNN 3.11 made threadpool_iface::wait() mandatory for both sync and
-++  // async CPU runtime threadpools. Older releases only need it for the
-++  // experimental async runtime support, so keep it version-gated.
-+   void wait() override {
-+     if (is_async_) {
-+       // While performing asynchronous execution, wait() method is needed to
-+diff --git a/xla/tsl/mkl/build_defs.bzl b/xla/tsl/mkl/build_defs.bzl
-+index fa62eaf299..97f0649b62 100644
-+--- a/xla/tsl/mkl/build_defs.bzl
-++++ b/xla/tsl/mkl/build_defs.bzl
-+@@ -131,6 +131,7 @@ def mkl_dep():
++@@ -128,6 +129,7 @@ def mkl_dep():
++     return select({
 +         Label("//xla/tsl/mkl:build_with_mkl_aarch64"): "@mkl_dnn_acl_compatible//:mkl_dnn_acl",
-+         Label("//xla/tsl:linux_x86_64_with_onednn_async"): "@onednn_async//:mkl_dnn",
-+         Label("//xla/tsl:linux_x86_64"): "@onednn//:mkl_dnn",
++         Label("//xla/tsl:linux_x86_64"): "@onednn_async//:mkl_dnn",
 ++        Label("//xla/tsl:macos_x86_64"): "@onednn//:mkl_dnn",
-+         Label("//xla/tsl:windows"): "@onednn//:mkl_dnn",
++         Label("//xla/tsl:windows"): "@onednn_async//:mkl_dnn",
 +         "//conditions:default": "//xla/tsl/mkl:dummy_mkl_dnn",
 +     })
 +diff --git a/xla/tsl/util/onednn_threadpool.h b/xla/tsl/util/onednn_threadpool.h
-+index e7d698b935..80661caeb6 100644
++index e7d698b93543fc6d47a68db85631f350e5c17cab..49bf1ae50429c12caa519fc996e9e627ea444ee5 100644
 +--- a/xla/tsl/util/onednn_threadpool.h
 ++++ b/xla/tsl/util/onednn_threadpool.h
-+@@ -94,7 +94,9 @@ class OneDnnThreadPool : public threadpool_iface {
++@@ -94,7 +94,8 @@ class OneDnnThreadPool : public threadpool_iface {
 +   bool get_in_parallel() const override {
 +     return (eigen_interface_->CurrentThreadId() != -1) ? true : false;
 +   }
 +-#ifdef ENABLE_ONEDNN_ASYNC
-++#if defined(ENABLE_ONEDNN_ASYNC) || \
-++    DNNL_VERSION_MAJOR > 3 || \
+++#if defined(ENABLE_ONEDNN_ASYNC) || DNNL_VERSION_MAJOR > 3 || \
 ++    (DNNL_VERSION_MAJOR == 3 && DNNL_VERSION_MINOR >= 11)
 +   // Return 0 for synchronous execution; caller handles synchronization.
 +   uint64_t get_flags() const override { return 0; }
 +   // wait() method for synchronous execution is basically a no-op.
-diff --git a/third_party/xla/0011-Fix-clang-CUDA-incompatabilities.patch b/third_party/xla/0011-Fix-clang-CUDA-incompatabilities.patch
+diff --git a/third_party/xla/BUILD.bazel b/third_party/xla/BUILD.bazel
 new file mode 100644
-index 0000000..837513c
+index 0000000..b042a80
 --- /dev/null
-+++ b/third_party/xla/0011-Fix-clang-CUDA-incompatabilities.patch
-@@ -0,0 +1,64 @@
-+From 3a83b87940f43bcbffb4099358b986a67bb74c5c Mon Sep 17 00:00:00 2001
-+From: "Uwe L. Korn" <uwe.korn@quantco.com>
-+Date: Mon, 23 Mar 2026 07:29:40 +0100
-+Subject: [PATCH 11/11] Fix clang<->CUDA incompatabilities
-+
-+---
-+ third_party/raft/workspace.bzl                                  | 2 ++
-+ third_party/rmm/workspace.bzl                                   | 2 ++
-+ xla/backends/gpu/runtime/select_k_exec_raft.cc                  | 2 ++
-+ .../cuda/buffer_debug_float_check_kernel_cuda.cu.cc             | 2 +-
-+ 4 files changed, 7 insertions(+), 1 deletion(-)
-+
-+diff --git a/third_party/raft/workspace.bzl b/third_party/raft/workspace.bzl
-+index 8d48be809a..85c2be6859 100644
-+--- a/third_party/raft/workspace.bzl
-++++ b/third_party/raft/workspace.bzl
-+@@ -29,6 +29,8 @@ def tensorflow_repo():
-+ def xla_repo():
-+     """Imports raft."""
-+ 
-++    return tensorflow_repo()
-++
-+     RAFT_VERSION = "26.02.00"
-+     RAFT_SHA256 = "b4c005c70d9e1281a65dc30dc39051d1e4e713130da1fa0b76df832064674b59"
-+ 
-+diff --git a/third_party/rmm/workspace.bzl b/third_party/rmm/workspace.bzl
-+index b790660a68..8529a8ba3c 100644
-+--- a/third_party/rmm/workspace.bzl
-++++ b/third_party/rmm/workspace.bzl
-+@@ -20,6 +20,8 @@ def tensorflow_repo():
-+ def xla_repo():
-+     """Imports rmm."""
-+ 
-++    return tensorflow_repo()
-++
-+     RMM_VERSION = "26.02.00"
-+     RMM_SHA256 = "f7460ec9f177d79e8a709b7011cd11392059bcbd906336f4f5b90ef2b5547683"
-+ 
-+diff --git a/xla/backends/gpu/runtime/select_k_exec_raft.cc b/xla/backends/gpu/runtime/select_k_exec_raft.cc
-+index ca27bf084b..376c219b6d 100644
-+--- a/xla/backends/gpu/runtime/select_k_exec_raft.cc
-++++ b/xla/backends/gpu/runtime/select_k_exec_raft.cc
-+@@ -20,6 +20,8 @@ limitations under the License.
-+ #include <optional>
-+ #include <string>
-+ #include <utility>
-++#include <type_traits>
-++#include <cuda/std/type_traits>
-+ 
-+ #include "absl/base/optimization.h"
-+ #include "absl/container/flat_hash_map.h"
-+diff --git a/xla/stream_executor/cuda/buffer_debug_float_check_kernel_cuda.cu.cc b/xla/stream_executor/cuda/buffer_debug_float_check_kernel_cuda.cu.cc
-+index 31f4815069..6e83184d1d 100644
-+--- a/xla/stream_executor/cuda/buffer_debug_float_check_kernel_cuda.cu.cc
-++++ b/xla/stream_executor/cuda/buffer_debug_float_check_kernel_cuda.cu.cc
-+@@ -71,7 +71,7 @@ __host__ __device__ static constexpr T kInfinity =
-+ // So we can get a constant this way.
-+ template <>
-+ __host__ __device__ constexpr __nv_bfloat16 kInfinity<__nv_bfloat16> =
-+-    absl::bit_cast<__nv_bfloat16>(kInfinity<Eigen::bfloat16>);
-++    __builtin_bit_cast(__nv_bfloat16, kInfinity<Eigen::bfloat16>);
-+ // - __half lacks std::numeric_limits specialization, and Eigen::half is not a
-+ // literal type (non-constexpr constructors), so we construct infinity from raw
-+ // bits.
-diff --git a/third_party/xla/workspace.bzl b/third_party/xla/workspace.bzl
-index c96f49f..2dd4755 100644
---- a/third_party/xla/workspace.bzl
-+++ b/third_party/xla/workspace.bzl
-@@ -29,6 +29,17 @@ def repo():
-             "//third_party/xla:xla_4c9ae741.patch",
-             "//third_party/xla:xla_llvm_pr_203230.patch",
-             "//third_party/xla:xla_9b348c6b.patch",
-+            "//third_party/xla:0001-Fix-abseil-headers.patch",
-+            "//third_party/xla:0002-Omit-usage-of-StrFormat.patch",
-+            "//third_party/xla:0003-Re-enable-system-abseil.patch",
-+            "//third_party/xla:0004-Check-whether-absl-log-is-already-initialized.patch",
-+            "//third_party/xla:0005-Unbundle-grpc.patch",
-+            "//third_party/xla:0006-Disable-coordination_agent_recoverable-flag.patch",
-+            "//third_party/xla:0007-absl_bad_-optional-variant-_access-is-now-header-onl.patch",
-+            "//third_party/xla:0008-Add-dependency-on-proto_bazel_features.patch",
-+            "//third_party/xla:0009-Add-macos_x86_64-to-mkl_deps.patch",
-+            "//third_party/xla:0010-Add-systemlib-for-oneDNN.patch",
-+            "//third_party/xla:0011-Fix-clang-CUDA-incompatabilities.patch",
-         ],
-     )
- 
++++ b/third_party/xla/BUILD.bazel
+@@ -0,0 +1,3 @@
++exports_files([
++    "0001-conda-build-fixes.patch",
++])
+-- 
+2.43.0
+
