@@ -150,6 +150,11 @@ fi
 
 source gen-bazel-toolchain
 
+# Allow Bazel to resolve Apple toolchains for macOS
+if [[ "${host_platform}" == "osx-arm64" ]]; then
+    unset BAZEL_USE_CPP_ONLY_TOOLCHAIN
+fi
+
 cat >> .bazelrc <<EOF
 
 build --crosstool_top=//bazel_toolchain:toolchain
