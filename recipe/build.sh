@@ -144,10 +144,6 @@ template<typename T> struct __gpi_remove_ref<T\&\&> { using type = T; };\
                --bazel_options=--cxxopt=-include --bazel_options=--cxxopt=string.h"
 fi
 
-if [[ "${CI:-}" == "github_actions" ]]; then
-  export CPU_COUNT=2
-fi
-
 source gen-bazel-toolchain
 
 # Allow Bazel to resolve Apple toolchains for macOS
