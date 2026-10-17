@@ -1,0 +1,407 @@
+From b75e11b3707727fa0de822536d7813dbe31bee7e Mon Sep 17 00:00:00 2001
+From: Silvio Traversaro <silvio.traversaro@gbionics.ai>
+Date: Sat, 17 Oct 2026 13:50:20 -0400
+Subject: [PATCH] Adapt XLA build fixes to Bzlmod
+
+Apply conda-forge XLA build fixes through Bazel 8's Bzlmod configuration, including the Clang 21/22 RAFT compatibility fix.
+
+Co-authored-by: Albert Yau <albert@mwyau.com>
+---
+ MODULE.bazel                                 |   4 +
+ third_party/xla/0001-conda-build-fixes.patch | 361 +++++++++++++++++++
+ third_party/xla/BUILD.bazel                  |   3 +
+ 3 files changed, 368 insertions(+)
+ create mode 100644 third_party/xla/0001-conda-build-fixes.patch
+ create mode 100644 third_party/xla/BUILD.bazel
+
+diff --git a/MODULE.bazel b/MODULE.bazel
+index d1120c4b0..987042961 100644
+--- a/MODULE.bazel
++++ b/MODULE.bazel
+@@ -32,6 +32,10 @@ bazel_dep(name = "xla")
+ archive_override(
+     module_name = "xla",
+     integrity = "sha256-MsuAh9iDGKAfmXTq1iVOHKBtJj+hhH9hUDN5UlvUaJc=",
++    patch_strip = 1,
++    patches = [
++        "//third_party/xla:0001-conda-build-fixes.patch",
++    ],
+     strip_prefix = "xla-91888df6ce85102c30220e41d952065925e10886",
+     urls = ["https://github.com/openxla/xla/archive/91888df6ce85102c30220e41d952065925e10886.tar.gz"],
+ )
+diff --git a/third_party/xla/0001-conda-build-fixes.patch b/third_party/xla/0001-conda-build-fixes.patch
+new file mode 100644
+index 000000000..000bc7f24
+--- /dev/null
++++ b/third_party/xla/0001-conda-build-fixes.patch
+@@ -0,0 +1,361 @@
++From a56843fbb3373cface9dabcc02f6c26362d9a7cf Mon Sep 17 00:00:00 2001
++From: Silvio Traversaro <silvio.traversaro@gbionics.ai>
++Date: Sat, 17 Oct 2026 13:47:35 -0400
++Subject: [PATCH] Conda build fixes for XLA
++
++Adapt the XLA build configuration for conda-forge and add a Clang 21/22 RAFT compatibility patch.
++
++Co-authored-by: Albert Yau <albert@mwyau.com>
++---
++ third_party/mkl_dnn/mkldnn_system.BUILD       |  5 +++
++ .../onednn_acl_fix_spdlog_fmt_consteval.patch | 43 +++++++++++++++++++
++ third_party/mkl_dnn/workspace.bzl             |  3 ++
++ .../raft/clang21-22-unsigned-long.patch       | 30 +++++++++++++
++ third_party/raft/workspace.bzl                |  4 ++
++ third_party/rmm/workspace.bzl                 |  2 +
++ .../cpu/runtime/onednn/onednn_threadpool.h    | 10 +++--
++ xla/pjrt/c/BUILD                              |  1 +
++ xla/pjrt/c/pjrt_c_api_gpu.cc                  |  7 ++-
++ xla/python/BUILD                              |  1 +
++ xla/python/logging.cc                         |  7 ++-
++ .../coordination_service_agent.cc             |  8 ++--
++ xla/tsl/mkl/build_defs.bzl                    |  2 +
++ xla/tsl/util/onednn_threadpool.h              |  3 +-
++ 14 files changed, 115 insertions(+), 11 deletions(-)
++ create mode 100644 third_party/mkl_dnn/mkldnn_system.BUILD
++ create mode 100644 third_party/mkl_dnn/onednn_acl_fix_spdlog_fmt_consteval.patch
++ create mode 100644 third_party/raft/clang21-22-unsigned-long.patch
++
++diff --git a/third_party/mkl_dnn/mkldnn_system.BUILD b/third_party/mkl_dnn/mkldnn_system.BUILD
++new file mode 100644
++index 0000000000..f15867cc7d
++--- /dev/null
+++++ b/third_party/mkl_dnn/mkldnn_system.BUILD
++@@ -0,0 +1,5 @@
+++cc_library(
+++    name = "mkl_dnn",
+++    linkopts = ["-ldnnl"],
+++    visibility = ["//visibility:public"],
+++)
++diff --git a/third_party/mkl_dnn/onednn_acl_fix_spdlog_fmt_consteval.patch b/third_party/mkl_dnn/onednn_acl_fix_spdlog_fmt_consteval.patch
++new file mode 100644
++index 0000000000..7cba3af8a6
++--- /dev/null
+++++ b/third_party/mkl_dnn/onednn_acl_fix_spdlog_fmt_consteval.patch
++@@ -0,0 +1,43 @@
+++# Copyright 2026 The OpenXLA Authors.
+++#
+++# Licensed under the Apache License, Version 2.0 (the "License");
+++# you may not use this file except in compliance with the License.
+++# You may obtain a copy of the License at
+++#
+++#     http://www.apache.org/licenses/LICENSE-2.0
+++#
+++# Unless required by applicable law or agreed to in writing, software
+++# distributed under the License is distributed on an "AS IS" BASIS,
+++# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+++# See the License for the specific language governing permissions and
+++# limitations under the License.
+++# ==============================================================================
+++#
+++# The bundled fmt (v11.0.2) implementation of compile-time-checked format
+++# strings (FMT_STRING) relies on evaluating a non-constexpr-safe code path
+++# inside a consteval constructor. Clang >= 18 rejects this with:
+++#   error: call to consteval function ... is not a constant expression
+++# because it now propagates immediate-function-context requirements into
+++# every sub-expression of a consteval call (matching the C++23 resolution
+++# of CWG2334), which fmt 11.0.2 does not yet handle. This affects both
+++# spdlog's own call sites and fmt's internal call sites (e.g. bigint
+++# formatting), so patch FMT_STRING itself rather than each call site.
+++#
+++# Since compile-time format-string checking is a diagnostic-only feature
+++# (format strings are still checked at runtime), disable it for the
+++# bundled fmt used by oneDNN's verbose logging so it builds with newer
+++# Clang releases.
+++diff --git a/src/common/spdlog/fmt/bundled/format.h b/src/common/spdlog/fmt/bundled/format.h
+++index 1111111..2222222 100644
+++--- a/src/common/spdlog/fmt/bundled/format.h
++++++ b/src/common/spdlog/fmt/bundled/format.h
+++@@ -1824,5 +1824,7 @@
+++  *     // A compile-time error because 'd' is an invalid specifier for strings.
+++  *     std::string s = fmt::format(FMT_STRING("{:d}"), "foo");
+++  */
+++-#define FMT_STRING(s) FMT_STRING_IMPL(s, fmt::detail::compile_string, )
++++// Disabled: fmt 11.0.2's FMT_STRING_IMPL trips a consteval-constant-expression
++++// bug with Clang >= 18. Fall back to runtime-checked format strings.
++++#define FMT_STRING(s) s
+++
+++ template <size_t width, typename Char, typename OutputIt>
++diff --git a/third_party/mkl_dnn/workspace.bzl b/third_party/mkl_dnn/workspace.bzl
++index 679d4a4dd4..48ef60dfd9 100644
++--- a/third_party/mkl_dnn/workspace.bzl
+++++ b/third_party/mkl_dnn/workspace.bzl
++@@ -21,6 +21,7 @@ def repo():
++     tf_http_archive(
++         name = "onednn",
++         build_file = "//third_party/mkl_dnn:mkldnn_v1.BUILD",
+++        system_build_file = "//third_party/mkl_dnn:mkldnn_system.BUILD",
++         patch_file = ["//third_party/mkl_dnn:setting_tsan_race_v3_7_3.patch"],
++         sha256 = "071f289dc961b43a3b7c8cbe8a305290a7c5d308ec4b2f586397749abdc88296",
++         strip_prefix = "oneDNN-3.7.3",
++@@ -30,6 +31,7 @@ def repo():
++     tf_http_archive(
++         name = "onednn_async",
++         build_file = "//third_party/mkl_dnn:mkldnn_v1_async.BUILD",
+++        system_build_file = "//third_party/mkl_dnn:mkldnn_system.BUILD",
++         # Rename the gtest module in oneDNN's third_party to avoid
++         # conflict with Google's gtest module
++         patch_file = [
++@@ -47,6 +49,7 @@ def repo():
++         patch_file = [
++             "//third_party/mkl_dnn:onednn_acl_lock_fixed_format_matmul.patch",
++             "//third_party/mkl_dnn:onednn_acl_threadpool_default_max.patch",
+++            "//third_party/mkl_dnn:onednn_acl_fix_spdlog_fmt_consteval.patch",
++         ],
++         sha256 = "5792cbc07764c6e25c459ff68efb5cfcd7f4a0ba66dca6a4a2c681cd7a644596",
++         strip_prefix = "oneDNN-3.7",
++diff --git a/third_party/raft/clang21-22-unsigned-long.patch b/third_party/raft/clang21-22-unsigned-long.patch
++new file mode 100644
++index 0000000000..3ac1de5215
++--- /dev/null
+++++ b/third_party/raft/clang21-22-unsigned-long.patch
++@@ -0,0 +1,30 @@
+++From 2a321340ed9cc18184b29c61c9cf4eb92f925ef0 Mon Sep 17 00:00:00 2001
+++From: Albert Yau <albert@mwyau.com>
+++Date: Sat, 17 Oct 2026 13:45:30 -0400
+++Subject: [PATCH] Fix Clang 21/22 RAFT unsigned-long loads
+++
+++Clang 21 and 22 lack the __ldcs(const unsigned long*) overload. Clang 23 provides it upstream.
+++
+++See https://github.com/llvm/llvm-project/pull/190021
+++---
+++ cpp/include/raft/compat/clang_cuda_intrinsics.h | 10 ++++++++++
+++ 1 file changed, 10 insertions(+)
+++
+++diff --git a/cpp/include/raft/compat/clang_cuda_intrinsics.h b/cpp/include/raft/compat/clang_cuda_intrinsics.h
+++index 7a3be33a..0aa326c8 100644
+++--- a/cpp/include/raft/compat/clang_cuda_intrinsics.h
++++++ b/cpp/include/raft/compat/clang_cuda_intrinsics.h
+++@@ -272,3 +272,13 @@ __INTRINSIC_STORE_FAMILY(wt)
+++ #endif // defined(__cplusplus) && (__cplusplus >= 201103L)
+++ 
+++ #endif  // clang < 21
++++
++++#if defined(__clang__) && defined(__CUDA__) && \
++++    !defined(__NVCC__) && (__clang_major__ >= 21) && (__clang_major__ < 23)
++++inline __device__ unsigned long __ldcs(const unsigned long* ptr) {
++++  if (__SIZEOF_LONG__ == __SIZEOF_LONG_LONG__) {
++++    return (unsigned long)__ldcs((const unsigned long long*)ptr);
++++  }
++++  return (unsigned long)__ldcs((const unsigned int*)ptr);
++++}
++++#endif
++diff --git a/third_party/raft/workspace.bzl b/third_party/raft/workspace.bzl
++index 51d6561435..314f10ec2b 100644
++--- a/third_party/raft/workspace.bzl
+++++ b/third_party/raft/workspace.bzl
++@@ -33,6 +33,7 @@ def tensorflow_repo():
++             "//third_party/raft:cudart_utils.hpp.patch",
++             "//third_party/raft:vectorized.cuh.patch",
++             "//third_party/raft:clang_cuda_intrinsics.h.patch",
+++            "//third_party/raft:clang21-22-unsigned-long.patch",
++             "//third_party/raft:pr-2807.patch",
++             "//third_party/raft:logger_macros.hpp.patch",
++             "//third_party/raft:select_k_runner.hpp.patch",
++@@ -44,6 +45,8 @@ def tensorflow_repo():
++ def xla_repo():
++     """Imports raft."""
++ 
+++    return tensorflow_repo()
+++
++     RAFT_VERSION = "26.02.00"
++     RAFT_SHA256 = "b4c005c70d9e1281a65dc30dc39051d1e4e713130da1fa0b76df832064674b59"
++ 
++@@ -55,6 +58,7 @@ def xla_repo():
++         build_file = "//third_party/raft:raft.xla.BUILD",
++         patch_file = [
++             "//third_party/raft:clang_cuda_intrinsics.h.patch",
+++            "//third_party/raft:clang21-22-unsigned-long.patch",
++             "//third_party/raft:logger_macros.hpp.patch",
++             "//third_party/raft:select_k_runner.hpp.patch",
++             "//third_party/raft:select_k_runner.cu.cc.patch",
++diff --git a/third_party/rmm/workspace.bzl b/third_party/rmm/workspace.bzl
++index faad341515..d7f56f6353 100644
++--- a/third_party/rmm/workspace.bzl
+++++ b/third_party/rmm/workspace.bzl
++@@ -35,6 +35,8 @@ def tensorflow_repo():
++ def xla_repo():
++     """Imports rmm."""
++ 
+++    return tensorflow_repo()
+++
++     RMM_VERSION = "26.02.00"
++     RMM_SHA256 = "f7460ec9f177d79e8a709b7011cd11392059bcbd906336f4f5b90ef2b5547683"
++ 
++diff --git a/xla/backends/cpu/runtime/onednn/onednn_threadpool.h b/xla/backends/cpu/runtime/onednn/onednn_threadpool.h
++index 07f2d5257b..283315e608 100644
++--- a/xla/backends/cpu/runtime/onednn/onednn_threadpool.h
+++++ b/xla/backends/cpu/runtime/onednn/onednn_threadpool.h
++@@ -24,6 +24,7 @@ limitations under the License.
++ #include "Eigen/ThreadPool"
++ #include "oneapi/dnnl/dnnl_threadpool.h"  // IWYU pragma: keep
++ #include "oneapi/dnnl/dnnl_threadpool_iface.hpp"
+++#include "oneapi/dnnl/dnnl_version.h"
++ #include "xla/backends/cpu/runtime/work_queue.h"
++ #include "xla/tsl/concurrency/async_value_ref.h"
++ #include "xla/tsl/concurrency/chain.h"
++@@ -67,9 +68,10 @@ class OneDnnThreadPool final
++ 
++   uint64_t get_flags() const final { return is_async_ ? ASYNCHRONOUS : 0; }
++ 
++-#ifdef ENABLE_ONEDNN_ASYNC
++-  // The wait() method only exists with oneDNN's experimental support for
++-  // asynchronous execution determined by the ENABLE_ONEDNN_ASYNC.
+++#if defined(ENABLE_ONEDNN_ASYNC) || DNNL_VERSION_MAJOR > 3 || \
+++    (DNNL_VERSION_MAJOR == 3 && DNNL_VERSION_MINOR >= 11)
+++  // oneDNN 3.11 made wait() mandatory for all threadpool interfaces. Older
+++  // releases only need it with experimental asynchronous execution enabled.
++   void wait() override {
++     if (is_async_) {
++       // While performing asynchronous execution, wait() method is needed to
++@@ -78,7 +80,7 @@ class OneDnnThreadPool final
++       tsl::BlockUntilReady(done_event_);
++     }
++   }
++-#endif  // ENABLE_ONEDNN_ASYNC
+++#endif
++ 
++   void parallel_for(int n, const std::function<void(int, int)>& fn) final {
++     // Cap num_workers at n to avoid Worker::Parallelize's partition-clamping
++diff --git a/xla/pjrt/c/BUILD b/xla/pjrt/c/BUILD
++index cc4773993e..ae8714463a 100644
++--- a/xla/pjrt/c/BUILD
+++++ b/xla/pjrt/c/BUILD
++@@ -706,6 +706,7 @@ cc_library(
++         ":pjrt_c_api_macros",
++         "@com_google_absl//absl/base",
++         "@com_google_absl//absl/log:initialize",
+++        "@com_google_absl//absl/log:globals",
++         "@tsl//tsl/platform",
++     ],
++     alwayslink = 1,
++diff --git a/xla/pjrt/c/pjrt_c_api_gpu.cc b/xla/pjrt/c/pjrt_c_api_gpu.cc
++index fe836332be..895f40524d 100644
++--- a/xla/pjrt/c/pjrt_c_api_gpu.cc
+++++ b/xla/pjrt/c/pjrt_c_api_gpu.cc
++@@ -17,6 +17,7 @@ limitations under the License.
++ 
++ #include "absl/base/call_once.h"
++ #include "absl/log/initialize.h"
+++#include "absl/log/internal/globals.h"
++ #include "xla/pjrt/c/pjrt_c_api.h"
++ #include "xla/pjrt/c/pjrt_c_api_gpu_internal.h"
++ #include "tsl/platform/platform.h"
++@@ -25,7 +26,11 @@ const PJRT_Api* GetPjrtApi() {
++   // Initialize ABSL logging because code within XLA uses it.
++ #ifndef PLATFORM_GOOGLE
++   static absl::once_flag once;
++-  absl::call_once(once, []() { absl::InitializeLog(); });
+++  absl::call_once(once, []() {
+++    if (!absl::log_internal::IsInitialized()) {
+++      absl::InitializeLog();
+++    }
+++  });
++ #endif  // PLATFORM_GOOGLE
++   return pjrt::gpu_plugin::GetGpuPjrtApi();
++ }
++diff --git a/xla/python/BUILD b/xla/python/BUILD
++index 143d6bec74..a893277179 100644
++--- a/xla/python/BUILD
+++++ b/xla/python/BUILD
++@@ -593,6 +593,7 @@ cc_library(
++     visibility = internal_visibility([":friends"]),
++     deps = [
++         "@com_google_absl//absl/log:initialize",
+++        "@com_google_absl//absl/log:globals",
++     ],
++ )
++ 
++diff --git a/xla/python/logging.cc b/xla/python/logging.cc
++index 2d8261f025..5222fa96c6 100644
++--- a/xla/python/logging.cc
+++++ b/xla/python/logging.cc
++@@ -16,12 +16,17 @@ limitations under the License.
++ #include "xla/python/logging.h"
++ 
++ #include "absl/log/initialize.h"
+++#include "absl/log/internal/globals.h"
++ 
++ namespace xla {
++ 
++ // TODO(phawkins): We can't import absl logging in the same file as TSL logging
++ // because of conflicting definitions. We should fix this by using ABSL logging
++ // everywhere.
++-void InitializeAbslLogging() { absl::InitializeLog(); }
+++void InitializeAbslLogging() {
+++  if (!absl::log_internal::IsInitialized()) {
+++    absl::InitializeLog();
+++  }
+++}
++ 
++ }  // namespace xla
++diff --git a/xla/tsl/distributed_runtime/coordination/coordination_service_agent.cc b/xla/tsl/distributed_runtime/coordination/coordination_service_agent.cc
++index a3b9503705..9c359ffdca 100644
++--- a/xla/tsl/distributed_runtime/coordination/coordination_service_agent.cc
+++++ b/xla/tsl/distributed_runtime/coordination/coordination_service_agent.cc
++@@ -55,9 +55,9 @@ limitations under the License.
++ #include "xla/tsl/protobuf/coordination_service.pb.h"
++ 
++ // TODO(b/342448688): Expose via config and API instead of flag.
++-ABSL_FLAG(
++-    bool, coordination_agent_recoverable, false,
++-    "If true, allow it to silently reconnect to the service after a restart.");
+++// ABSL_FLAG(
+++//     bool, coordination_agent_recoverable, false,
+++//     "If true, allow it to silently reconnect to the service after a restart.");
++ 
++ namespace tsl {
++ using tensorflow::CoordinatedTask;
++@@ -98,7 +98,7 @@ absl::Status CoordinationServiceAgent::Initialize(
++   CoordinatedTask task;
++   task.set_job_name(std::string(job_name));
++   task.set_task_id(task_id);
++-  if (recoverable || absl::GetFlag(FLAGS_coordination_agent_recoverable)) {
+++  if (recoverable) {
++     LOG(WARNING)
++         << "Using experimental recoverable task feature. The default shutdown "
++            "barrier will only block non-recoverable tasks. If a synchronized "
++diff --git a/xla/tsl/mkl/build_defs.bzl b/xla/tsl/mkl/build_defs.bzl
++index 256f55ad8d..4efe43da88 100644
++--- a/xla/tsl/mkl/build_defs.bzl
+++++ b/xla/tsl/mkl/build_defs.bzl
++@@ -110,6 +110,7 @@ def mkl_deps():
++     return select({
++         Label("//xla/tsl/mkl:build_with_mkl_aarch64"): ["@mkl_dnn_acl_compatible//:mkl_dnn_acl"],
++         Label("//xla/tsl:linux_x86_64"): ["@onednn_async//:mkl_dnn"],
+++        Label("//xla/tsl:macos_x86_64"): ["@onednn//:mkl_dnn"],
++         Label("//xla/tsl:windows"): ["@onednn_async//:mkl_dnn"],
++         "//conditions:default": [],
++     })
++@@ -128,6 +129,7 @@ def mkl_dep():
++     return select({
++         Label("//xla/tsl/mkl:build_with_mkl_aarch64"): "@mkl_dnn_acl_compatible//:mkl_dnn_acl",
++         Label("//xla/tsl:linux_x86_64"): "@onednn_async//:mkl_dnn",
+++        Label("//xla/tsl:macos_x86_64"): "@onednn//:mkl_dnn",
++         Label("//xla/tsl:windows"): "@onednn_async//:mkl_dnn",
++         "//conditions:default": "//xla/tsl/mkl:dummy_mkl_dnn",
++     })
++diff --git a/xla/tsl/util/onednn_threadpool.h b/xla/tsl/util/onednn_threadpool.h
++index e7d698b935..49bf1ae504 100644
++--- a/xla/tsl/util/onednn_threadpool.h
+++++ b/xla/tsl/util/onednn_threadpool.h
++@@ -94,7 +94,8 @@ class OneDnnThreadPool : public threadpool_iface {
++   bool get_in_parallel() const override {
++     return (eigen_interface_->CurrentThreadId() != -1) ? true : false;
++   }
++-#ifdef ENABLE_ONEDNN_ASYNC
+++#if defined(ENABLE_ONEDNN_ASYNC) || DNNL_VERSION_MAJOR > 3 || \
+++    (DNNL_VERSION_MAJOR == 3 && DNNL_VERSION_MINOR >= 11)
++   // Return 0 for synchronous execution; caller handles synchronization.
++   uint64_t get_flags() const override { return 0; }
++   // wait() method for synchronous execution is basically a no-op.
+diff --git a/third_party/xla/BUILD.bazel b/third_party/xla/BUILD.bazel
+new file mode 100644
+index 000000000..b042a80ad
+--- /dev/null
++++ b/third_party/xla/BUILD.bazel
+@@ -0,0 +1,3 @@
++exports_files([
++    "0001-conda-build-fixes.patch",
++])
