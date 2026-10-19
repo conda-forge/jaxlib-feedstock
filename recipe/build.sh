@@ -144,11 +144,12 @@ template<typename T> struct __gpi_remove_ref<T\&\&> { using type = T; };\
                --bazel_options=--cxxopt=-include --bazel_options=--cxxopt=string.h"
 fi
 
-if [[ "${CI:-}" == "github_actions" ]]; then
-  export CPU_COUNT=2
-fi
-
 source gen-bazel-toolchain
+
+# Allow Bazel to resolve Apple toolchains for macOS
+if [[ "${host_platform}" == "osx-arm64" ]]; then
+    unset BAZEL_USE_CPP_ONLY_TOOLCHAIN
+fi
 
 cat >> .bazelrc <<EOF
 
@@ -183,11 +184,17 @@ fi
 export TF_SYSTEM_LIBS="boringssl,com_github_googlecloudplatform_google_cloud_cpp,com_github_grpc_grpc,flatbuffers,zlib,com_google_absl,com_googlesource_code_re2,com_google_protobuf"
 
 if [[ "${host_platform}" != "osx-arm64" ]]; then
-    export TF_SYSTEM_LIBS="${TF_SYSTEM_LIBS},onednn"
+    export TF_SYSTEM_LIBS="${TF_SYSTEM_LIBS},onednn,onednn_async"
+fi
+
+# Enable GNU extensions for CUDA builds, NCCL's CUDA headers use GNU typeof
+CXX_STD=c++20
+if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
+    CXX_STD=gnu++20
 fi
 
 # Mark as a release build
-EXTRA="--bazel_options=--repo_env=ML_WHEEL_TYPE=release ${CUDA_ARGS:-} --bazel_options=--cxxopt=-std=c++20 --bazel_options=--host_cxxopt=-std=c++20"
+EXTRA="--bazel_options=--repo_env=ML_WHEEL_TYPE=release ${CUDA_ARGS:-} --bazel_options=--cxxopt=-std=${CXX_STD} --bazel_options=--host_cxxopt=-std=c++20"
 
 if [[ "${host_platform}" == "osx-arm64" || "${host_platform}" != "${build_platform}" ]]; then
     EXTRA="${EXTRA} --target_cpu ${TARGET_CPU}"

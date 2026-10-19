@@ -27,11 +27,11 @@ flatbuffers:
 github_actions_labels:
 - namespace-profile-16cpu-on-linux-64
 libabseil:
-- '20260107'
+- '20260526'
 libgrpc:
-- '1.78'
+- '1.82'
 libprotobuf:
-- 6.33.5
+- 7.35.1
 nccl:
 - '2'
 numpy:

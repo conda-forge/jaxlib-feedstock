@@ -25,13 +25,13 @@ docker_image:
 flatbuffers:
 - 25.9.23
 github_actions_labels:
-- namespace-profile-8cpu-on-linux-aarch64
+- namespace-profile-16cpu-on-linux-aarch64
 libabseil:
-- '20260107'
+- '20260526'
 libgrpc:
-- '1.78'
+- '1.82'
 libprotobuf:
-- 6.33.5
+- 7.35.1
 nccl:
 - '2'
 numpy:
