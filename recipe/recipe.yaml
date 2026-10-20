@@ -30,6 +30,7 @@ requirements:
     - if: cuda_compiler_version != "None"
       then:
         - ${{ compiler('cuda') }}
+        - pkg-config
         - rsync
     - if: linux
       then:
