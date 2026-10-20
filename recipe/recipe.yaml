@@ -81,6 +81,7 @@ requirements:
         - libcurand-dev
         - libcusolver-dev
         - libcusparse-dev
+        - libnvjitlink-dev
         - nccl
     - python
     - pip
