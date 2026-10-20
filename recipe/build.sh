@@ -166,6 +166,8 @@ build --local_resources=cpu=${CPU_COUNT}
 build --define=with_cross_compiler_support=true
 build --repo_env=GRPC_BAZEL_DIR=${PREFIX}/share/bazel/grpc/bazel
 build --repo_env=PROTOBUF_BAZEL_DIR=${PREFIX}/share/bazel/protobuf/bazel
+# Disable repos contents cache - it cannot be inside the main repo
+common --repo_contents_cache=
 
 # We need to define a dummy value for this as we delete everything else for build_cuda_with_nvcc
 build:build_cuda_with_nvcc --action_env=CONDA_USE_NVCC=1
