@@ -15,7 +15,10 @@ source:
   patches:
     - patches/0001-Allow-for-custom-CUDA-build.patch
     - patches/0002-Adapt-XLA-build-fixes-to-Bzlmod.patch
+    - patches/0003-Fix-CUDA-header-mappings.patch
     - patches/0004-re-enable-use_fast_cpp_protos-true.patch
+    - patches/0005-Use-CCCL-3.4-for-Clang-CUDA.patch
+    - patches/0006-Include-CUDA-bfloat16-header.patch
 
 build:
   number: ${{ build if cuda_compiler_version == "None" else build + 200 }}

@@ -1,0 +1,35 @@
+From: Albert Yau <albert@mwyau.com>
+Subject: [PATCH] Include CUDA bfloat16 header in XLA buffer checks
+
+The pinned XLA buffer debug CUDA source uses __nv_bfloat16 but includes only
+cuda_fp16.h, which forward-declares that type. Include cuda_bf16.h explicitly.
+
+diff --git a/MODULE.bazel b/MODULE.bazel
+--- a/MODULE.bazel
++++ b/MODULE.bazel
+@@ -42,6 +42,7 @@ archive_override(
+         "//third_party:xla/nvptx_compiler_target.patch",
+         "//third_party:xla/conda-build-fixes.patch",
+         "//third_party:xla/cccl-clang-cuda.patch",
++        "//third_party:xla/cuda-bf16-header.patch",
+     ],
+     strip_prefix = "xla-d867969800d4a8fd045505eabc65e1e66f30794f",
+     urls = ["https://github.com/openxla/xla/archive/d867969800d4a8fd045505eabc65e1e66f30794f.tar.gz"],
+diff --git a/third_party/xla/cuda-bf16-header.patch b/third_party/xla/cuda-bf16-header.patch
+new file mode 100644
+--- /dev/null
++++ b/third_party/xla/cuda-bf16-header.patch
+@@ -0,0 +1,13 @@
++From: Albert Yau <albert@mwyau.com>
++Subject: [PATCH] Include CUDA bfloat16 declarations in XLA buffer check
++
++--- a/xla/stream_executor/cuda/buffer_debug_float_check_kernel_cuda.cu.cc
+++++ b/xla/stream_executor/cuda/buffer_debug_float_check_kernel_cuda.cu.cc
++@@ -19,6 +19,7 @@
++ #include "Eigen/Core"
++ #include "absl/base/casts.h"
++ #include "third_party/gpus/cuda/include/cuda/atomic"
+++#include "third_party/gpus/cuda/include/cuda_bf16.h"
++ #include "third_party/gpus/cuda/include/cuda_fp16.h"
++ #include "xla/stream_executor/cuda/cuda_platform_id.h"
++ #include "xla/stream_executor/gpu/buffer_debug_float_check_kernel.h"
