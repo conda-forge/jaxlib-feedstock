@@ -10,7 +10,7 @@ if [[ "${host_platform}" == osx-* ]]; then
   # Remove stdlib=libc++; this is the default and errors on C sources.
   export CXXFLAGS="${CXXFLAGS/-stdlib=libc++} -D_LIBCPP_DISABLE_AVAILABILITY"
 else
-  export LDFLAGS="${LDFLAGS} -lrt"
+  export LDFLAGS="${LDFLAGS} -lrt -lm"
 
   # See https://github.com/llvm/llvm-project/issues/85656
   # Otherwise, this will cause linkage errors with a GCC-built abseil
@@ -67,18 +67,8 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
     export PATH=$PATH:${BUILD_PREFIX}/nvvm/bin
     # XLA can only cope with a single cuda header include directory, merge both
     rsync -a ${PREFIX}/targets/${CUDA_ARCH}/include/ ${BUILD_PREFIX}/targets/${CUDA_ARCH}/include/
-
-    # Although XLA supports a non-hermetic build, it still tries to find headers in the hermetic locations.
-    # We do this in the BUILD_PREFIX to not have any impact on the resulting jaxlib package.
-    # Otherwise, these copied files would be included in the package.
+    rsync -a ${PREFIX}/targets/${CUDA_ARCH}/lib/ ${BUILD_PREFIX}/targets/${CUDA_ARCH}/lib/
     rm -rf ${BUILD_PREFIX}/targets/${CUDA_ARCH}/include/third_party
-    mkdir -p ${BUILD_PREFIX}/targets/${CUDA_ARCH}/include/third_party/gpus/cuda/extras/CUPTI
-    cp -r ${PREFIX}/targets/${CUDA_ARCH}/include ${BUILD_PREFIX}/targets/${CUDA_ARCH}/include/third_party/gpus/cuda/
-    cp -r ${PREFIX}/targets/${CUDA_ARCH}/include ${BUILD_PREFIX}/targets/${CUDA_ARCH}/include/third_party/gpus/cuda/extras/CUPTI/
-    mkdir -p ${BUILD_PREFIX}/targets/${CUDA_ARCH}/include/third_party/gpus/cudnn
-    cp ${PREFIX}/include/cudnn*.h ${BUILD_PREFIX}/targets/${CUDA_ARCH}/include/third_party/gpus/cudnn/
-    mkdir -p ${BUILD_PREFIX}/targets/${CUDA_ARCH}/include/third_party/nccl
-    cp ${PREFIX}/include/nccl*.h ${BUILD_PREFIX}/targets/${CUDA_ARCH}/include/third_party/nccl/
     # Work around clang CUDA host compilation colliding with libstdc++'s
     # __attribute__((__noinline__)) usage via host_defines.h macro expansion.
     # Patch both build and host CUDA include trees used by this build.
@@ -105,7 +95,7 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
     # in CUDA device compilation with Clang. Replace typeof with a decltype-based
     # approach that strips references using a template helper.
     GPI_DEVICE_HOST_COMMON="${PREFIX}/include/nccl_device/gin/gpi/gin_gpi_device_host_common.h"
-    if [[ -f "${GPI_DEVICE_HOST_COMMON}" ]]; then
+    if [[ -f "${GPI_DEVICE_HOST_COMMON}" ]] && ! grep -q '__gpi_remove_ref' "${GPI_DEVICE_HOST_COMMON}"; then
       # Insert template helper before #ifndef GPI_ACCESS_ONCE to strip references from decltype
       sed -i 's/^#ifndef GPI_ACCESS_ONCE$/template<typename T> struct __gpi_remove_ref { using type = T; };\
 template<typename T> struct __gpi_remove_ref<T\&> { using type = T; };\
@@ -114,8 +104,9 @@ template<typename T> struct __gpi_remove_ref<T\&\&> { using type = T; };\
       sed -i 's/typeof(x)/typename __gpi_remove_ref<decltype(x)>::type/g' "${GPI_DEVICE_HOST_COMMON}"
     fi
     export LOCAL_CUDA_PATH="${BUILD_PREFIX}/targets/${CUDA_ARCH}"
-    export LOCAL_CUDNN_PATH="${PREFIX}/targets/${CUDA_ARCH}"
-    export LOCAL_NCCL_PATH="${PREFIX}/targets/${CUDA_ARCH}"
+    # cuDNN and NCCL are installed under the host prefix's include/ and lib/.
+    export LOCAL_CUDNN_PATH="${PREFIX}"
+    export LOCAL_NCCL_PATH="${PREFIX}"
     mkdir -p ${BUILD_PREFIX}/targets/${CUDA_ARCH}/bin
     test -f ${BUILD_PREFIX}/targets/${CUDA_ARCH}/bin/ptxas || ln -s $(which ptxas) ${BUILD_PREFIX}/targets/${CUDA_ARCH}/bin/ptxas
     test -f ${BUILD_PREFIX}/targets/${CUDA_ARCH}/bin/nvlink || ln -s $(which nvlink) ${BUILD_PREFIX}/targets/${CUDA_ARCH}/bin/nvlink
@@ -141,6 +132,7 @@ template<typename T> struct __gpi_remove_ref<T\&\&> { using type = T; };\
                --cuda_version=$TF_CUDA_VERSION \
                --cudnn_version=$TF_CUDNN_VERSION \
                --build_cuda_with_clang \
+               --bazel_options=--cxxopt=--cuda-path=${CUDA_HOME} \
                --bazel_options=--cxxopt=-include --bazel_options=--cxxopt=string.h"
 fi
 
@@ -166,6 +158,8 @@ build --local_resources=cpu=${CPU_COUNT}
 build --define=with_cross_compiler_support=true
 build --repo_env=GRPC_BAZEL_DIR=${PREFIX}/share/bazel/grpc/bazel
 build --repo_env=PROTOBUF_BAZEL_DIR=${PREFIX}/share/bazel/protobuf/bazel
+# Disable repos contents cache - it cannot be inside the main repo
+common --repo_contents_cache=
 
 # We need to define a dummy value for this as we delete everything else for build_cuda_with_nvcc
 build:build_cuda_with_nvcc --action_env=CONDA_USE_NVCC=1

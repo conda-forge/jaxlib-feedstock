@@ -192,6 +192,7 @@ Feedstock Maintainers
 * [@ehfd](https://github.com/ehfd/)
 * [@ericmjl](https://github.com/ericmjl/)
 * [@h-vetinari](https://github.com/h-vetinari/)
+* [@mwyau](https://github.com/mwyau/)
 * [@ngam](https://github.com/ngam/)
 * [@oursland](https://github.com/oursland/)
 * [@xhochy](https://github.com/xhochy/)

@@ -1,0 +1,87 @@
+From: Albert Yau <albert@mwyau.com>
+Subject: [PATCH] Use CCCL 3.4.0 for Clang CUDA builds
+
+CCCL 3.2.0 incorrectly annotates four basic_string_view deduction
+guides with _CCCL_HOST, which Clang rejects in CUDA mode.
+
+The upstream fix removes those annotations. Upgrade the pinned
+CCCL dependency to 3.4.0, which contains the correction.
+
+Upstream issue: https://github.com/NVIDIA/cccl/issues/7896
+Upstream PR: https://github.com/NVIDIA/cccl/pull/7904
+
+diff --git a/MODULE.bazel b/MODULE.bazel
+--- a/MODULE.bazel
++++ b/MODULE.bazel
+@@ -41,6 +41,7 @@
+         "//third_party:xla/xpu_triton_hook.patch",
+         "//third_party:xla/nvptx_compiler_target.patch",
+         "//third_party:xla/conda-build-fixes.patch",
++        "//third_party:xla/cccl-clang-cuda.patch",
+     ],
+     strip_prefix = "xla-d867969800d4a8fd045505eabc65e1e66f30794f",
+     urls = ["https://github.com/openxla/xla/archive/d867969800d4a8fd045505eabc65e1e66f30794f.tar.gz"],
+diff --git a/third_party/xla/cccl-clang-cuda.patch b/third_party/xla/cccl-clang-cuda.patch
+new file mode 100644
+--- /dev/null
++++ b/third_party/xla/cccl-clang-cuda.patch
+@@ -0,0 +1,59 @@
++From: Albert Yau <albert@mwyau.com>
++Subject: [PATCH] Use CCCL 3.4.0 in XLA
++
++CCCL 3.4.0 removes host-only annotations from CUDA deduction guides,
++which Clang rejects when compiling XLA's CUDA sources.
++
++diff --git a/third_party/cccl/cccl_extension.bzl b/third_party/cccl/cccl_extension.bzl
++--- a/third_party/cccl/cccl_extension.bzl
+++++ b/third_party/cccl/cccl_extension.bzl
++@@ -16,11 +16,11 @@
++ """CCCL extension for Bazel modules."""
++ 
++ load("@rules_ml_toolchain//gpu/cuda:cuda_redist_init_repositories.bzl", "cuda_redist_init_repositories")
++-load("//third_party/cccl:workspace.bzl", "CCCL_3_2_0_DIST_DICT", "CCCL_GITHUB_VERSIONS_TO_BUILD_TEMPLATES")
+++load("//third_party/cccl:workspace.bzl", "CCCL_3_4_0_DIST_DICT", "CCCL_GITHUB_VERSIONS_TO_BUILD_TEMPLATES")
++ 
++ def _cccl_extension_impl(ctx):  # @unused
++     cuda_redist_init_repositories(
++-        cuda_redistributions = CCCL_3_2_0_DIST_DICT,
+++        cuda_redistributions = CCCL_3_4_0_DIST_DICT,
++         redist_versions_to_build_templates = CCCL_GITHUB_VERSIONS_TO_BUILD_TEMPLATES,
++     )
++ 
++diff --git a/third_party/cccl/workspace.bzl b/third_party/cccl/workspace.bzl
++--- a/third_party/cccl/workspace.bzl
+++++ b/third_party/cccl/workspace.bzl
++@@ -23,12 +23,12 @@
++     "strip_prefix": "cccl-src-v2.8.5",
++ }
++ 
++-# CCCL version 3.2.0
++-# https://github.com/NVIDIA/cccl/releases/tag/v3.2.0
++-_CCCL_3_2_0_GITHUB_ARCHIVE = {
++-    "full_path": "https://github.com/NVIDIA/cccl/releases/download/v3.2.0/cccl-src-v3.2.0.tar.gz",
++-    "sha256": "b5cd66e240201f5a06af2a75eaffdf05a6c63829edada33ff569ada0037f8086",
++-    "strip_prefix": "cccl-src-v3.2.0",
+++# CCCL version 3.4.0
+++# https://github.com/NVIDIA/cccl/releases/tag/v3.4.0
+++_CCCL_3_4_0_GITHUB_ARCHIVE = {
+++    "full_path": "https://github.com/NVIDIA/cccl/releases/download/v3.4.0/cccl-src-v3.4.0.tar.gz",
+++    "sha256": "7d3f36c6236b4a9fd6e40a0520aa516e0dcbe157aa6345966eb25f35bc4cdc77",
+++    "strip_prefix": "cccl-src-v3.4.0",
++ }
++ 
++ CCCL_2_8_5_DIST_DICT = {
++@@ -38,10 +38,10 @@
++     },
++ }
++ 
++-CCCL_3_2_0_DIST_DICT = {
+++CCCL_3_4_0_DIST_DICT = {
++     "cuda_cccl": {
++-        "linux-x86_64": _CCCL_3_2_0_GITHUB_ARCHIVE,
++-        "linux-sbsa": _CCCL_3_2_0_GITHUB_ARCHIVE,
+++        "linux-x86_64": _CCCL_3_4_0_GITHUB_ARCHIVE,
+++        "linux-sbsa": _CCCL_3_4_0_GITHUB_ARCHIVE,
++     },
++ }
++ 
