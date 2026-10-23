@@ -9,7 +9,7 @@ with the Clang 21/22 RAFT compatibility fix.
 Preserve JAX's existing XLA archive patches and integrate
 the conda build fixes through the Bzlmod patch mechanism.
 
-Reference: https://github.com/openxla/xla/pull/51036
+XLA RAFT fix: https://github.com/openxla/xla/pull/51391
 
 Co-authored-by: Albert Yau <albert@mwyau.com>
 ---
@@ -22,10 +22,11 @@ diff --git a/MODULE.bazel b/MODULE.bazel
 index 6cef658..6ee7c73 100644
 --- a/MODULE.bazel
 +++ b/MODULE.bazel
-@@ -38,6 +38,7 @@ archive_override(
+@@ -38,7 +38,8 @@ archive_override(
      patches = [
          "//third_party:xla/xpu_triton_hook.patch",
          "//third_party:xla/nvptx_compiler_target.patch",
+         "//third_party:xla/windows_cpp_gen_intrinsics.patch",
 +        "//third_party:xla/conda-build-fixes.patch",
      ],
      strip_prefix = "xla-d867969800d4a8fd045505eabc65e1e66f30794f",

@@ -9,13 +9,15 @@ CCCL dependency to 3.4.0, which contains the correction.
 
 Upstream issue: https://github.com/NVIDIA/cccl/issues/7896
 Upstream PR: https://github.com/NVIDIA/cccl/pull/7904
+XLA PR: https://github.com/openxla/xla/pull/51491
 
 diff --git a/MODULE.bazel b/MODULE.bazel
 --- a/MODULE.bazel
 +++ b/MODULE.bazel
-@@ -41,6 +41,7 @@
+@@ -41,7 +41,8 @@
          "//third_party:xla/xpu_triton_hook.patch",
          "//third_party:xla/nvptx_compiler_target.patch",
+         "//third_party:xla/windows_cpp_gen_intrinsics.patch",
          "//third_party:xla/conda-build-fixes.patch",
 +        "//third_party:xla/cccl-clang-cuda.patch",
      ],
