@@ -9,6 +9,7 @@ CCCL dependency to 3.4.0, which contains the correction.
 
 Upstream issue: https://github.com/NVIDIA/cccl/issues/7896
 Upstream PR: https://github.com/NVIDIA/cccl/pull/7904
+XLA PR: https://github.com/openxla/xla/pull/51491
 
 diff --git a/MODULE.bazel b/MODULE.bazel
 --- a/MODULE.bazel

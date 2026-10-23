@@ -4,6 +4,8 @@ Subject: [PATCH] Include CUDA bfloat16 header in XLA buffer checks
 The pinned XLA buffer debug CUDA source uses __nv_bfloat16 but includes only
 cuda_fp16.h, which forward-declares that type. Include cuda_bf16.h explicitly.
 
+XLA PR: https://github.com/openxla/xla/pull/51489
+
 diff --git a/MODULE.bazel b/MODULE.bazel
 --- a/MODULE.bazel
 +++ b/MODULE.bazel
