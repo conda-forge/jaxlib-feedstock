@@ -1,3 +1,5 @@
+DOCKER_PLATFORM:
+- linux/amd64
 c_compiler:
 - clang
 c_compiler_version:
@@ -27,9 +29,9 @@ flatbuffers:
 github_actions_labels:
 - namespace-profile-16cpu-on-linux-64
 libabseil:
-- '20260526'
+- '20260817'
 libgrpc:
-- '1.82'
+- '1.85'
 libprotobuf:
 - 7.35.1
 nccl:
