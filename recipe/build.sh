@@ -199,8 +199,6 @@ sed -i '/local_config_apple/d' .bazelrc
 if [[ "${host_platform}" == linux-* ]]; then
     EXTRA="${EXTRA} --clang_path $(command -v ${CC})"
 
-    # Remove incompatible argument from bazelrc
-    sed -i '/Qunused-arguments/d' .bazelrc
     # Don't override our toolchain for CUDA
     sed -i '/TF_NVCC_CLANG/{N;d}' .bazelrc
     # Keep using our toolchain for both target and host builds.
