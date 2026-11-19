@@ -225,11 +225,6 @@ ${PYTHON} build/build.py build \
     --target_cpu_features default \
     ${EXTRA}
 
-# Clean up to speedup postprocessing
-pushd build
-bazel clean --expunge
-popd
-
 pushd $SP_DIR
 ${PYTHON} -m pip install $SRC_DIR/dist/jaxlib-*.whl
 
