@@ -1,76 +1,63 @@
-From 543ec525638f0144d189a1829b06a28d66079939 Mon Sep 17 00:00:00 2001
+From 61732b0dcb50d496831b01338526c795c69266da Mon Sep 17 00:00:00 2001
 From: Silvio Traversaro <silvio.traversaro@gbionics.ai>
-Date: Mon, 19 Oct 2026 23:24:58 -0400
-Subject: [PATCH] Adapt XLA build fixes to JAX 0.12.0 Bzlmod
-
-Adapt the conda-forge XLA build fixes to JAX 0.12.0,
-with the Clang 21/22 RAFT compatibility fix.
+Date: Wed, 18 Nov 2026 15:52:01 -0500
+Subject: [PATCH] Adapt XLA build fixes to JAX 0.12.1 Bzlmod
 
 Preserve JAX's existing XLA archive patches and integrate
 the conda build fixes through the Bzlmod patch mechanism.
 
-XLA RAFT fix: https://github.com/openxla/xla/pull/51391
-
 Co-authored-by: Albert Yau <albert@mwyau.com>
 ---
  MODULE.bazel                            |   1 +
- third_party/xla/conda-build-fixes.patch | 292 ++++++++++++++++++++++++
- 2 files changed, 293 insertions(+)
+ third_party/xla/conda-build-fixes.patch | 217 ++++++++++++++++++++++++
+ 2 files changed, 218 insertions(+)
  create mode 100644 third_party/xla/conda-build-fixes.patch
 
 diff --git a/MODULE.bazel b/MODULE.bazel
-index 6cef658..6ee7c73 100644
+index 4f46bea..29bd728 100644
 --- a/MODULE.bazel
 +++ b/MODULE.bazel
-@@ -38,7 +38,8 @@ archive_override(
+@@ -37,6 +37,7 @@ archive_override(
+     patch_strip = 1,
      patches = [
-         "//third_party:xla/xpu_triton_hook.patch",
-         "//third_party:xla/nvptx_compiler_target.patch",
-         "//third_party:xla/windows_cpp_gen_intrinsics.patch",
+         "//third_party:xla/wsl_vmm_large_allocations.patch",
 +        "//third_party:xla/conda-build-fixes.patch",
      ],
-     strip_prefix = "xla-d867969800d4a8fd045505eabc65e1e66f30794f",
-     urls = ["https://github.com/openxla/xla/archive/d867969800d4a8fd045505eabc65e1e66f30794f.tar.gz"],
+     strip_prefix = "xla-97b8433b3ed82b78b742f751d2c7f510e5d78d25",
+     urls = ["https://github.com/openxla/xla/archive/97b8433b3ed82b78b742f751d2c7f510e5d78d25.tar.gz"],
 diff --git a/third_party/xla/conda-build-fixes.patch b/third_party/xla/conda-build-fixes.patch
 new file mode 100644
-index 0000000..e778993
+index 0000000..d15a0e9
 --- /dev/null
 +++ b/third_party/xla/conda-build-fixes.patch
-@@ -0,0 +1,292 @@
-+From 30e998b9cef2f4474bbd7e22a76813d86360f43c Mon Sep 17 00:00:00 2001
+@@ -0,0 +1,217 @@
++From 5eade54edf69ea22ebddcebc2c350fcf85ff3ea7 Mon Sep 17 00:00:00 2001
 +From: Silvio Traversaro <silvio.traversaro@gbionics.ai>
-+Date: Mon, 19 Oct 2026 23:22:12 -0400
-+Subject: [PATCH] Adapt conda build fixes to XLA for JAX 0.12.0
++Date: Wed, 18 Nov 2026 15:52:01 -0500
++Subject: [PATCH] Adapt conda build fixes to XLA for JAX 0.12.1
 +
-+Adapt the conda-forge build fixes to the pinned XLA revision,
-+with the Clang 21/22 RAFT compatibility fix.
-+
-+Retain Bzlmod system-library compatibility and remove
-+workarounds already incorporated into upstream XLA.
-+
-+Reference: https://github.com/openxla/xla/pull/51036
++Retain conda system-library, oneDNN, logging, coordination and platform compatibility fixes on the XLA revision pinned by JAX 0.12.1. The RAFT Clang CUDA workaround is omitted because the improved fix is upstream in openxla/xla#51391.
 +
 +Co-authored-by: Albert Yau <albert@mwyau.com>
 +---
 + third_party/extensions/third_party.bzl        |  1 +
-+ third_party/mkl_dnn/mkldnn_system.BUILD       | 22 ++++++++
-+ third_party/mkl_dnn/workspace.bzl             |  2 +
-+ .../raft/clang_cuda_intrinsics.h.patch        | 50 +++++++++++++------
-+ third_party/repo.bzl                          |  3 ++
++ third_party/mkl_dnn/mkldnn_system.BUILD       | 22 +++++++++++++++++++
++ third_party/mkl_dnn/workspace.bzl             |  2 ++
++ third_party/repo.bzl                          |  3 +++
 + xla/pjrt/c/BUILD                              |  1 +
-+ xla/pjrt/c/pjrt_c_api_gpu.cc                  |  7 ++-
++ xla/pjrt/c/pjrt_c_api_gpu.cc                  |  7 +++++-
 + xla/python/BUILD                              |  1 +
-+ xla/python/logging.cc                         |  7 ++-
-+ .../coordination_service_agent.cc             | 10 ++--
-+ xla/tsl/mkl/build_defs.bzl                    |  2 +
-+ 11 files changed, 84 insertions(+), 22 deletions(-)
++ xla/python/logging.cc                         |  7 +++++-
++ .../coordination_service_agent.cc             | 10 +++++----
++ xla/tsl/mkl/build_defs.bzl                    |  2 ++
++ 10 files changed, 50 insertions(+), 6 deletions(-)
 + create mode 100644 third_party/mkl_dnn/mkldnn_system.BUILD
 +
 +diff --git a/third_party/extensions/third_party.bzl b/third_party/extensions/third_party.bzl
-+index 12807d5d5d..2e80389bb7 100644
++index c36b417..12d7cb9 100644
 +--- a/third_party/extensions/third_party.bzl
 ++++ b/third_party/extensions/third_party.bzl
-+@@ -131,4 +131,5 @@ def _third_party_ext_impl(mctx):  # @unused
++@@ -133,4 +133,5 @@ def _third_party_ext_impl(mctx):
 + 
 + third_party_ext = module_extension(
 +     implementation = _third_party_ext_impl,
@@ -78,7 +65,7 @@ index 0000000..e778993
 + )
 +diff --git a/third_party/mkl_dnn/mkldnn_system.BUILD b/third_party/mkl_dnn/mkldnn_system.BUILD
 +new file mode 100644
-+index 0000000000..35c194d3ee
++index 0000000..35c194d
 +--- /dev/null
 ++++ b/third_party/mkl_dnn/mkldnn_system.BUILD
 +@@ -0,0 +1,22 @@
@@ -105,7 +92,7 @@ index 0000000..e778993
 ++    visibility = ["//visibility:public"],
 ++)
 +diff --git a/third_party/mkl_dnn/workspace.bzl b/third_party/mkl_dnn/workspace.bzl
-+index 294b9f0fdc..7c59af1065 100644
++index de503be..920995c 100644
 +--- a/third_party/mkl_dnn/workspace.bzl
 ++++ b/third_party/mkl_dnn/workspace.bzl
 +@@ -21,6 +21,7 @@ def repo():
@@ -121,82 +108,11 @@ index 0000000..e778993
 +         name = "onednn_async",
 +         build_file = "//third_party/mkl_dnn:mkldnn_v1_async.BUILD",
 ++        system_build_file = "//third_party/mkl_dnn:mkldnn_system.BUILD",
-+         # Rename the gtest module in oneDNN's third_party to avoid
-+         # conflict with Google's gtest module
-+         patch_file = [
-+diff --git a/third_party/raft/clang_cuda_intrinsics.h.patch b/third_party/raft/clang_cuda_intrinsics.h.patch
-+index 3742bc3274..05adf0274c 100644
-+--- a/third_party/raft/clang_cuda_intrinsics.h.patch
-++++ b/third_party/raft/clang_cuda_intrinsics.h.patch
-+@@ -1,21 +1,26 @@
-+-# Copyright 2026 The OpenXLA Authors.
-+-#
-+-# Licensed under the Apache License, Version 2.0 (the "License");
-+-# you may not use this file except in compliance with the License.
-+-# You may obtain a copy of the License at
-+-#
-+-#     http://www.apache.org/licenses/LICENSE-2.0
-+-#
-+-# Unless required by applicable law or agreed to in writing, software
-+-# distributed under the License is distributed on an "AS IS" BASIS,
-+-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-+-# See the License for the specific language governing permissions and
-+-# limitations under the License.
-+-# ==============================================================================
-++From 449022e5dd0105a0a65d6600f4c94e1b17f914e7 Mon Sep 17 00:00:00 2001
-++From: Albert Yau <albert@mwyau.com>
-++Date: Mon, 19 Oct 2026 23:19:59 -0400
-++Subject: [PATCH] Fix Clang 21/22 RAFT unsigned-long loads
-++
-++Preserve XLA's Clang compatibility header and warpsort include, and add
-++the missing unsigned-long __ldcs overload for Clang 21 and 22.
-++
-++Original compatibility patch: XLA d867969800d4a8fd045505eabc65e1e66f30794f.
-++
-++Reference: https://github.com/openxla/xla/pull/51036
-++---
-++ .../raft/compat/clang_cuda_intrinsics.h       | 286 ++++++++++++++++++
-++ .../raft/matrix/detail/select_warpsort.cuh    |   1 +
-++ 2 files changed, 287 insertions(+)
-++ create mode 100644 cpp/include/raft/compat/clang_cuda_intrinsics.h
-++
-+ diff --git a/cpp/include/raft/compat/clang_cuda_intrinsics.h b/cpp/include/raft/compat/clang_cuda_intrinsics.h
-++new file mode 100644
-++index 00000000..4287d0cf
-+ --- /dev/null
-+ +++ b/cpp/include/raft/compat/clang_cuda_intrinsics.h
-+-@@ -0,0 +1,274 @@
-++@@ -0,0 +1,286 @@
-+ +#pragma once
-+ +
-+ +#if defined(__clang__) && defined(__CUDA__) && !defined(__NVCC__) && (__clang_major__ < 21)
-+@@ -290,10 +295,23 @@ diff --git a/cpp/include/raft/compat/clang_cuda_intrinsics.h b/cpp/include/raft/
-+ +#endif // defined(__cplusplus) && (__cplusplus >= 201103L)
-+ +
-+ +#endif  // clang < 21
-+++
-+++// Clang 21 and 22 omit this CUDA intrinsic overload; see
-+++// https://github.com/openxla/xla/pull/51036.
-+++#if defined(__clang__) && defined(__CUDA__) && \
-+++    !defined(__NVCC__) && (__clang_major__ >= 21) && (__clang_major__ < 23)
-+++inline __device__ unsigned long __ldcs(const unsigned long* ptr) {
-+++  if (__SIZEOF_LONG__ == __SIZEOF_LONG_LONG__) {
-+++    return (unsigned long)__ldcs((const unsigned long long*)ptr);
-+++  }
-+++  return (unsigned long)__ldcs((const unsigned int*)ptr);
-+++}
-+++#endif
-+ diff --git a/cpp/include/raft/matrix/detail/select_warpsort.cuh b/cpp/include/raft/matrix/detail/select_warpsort.cuh
-++index 1393a440..05764d0a 100644
-+ --- a/cpp/include/raft/matrix/detail/select_warpsort.cuh
-+ +++ b/cpp/include/raft/matrix/detail/select_warpsort.cuh
-+-@@ -16,6 +16,7 @@
-++@@ -5,6 +5,7 @@
-+  
-+  #pragma once
-+  
++         sha256 = "3f2bc020ecc3d3ffcee48075d6bd0bf6894007b95a04bdf3531ebb0fd2ef00ac",
++         strip_prefix = "oneDNN-3.14.1",
++         urls = tf_mirror_urls("https://github.com/oneapi-src/oneDNN/archive/refs/tags/v3.14.1.tar.gz"),
 +diff --git a/third_party/repo.bzl b/third_party/repo.bzl
-+index e6b040cec2..624518fce3 100644
++index e6b040c..624518f 100644
 +--- a/third_party/repo.bzl
 ++++ b/third_party/repo.bzl
 +@@ -38,6 +38,9 @@ def _use_system_lib(ctx, name):
@@ -210,10 +126,10 @@ index 0000000..e778993
 + 
 + def _get_link_dict(ctx, link_files, build_file):
 +diff --git a/xla/pjrt/c/BUILD b/xla/pjrt/c/BUILD
-+index 514cb384a9..681e184509 100644
++index 5032ac1..5210782 100644
 +--- a/xla/pjrt/c/BUILD
 ++++ b/xla/pjrt/c/BUILD
-+@@ -707,6 +707,7 @@ cc_library(
++@@ -738,6 +738,7 @@ cc_library(
 +         ":pjrt_c_api_macros",
 +         "@com_google_absl//absl/base",
 +         "@com_google_absl//absl/log:initialize",
@@ -222,7 +138,7 @@ index 0000000..e778993
 +     ],
 +     alwayslink = 1,
 +diff --git a/xla/pjrt/c/pjrt_c_api_gpu.cc b/xla/pjrt/c/pjrt_c_api_gpu.cc
-+index bce2f161f2..dea83fb228 100644
++index bce2f16..dea83fb 100644
 +--- a/xla/pjrt/c/pjrt_c_api_gpu.cc
 ++++ b/xla/pjrt/c/pjrt_c_api_gpu.cc
 +@@ -17,6 +17,7 @@ limitations under the License.
@@ -247,10 +163,10 @@ index 0000000..e778993
 +   return pjrt::gpu_plugin::GetGpuPjrtApi();
 + }
 +diff --git a/xla/python/BUILD b/xla/python/BUILD
-+index 2ee5f5ab85..b88447647d 100644
++index 41e70ea..2f462c8 100644
 +--- a/xla/python/BUILD
 ++++ b/xla/python/BUILD
-+@@ -606,6 +606,7 @@ cc_library(
++@@ -603,6 +603,7 @@ cc_library(
 +     visibility = internal_visibility([":friends"]),
 +     deps = [
 +         "@com_google_absl//absl/log:initialize",
@@ -259,7 +175,7 @@ index 0000000..e778993
 + )
 + 
 +diff --git a/xla/python/logging.cc b/xla/python/logging.cc
-+index 2d8261f025..5222fa96c6 100644
++index 2d8261f..5222fa9 100644
 +--- a/xla/python/logging.cc
 ++++ b/xla/python/logging.cc
 +@@ -16,12 +16,17 @@ limitations under the License.
@@ -282,7 +198,7 @@ index 0000000..e778993
 + 
 + }  // namespace xla
 +diff --git a/xla/tsl/distributed_runtime/coordination/coordination_service_agent.cc b/xla/tsl/distributed_runtime/coordination/coordination_service_agent.cc
-+index a3b9503705..a6518a4fcd 100644
++index a3b9503..a6518a4 100644
 +--- a/xla/tsl/distributed_runtime/coordination/coordination_service_agent.cc
 ++++ b/xla/tsl/distributed_runtime/coordination/coordination_service_agent.cc
 +@@ -55,9 +55,11 @@ limitations under the License.
@@ -310,7 +226,7 @@ index 0000000..e778993
 +         << "Using experimental recoverable task feature. The default shutdown "
 +            "barrier will only block non-recoverable tasks. If a synchronized "
 +diff --git a/xla/tsl/mkl/build_defs.bzl b/xla/tsl/mkl/build_defs.bzl
-+index 7149251c38..cf0cb87a14 100644
++index 7149251..cf0cb87 100644
 +--- a/xla/tsl/mkl/build_defs.bzl
 ++++ b/xla/tsl/mkl/build_defs.bzl
 +@@ -112,6 +112,7 @@ def mkl_deps():
@@ -329,3 +245,9 @@ index 0000000..e778993
 +         Label("//xla/tsl:windows"): "@onednn_async//:mkl_dnn",
 +         "//conditions:default": "//xla/tsl/mkl:dummy_mkl_dnn",
 +     })
++-- 
++2.53.0
++
+-- 
+2.53.0
+
